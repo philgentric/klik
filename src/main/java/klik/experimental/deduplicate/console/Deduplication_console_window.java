@@ -27,8 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 
 //**********************************************************
@@ -40,17 +39,17 @@ public class Deduplication_console_window
     Aborter private_aborter;
     //Browser browser;
     Window owner;
-    public AtomicInteger count_directory_examined = new AtomicInteger(0);
+    public LongAdder count_directory_examined = new LongAdder();
     Label label_directory_examined;
     Label label_total_files_to_be_examined;
     Label label_total_pairs_to_be_examined;
-    public AtomicLong total_files_to_be_examined = new AtomicLong(0);
-    public AtomicLong total_pairs_to_be_examined = new AtomicLong(0);
-    public AtomicLong count_pairs_examined = new AtomicLong(0);
+    public LongAdder total_files_to_be_examined = new LongAdder();
+    public LongAdder total_pairs_to_be_examined = new LongAdder();
+    public LongAdder count_pairs_examined = new LongAdder();
     Label label_examined;
-    public AtomicInteger count_duplicates = new AtomicInteger(0);
+    public LongAdder count_duplicates = new LongAdder();
     Label label_count_to_be_deleted;
-    public AtomicInteger  count_deleted = new AtomicInteger(0);
+    public LongAdder  count_deleted = new LongAdder();
     Label label_count_deleted;
     ProgressBar progress_bar_examined;
     ProgressBar progress_bar_deleted;
@@ -188,18 +187,18 @@ public class Deduplication_console_window
     {
 
         Runnable r = (() -> {
-            label_directory_examined.setText("Directories: " + count_directory_examined.get());
-            label_directory_examined.setText("Directories: " + count_directory_examined.get());
-            label_total_files_to_be_examined.setText("Files to examine: " + total_files_to_be_examined.get());
-            label_total_pairs_to_be_examined.setText("Pairs to examine: " + total_pairs_to_be_examined.get());
-            label_examined.setText("Examined file pairs: " + count_pairs_examined.get());//+" "+new_text_examined);
-            if (dbg) logger.log("count_pairs_examined=" + count_pairs_examined.get());
-            if (dbg) logger.log("total_pairs_to_be_examined=" + total_pairs_to_be_examined.get());
-            progress_bar_examined.setProgress((double) count_pairs_examined.get() / (double) total_pairs_to_be_examined.get());
+            label_directory_examined.setText("Directories: " + count_directory_examined.doubleValue());
+            label_directory_examined.setText("Directories: " + count_directory_examined.doubleValue());
+            label_total_files_to_be_examined.setText("Files to examine: " + total_files_to_be_examined.doubleValue());
+            label_total_pairs_to_be_examined.setText("Pairs to examine: " + total_pairs_to_be_examined.doubleValue());
+            label_examined.setText("Examined file pairs: " + count_pairs_examined.doubleValue());//+" "+new_text_examined);
+            if (dbg) logger.log("count_pairs_examined=" + count_pairs_examined.doubleValue());
+            if (dbg) logger.log("total_pairs_to_be_examined=" + total_pairs_to_be_examined.doubleValue());
+            progress_bar_examined.setProgress((double) count_pairs_examined.doubleValue() / (double) total_pairs_to_be_examined.doubleValue());
             if (!just_count) {
-                label_count_to_be_deleted.setText("Duplicates found: " + count_duplicates.get());// + " " + new_text_to_be_deleted);
-                label_count_deleted.setText("Duplicates deleted:" + count_deleted.get());// + " " + new_text_deleted);
-                progress_bar_deleted.setProgress((double) count_deleted.get() / (double) count_duplicates.get());
+                label_count_to_be_deleted.setText("Duplicates found: " + count_duplicates.doubleValue());// + " " + new_text_to_be_deleted);
+                label_count_deleted.setText("Duplicates deleted:" + count_deleted.doubleValue());// + " " + new_text_deleted);
+                progress_bar_deleted.setProgress((double) count_deleted.doubleValue() / (double) count_duplicates.doubleValue());
             }
         });
 
@@ -243,7 +242,7 @@ public class Deduplication_console_window
         for (File f : files) {
             if (f.isDirectory())
             {
-                if (popup != null) popup.count_directory_examined.incrementAndGet();
+                if (popup != null) popup.count_directory_examined.increment();
                 returned.addAll(get_all_files_down(f, popup, consider_also_hidden_files, logger));
             }
             else

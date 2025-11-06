@@ -15,8 +15,7 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.Strings;
 
 import java.io.File;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Per_folder_mini_console
@@ -27,12 +26,12 @@ public class Per_folder_mini_console
     Directory_backup_job_request request;
     private String renamed_files_names="";
     private String last_news="";
-    private final AtomicInteger processed_file_count = new AtomicInteger(0);
-    private final AtomicLong copied_bytes =  new AtomicLong(0);
-    private final AtomicLong bytes_read =  new AtomicLong(0);
-    private final AtomicInteger copied_files = new AtomicInteger(0);
-    private final AtomicInteger renamed_files = new AtomicInteger(0);
-    private final AtomicInteger skipped_files = new AtomicInteger(0);
+    private final LongAdder processed_file_count = new LongAdder();
+    private final LongAdder copied_bytes =  new LongAdder();
+    private final LongAdder bytes_read =  new LongAdder();
+    private final LongAdder copied_files = new LongAdder();
+    private final LongAdder renamed_files = new LongAdder();
+    private final LongAdder skipped_files = new LongAdder();
     private long start_time;
     private long end_time;
     private long target_file_count;
@@ -145,19 +144,19 @@ public class Per_folder_mini_console
         end_time = System.currentTimeMillis();
         last_news = request.source_dir + "\ntotal processing time: " + Strings.create_nice_remaining_time_string(end_time - start_time)+"\n";
 
-        if (copied_bytes.get() > 1000000) {
-            double x = (double) copied_bytes.get() / 1000000.0;
+        if (copied_bytes.doubleValue() > 1000000) {
+            double x = (double) copied_bytes.doubleValue() / 1000000.0;
             x = Math.floor(x * 100) / 100;
             last_news += x+" MegaBytes copied\n";
-        } else if (copied_bytes.get() > 1000) {
-            double x = (double) copied_bytes.get() / 1000.0;
+        } else if (copied_bytes.doubleValue() > 1000) {
+            double x = (double) copied_bytes.doubleValue() / 1000.0;
             x = Math.floor(x * 100) / 100;
             last_news += x+" KiloBytes copied\n";
         } else {
-            last_news += copied_bytes.get() + " Bytes copied\n";
+            last_news += copied_bytes.doubleValue() + " Bytes copied\n";
         }
 
-        double x = (double) processed_file_count.get() / (double) (end_time - start_time) * 1000.0;
+        double x = (double) processed_file_count.doubleValue() / (double) (end_time - start_time) * 1000.0;
         x = Math.floor(x * 100) / 100;
         if ( end_time-start_time == 0) x =0;
         if (x > 10) {
@@ -166,7 +165,7 @@ public class Per_folder_mini_console
             last_news += "average file rate: " + x + " files per second\n";
         }
 
-        x = (double) copied_bytes.get() / (double) (end_time - start_time) * 1000.0;
+        x = (double) copied_bytes.doubleValue() / (double) (end_time - start_time) * 1000.0;
         x = Math.floor(x * 100) / 100;
         if ( end_time-start_time == 0) x =0;
         if (x > 1000000.0) {
@@ -202,7 +201,7 @@ public class Per_folder_mini_console
         String report = make_current_report();
         Jfx_batch_injector.inject(() -> the_text_area.setText(report),logger);
 
-        if ( processed_file_count.get() == target_file_count)
+        if ( processed_file_count.doubleValue() == target_file_count)
         {
             Runnable r = () -> {
 
@@ -237,9 +236,9 @@ public class Per_folder_mini_console
         long elapsed_time_since_start = (System.currentTimeMillis() - start_time);
 
         String remaining_time = "?";
-        if (processed_file_count.get() > 1)
+        if (processed_file_count.doubleValue() > 1)
         {
-            long estimated_tot_time = (long) ((double) elapsed_time_since_start * (double) target_file_count / (double) processed_file_count.get());
+            long estimated_tot_time = (long) ((double) elapsed_time_since_start * (double) target_file_count / (double) processed_file_count.doubleValue());
 
             long remaining_time_in_milliseconds = estimated_tot_time - elapsed_time_since_start;
 
@@ -253,7 +252,7 @@ public class Per_folder_mini_console
         sb.append("/");
         sb.append(target_file_count);
         sb.append(" ");
-        sb.append((int) ((double) processed_file_count.get() / (double) target_file_count * 100.0));
+        sb.append((int) ((double) processed_file_count.doubleValue() / (double) target_file_count * 100.0));
         sb.append("% files in this folder (excluding subfolders)");
 
         sb.append("\n");
@@ -262,18 +261,18 @@ public class Per_folder_mini_console
         sb.append("\n");
 
         sb.append("Copied files: ");
-        sb.append(copied_files.get());
+        sb.append(copied_files.doubleValue());
         sb.append("\n");
         sb.append("Skipped files: ");
-        sb.append(skipped_files.get());
+        sb.append(skipped_files.doubleValue());
         sb.append("\n");
         sb.append("Renamed files: ");
-        sb.append(renamed_files.get());
+        sb.append(renamed_files.doubleValue());
         sb.append("\n");
         sb.append("Copied bytes: ");
-        sb.append(copied_bytes.get());
+        sb.append(copied_bytes.doubleValue());
         sb.append("\n");
-        if (renamed_files.get() > 0)
+        if (renamed_files.doubleValue() > 0)
         {
             sb.append("names of renamed files:" );
             sb.append(renamed_files_names);
@@ -301,22 +300,22 @@ public class Per_folder_mini_console
     }
 
     public void add_to_copied_bytes(long l) {
-        copied_bytes.addAndGet(l);
+        copied_bytes.add(l);
     }
 
     public void increment_file_count() {
-        processed_file_count.incrementAndGet();
+        processed_file_count.increment();
     }
     public void increment_copied_files() {
-    copied_files.incrementAndGet();
+    copied_files.increment();
     }
 
     public void increment_skipped_files() {
-        skipped_files.incrementAndGet();
+        skipped_files.increment();
     }
 
     public void increment_renamed_files() {
-        renamed_files.incrementAndGet();
+        renamed_files.increment();
     }
 
     public void add_to_renamed_files_names(String s) {
@@ -324,6 +323,6 @@ public class Per_folder_mini_console
     }
 
     public void add_to_bytes_read(long length) {
-        bytes_read.addAndGet(length);
+        bytes_read.add(length);
     }
 }

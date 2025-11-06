@@ -54,8 +54,8 @@ package klik.browser.classic;
 
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
-import klik.Context_type;
-import klik.New_context;
+import klik.Window_type;
+import klik.Instructions;
 import klik.util.execute.actor.Actor_engine;
 import klik.browser.*;
 import klik.browser.virtual_landscape.Browsing_caches;
@@ -79,12 +79,12 @@ public class Browser extends Abstract_browser implements Feature_change_target
 {
     public final Path_list_provider path_list_provider;
     //**********************************************************
-    public Browser(New_context context, Logger logger_)
+    public Browser(Instructions context, Logger logger_)
     //**********************************************************
     {
         super(logger_);
         path_list_provider = context.path_list_provider;
-        init_abstract_browser(Context_type.File_system_2D, context.shutdown_target,context.rectangle,this,"klik");
+        init_abstract_browser(Window_type.File_system_2D, context.shutdown_target,context.rectangle,this,"klik");
 
         //if ( dbg)
             logger.log("\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());

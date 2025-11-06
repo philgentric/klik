@@ -40,10 +40,7 @@ public class Paths_holder
 
 
     private static final boolean show_video_as_gif = true;
-    //private final AtomicInteger id_gen = new AtomicInteger(0);
-    //public final int ID;
     public final Aborter aborter;
-    //private final Icon_factory_actor icon_factory_actor;
     private final Image_properties_RAM_cache image_properties_RAM_cache;
 
     //**********************************************************

@@ -50,7 +50,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 
 //**********************************************************
@@ -439,7 +439,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
     //**********************************************************
     public void add_how_many_files_deep_folder(
-            AtomicInteger count,
+            LongAdder count,
             Button button,
             String text,
             Path path,
@@ -448,7 +448,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             Logger logger)
     //**********************************************************
     {
-        count.incrementAndGet();
+        count.increment();
 
         Runnable r = () -> {
             Long how_many_files_deep = folder_file_count_cache.get(path);
@@ -457,7 +457,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, logger);
                 folder_file_count_cache.put(path,how_many_files_deep);
             }
-            count.decrementAndGet();
+            count.decrement();
             String extended_text =  text + " (" + how_many_files_deep + " files)";
 
             String finalExtended_text = extended_text;
@@ -471,12 +471,12 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
 
     //**********************************************************
-    public void add_total_size_deep_folder(AtomicInteger count, Button button, String text, Path path,
+    public void add_total_size_deep_folder(LongAdder count, Button button, String text, Path path,
                                            Map<Path, Long> folder_total_sizes,
                                            Aborter aborter, Logger logger)
     //**********************************************************
     {
-        count.incrementAndGet();
+        count.increment();
         Runnable r = () -> {
 
             Long bytes = folder_total_sizes.get(path);
@@ -492,7 +492,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             {
                 logger.log("✅ "+path+" size found in cache "+bytes);
             }
-            count.decrementAndGet();
+            count.decrement();
 
             StringBuilder sb =  new StringBuilder();
             sb.append(text);

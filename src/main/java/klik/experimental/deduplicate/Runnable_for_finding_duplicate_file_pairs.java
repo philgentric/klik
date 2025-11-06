@@ -51,7 +51,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	public void run()
 	//**********************************************************
 	{
-		deduplication_engine.threads_in_flight.incrementAndGet();
+		deduplication_engine.threads_in_flight.increment();
 		int duplicates_found_by_this_thread = 0;
 
 		//boolean[] stop = new boolean[1];
@@ -64,10 +64,10 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 			{
 				if (private_aborter.should_abort()) {
 					if (dbg) logger.log("Runnable_for_finding_duplicate_file_pairs abort");
-					deduplication_engine.threads_in_flight.decrementAndGet();
+					deduplication_engine.threads_in_flight.decrement();
 					return;
 				}
-				deduplication_engine.console_window.count_pairs_examined.incrementAndGet ();
+				deduplication_engine.console_window.count_pairs_examined.increment ();
 
 				//File_pair2 pair = new File_pair2(i, j);
 				if (!File_with_a_few_bytes.files_have_same_content(all_files.get(i), all_files.get(j), private_aborter, logger)) {
@@ -76,11 +76,11 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 				}
 				else
 				{
-					deduplication_engine.duplicates_found.incrementAndGet();
+					deduplication_engine.duplicates_found.increment();
 					//if (dbg) logger.log("duplicate fond:\n     " + all_files.get(i).file.getAbsolutePath() + "\n    " + all_files.get(j).file.getAbsolutePath());
 
 					File_pair_deduplication pair_after = decide_which_to_delete(i,j);
-					deduplication_engine.console_window.count_duplicates.incrementAndGet();
+					deduplication_engine.console_window.count_duplicates.increment();
 					//logger.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>finder 1 more TO_BE_DELETED = "+duplicates_found_by_this_thread);
 
 					if (dbg) logger.log(" DUPLICATES:\n" +
@@ -92,18 +92,19 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		}
 
 
-		logger.log("found duplicates:  "+deduplication_engine.duplicates_found.get());
-		int remaining = deduplication_engine.threads_in_flight.decrementAndGet();
-		if ( remaining != 0)
+		logger.log("found duplicates:  "+deduplication_engine.duplicates_found.doubleValue());
+		deduplication_engine.threads_in_flight.decrement();
+        double remaining = deduplication_engine.threads_in_flight.doubleValue();
+        if ( remaining != 0)
 		{
 			deduplication_engine.console_window.set_status_text("Thread found "+duplicates_found_by_this_thread+" duplicated pairs ... Search continues on "+ remaining +" threads!");
 		}
 		else
 		{
-			deduplication_engine.console_window.set_status_text("Total = "+ deduplication_engine.duplicates_found.get()+" duplicated pairs found, "+ignored+" ignored pairs (e.g. hidden files)");
+			deduplication_engine.console_window.set_status_text("Total = "+ deduplication_engine.duplicates_found.doubleValue()+" duplicated pairs found, "+ignored+" ignored pairs (e.g. hidden files)");
 		}
 
-		//threads_in_flight.decrementAndGet();
+		//threads_in_flight.decrement();
 	}
 
 

@@ -184,7 +184,7 @@ public class Song_playlist_app extends Application
             if (!Files.exists(path)) Files.createFile(path);
         }
         logger.log("Starting playlist browser on path ->" + path+"<-");
-        New_context.additional_no_past(Context_type.Song_playlist_1D,new Path_list_provider_for_playlist(path,logger),primary_stage_,logger);
+        Instructions.additional_no_past(Window_type.Song_playlist_1D,new Path_list_provider_for_playlist(path,logger),primary_stage_,logger);
         new Monitor(()-> primary_stage, logger).start();
 
         Integer reply_port = extract_started_reply_port(logger);

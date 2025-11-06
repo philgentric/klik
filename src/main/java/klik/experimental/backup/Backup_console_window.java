@@ -48,7 +48,7 @@ public class Backup_console_window
     TextArea textArea;
     private final long start;
     private long previous_ms;
-    private long previous_bytes = 0;
+    private double previous_bytes = 0;
     private int min_speed = Integer.MAX_VALUE;
     private int max_speed = 0;
     private static final int MILLISECONDS = 10_000;
@@ -220,29 +220,29 @@ public class Backup_console_window
     //**********************************************************
     {
         //logger.log("updating !");
-        number_of_folders_processed.setText(String.valueOf(stats.done_dir_count.get()));
-        number_of_files_processed.setText(String.valueOf(stats.files_checked.get()));
-        number_of_files_skipped.setText(String.valueOf(stats.files_skipped.get()));
-        number_of_files_copied.setText(String.valueOf(stats.files_copied.get()));
-        number_of_bytes_copied.setText(Strings.create_nice_bytes_string(stats.bytes_copied.get()));
+        number_of_folders_processed.setText(String.valueOf(stats.done_dir_count.doubleValue()));
+        number_of_files_processed.setText(String.valueOf(stats.files_checked.doubleValue()));
+        number_of_files_skipped.setText(String.valueOf(stats.files_skipped.doubleValue()));
+        number_of_files_copied.setText(String.valueOf(stats.files_copied.doubleValue()));
+        number_of_bytes_copied.setText(Strings.create_nice_bytes_string((long) stats.bytes_copied.doubleValue()));
         number_of_bytes_to_be_processed.setText(Strings.create_nice_bytes_string(stats.source_byte_count));
-        number_of_bytes_processed.setText(Strings.create_nice_bytes_string(stats.number_of_bytes_processed.get()));
+        number_of_bytes_processed.setText(Strings.create_nice_bytes_string((long)stats.number_of_bytes_processed.doubleValue()));
 
         long now = System.currentTimeMillis();
         double delta_t = (double)(now-start)/1000.0;
         {
-            double speed = (double) stats.number_of_bytes_processed.get() / delta_t;
+            double speed = (double) stats.number_of_bytes_processed.doubleValue() / delta_t;
             application_bytes_per_second.setText(Strings.create_nice_bytes_per_second_string((long) speed));
-            long remaining_ms = (long)((double)(stats.source_byte_count-stats.number_of_bytes_processed.get())/speed);
+            long remaining_ms = (long)((double)(stats.source_byte_count-stats.number_of_bytes_processed.doubleValue())/speed);
             remaining_time.setText(Strings.create_nice_remaining_time_string(1000*remaining_ms));
         }
         {
-            double read_speed = (double) stats.number_of_bytes_read.get() / delta_t;
+            double read_speed = (double) stats.number_of_bytes_read.doubleValue() / delta_t;
             bytes_read_per_second_for_file_bit_level_compare.setText(Strings.create_nice_bytes_per_second_string((long) read_speed));
         }
         {
 
-            long now_bytes = stats.number_of_bytes_processed.get();
+            double now_bytes = stats.number_of_bytes_processed.doubleValue();
             long recently_elapsed = now-previous_ms;
             if ( recently_elapsed > MILLISECONDS)
             {

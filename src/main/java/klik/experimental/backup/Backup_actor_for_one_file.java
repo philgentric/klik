@@ -17,7 +17,7 @@ import klik.util.log.Logger;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Backup_actor_for_one_file implements Actor
@@ -30,7 +30,7 @@ public class Backup_actor_for_one_file implements Actor
     Backup_stats stats;
     long last;
 
-    public static AtomicInteger ongoing = new AtomicInteger(0);
+    public static LongAdder ongoing = new LongAdder();
     //static Concurrency_limiter file_concurency_limiter;
 
 
@@ -61,7 +61,7 @@ public class Backup_actor_for_one_file implements Actor
     public String run(Message m)
     //**********************************************************
     {
-        ongoing.incrementAndGet();
+        ongoing.increment();
         last = System.currentTimeMillis();
         File_backup_job_request fbjr = (File_backup_job_request) m;
 
@@ -90,7 +90,7 @@ public class Backup_actor_for_one_file implements Actor
                 fbjr.mini_console.show_progress();
             }
         }
-        ongoing.decrementAndGet();
+        ongoing.decrement();
 
         return "";
     }
@@ -107,17 +107,17 @@ public class Backup_actor_for_one_file implements Actor
             if ( fbjr.aborter.should_abort())
             {
                 logger.log("duplicate_a_file status is false, giving up");
-                stats.done_dir_count.incrementAndGet();
+                stats.done_dir_count.increment();
                 return;
             }
         }
         //fbjr.recently_done.add(fbjr.file_to_be_copied);
-        stats.bytes_copied.addAndGet(local.bytes_copied);
-        stats.files_checked.addAndGet(local.files_processed);
-        stats.files_copied.addAndGet(local.files_copied);
-        stats.files_skipped.addAndGet(local.files_skipped);
-        stats.number_of_bytes_processed.addAndGet(local.bytes_in_context);
-        stats.number_of_bytes_read.addAndGet(local.bytes_read);
+        stats.bytes_copied.add(local.bytes_copied);
+        stats.files_checked.add(local.files_processed);
+        stats.files_copied.add(local.files_copied);
+        stats.files_skipped.add(local.files_skipped);
+        stats.number_of_bytes_processed.add(local.bytes_in_context);
+        stats.number_of_bytes_read.add(local.bytes_read);
     }
 
 

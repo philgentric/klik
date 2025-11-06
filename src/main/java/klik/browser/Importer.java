@@ -33,8 +33,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Importer
@@ -52,7 +51,7 @@ public class Importer
         //Path target = home.resolve(Path.of("Pictures/Photos Library.photoslibrary"));
 
 
-        AtomicInteger counter = new AtomicInteger(0);
+        LongAdder counter = new LongAdder();
         Path new_dir = null;
 
         TextInputDialog dialog = new TextInputDialog(My_I18n.get_I18n_string("New_directory", owner,logger));
@@ -99,7 +98,7 @@ public class Importer
                 Path new_path = Path.of(finalNew_dir.toAbsolutePath().toString(),f.getName());
                 Files.copy(f.toPath(), new_path, StandardCopyOption.COPY_ATTRIBUTES);
                 logger.log("Importer: copied file: "+f.getName()+" to: "+new_path.toAbsolutePath());
-                counter.incrementAndGet();
+                counter.increment();
             } catch (IOException e)
             {
                 logger.log("copy failed: could not create new file for: " + f.getName() + ", Exception:" + e);
@@ -117,7 +116,7 @@ public class Importer
                     throw new RuntimeException(e);
                 }
                 if ( done.get()) return;
-                logger.log("Importation: "+counter.get()+ " images copied");
+                logger.log("Importation: "+counter.doubleValue()+ " images copied");
             }
         };
         Actor_engine.execute(r, "monitor picture importation", logger);
@@ -134,7 +133,7 @@ public class Importer
 
         done.set(true);
 
-        logger.log("Importation finished: "+counter.get()+ " images copied");
+        logger.log("Importation finished: "+counter.doubleValue()+ " images copied");
         for ( String s : warnings) logger.log(s);
 
     }
@@ -166,21 +165,21 @@ public class Importer
 
 
 
-        AtomicLong size = new AtomicLong(0);
+        LongAdder size = new LongAdder();
 
         logger.log("Importer: estimation starting");
 
         File_payload file_payload = new File_payload() {
             @Override
-            public void process_file(File f, AtomicLong file_count_stop_counter) {
+            public void process_file(File f, LongAdder file_count_stop_counter) {
                 //logger.log("Importer: looking at file: "+f.getName());
                 if (!(Extensions.get_extension(f.getName()).equals("jpeg")))
                 {
                     //logger.log("Importer: skipping at file: "+f.getName()+" wrong extension: "+Extensions.get_extension(f.getName()));
                     return;
                 }
-                size.addAndGet(f.length());
-                file_count_stop_counter.decrementAndGet();
+                size.add(f.length());
+                file_count_stop_counter.decrement();
             }
         };
 
@@ -242,7 +241,7 @@ public class Importer
 
                 {
                     logger.log("done!");
-                    String s = "Importation size estimation: "+size.get()/1_000_000+" MBytes";
+                    String s = "Importation size estimation: "+size.doubleValue()/1_000_000+" MBytes";
                     for ( String w : wp) s+="\n"+w;
                     String final_s = s;
                     Jfx_batch_injector.inject(() -> textarea1.setText(final_s),logger);

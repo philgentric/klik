@@ -33,6 +33,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Supplier;
 
 //**********************************************************
@@ -43,8 +44,8 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     private final Supplier<Feature_vector_cache> fv_cache_supplier;
     Logger logger;
     BlockingQueue<Similarity_file_pair> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
-    AtomicInteger threads_in_flight = new AtomicInteger(0);
-    AtomicInteger duplicates_found = new AtomicInteger(0);
+    LongAdder threads_in_flight = new LongAdder();
+    LongAdder duplicates_found = new LongAdder();
     File target_dir;
     Deduplication_console_window console_window;
     boolean end_reported = false;
@@ -150,11 +151,11 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
 
         console_window.set_status_text("Found " + files.size() + " files ... comparison by similarity started...");
-        console_window.total_files_to_be_examined.addAndGet(files.size());
+        console_window.total_files_to_be_examined.add(files.size());
 
         long pairs = (long)files.size()*((long)files.size()-1L);
         pairs /= 2L;
-        console_window.total_pairs_to_be_examined.addAndGet(pairs);
+        console_window.total_pairs_to_be_examined.add(pairs);
 
         // launch actor (feeder) in another tread
         Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder =
@@ -218,7 +219,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     private boolean are_threaded_finders_finished()
     //**********************************************************
     {
-        if ( threads_in_flight.get() == 0) return true;
+        if ( threads_in_flight.doubleValue() == 0) return true;
         return false;
     }
 

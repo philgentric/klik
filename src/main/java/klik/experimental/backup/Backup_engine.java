@@ -107,20 +107,20 @@ public class Backup_engine
                 return;
             }
 
-            int done_dirs = stats.done_dir_count.get();
+            double done_dirs = stats.done_dir_count.doubleValue();
             logger.log("monitoring, done_dirs ="+done_dirs);
             if ( done_dirs == 0)
             {
                 logger.log("monitoring = nothing done");
                 return;
             }
-            int target_dirs = stats.target_dir_count.get();
+            double target_dirs = stats.target_dir_count.doubleValue();
             logger.log("monitoring, target_dirs ="+target_dirs);
             if (done_dirs == target_dirs)
             {
-                if ( Backup_actor_for_one_file.ongoing.get() != 0)
+                if ( Backup_actor_for_one_file.ongoing.doubleValue() != 0)
                 {
-                    logger.log("not finished since there are = "+Backup_actor_for_one_file.ongoing.get()+" undone files");
+                    logger.log("not finished since there are = "+Backup_actor_for_one_file.ongoing.doubleValue()+" undone files");
                 }
                 else
                 {

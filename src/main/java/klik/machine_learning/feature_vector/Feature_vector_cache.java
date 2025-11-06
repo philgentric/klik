@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 
 //**********************************************************
@@ -305,6 +306,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
         {
         Feature_vector_cache feature_vector_cache = Browsing_caches.fv_cache_of_caches.get(path_list_provider.get_name());
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
+
         if ( feature_vector_cache == null)
         {
             Progress_window progress_window = Progress_window.show(

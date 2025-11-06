@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Disk_scanner implements Runnable
@@ -29,8 +30,8 @@ public class Disk_scanner implements Runnable
     final Dir_payload dir_payload;
     final ConcurrentLinkedQueue<String> warning_payload;
 
-    public final AtomicLong file_count_stop_counter;
-    public final AtomicInteger folder_count_stop_counter;
+    public final LongAdder file_count_stop_counter;
+    public final LongAdder folder_count_stop_counter;
 
     public final Aborter aborter;
     public final Logger logger;
@@ -63,8 +64,8 @@ public class Disk_scanner implements Runnable
         }
         long start = 0L;
         if (dbg) start = System.currentTimeMillis();
-        AtomicInteger folder_count_stop_counter = new AtomicInteger(0);
-        AtomicLong file_count_stop_counter = new AtomicLong(0L);
+        LongAdder folder_count_stop_counter = new LongAdder();
+        LongAdder file_count_stop_counter = new LongAdder();
         launch_folder_in_a_thread_(
                 path,
                 origin,
@@ -91,12 +92,12 @@ public class Disk_scanner implements Runnable
                 return;
             }
             try {
-                Thread.sleep(10+folder_count_stop_counter.get());
+                Thread.sleep((int)(10+folder_count_stop_counter.doubleValue()));
                 //logger.log("how_many_folders="+how_many_folders);
             } catch (InterruptedException e) {
                 logger.log_stack_trace(origin+e.toString());
             }
-            if (( folder_count_stop_counter.get() == 0) &&( file_count_stop_counter.get() == 0) )break;
+            if (( folder_count_stop_counter.doubleValue() == 0) &&( file_count_stop_counter.doubleValue() == 0) )break;
 
         }
         if (dbg)
@@ -110,8 +111,8 @@ public class Disk_scanner implements Runnable
     private static void launch_folder_in_a_thread_(
             Path path,
             String origin,
-            AtomicLong file_count_stop_counter,
-            AtomicInteger folder_count_stop_counter,
+            LongAdder file_count_stop_counter,
+            LongAdder folder_count_stop_counter,
             File_payload file_payload_,
             Dir_payload dir_payload_,
             ConcurrentLinkedQueue<String> warning_payload_,
@@ -119,7 +120,7 @@ public class Disk_scanner implements Runnable
             Logger logger)
     //**********************************************************
     {
-        folder_count_stop_counter.incrementAndGet();
+        folder_count_stop_counter.increment();
 
         Runnable r = new Disk_scanner(path, origin, file_count_stop_counter, folder_count_stop_counter, file_payload_, dir_payload_, warning_payload_, aborter_, logger);
         Actor_engine.execute(r,"Disk scanner, scan folder: "+path,logger);
@@ -128,8 +129,8 @@ public class Disk_scanner implements Runnable
     private Disk_scanner(
             Path path_,
             String origin_,
-            AtomicLong file_count_stop_counter_,
-            AtomicInteger folder_count_stop_counter_,
+            LongAdder file_count_stop_counter_,
+            LongAdder folder_count_stop_counter_,
             File_payload file_payload_,
             Dir_payload dir_payload_,
             ConcurrentLinkedQueue<String> warning_payload_,
@@ -171,7 +172,7 @@ public class Disk_scanner implements Runnable
                 Error_type error = Static_files_and_paths_utilities.explain_error(path,logger);
             }
 
-            folder_count_stop_counter.decrementAndGet();
+            folder_count_stop_counter.decrement();
             return ;
         }
         for (File f : all_files)
@@ -199,7 +200,7 @@ public class Disk_scanner implements Runnable
             {
                 if ( file_payload!= null)
                 {
-                    file_count_stop_counter.incrementAndGet();
+                    file_count_stop_counter.increment();
                     if ((Executor.use_virtual_threads))
                     {
                         // with virtual threads we can afford to start one thread per file !
@@ -212,7 +213,7 @@ public class Disk_scanner implements Runnable
                 }
             }
         }
-        folder_count_stop_counter.decrementAndGet();
+        folder_count_stop_counter.decrement();
     }
 
 

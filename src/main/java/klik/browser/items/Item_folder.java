@@ -12,8 +12,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
-import klik.Context_type;
-import klik.New_context;
+import klik.Window_type;
+import klik.Instructions;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.browser.*;
@@ -41,7 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 
 //**********************************************************
@@ -398,9 +398,9 @@ public class Item_folder extends Item implements Icon_destination
             }
             Browsing_caches.scroll_position_cache_write(old_folder_path,top_left_provider.get_top_left());
 
-            New_context.replace_different_folder(
+            Instructions.replace_different_folder(
                     shutdown_target,
-                    Context_type.File_system_2D,
+                    Window_type.File_system_2D,
                     new Path_list_provider_for_file_system(get_item_path()),
                     owner,
                     logger);
@@ -415,7 +415,7 @@ public class Item_folder extends Item implements Icon_destination
 
     //**********************************************************
     public void add_how_many_files_deep_folder(
-            AtomicInteger count,
+            LongAdder count,
             Button button,
             String text,
             Path path,
@@ -424,7 +424,7 @@ public class Item_folder extends Item implements Icon_destination
             Logger logger)
     //**********************************************************
     {
-        count.incrementAndGet();
+        count.increment();
 
         Runnable r = () -> {
             Long how_many_files_deep = folder_file_count_cache.get(path);
@@ -433,7 +433,7 @@ public class Item_folder extends Item implements Icon_destination
                 how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, logger);
                 folder_file_count_cache.put(path,how_many_files_deep);
             }
-            count.decrementAndGet();
+            count.decrement();
             String extended_text =  text + " (" + how_many_files_deep + " files)";
 
             String finalExtended_text = extended_text;
@@ -447,12 +447,12 @@ public class Item_folder extends Item implements Icon_destination
 
 
     //**********************************************************
-    public void add_total_size_deep_folder(AtomicInteger count, Button button, String text, Path path,
+    public void add_total_size_deep_folder(LongAdder count, Button button, String text, Path path,
                                            Map<Path, Long> folder_total_sizes,
                                            Aborter aborter, Logger logger)
     //**********************************************************
     {
-        count.incrementAndGet();
+        count.increment();
         Runnable r = () -> {
 
             Long bytes = folder_total_sizes.get(path);
@@ -468,7 +468,7 @@ public class Item_folder extends Item implements Icon_destination
             {
                 logger.log(path+" size found in cache "+bytes);
             }
-            count.decrementAndGet();
+            count.decrement();
 
             StringBuilder sb =  new StringBuilder();
             sb.append(text);

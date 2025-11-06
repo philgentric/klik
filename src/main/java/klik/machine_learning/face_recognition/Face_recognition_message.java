@@ -8,6 +8,7 @@ import klik.util.execute.actor.Message;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Face_recognition_message implements Message

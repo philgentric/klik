@@ -43,7 +43,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 
 //**********************************************************
@@ -59,7 +59,7 @@ public class Stage_with_2_images
 	public final Aborter aborter;
 	VBox the_big_vbox;
 	Againor againor;
-	private final AtomicInteger count_deleted;
+	private final LongAdder count_deleted;
 
 	//**********************************************************
 	public Stage_with_2_images(
@@ -67,7 +67,7 @@ public class Stage_with_2_images
 			Window owner,
 			File_pair pair,
 			Againor againor_,
-			AtomicInteger count_deleted_,
+			LongAdder count_deleted_,
 			Path_list_provider path_list_provider,
 			Path_comparator_source path_comparator_source,
 			Aborter private_aborter_,
@@ -220,7 +220,7 @@ public class Stage_with_2_images
             double x = stage.getX()+100;
 			double y = stage.getY()+100;
 			Moving_files.safe_delete_files(l, x,y,stage,aborter,logger);
-			count_deleted.incrementAndGet();
+			count_deleted.increment();
 
 			againor.again();
             if ( stage != null) stage.close();

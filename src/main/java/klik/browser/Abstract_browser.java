@@ -53,7 +53,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     protected final Logger logger;
     protected Aborter aborter;
     protected boolean ignore_escape_as_the_stage_is_full_screen = false;
-    Context_type context_type;
+    Window_type context_type;
 
     protected abstract String get_name();
     protected abstract Path_list_provider get_Path_list_provider();
@@ -77,7 +77,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
     //**********************************************************
     public void init_abstract_browser(
-            Context_type context_type,
+            Window_type context_type,
             Shutdown_target shutdown_target,
             Rectangle2D rectangle,
             Change_receiver change_receiver,

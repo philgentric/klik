@@ -19,8 +19,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.Context_type;
-import klik.New_context;
+import klik.Window_type;
+import klik.Instructions;
 import klik.util.ui.progress.Progress;
 import klik.util.execute.actor.Aborter;
 import klik.audio.Audio_player_access;
@@ -132,7 +132,7 @@ public class Results_frame
 
 			if (Files.isDirectory(path))
 			{
-				New_context.additional_no_past(Context_type.File_system_2D, new Path_list_provider_for_file_system(path),owner,logger);
+				Instructions.additional_no_past(Window_type.File_system_2D, new Path_list_provider_for_file_system(path),owner,logger);
 			}
 			else if (Guess_file_type.is_this_file_an_image(path.toFile()))
 			{
@@ -165,7 +165,7 @@ public class Results_frame
 			//logger.log("Browse_in_new_window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
-			New_context.additional_no_past(Context_type.File_system_2D,new Path_list_provider_for_file_system(local),owner,logger);
+			Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(local),owner,logger);
 		},context_menu,owner,logger);
 
 		if (! path.toFile().isDirectory())

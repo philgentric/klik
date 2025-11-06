@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Deduplication_engine implements Againor, Abortable
@@ -50,8 +50,8 @@ public class Deduplication_engine implements Againor, Abortable
     private final Window owner;
     Logger logger;
     BlockingQueue<File_pair_deduplication> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
-    AtomicInteger threads_in_flight = new AtomicInteger(0);
-    AtomicInteger duplicates_found = new AtomicInteger(0);
+    LongAdder threads_in_flight = new LongAdder();
+    LongAdder duplicates_found = new LongAdder();
     File target_dir;
     Deduplication_console_window console_window;
     boolean end_reported = false;
@@ -134,11 +134,11 @@ public class Deduplication_engine implements Againor, Abortable
         logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
 
         console_window.set_status_text("Found " + files.size() + " files ... comparison for bit-size identity started...");
-        console_window.total_files_to_be_examined.addAndGet(files.size());
+        console_window.total_files_to_be_examined.add(files.size());
 
         long pairs = (long)files.size()*((long)files.size()-1L);
         pairs /= 2L;
-        console_window.total_pairs_to_be_examined.addAndGet(pairs);
+        console_window.total_pairs_to_be_examined.add(pairs);
 
         // launch N threads
 
@@ -199,7 +199,7 @@ public class Deduplication_engine implements Againor, Abortable
                     logger.log("going to actually delete!");
                     break;
                 }
-                logger.log(threads_in_flight.get() + " alive threads + empty queue, retrying");
+                logger.log(threads_in_flight.doubleValue() + " alive threads + empty queue, retrying");
                 continue;
             }
 
@@ -231,7 +231,7 @@ public class Deduplication_engine implements Againor, Abortable
             Old_and_new_Path oanp = new Old_and_new_Path(to_be_deleted.toPath(), new_Path, Command.command_move_to_trash, Status.before_command,false);
             ll.add(oanp);
             erased++;
-            console_window.count_deleted.incrementAndGet();
+            console_window.count_deleted.increment();
 
             if (erased % 10 == 0) console_window.set_status_text("Erased files =" + erased);
 
@@ -248,7 +248,7 @@ public class Deduplication_engine implements Againor, Abortable
     private boolean are_threaded_finders_finished()
     //**********************************************************
     {
-        if ( threads_in_flight.get() == 0) return true;
+        if ( threads_in_flight.doubleValue() == 0) return true;
         return false;
     }
 

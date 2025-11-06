@@ -80,7 +80,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	public void run()
 	//**********************************************************
 	{
-		deduplication_by_similarity_engine.threads_in_flight.incrementAndGet();
+		deduplication_by_similarity_engine.threads_in_flight.increment();
 		int duplicates_found_by_this_thread = 0;
 		if ( dbg) logger.log("Runnable_for_finding_duplicate_file_pair_similarity RUN starts");
 		int ignored = 0;
@@ -114,13 +114,13 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 					);
 			already_done.add(f.file.toPath());
 			if ( similars.isEmpty()) continue;
-			deduplication_by_similarity_engine.duplicates_found.incrementAndGet();
+			deduplication_by_similarity_engine.duplicates_found.increment();
 			Most_similar most_similar = similars.get(0);
 			if (dbg) logger.log("similars fond:\n     " + f.file.getAbsolutePath() + "\n    " + most_similar.path());
 
 			File_pair pair= new File_pair(f.file, most_similar.path().toFile());
 			Similarity_file_pair similarity_file_pair = new Similarity_file_pair(most_similar.similarity(), pair);
-			deduplication_by_similarity_engine.console_window.count_duplicates.incrementAndGet();
+			deduplication_by_similarity_engine.console_window.count_duplicates.increment();
 			if (dbg) logger.log(" DUPLICATES:\n" +
 					pair.f1().getAbsolutePath()  +"\n" +
 					pair.f2().getAbsolutePath() );
@@ -129,15 +129,16 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		}
 
 
-		logger.log("found duplicates:  "+deduplication_by_similarity_engine.duplicates_found.get());
-		int remaining = deduplication_by_similarity_engine.threads_in_flight.decrementAndGet();
+		logger.log("found duplicates:  "+deduplication_by_similarity_engine.duplicates_found.doubleValue());
+        deduplication_by_similarity_engine.threads_in_flight.decrement();
+        double remaining = deduplication_by_similarity_engine.threads_in_flight.doubleValue();
 		if ( remaining != 0)
 		{
 			deduplication_by_similarity_engine.console_window.set_status_text("Thread found "+duplicates_found_by_this_thread+" duplicated pairs ... Search continues on "+ remaining +" threads!");
 		}
 		else
 		{
-			deduplication_by_similarity_engine.console_window.set_status_text("Total = "+ deduplication_by_similarity_engine.duplicates_found.get()+" duplicated pairs found, "+ignored+" ignored pairs (e.g. hidden files)");
+			deduplication_by_similarity_engine.console_window.set_status_text("Total = "+ deduplication_by_similarity_engine.duplicates_found.doubleValue()+" duplicated pairs found, "+ignored+" ignored pairs (e.g. hidden files)");
 		}
 
 		//threads_in_flight.decrementAndGet();

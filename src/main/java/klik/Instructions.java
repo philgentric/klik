@@ -7,38 +7,30 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Window;
-import klik.audio.Song_playlist_app;
 import klik.audio.Song_playlist_browser;
 import klik.browser.classic.Browser;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Shutdown_target;
-import klik.change.history.History_engine;
-import klik.change.history.History_item;
 import klik.in3D.Circle_3D;
 import klik.path_lists.Path_list_provider;
-import klik.properties.Non_booleans_properties;
-import klik.properties.boolean_features.Booleans;
-import klik.properties.boolean_features.Feature;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 
 //**********************************************************
-public class New_context
+public class Instructions
 //**********************************************************
 {
     private static final boolean dbg = false;
+    public final Window_type context_type;
     public final Path_list_provider path_list_provider;
     public final Rectangle2D rectangle;
     public final Shutdown_target shutdown_target; // if null, there is no previous guy to shutdown
     public final Window originator;
-    public final Context_type context_type;
 
     //**********************************************************
-    private New_context(
-            Context_type context_type,
+    private Instructions(
+            Window_type context_type,
             Path_list_provider path_list_provider,
             Rectangle2D rectangle,
             Shutdown_target shutdown_target,
@@ -77,10 +69,10 @@ public class New_context
 
 
     //**********************************************************
-    public static void additional_no_past(Context_type context_type, Path_list_provider path_list_provider, Window originator, Logger logger)
+    public static void additional_no_past(Window_type context_type, Path_list_provider path_list_provider, Window originator, Logger logger)
     //**********************************************************
     {
-        New_context context = new New_context(
+        Instructions context = new Instructions(
                 context_type,
                 path_list_provider,
                 null,
@@ -93,7 +85,7 @@ public class New_context
 
     //**********************************************************
     public static void additional_same_folder(
-            Context_type context_type, Path_list_provider path_list_provider,
+            Window_type context_type, Path_list_provider path_list_provider,
             Path top_left,
             Window originator,
             Logger logger)
@@ -104,7 +96,7 @@ public class New_context
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX()+100,originator.getY()+100,originator.getWidth()-100,originator.getHeight()-100);
 
-        New_context context =  new New_context(
+        Instructions context =  new Instructions(
                 context_type,
                 path_list_provider,
                 rectangle,
@@ -118,7 +110,7 @@ public class New_context
 
     //**********************************************************
     public static void additional_same_folder_fat_tall(
-            Context_type context_type, Path_list_provider path_list_provider,
+            Window_type context_type, Path_list_provider path_list_provider,
             Path top_left,
             Window originator,
             Logger logger)
@@ -129,7 +121,7 @@ public class New_context
     }
     //**********************************************************
     public static void additional_same_folder_twin(
-            Context_type context_type, Path_list_provider path_list_provider,
+            Window_type context_type, Path_list_provider path_list_provider,
             Path top_left,
             Window originator,
             Logger logger)
@@ -139,7 +131,7 @@ public class New_context
     }
     //**********************************************************
     public static void additional_same_folder_ratio(
-            Context_type context_type, Path_list_provider path_list_provider,
+            Window_type context_type, Path_list_provider path_list_provider,
             int ratio,
             Path top_left,
             Window originator,
@@ -168,7 +160,7 @@ public class New_context
         double w2 = s.getBounds().getWidth() * ratio_tall;
         rectangle = new Rectangle2D(rectangle.getMinX()+w_fat, rectangle.getMinY(), w2, h);
 
-        New_context context = new New_context(
+        Instructions context = new Instructions(
                 context_type,
                 path_list_provider,
                 rectangle,
@@ -183,7 +175,7 @@ public class New_context
     //**********************************************************
     public static void replace_same_folder(
             Shutdown_target shutdown_target,
-            Context_type context_type,
+            Window_type context_type,
             Path_list_provider path_list_provider,
             Path top_left,
             Window originator,
@@ -193,7 +185,7 @@ public class New_context
         Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
-        New_context context =  new New_context(
+        Instructions context =  new Instructions(
                 context_type,
                 path_list_provider,
                 rectangle,
@@ -207,14 +199,14 @@ public class New_context
     //**********************************************************
     public static void replace_different_folder(
             Shutdown_target shutdown_target,
-            Context_type context_type, Path_list_provider path_list_provider,
+            Window_type context_type, Path_list_provider path_list_provider,
             Window originator,
             Logger logger)
     //**********************************************************
     {
         if ( dbg) logger.log("replace_different_folder new path: " + path_list_provider.get_folder_path().toAbsolutePath());
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
-        New_context context =  new New_context(
+        Instructions context =  new Instructions(
                 context_type,
                 path_list_provider,
                 rectangle,
@@ -226,7 +218,7 @@ public class New_context
 
     }
 
-    private static void get_one_new(New_context context, Logger logger)
+    private static void get_one_new(Instructions context, Logger logger)
     {
         switch (context.context_type)
         {

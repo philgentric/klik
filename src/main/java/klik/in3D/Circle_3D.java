@@ -24,8 +24,8 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.Context_type;
-import klik.New_context;
+import klik.Window_type;
+import klik.Instructions;
 import klik.Shared_services;
 import klik.Window_provider;
 import klik.browser.virtual_landscape.Shutdown_target;
@@ -91,7 +91,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
 
 
     //*******************************************************
-    public Circle_3D(New_context context, Logger logger)
+    public Circle_3D(Instructions context, Logger logger)
     //*******************************************************
     {
         this.the_path = context.path_list_provider.get_folder_path();
@@ -209,13 +209,13 @@ public class Circle_3D implements Window_provider, Shutdown_target
             Button up = new Button("Up");
             Look_and_feel_manager.set_button_look(up, true, stage, logger);
             up.setOnAction(event -> {
-                New_context.replace_different_folder(this, Context_type.File_system_3D,new Path_list_provider_for_file_system(the_path.getParent()),stage,logger);
+                Instructions.replace_different_folder(this, Window_type.File_system_3D,new Path_list_provider_for_file_system(the_path.getParent()),stage,logger);
             });
             buttons_box.getChildren().add(up);
         }
 
         {
-            Button undo_and_bookmark_and_history = Virtual_landscape.make_button_undo_and_bookmark_and_history(Context_type.File_system_3D,20, stage, logger);
+            Button undo_and_bookmark_and_history = Virtual_landscape.make_button_undo_and_bookmark_and_history(Window_type.File_system_3D,20, stage, logger);
             buttons_box.getChildren().add(undo_and_bookmark_and_history);
         }
 
@@ -513,7 +513,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
                 if (Files.isDirectory(p))
                 {
                     logger.log("is folder: "+p);
-                    New_context.replace_different_folder(this, Context_type.File_system_3D,new Path_list_provider_for_file_system(p),stage,logger);
+                    Instructions.replace_different_folder(this, Window_type.File_system_3D,new Path_list_provider_for_file_system(p),stage,logger);
                 }
                 else 
                 {

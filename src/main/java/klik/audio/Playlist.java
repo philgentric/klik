@@ -46,7 +46,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 
 //**********************************************************
@@ -597,11 +597,11 @@ public class Playlist
     //**********************************************************
     {
         public final String path;
-        public final AtomicLong seconds;
+        public final LongAdder seconds;
         public final CountDownLatch cdl;
         public final Aborter aborter;
         //**********************************************************
-        public Duration_message(String path, AtomicLong seconds, CountDownLatch cdl, Aborter aborter)
+        public Duration_message(String path, LongAdder seconds, CountDownLatch cdl, Aborter aborter)
         //**********************************************************
         {
             this.path = path;
@@ -650,7 +650,7 @@ public class Playlist
         };
         Aborter cleanup_aborter = new Aborter("actor engine cleanup",logger);
         Actor_engine_based_on_workers local = new Actor_engine_based_on_workers("playlist size",cleanup_aborter, logger);
-        AtomicLong seconds = new AtomicLong(0);
+        LongAdder seconds = new LongAdder();
         CountDownLatch cdl = new CountDownLatch(the_playlist.size());
         for ( String path: the_playlist)
         {
@@ -664,17 +664,17 @@ public class Playlist
         }
         cleanup_aborter.abort("kill actor engine threads");
         final String text = My_I18n.get_I18n_string("Songs",owner,logger);
-        Runnable r = () -> the_music_ui.set_total_duration(the_playlist.size() + " "+text+", " + Audio_player_FX_UI.get_nice_string_for_duration(seconds.get(),owner,logger));
+        Runnable r = () -> the_music_ui.set_total_duration(the_playlist.size() + " "+text+", " + Audio_player_FX_UI.get_nice_string_for_duration(seconds.doubleValue(),owner,logger));
         Platform.runLater(r);
 
     }
 
     //**********************************************************
-    private void get_media_duration(String path, AtomicLong seconds, CountDownLatch cdl)
+    private void get_media_duration(String path, LongAdder seconds, CountDownLatch cdl)
     //**********************************************************
     {
         Double dur = Ffmpeg_utils.get_media_duration(Path.of(path), null, logger);
-        if ( dur != null) seconds.addAndGet((long) (double)dur);
+        if ( dur != null) seconds.add((long) (double)dur);
         cdl.countDown();
     }
 

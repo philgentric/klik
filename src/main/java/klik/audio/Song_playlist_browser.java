@@ -5,8 +5,8 @@ package klik.audio;
 
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
-import klik.Context_type;
-import klik.New_context;
+import klik.Window_type;
+import klik.Instructions;
 import klik.browser.Abstract_browser;
 import klik.path_lists.Path_list_provider;
 import klik.change.Change_receiver;
@@ -23,7 +23,7 @@ public class Song_playlist_browser extends Abstract_browser
     public final Path_list_provider_for_playlist path_list_provider;
 
     //**********************************************************
-    public Song_playlist_browser(New_context context, Logger logger)
+    public Song_playlist_browser(Instructions context, Logger logger)
     //**********************************************************
     {
         super(logger);
@@ -46,7 +46,7 @@ public class Song_playlist_browser extends Abstract_browser
                 return "";
             }
         };
-        init_abstract_browser(Context_type.Song_playlist_1D,context.shutdown_target,context.rectangle, cr, "song_playlist");
+        init_abstract_browser(Window_type.Song_playlist_1D,context.shutdown_target,context.rectangle, cr, "song_playlist");
     }
 
     @Override

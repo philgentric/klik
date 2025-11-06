@@ -6,8 +6,8 @@ package klik.images;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
-import klik.Context_type;
-import klik.New_context;
+import klik.Window_type;
+import klik.Instructions;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Booleans;
@@ -127,7 +127,7 @@ public class Keyboard_handling_for_Image_window
 
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
 
-                New_context.additional_no_past( Context_type.File_system_2D,
+                Instructions.additional_no_past( Window_type.File_system_2D,
                          new Path_list_provider_for_file_system(image_window.image_display_handler.get_image_context().get().path.getParent()),
                         owner,logger);
                 key_event.consume();

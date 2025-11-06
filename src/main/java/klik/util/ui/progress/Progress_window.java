@@ -24,6 +24,7 @@ import klik.util.ui.Jfx_batch_injector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Progress_window implements Hourglass
@@ -259,7 +260,7 @@ public class Progress_window implements Hourglass
 
 		Runnable tracker = () -> {
 			long start = System.currentTimeMillis();
-			int start_amount = in_flight.get();
+			double start_amount = in_flight.doubleValue();
             for(;;)
             {
                 try {
@@ -267,7 +268,7 @@ public class Progress_window implements Hourglass
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-				int in_flight_local = in_flight.get();
+				double in_flight_local = in_flight.doubleValue();
 
 				if( in_flight_local<= 0)
 				{
@@ -283,9 +284,9 @@ public class Progress_window implements Hourglass
 				}
 
 				long elapsed = System.currentTimeMillis() - start;
-				int done = start_amount - in_flight_local;
-				double speed = (double)done / elapsed * 1000; // items/s
-				int eta_s = (int)((double)in_flight_local / speed);
+				double done = start_amount - in_flight_local;
+				double speed = done / elapsed * 1000; // items/s
+				int eta_s = (int)(in_flight_local / speed);
 				int eta_m = 0;
 				int eta_h = 0;
 				if ( eta_s > 60)

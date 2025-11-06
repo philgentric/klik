@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Animated_gifs_from_video
@@ -117,7 +118,7 @@ public class Animated_gifs_from_video
         }
         AtomicBoolean abort_reported = new AtomicBoolean(false);
         Animated_gif_generation_actor actor = new Animated_gif_generation_actor(logger);
-        AtomicInteger in_flight = new AtomicInteger(0);
+        AtomicInteger in_flight = new AtomicInteger();
         double x = owner.getX()+100;
         double y = owner.getY()+100;
         Progress_window progress_window = Progress_window.show(

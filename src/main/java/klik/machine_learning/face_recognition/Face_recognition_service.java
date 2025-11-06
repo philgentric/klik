@@ -30,8 +30,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.Context_type;
-import klik.New_context;
+import klik.Window_type;
+import klik.Instructions;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
@@ -56,6 +56,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Face_recognition_service
@@ -86,7 +87,7 @@ public class Face_recognition_service
         this.logger = logger;
         Path face_reco_folder = Static_files_and_paths_utilities.get_face_reco_folder(owner,logger);
         face_recognizer_path = Path.of(face_reco_folder.toAbsolutePath().toString(),face_recognizer_name);
-        New_context.additional_no_past(Context_type.File_system_2D,new Path_list_provider_for_file_system(face_recognizer_path),owner,logger);
+        Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(face_recognizer_path),owner,logger);
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();
@@ -183,7 +184,7 @@ public class Face_recognition_service
     private void auto_internal(Path displayed_folder_path, Logger logger)
     //**********************************************************
     {
-        AtomicInteger files_in_flight = new AtomicInteger(0);
+        AtomicInteger files_in_flight = new AtomicInteger();
         double x = owner.getX()+100;
         double y = owner.getY()+100;
         Progress_window progress_window = Progress_window.show(
@@ -276,7 +277,7 @@ public class Face_recognition_service
                 }
             }
 
-            AtomicInteger label_in_flight = new AtomicInteger(0);
+            LongAdder label_in_flight = new LongAdder();
             auto_folder_for_one_label(f,label, Face_recognition_actor, aborter_for_auto_train, files_in_flight, label_in_flight);
         }
 
@@ -292,7 +293,7 @@ public class Face_recognition_service
                                               Face_recognition_actor Face_recognition_actor,
                                               Aborter aborter_for_auto_train,
                                               AtomicInteger files_in_flight,
-                                              AtomicInteger label_in_flight)
+                                              LongAdder label_in_flight)
     //**********************************************************
     {
         for(;;)
@@ -313,7 +314,7 @@ public class Face_recognition_service
         logger.log("auto_folder: "+dir);
         Job_termination_reporter tr = (message, job) -> {
             files_in_flight.decrementAndGet();
-            label_in_flight.decrementAndGet();
+            label_in_flight.decrement();
             long now = System.currentTimeMillis();
             if (now-last_report> 10000)
             {
@@ -323,7 +324,7 @@ public class Face_recognition_service
                 logger.log("Training:"+training_stats.to_string());
             }
         };
-        logger.log("auto train folder: "+dir.getAbsolutePath()+ "files in flight: "+files_in_flight.get());
+        logger.log("auto train folder: "+dir.getAbsolutePath()+ "files in flight: "+files_in_flight.doubleValue());
         File files[] = dir.listFiles();
         if ( files == null) return true;
         if ( files.length == 0) return true;
@@ -346,7 +347,7 @@ public class Face_recognition_service
             }
             if (Guess_file_type.is_this_file_an_image(f))
             {
-                label_in_flight.incrementAndGet();
+                label_in_flight.increment();
                 Face_recognition_message msg = new Face_recognition_message(f, Face_detection_type.MTCNN, true, label, false, aborter_for_auto_train, files_in_flight);
                 Actor_engine.run(Face_recognition_actor, msg, tr, logger);
            }
@@ -630,7 +631,7 @@ public class Face_recognition_service
     private void load_internal()
     //**********************************************************
     {
-        AtomicInteger in_flight = new AtomicInteger(0);
+        AtomicInteger in_flight = new AtomicInteger();
         double x = owner.getX()+100;
         double y = owner.getY()+100;
         Progress_window progress_window = Progress_window.show(

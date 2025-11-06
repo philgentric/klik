@@ -5,8 +5,8 @@
 package klik.browser.locator;
 
 import javafx.stage.Window;
-import klik.Context_type;
-import klik.New_context;
+import klik.Window_type;
+import klik.Instructions;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
@@ -22,7 +22,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Folders_with_large_images_locator
@@ -37,7 +37,7 @@ public class Folders_with_large_images_locator
     private final Window owner;
     private final Logger logger;
     private final  ConcurrentHashMap<String,Integer> contanimated_directories = new ConcurrentHashMap<>();
-    AtomicInteger folders = new AtomicInteger(0);
+    LongAdder folders = new LongAdder();
     private final  List<String> final_choice = new ArrayList<>();
     private static final int MAX_WINDOWS = 10;
 
@@ -95,7 +95,7 @@ public class Folders_with_large_images_locator
                 long start = System.currentTimeMillis();
                 for(;;)
                 {
-                    int count = folders.get();
+                    double count = folders.doubleValue();
                     if (  count==0)
                     {
                         break;
@@ -205,14 +205,14 @@ public class Folders_with_large_images_locator
             if (f.isDirectory())
             {
                 if ( Files.isSymbolicLink(f.toPath())) continue;
-                folders.incrementAndGet();
+                folders.increment();
 
                 //logger.log("count after inc="+folders.get());
                 Runnable r = new Runnable() {
                     @Override
                     public void run() {
                         explore(f);
-                        folders.decrementAndGet();
+                        folders.decrement();
                         //logger.log("count after dec="+folders.get()+" size="+contanimated_directories.size());
                     }
                 };
@@ -389,8 +389,8 @@ public class Folders_with_large_images_locator
             if ( count < MAX_WINDOWS)
             {
                 String final_S = s;
-                Jfx_batch_injector.inject(()-> New_context.additional_no_past(
-                        Context_type.File_system_2D,
+                Jfx_batch_injector.inject(()-> Instructions.additional_no_past(
+                        Window_type.File_system_2D,
                         new Path_list_provider_for_file_system(key_to_path(final_S)),
                         owner,
                         logger),logger);

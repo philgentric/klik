@@ -1,5 +1,19 @@
 # Installation for Windows
 
+## With Chocolatey
+
+you need a JDK bundled with javaFX, the tested option is:
+Azul 'zulu' JDK25 - FX
+
+go to the Azul web site: https://www.azul.com
+
+in the 'dowload' page select:
+- Operating System : Windows
+- Java Package : JDK FX
+- Download the most recent (e.g. Azul Zulu: 25.30.17)
+
+## Alternate method: with WSL2
+
 Install WSL2:
 
 **wsl --install**

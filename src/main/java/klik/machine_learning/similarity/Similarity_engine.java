@@ -28,6 +28,7 @@ import klik.util.ui.progress.Progress_window;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Supplier;
 
 //**********************************************************
@@ -83,7 +84,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             Supplier<Feature_vector_cache> fv_cache_supplier,
             Window owner,
             double x, double y,
-            AtomicLong count_pairs_examined,
+            LongAdder count_pairs_examined,
             Aborter browser_aborter)
     //**********************************************************
     {
@@ -148,7 +149,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             Supplier<Feature_vector_cache> fv_cache_supplier,
             Window owner,
             double x, double y,
-            AtomicLong count_pairs_examined,
+            LongAdder count_pairs_examined,
             Aborter browser_aborter)
     //**********************************************************
     {
@@ -275,7 +276,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             double too_far_away,
             Supplier<Feature_vector_cache> fv_cache_supplier,
             List<Path> targets,
-            AtomicLong count_pairs_examined,
+            LongAdder count_pairs_examined,
             Window owner,
             Aborter browser_aborter)
     //**********************************************************
@@ -285,7 +286,7 @@ public class Similarity_engine implements Clearable_RAM_cache
 
         for(Path path1 : targets)
         {
-            if ( count_pairs_examined!= null) count_pairs_examined.incrementAndGet();
+            if ( count_pairs_examined!= null) count_pairs_examined.increment();
 
             Feature_vector fv1 = fv_cache_supplier.get().get_from_cache_or_make(path1, null,true, owner, browser_aborter);
             if (fv1 == null) continue; // server failure
@@ -323,7 +324,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             double too_far_away,
             Supplier<Feature_vector_cache> fv_cache_supplier,
             List<Path> targets,
-            AtomicLong count_pairs_examined,
+            LongAdder count_pairs_examined,
             Window owner,
             Aborter browser_aborter)
     //**********************************************************
@@ -337,7 +338,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         }
         for(Path path1 : targets)
         {
-            if ( count_pairs_examined!= null) count_pairs_examined.incrementAndGet();
+            if ( count_pairs_examined!= null) count_pairs_examined.increment();
             if ( image_properties_cache != null)
             {
                 // skip images of different size

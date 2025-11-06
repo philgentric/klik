@@ -79,7 +79,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Supplier;
 
 
@@ -104,7 +104,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     public final Aborter aborter;
     public final Logger logger;
-    public final Context_type context_type;
+    public final Window_type context_type;
     private Landscape_height_listener landscape_height_listener;
     private Scroll_to_listener scroll_to_listener;
     final Paths_holder paths_holder;
@@ -161,7 +161,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private final Background_provider background_provider;
     //**********************************************************
     public Virtual_landscape(
-            Context_type context_type,
+            Window_type context_type,
             Path_list_provider path_list_provider,
             Window owner,
             Shutdown_target shutdown_target,
@@ -243,10 +243,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    void replace_same(Context_type context_type)
+    void replace_same(Window_type context_type)
     //**********************************************************
     {
-        New_context.replace_same_folder(shutdown_target, context_type,path_list_provider,get_top_left(),owner,logger);
+        Instructions.replace_same_folder(shutdown_target, context_type,path_list_provider,get_top_left(),owner,logger);
     }
     //**********************************************************
     @Override // Selection_reporter
@@ -341,7 +341,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
             if (keyEvent.getCharacter().equals("n")) {
                 if (Browser.keyboard_dbg) logger.log("character is n = new browser (clone)");
-                //New_context.additional_same_folder(local, logger);
+                //Instructions.additional_same_folder(local, logger);
             }
         });
 
@@ -687,11 +687,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         // first compute how many images are in flight
         int image_properties_in_flight = 0;
-        boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
+        //boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
+        //boolean show_single_column = Feature_cache.get(Feature.Show_single_column);
+        //if ( show_single_column) show_icons_for_files = false;
         for (Path path : paths_holder.iconized_paths )
         {
             Item item;
-            if (show_icons_for_files)
+            //if (show_icons_for_files)
             {
                 item = all_items_map.get(path);
                 if (item == null)
@@ -715,7 +717,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             if (ultra_dbg) logger.log("Virtual_landscape process_iconified_items " + path);
             Item item;
-            if (show_icons_for_files)
+            //if (show_icons_for_files)
             {
                 item = all_items_map.get(path);
                 if (item == null)
@@ -725,13 +727,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     browsing_caches.image_properties_RAM_cache.get_from_cache(path,tr);
                 }
             }
-            else
+            /*else
             {
                 // this is an item that could have an image but the user prefers not
                 String size = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(path.toFile().length(), owner,logger);
                 item = all_items_map.get(path);
                 if (item == null) {
-                    if ( dbg) logger.log("Item_file_no_icon (1) path="+path);
+                    //if ( dbg)
+                        logger.log("Item_file_no_icon (1) path="+path);
                     item = new Item_file_no_icon(
                             the_Scene,
                             selection_handler,
@@ -751,7 +754,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                             //icon_size / 2, false, false, image_properties_RAM_cache, logger);
                     all_items_map.put(path, item);
                 }
-            }
+            }*/
         }
         if ( image_properties_in_flight > 1) {
             // wait for all properties to become available
@@ -824,6 +827,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             logger.log("     ,of which getting_image_properties_from_cache= " +getting_image_properties_from_cache+ " milliseconds");
         }
 
+
+        boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
+        boolean show_single_column = Feature_cache.get(Feature.Show_single_column);
+        if ( show_single_column) show_icons_for_files = false;
 
         /// at this stage we MUST have get_iconized_sorted() in the proper order
         // that will define the x,y layout
@@ -1225,7 +1232,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         folder_file_count_cache = new HashMap<>();
 
-        AtomicInteger count = new AtomicInteger(0);
+        LongAdder count = new LongAdder();
         double x = owner.getX()+100;
         double y = owner.getY()+100;
         Progress_window progress_window = Progress_window.show(
@@ -1264,7 +1271,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 } catch (InterruptedException e) {
                     logger.log("" + e);
                 }
-                if (count.get() == 0)
+                if (count.doubleValue() == 0)
                 {
                     Jfx_batch_injector.inject(()-> compute_geometry("sort by number of files", progress_window),logger);
                     if ( System.currentTimeMillis()-start > 3000) {
@@ -1291,7 +1298,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         show_how_many_files_deep_in_each_folder_done = false;
         folder_total_sizes_cache = new HashMap<>();
         logger.log("✅ Virtual_landscape: show_total_size_deep_in_each_folder");
-        AtomicInteger count = new AtomicInteger(0);
+        LongAdder count = new LongAdder();
         double x = owner.getX()+100;
         double y = owner.getY()+100;
         Progress_window progress_window = Progress_window.show(
@@ -1324,7 +1331,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 } catch (InterruptedException e) {
                     logger.log("" + e);
                 }
-                if (count.get() == 0)
+                if (count.doubleValue() == 0)
                 {
                     Jfx_batch_injector.inject(()-> compute_geometry(
                             "sort by folder size on disk", progress_window),logger);
@@ -1606,7 +1613,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         double height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
 
         Button up_button = null;
-        if (context_type == Context_type.File_system_2D)
+        if (context_type == Window_type.File_system_2D)
         {
             String go_up_text = "";
             if (path_list_provider.has_parent() )
@@ -1637,7 +1644,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
 
         Button trash = null;
-        if (context_type == Context_type.File_system_2D)
+        if (context_type == Window_type.File_system_2D)
         {
             String trash_text = My_I18n.get_I18n_string("Trash",owner,logger);// to: " + parent.toAbsolutePath().toString();
             trash = virtual_landscape_menus.make_button_that_behaves_like_a_folder(
@@ -1763,7 +1770,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         {
-            Button undo_bookmark_history_button = make_button_undo_and_bookmark_and_history(Context_type.File_system_2D, height,owner,logger);
+            Button undo_bookmark_history_button = make_button_undo_and_bookmark_and_history(Window_type.File_system_2D, height,owner,logger);
 
             top_pane.getChildren().add(undo_bookmark_history_button);
             top_buttons.add(undo_bookmark_history_button);
@@ -1798,7 +1805,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    public static Button make_button_undo_and_bookmark_and_history(Context_type context_type, double height, Window owner, Logger logger)
+    public static Button make_button_undo_and_bookmark_and_history(Window_type context_type, double height, Window owner, Logger logger)
     //**********************************************************
     {
         String undo_bookmark_history = My_I18n.get_I18n_string("Bookmarks", owner,logger);
@@ -1811,7 +1818,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    private static void button_undo_and_bookmark_and_history(ActionEvent e, Context_type context_type, Window owner, Logger logger)
+    private static void button_undo_and_bookmark_and_history(ActionEvent e, Window_type context_type, Window owner, Logger logger)
     //**********************************************************
     {
         ContextMenu undo_and_bookmark_and_history = define_contextmenu_undo_bookmark_history(context_type,owner,logger);
@@ -1866,7 +1873,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
     //**********************************************************
-    private static ContextMenu define_contextmenu_undo_bookmark_history(Context_type context_type, Window owner, Logger logger)
+    private static ContextMenu define_contextmenu_undo_bookmark_history(Window_type context_type, Window owner, Logger logger)
     //**********************************************************
     {
         ContextMenu undo_bookmark_history_menu = new ContextMenu();
@@ -1887,9 +1894,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Look_and_feel_manager.set_context_menu_look(context_menu,owner,logger);
 
         //Rectangle2D rectangle = new Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
-        Menu_items.add_menu_item("New_Window",event -> New_context.additional_same_folder(context_type,path_list_provider,get_top_left(),owner,logger),context_menu,owner,logger);
-        Menu_items.add_menu_item("New_Twin_Window",event -> New_context.additional_same_folder_twin(context_type,path_list_provider,get_top_left(),owner,logger),context_menu,owner,logger);
-        Menu_items.add_menu_item("New_Double_Window",event -> New_context.additional_same_folder_fat_tall(context_type,path_list_provider,get_top_left(),owner,logger),context_menu,owner,logger);
+        Menu_items.add_menu_item("New_Window",event -> Instructions.additional_same_folder(context_type,path_list_provider,get_top_left(),owner,logger),context_menu,owner,logger);
+        Menu_items.add_menu_item("New_Twin_Window",event -> Instructions.additional_same_folder_twin(context_type,path_list_provider,get_top_left(),owner,logger),context_menu,owner,logger);
+        Menu_items.add_menu_item("New_Double_Window",event -> Instructions.additional_same_folder_fat_tall(context_type,path_list_provider,get_top_left(),owner,logger),context_menu,owner,logger);
 
 
         {
@@ -2349,7 +2356,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void scan_list()
     //**********************************************************
     {
-
+        boolean show_icons = Feature_cache.get(Feature.Show_icons_for_files);
+        if ( Feature_cache.get(Feature.Show_single_column)) show_icons = false;
 
         if ( dbg)
         {
@@ -2384,7 +2392,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     aborter.on_abort();
                     return;
                 }
-                paths_holder.add_file( path, Feature_cache.get(Feature.Show_icons_for_files), owner);
+                paths_holder.add_file( path, show_icons, owner);
                 // this will start one virtual thread per image to prefill the image property cache
             }
         }

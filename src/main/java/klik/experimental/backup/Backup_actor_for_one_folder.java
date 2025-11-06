@@ -109,7 +109,7 @@ public class Backup_actor_for_one_folder implements Actor
         }
 
         // ok, we will really have something to backup
-        stats.target_dir_count.incrementAndGet();
+        stats.target_dir_count.increment();
         boolean slow = false;
         if (( check_for_same_file_different_name)||(deep_byte_check))
         {
@@ -205,7 +205,7 @@ public class Backup_actor_for_one_folder implements Actor
         if ( dbg) logger.log("Folder "+request.source_dir.getAbsolutePath()+" DONE");
 
         // tell above folder that this subfolder is done
-        stats.done_dir_count.incrementAndGet();
+        stats.done_dir_count.increment();
 
         // since the files are done in threads, this does not work:
         //long size = Static_files_and_paths_utilities.get_size_on_disk_excluding_sub_folders(request.source_dir.toPath(), logger);

@@ -444,7 +444,7 @@ public class Static_files_and_paths_utilities
             bytes.addAndGet(f.length());
             files.incrementAndGet();
             if ( Guess_file_type.is_this_file_an_image(f)) images.incrementAndGet();
-            file_count_stop_counter.decrementAndGet();
+            file_count_stop_counter.decrement();
         };
         Dir_payload dp = f -> {
             folders.incrementAndGet();
@@ -483,7 +483,7 @@ public class Static_files_and_paths_utilities
         File_payload fp = (f, file_count_stop_counter) ->
         {
             bytes.addAndGet(f.length());
-            file_count_stop_counter.decrementAndGet();
+            file_count_stop_counter.decrement();
         };
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(path, "get_size_on_disk_concurrent", fp,null,wp,aborter,logger);
@@ -518,12 +518,12 @@ public class Static_files_and_paths_utilities
             {
                 if ( !Feature_cache.get(Feature.Show_hidden_files))
                 {
-                    file_count_stop_counter.decrementAndGet();
+                    file_count_stop_counter.decrement();
                     return;
                 }
             }
             files.incrementAndGet();
-            file_count_stop_counter.decrementAndGet();
+            file_count_stop_counter.decrement();
         };
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(path, "get_how_many_files_deep_concurrent", fp,null, wp,aborter, logger);

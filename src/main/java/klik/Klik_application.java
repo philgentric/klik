@@ -66,7 +66,7 @@
 //SOURCES ./System_info.java
 //SOURCES actor/Aborter.java
 //SOURCES browser/classic/Browser.java
-//SOURCES New_context.java
+//SOURCES Instructions.java
 //SOURCES browser/My_Stage.java
 //SOURCES change/history/History_auto_clean.java
 //SOURCES look/Look_and_feel_manager.java
@@ -108,7 +108,6 @@ package klik;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import klik.change.history.History_engine;
 import klik.change.history.History_item;
 import klik.path_lists.Path_list_provider_for_file_system;
@@ -205,7 +204,7 @@ public class Klik_application extends Application
                 path = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
             }
         }
-        New_context.additional_no_past(Context_type.File_system_2D,new Path_list_provider_for_file_system(path),primary_stage_,logger);
+        Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(path),primary_stage_,logger);
         new Monitor(()->primary_stage, logger).start();
 
         Integer reply_port = extract_started_reply_port(logger);
