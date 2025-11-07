@@ -13,10 +13,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -107,7 +104,9 @@ public class Finder_frame implements Search_receiver
 				});
 
 		Pane main_vbox = define_main_vbox(input_keywords);
-		Scene scene = new Scene(main_vbox);
+        ScrollPane sp = new ScrollPane(main_vbox);
+        sp.setFitToWidth(true);
+		Scene scene = new Scene(sp);
 		Look_and_feel_manager.set_region_look(main_vbox,stage,logger);
 
 		stage.setTitle(My_I18n.get_I18n_string("Search_by_keywords", stage,logger));

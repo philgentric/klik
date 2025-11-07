@@ -64,7 +64,7 @@ public class Popups
             alert.setTitle(My_I18n.get_I18n_string("Warning", owner,logger));
             alert.setHeaderText(header);
             alert.setContentText(content);
-            alert.initOwner(owner);
+            if ( owner != null) alert.initOwner(owner);
             alert.initModality(Modality.WINDOW_MODAL);
             if (for_3_seconds_only) {
                 PauseTransition delay = new PauseTransition(Duration.millis(1000));

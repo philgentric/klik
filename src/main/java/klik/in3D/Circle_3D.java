@@ -31,6 +31,7 @@ import klik.Window_provider;
 import klik.browser.virtual_landscape.Shutdown_target;
 import klik.browser.virtual_landscape.Virtual_landscape;
 import klik.change.history.History_engine;
+import klik.path_lists.Path_list_provider;
 import klik.properties.Sort_files_by;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
@@ -40,6 +41,7 @@ import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 import klik.util.ui.progress.Hourglass;
 import klik.util.ui.progress.Progress_window;
 
@@ -87,16 +89,18 @@ public class Circle_3D implements Window_provider, Shutdown_target
     private final int large_icon_size;
     private final int small_icon_size;
     Map<Image_and_path,PhongMaterial> material_cache_small = new HashMap<>();
-    Map<Image_and_path,PhongMaterial> material_cache_large = new HashMap<>();
-
+    Image_cache_cafeine_for_3D material_cache_large;
+    Path_list_provider path_list_provider;
 
     //*******************************************************
     public Circle_3D(Instructions context, Logger logger)
     //*******************************************************
     {
+        this.path_list_provider = context.path_list_provider;
         this.the_path = context.path_list_provider.get_folder_path();
         History_engine.get(get_owner()).add(the_path.toAbsolutePath().toString());
 
+        material_cache_large = new Image_cache_cafeine_for_3D(400,new Aborter("i3D image cache",logger),logger);
         this.large_icon_size = (int) CORRIDOR_HEIGHT;
         this.small_icon_size = 64;
         this.stage = (Stage)context.originator;
@@ -276,7 +280,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
 
 
     //*******************************************************
-    private void updateCamera()
+    private void update_camera()
     //*******************************************************
     {
         double angleRad = Math.toRadians(camera_path_angle);
@@ -462,19 +466,50 @@ public class Circle_3D implements Window_provider, Shutdown_target
     private PhongMaterial get_phong_large(Image_and_path iap)
     //*******************************************************
     {
-        if ( material_cache_large.containsKey(iap))
-        {
-            return material_cache_large.get(iap);
-        }
-        material_cache_large.put(iap, new PhongMaterial(){
+        PhongMaterial local = material_cache_large.get(iap.path);
+        if ( local != null) return local;
+        material_cache_large.put(iap.path, new PhongMaterial(){
             {
                 Image local_image = iap.get_large_image(large_icon_size);
                 setDiffuseMap(local_image);
             }
         });
-        return material_cache_large.get(iap);
+        Actor_engine.execute(()->preload_in_a_thread(iap.path),"3D image cache preload",logger);
+
+        return material_cache_large.get(iap.path);
     }
 
+    //*******************************************************
+    private void preload_in_a_thread(Path path)
+    //*******************************************************
+    {
+        List<Path> list = get_paths(path);
+        material_cache_large.preload(list, stage);
+    }
+
+    //*******************************************************
+    List<Path> get_paths(Path path)
+    //*******************************************************
+    {
+        List<Path> list = new ArrayList<>();
+        // files are in alpha order
+
+        List<Path> images = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+        Collections.sort(images);
+
+        int i = images.indexOf(path);
+        if ( i == -1)
+        {
+            // typically: not an image
+            return list;
+        }
+        int start = i - 5;
+        int end = i + 5;
+        if ( start < 0) start = 0;
+        if ( end > images.size()) end = images.size();
+        for (int k = start; k < end; k++) list.add(images.get(k));
+        return list;
+    }
 
 
 
@@ -734,7 +769,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
     private void update_camera_and_boxes()
     //*******************************************************
     {
-        updateCamera();
+        update_camera();
         update_boxes();
     }
 

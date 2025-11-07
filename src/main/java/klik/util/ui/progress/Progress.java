@@ -3,8 +3,10 @@
 
 package klik.util.ui.progress;
 
+import javafx.scene.Parent;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.stage.Window;
 import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_style;

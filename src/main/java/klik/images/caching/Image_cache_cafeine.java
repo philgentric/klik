@@ -40,6 +40,12 @@ public class Image_cache_cafeine implements Image_cache_interface
         forward_size = forward_size_;
         cache = Caffeine.newBuilder()
                 .maximumSize(2*forward_size+1)
+                /*.removalListener((key,value,cause)->{
+                    if ( cause.wasEvicted())
+                    {
+                        logger.log("Cafeine evisted: "+key+" cause:"+ cause);
+                    }
+                })*/
                 .build();
         logger = logger_;
         if(ultra_dbg) logger.log("Cafeine max size = "+(2*forward_size+1));
@@ -74,14 +80,11 @@ public class Image_cache_cafeine implements Image_cache_interface
 
         if (Check_remaining_RAM.RAM_running_low(logger))
         {
-            if (ultra_dbg) logger.log("Skipping preloading, RAM is low");
+            //if (ultra_dbg)
+                logger.log("Clearing image cache as RAM is low");
             clear_all();
             return;
         }
-
-
-        //int increment = -1;
-        //if (forward) increment = 1;
 
         if (image_display_handler.image_indexer == null)
         {

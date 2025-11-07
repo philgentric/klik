@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Window_type;
 import klik.Instructions;
+import klik.util.log.Stack_trace_getter;
 import klik.util.ui.progress.Progress;
 import klik.util.execute.actor.Aborter;
 import klik.audio.Audio_player_access;
@@ -49,7 +50,9 @@ public class Results_frame
 {
 	final Logger logger;
 	VBox the_result_vbox = new VBox();
-	HashMap<String, List<Path>> search_results;
+    HashMap<String, List<Path>> search_results;
+    HashMap<Search_result, Boolean> search_results_is_max;
+    HashMap<Button, Search_result> search_results_buttons;
 	Stage stage = new Stage();
     Progress progress;
 	VBox vbox;
@@ -73,16 +76,12 @@ public class Results_frame
 
 		vbox = new VBox();
 		Look_and_feel_manager.set_region_look(vbox,stage,logger);
-
 		vbox.setAlignment(javafx.geometry.Pos.CENTER);
-
         progress = Progress.start(vbox,stage,logger);
-
+        the_result_vbox.getChildren().add(vbox);
 
 		ScrollPane scroll_pane = new ScrollPane(the_result_vbox);
-		vbox.getChildren().add(scroll_pane);
-		Scene scene = new Scene(vbox, 1000, 800);
-		//Scene scene = new Scene(scroll_pane, 800, 600);
+        Scene scene = new Scene(scroll_pane, 1000, 800);
 		Look_and_feel_manager.set_region_look(scroll_pane,stage,logger);
 
 		stage.setTitle(My_I18n.get_I18n_string("Search_Results", stage,logger));
@@ -107,9 +106,7 @@ public class Results_frame
 	}
 
 	//**********************************************************
-	private void make_one_button(
-			Window owner,
-			String key, boolean is_max, Path path)
+	private Button make_one_button(String key, boolean is_max, Path path, Window owner)
 	//**********************************************************
 	{
 		//Rectangle2D rectangle = new Rectangle2D(window.getX(), window.getY(), window.getWidth(), window.getHeight());
@@ -203,7 +200,7 @@ public class Results_frame
 
 		Drag_and_drop.init_drag_and_drop_sender_side(b, null,path,logger);
 
-
+        return b;
 	}
 
 
@@ -216,11 +213,18 @@ public class Results_frame
 	//**********************************************************
 	{
 		if ( search_results == null) search_results = new HashMap<>();
+        if ( search_results_is_max == null) search_results_is_max = new HashMap<>();
+        if ( search_results_buttons == null) search_results_buttons = new HashMap<>();
+        search_results_is_max.put(sr,is_max);
         List<Path> path_set = search_results.computeIfAbsent(keys, (s) -> new ArrayList<>());
 
         path_set.add(sr.path());
 
-		Jfx_batch_injector.inject(() -> make_one_button(window, keys, is_max, sr.path()),logger);
+		Jfx_batch_injector.inject(() ->
+                {
+                    Button b = make_one_button(keys, is_max, sr.path(),window);
+                    search_results_buttons.put(b,sr);
+                },logger);
 
 	}
 
@@ -255,4 +259,29 @@ public class Results_frame
 	public void sort()
 	{
 	}
+
+    public void erase_all_non_max()
+    {
+        Jfx_batch_injector.inject(() -> {
+            List<Node> to_be_deleted = new ArrayList<>();
+            for( Node n : the_result_vbox.getChildren())
+            {
+                if ( n instanceof  Button b)
+                {
+                    Search_result  sr =  search_results_buttons.get(b);
+                    if ( sr == null) logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+                    else
+                    {
+                        if ( !search_results_is_max.get(sr))
+                        {
+                            to_be_deleted.add(b);
+                        }
+                    }
+                }
+            }
+            the_result_vbox.getChildren().removeAll(to_be_deleted);
+        },logger);
+
+
+    }
 }

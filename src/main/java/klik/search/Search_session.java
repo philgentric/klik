@@ -37,7 +37,7 @@ public class Search_session implements Callback_for_file_found_publish
 	//private final Browser browser;
 	private final Window window;
 	final Results_frame find_result_frame;
-
+    boolean is_max_at_least_once = false;
 
 
 	//**********************************************************
@@ -181,7 +181,17 @@ public class Search_session implements Callback_for_file_found_publish
 			if ( find_result_frame != null)
 			{
 				boolean is_max = keys.equals(get_max_key());
-				find_result_frame.inject_search_results(sr,keys, is_max, window);
+                if ( is_max)
+                {
+                    is_max_at_least_once = true;
+                    find_result_frame.inject_search_results(sr,keys, is_max, window);
+                    find_result_frame.erase_all_non_max();
+                }
+                else
+                {
+                    // once we have one max, dont display the others
+                    if (!is_max_at_least_once) 	find_result_frame.inject_search_results(sr,keys, is_max, window);
+                }
 			}
 		}
 

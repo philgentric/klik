@@ -14,20 +14,30 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import klik.look.Jar_utils;
+import klik.path_lists.Path_list_provider;
+import klik.path_lists.Path_list_provider_for_file_system;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
+import klik.util.execute.actor.Aborter;
+import klik.util.execute.actor.Actor_engine;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 //*******************************************************
 public class Image_and_path
 //*******************************************************
 {
     public static final int SPLIT_STRING_AFTER = 18;
-    private Image large_image;
+    //private Image large_image; dont cache: it is cached as a Phong
     private final Logger logger;
     public final Window owner;
     public final Image small_image;
@@ -44,7 +54,8 @@ public class Image_and_path
         {
             this.small_image = make_square(large_image_size);
         }
-        else {
+        else
+        {
             this.small_image = make_square(small_image_size);
         }
     }
@@ -53,8 +64,9 @@ public class Image_and_path
     Image get_large_image(int large_image_size)
     //*******************************************************
     {
-        if ( large_image == null) large_image = make_square(large_image_size);
-        return large_image;
+        return make_square(large_image_size);
+//        if ( large_image == null) large_image = make_square(large_image_size);
+//        return large_image;
     }
 
     //*******************************************************
@@ -114,6 +126,7 @@ public class Image_and_path
             return Jar_utils.get_broken_icon(icon_size,owner,logger);
         }
         //logger.log(path.toAbsolutePath() +" is image");
+
         try (InputStream is = new FileInputStream(path.toFile())) {
             return new Image(is, icon_size, icon_size, true, true);
         } catch (Exception e) {
@@ -121,6 +134,8 @@ public class Image_and_path
             return null;
         }
     }
+
+
 
     //*******************************************************
     private Image make_folder_icon_with_folder_name(

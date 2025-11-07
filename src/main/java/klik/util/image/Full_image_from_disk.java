@@ -173,7 +173,7 @@ public class Full_image_from_disk
     public static Optional<Image> load_native_resolution_image_from_disk(Path original_image_file, boolean report_if_not_found, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        logger.log("load_native_resolution_image_from_disk");
+        //logger.log("load_native_resolution_image_from_disk");
         if (Check_remaining_RAM.RAM_running_low(logger)) {
             logger.log("load_native_resolution_image_from_disk NOT DONE because running low on memory ! ");
             return Optional.of(Jar_utils.get_broken_icon(300,owner,logger));
@@ -248,7 +248,7 @@ public class Full_image_from_disk
     private static Optional<Image> use_GraphicsMagick_for_full_image(Path original_image_file, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
-        logger.log("use_GraphicsMagick_for_full_image");
+        //logger.log("using GraphicsMagick_for_full_image");
         Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache, owner, logger);
         Path png_path = icon_cache_dir.resolve(original_image_file.getFileName().toString()+"_full.png");
 
@@ -281,7 +281,7 @@ public class Full_image_from_disk
     private static Optional<Image> use_ImageMagick_for_full_image(Path original_image_file, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
-        logger.log("use_ImageMagick_for_full_image");
+        logger.log("using ImageMagick (fallback!) to load image by converting it");
         Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.klik_icon_cache, owner, logger);
         Path png_path = icon_cache_dir.resolve(original_image_file.getFileName().toString()+"_full.png");
 
