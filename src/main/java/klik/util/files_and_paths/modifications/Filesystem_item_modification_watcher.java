@@ -31,7 +31,7 @@ public class Filesystem_item_modification_watcher
 
 
     //**********************************************************
-    public boolean init(
+    public File_status init(
             Path path,
             Filesystem_modification_reporter reporter,
             boolean abort_on_change,
@@ -43,34 +43,37 @@ public class Filesystem_item_modification_watcher
         this.aborter = aborter;
         final Filesystem_item_signature[] signature = new Filesystem_item_signature[1];
         signature[0] = new Filesystem_item_signature(logger);
-        if (!signature[0].init(path))
+        File_status file_status = signature[0].init(path);
+        if (file_status != File_status.OK)
         {
-            logger.log("signature failed for :"+path);
-            return false;
+            logger.log("WARNING: signature failed for :"+path);
+            return file_status;
         }
 
-        Runnable r = () -> {
-                if ( aborter.should_abort())
-                {
-                    t.cancel(true);
-                    logger.log("Filesystem_item_modification_watcher for "+path+" aborted");
-                    return;
-                }
-                Filesystem_item_signature local = new Filesystem_item_signature(logger);
-                if ( !local.init(path) )
-                {
-                    t.cancel(true);
-                    return;
-                }
-                //logger.log("Filesystem_item_modification_watcher for "+path+" init done "+local.file_signature_array.length);
-                if (!local.is_same(signature[0]))
-                {
-                    if ( dbg) logger.log("Filesystem_item_modification_watcher, change detected for: "+path.toAbsolutePath());
-                    // yes it's new ! the file has changed (or the folder content has changed)
-                    reporter.report_modified();
-                    if ( abort_on_change) t.cancel(true); // abort watch if changed
-                    signature[0] = local; // update the signature to avoid multiple false positives !
-                }
+        Runnable r = () ->
+        {
+            if ( aborter.should_abort())
+            {
+                t.cancel(true);
+                logger.log("Filesystem_item_modification_watcher for "+path+" aborted");
+                return;
+            }
+            Filesystem_item_signature local = new Filesystem_item_signature(logger);
+            File_status file_status2 = local.init(path);
+            if ( file_status2 != File_status.OK )
+            {
+                t.cancel(true);
+                return;
+            }
+            //logger.log("Filesystem_item_modification_watcher for "+path+" init done "+local.file_signature_array.length);
+            if (!local.is_same(signature[0]))
+            {
+                if ( dbg) logger.log("Filesystem_item_modification_watcher, change detected for: "+path.toAbsolutePath());
+                // yes it's new ! the file has changed (or the folder content has changed)
+                reporter.report_modified();
+                if ( abort_on_change) t.cancel(true); // abort watch if changed
+                signature[0] = local; // update the signature to avoid multiple false positives !
+            }
         };
         // check every 1 second
         t = Scheduled_thread_pool.execute(r, 1, TimeUnit.SECONDS);
@@ -79,7 +82,7 @@ public class Filesystem_item_modification_watcher
         Runnable r2 = () -> t.cancel(true);
         Scheduled_thread_pool.execute(r2,timeout_in_minutes,TimeUnit.MINUTES);
         //if (dbg) logger.log("Filesystem_item_modification_watcher init done for:"+path);
-        return true;
+        return File_status.OK;
     }
 
     //**********************************************************
@@ -105,7 +108,7 @@ public class Filesystem_item_modification_watcher
             Change_gang.report_changes(oanps,owner);
         };
         Filesystem_item_modification_watcher fimw = new Filesystem_item_modification_watcher();
-        if ( fimw.init(folder_path,reporter,false,timeout_in_minutes,monitoring_aborter,logger))
+        if ( fimw.init(folder_path,reporter,false,timeout_in_minutes,monitoring_aborter,logger) == File_status.OK)
         {
             return fimw;
         }

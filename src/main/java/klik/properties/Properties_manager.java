@@ -155,7 +155,7 @@ public class Properties_manager
                     {
                         age = LocalDateTime.now().toString();
                     }
-                    logger.log("storing age for key:"+k);
+                    //logger.log("storing age for key:"+k);
                     the_Properties.setProperty(k + AGE, age);
                 }
                 else

@@ -103,6 +103,29 @@ public class Booleans
     }
 
     //**********************************************************
+    public static void manage_show_fpcalc_install_warning(Window owner, Logger logger)
+    //**********************************************************
+    {
+        if ( get_boolean_defaults_to_true(Feature.Show_fpcalc_install_warning.name(),owner))
+        {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    String msg = "klik uses the fpcalc utility of chromaprint for song similarity estimation. " +
+                            "\nIt is easy and free to install (https://acoustid.org/chromaprint)" +
+                            "\nOn Mac: use the launcher or type 'brew install chromaprint' in a shell";
+                    if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
+                    {
+                        set_boolean(Feature.Show_fpcalc_install_warning.name(), false,owner);
+                    }
+
+                }
+            };
+            Platform.runLater(r);
+        }
+    }
+
+    //**********************************************************
     public static void manage_show_imagemagick_install_warning(Window owner, Logger logger)
     //**********************************************************
     {

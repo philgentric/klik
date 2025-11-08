@@ -14,6 +14,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.properties.Non_booleans_properties;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.properties.boolean_features.Booleans;
@@ -28,6 +30,7 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.execute.Execute_command;
 import klik.util.ui.Jfx_batch_injector;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -232,9 +235,18 @@ public class Exif_stage
         graphicsMagick_command_line.add(path.toAbsolutePath().toString());
 
         StringBuilder sb = new StringBuilder();
-        if ( Execute_command.execute_command_list(graphicsMagick_command_line, path.getParent().toFile(), 2000, sb,logger) == null)
+        Execute_result res = Execute_command.execute_command_list(graphicsMagick_command_line, path.getParent().toFile(), 2000, sb,logger);
+        if ( !res.status())
         {
-            Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+            List<String> verify = new ArrayList<>();
+            verify.add("gm");
+            verify.add("--version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+            }
             return null;
         }
         //logger.log(sb.toString());

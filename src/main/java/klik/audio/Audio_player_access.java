@@ -90,9 +90,7 @@ public class Audio_player_access
         String path =  "--args=\""+song.getAbsolutePath()+"\"";
         cmds.add(path);
 
-        StringBuilder sb = new StringBuilder();
-        Execute_command.execute_command_list_no_wait(cmds,new File("."),20*1000,sb,logger);
-        logger.log(sb.toString());
+        Execute_command.execute_command_list_no_wait(cmds,new File("."),logger);
     }
 
 }

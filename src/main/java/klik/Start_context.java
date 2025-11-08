@@ -48,7 +48,7 @@ public record Start_context(List<String> args, String bet_full)
             bet_full = s;
             if (s.contains(" "))
             {
-                if (dbg) System.out.println("❌ Warning: argument contains spaces ->" + s+"<-");
+                if (dbg) System.out.println("❗Warning: argument contains spaces ->" + s+"<-");
                 String pieces[] = s.split("\\s+");
                 for ( String piece : pieces )
                 {

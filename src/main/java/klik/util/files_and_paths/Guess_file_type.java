@@ -235,15 +235,7 @@ public class Guess_file_type
             Logger logger)
     //**********************************************************
     {
-        List<String> list = new ArrayList<>();
-        list.add("ffprobe");
-        list.add("-loglevel");
-        list.add("error");
-        list.add("-show_entries");
-        list.add("-stream=codec_type");
-        list.add("-of");
-        list.add("default=nw=1=nk=1");
-        list.add(path.getFileName().toString());
+        List<String> list = get_ffprobe_cmd(path);
         StringBuilder sb = new StringBuilder();
         File wd = path.getParent().toFile();
         if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null)
@@ -263,23 +255,29 @@ public class Guess_file_type
     }
 
     //**********************************************************
-    public static boolean does_this_file_contain_an_audio_track(
-            Path path,
-            Window owner,
-            Logger logger)
+    private static List<String> get_ffprobe_cmd(Path path)
     //**********************************************************
     {
         List<String> list = new ArrayList<>();
         list.add("ffprobe");
         list.add("-v");
         list.add("error");
-        list.add("-select_streams");
-        list.add("a");
         list.add("-show_entries");
         list.add("stream=codec_type");
         list.add("-of");
-        list.add("csv=p=0");
+        list.add("default=nw=1:nk=1");
         list.add(path.getFileName().toString());
+        return list;
+    }
+
+    //**********************************************************
+    public static boolean does_this_file_contain_an_audio_track(
+            Path path,
+            Window owner,
+            Logger logger)
+    //**********************************************************
+    {
+        List<String> list = get_ffprobe_cmd( path);
         StringBuilder sb = new StringBuilder();
         File wd = path.getParent().toFile();
         if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null)

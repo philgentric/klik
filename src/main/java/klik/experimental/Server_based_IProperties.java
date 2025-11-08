@@ -18,7 +18,7 @@ import java.util.List;
 
 public class Server_based_IProperties implements IProperties
 {
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
     private final Logger logger;
     private static Properties_server server = null;
 

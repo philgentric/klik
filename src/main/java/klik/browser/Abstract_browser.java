@@ -149,9 +149,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         my_Stage.the_Stage.setHeight(height);
         my_Stage.the_Stage.show();
 
-        logger.log("\n\nset_icon_for_main_window before");
         Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, badge, Look_and_feel_manager.Icon_type.KLIK, my_Stage.the_Stage, logger);
-        logger.log("set_icon_for_main_window after\n\n");
 
         // RELOAD a fresh history (e.g. if a drive was re-inserted) and record this in history
         History_engine.get(get_owner()).add(get_name());

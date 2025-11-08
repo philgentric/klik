@@ -34,9 +34,7 @@ public class UI_instance_holder
         String path =  "--args=\""+folder.toAbsolutePath()+"\"";
         cmds.add(path);
 
-        StringBuilder sb = new StringBuilder();
-        Execute_command.execute_command_list_no_wait(cmds,new File("."),20*1000,sb,logger);
-        logger.log(sb.toString());
+        Execute_command.execute_command_list_no_wait(cmds,new File("."),logger);
     }
 
 

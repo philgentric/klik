@@ -6,12 +6,16 @@ package klik.audio;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Window;
+import klik.properties.Non_booleans_properties;
+import klik.properties.boolean_features.Booleans;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.util.execute.Execute_command;
 import klik.util.files_and_paths.Extensions;
 import klik.util.log.Logger;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,28 +74,41 @@ public class Ffmpeg_metadata_editor
             String base = Extensions.get_base_name(output_path);
             String extension = Extensions.get_extension(output_path);
             output_path = Extensions.add(base + "_edited", extension);
-            List<String> cmds = new ArrayList<>();
-            cmds.add("ffmpeg");
-            cmds.add("-i");
-            cmds.add(path.toAbsolutePath().toString());
-            cmds.add("-c");
-            cmds.add("copy");
+            List<String> command_line_for_ffmpeg = new ArrayList<>();
+            command_line_for_ffmpeg.add("ffmpeg");
+            command_line_for_ffmpeg.add("-i");
+            command_line_for_ffmpeg.add(path.toAbsolutePath().toString());
+            command_line_for_ffmpeg.add("-c");
+            command_line_for_ffmpeg.add("copy");
             if (new_title != null) {
-                cmds.add("-metadata");
-                cmds.add("title=" + new_title);
+                command_line_for_ffmpeg.add("-metadata");
+                command_line_for_ffmpeg.add("title=" + new_title);
             }
             if (new_performer != null) {
-                cmds.add("-metadata");
-                cmds.add("artist=" + new_performer);
+                command_line_for_ffmpeg.add("-metadata");
+                command_line_for_ffmpeg.add("artist=" + new_performer);
             }
-            cmds.add(output_path);
+            command_line_for_ffmpeg.add(output_path);
 
-            logger.log("cmds" + cmds);
+            logger.log("command_line_for_ffmpeg:" + command_line_for_ffmpeg);
 
             StringBuilder sb = new StringBuilder();
-            String out = Execute_command.execute_command_list(cmds, path.getParent().toFile(), 2000, sb, logger);
+            Execute_result res = Execute_command.execute_command_list(command_line_for_ffmpeg, path.getParent().toFile(), 2000, sb, logger);
+            if ( !res.status())
+            {
+                List<String> verify = new ArrayList<>();
+                verify.add("ffmpeg");
+                verify.add("-version");
+                String home = System.getProperty(Non_booleans_properties.USER_HOME);
+                Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+                if ( !res2.status())
+                {
+                    Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+                }
+                return;
+            }
             logger.log("wtf" + sb);
-            logger.log("ffmpeg meta data edit:" + out);
+            logger.log("ffmpeg meta data edit:" + res.output());
         };
         Actor_engine.execute(r,"Ffmpeg meta data edit",logger);
     }

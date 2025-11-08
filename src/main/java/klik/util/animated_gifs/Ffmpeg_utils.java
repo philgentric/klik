@@ -10,6 +10,8 @@
 package klik.util.animated_gifs;
 
 import javafx.stage.Window;
+import klik.properties.Non_booleans_properties;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.properties.boolean_features.Booleans;
@@ -48,10 +50,18 @@ public class Ffmpeg_utils
         list.add("-show_format");
         StringBuilder sb = new StringBuilder();
         File wd = path.getParent().toFile();
-        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null)
+        Execute_result res = Execute_command.execute_command_list(list, wd, 2000, sb, logger);
+        if ( !res.status())
         {
-
-            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            List<String> verify = new ArrayList<>();
+            verify.add("ffmpeg");
+            verify.add("-version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            }
         }
         //logger.log("->"+sb.toString()+"<-");
 
@@ -92,9 +102,18 @@ public class Ffmpeg_utils
 
         StringBuilder sb = new StringBuilder();
         File wd = audio_path.getParent().toFile();
-        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger)==null)
+        Execute_result res = Execute_command.execute_command_list(list, wd, 2000, sb, logger);
+        if ( !res.status())
         {
-            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            List<String> verify = new ArrayList<>();
+            verify.add("ffmpeg");
+            verify.add("-version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            }
         }
         //logger.log("->"+sb.toString()+"<-");
 
@@ -169,9 +188,19 @@ public class Ffmpeg_utils
         }
         // Output file is empty
         StringBuilder sb = new StringBuilder();
-        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger)==null)
+        Execute_result res = Execute_command.execute_command_list(list, wd, 2000, sb, logger);
+        if ( !res.status())
         {
-            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            List<String> verify = new ArrayList<>();
+            verify.add("ffmpeg");
+            verify.add("-version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            }
+            return;
         }
         logger.log("\n\n\n ffmpeg output :\n"+ sb +"\n\n\n");
 
@@ -223,9 +252,18 @@ public class Ffmpeg_utils
         }
         // Output file is empty
         StringBuilder sb = new StringBuilder();
-        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger)==null)
+        Execute_result res = Execute_command.execute_command_list(list, wd, 2000, sb, logger);
+        if ( !res.status())
         {
-            Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            List<String> verify = new ArrayList<>();
+            verify.add("ffmpeg");
+            verify.add("-version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            }
         }
         logger.log("\n\n\n ffmpeg output :\n"+ sb +"\n\n\n");
 

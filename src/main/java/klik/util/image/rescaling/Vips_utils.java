@@ -128,7 +128,7 @@ public class Vips_utils
         }
         catch (UnsatisfiedLinkError e)
         {
-            Popups.popup_warning("VIPS not installed","Rescaling with not default filter(s) requires VIPS",true,null,logger);
+            Popups.popup_warning("❗ VIPS not installed","Rescaling with non-default filter(s) requires VIPS",true,null,logger);
             return null;
         }
     }

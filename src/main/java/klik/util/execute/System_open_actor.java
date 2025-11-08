@@ -137,44 +137,19 @@ public class System_open_actor implements Actor
         if (som.aborter.should_abort())
         {
             som.logger.log("open special aborted");
-            return true;
+            return false;
         }
         // Output file is empty
         StringBuilder sb = new StringBuilder();
         File wd = som.path.toFile().getParentFile();
-        if (Execute_command.execute_command_list(list, wd, 2000, sb, som.logger) == null)
+        Execute_result res = Execute_command.execute_command_list(list, wd, 2000, sb, som.logger);
+        if ( !res.status())
         {
             som.logger.log("open special failed:\n"+ sb +"\n\n\n");
-            return true;
+            return false;
         }
-        som.logger.log("\n\n\n open special  output :\n"+ sb +"\n\n\n");
-        return false;
+        som.logger.log("\n\n\n open special output :\n"+ sb +"\n\n\n");
+        return true;
     }
-
-    //**********************************************************
-    private static boolean call_exec(System_open_message som, String app)
-    //**********************************************************
-    {
-        List<String> list = new ArrayList<>();
-        list.add(app);
-        list.add(som.path.toFile().getAbsolutePath());
-
-        if (som.aborter.should_abort())
-        {
-            som.logger.log("open special aborted");
-            return true;
-        }
-        // Output file is empty
-        StringBuilder sb = new StringBuilder();
-        File wd = som.path.toFile().getParentFile();
-        if (Execute_command.execute_command_list(list, wd, 2000, sb, som.logger)==null)
-        {
-            som.logger.log("open special failed:\n"+ sb +"\n\n\n");
-            return true;
-        }
-        som.logger.log("\n\n\n open special  output :\n"+ sb +"\n\n\n");
-        return false;
-    }
-
 
 }

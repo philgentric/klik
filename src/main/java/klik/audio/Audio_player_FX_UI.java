@@ -27,6 +27,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.browser.Drag_and_drop;
@@ -47,7 +48,7 @@ import java.util.*;
 public class Audio_player_FX_UI implements Media_callbacks
 //**********************************************************
 {
-    private static final boolean dbg =  true;
+    private static final boolean dbg =  false;
     private static final boolean ultra_dbg =  false;
     static final boolean keyword_dbg = false;
 
@@ -1165,21 +1166,29 @@ public class Audio_player_FX_UI implements Media_callbacks
 
         logger.log("going to extract audio tracks from URl:"+youtube_url);
 
-        List<String> cmds = new ArrayList<>();
-        cmds.add("yt-dlp");
-        cmds.add("-4");
-        cmds.add("-x");
-        cmds.add("--audio-format");
-        cmds.add("aac");
-        cmds.add("--audio-quality");
-        cmds.add("0");
-        cmds.add(youtube_url);
+        List<String> command_line_for_ytdlp= new ArrayList<>();
+        command_line_for_ytdlp.add("yt-dlp");
+        command_line_for_ytdlp.add("-4");
+        command_line_for_ytdlp.add("-x");
+        command_line_for_ytdlp.add("--audio-format");
+        command_line_for_ytdlp.add("aac");
+        command_line_for_ytdlp.add("--audio-quality");
+        command_line_for_ytdlp.add("0");
+        command_line_for_ytdlp.add(youtube_url);
 
         StringBuilder sb = new StringBuilder();
         String home = System.getProperty(Non_booleans_properties.USER_HOME);
-        if ( Execute_command.execute_command_list(cmds, new File(home), 20 * 1000, sb, logger)==null)
+        Execute_result res = Execute_command.execute_command_list(command_line_for_ytdlp, new File(home), 20 * 1000, sb, logger);
+        if ( !res.status())
         {
-            Booleans.manage_show_ytdlp_install_warning(stage,logger);
+            List<String> verif = new ArrayList<>();
+            verif.add("yt-dlp");
+            verif.add("--version");
+            Execute_result res2 = Execute_command.execute_command_list(verif, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_ytdlp_install_warning(stage,logger);
+            }
             return List.of();
         }
         logger.log(sb.toString());

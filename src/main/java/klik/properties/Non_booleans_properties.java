@@ -467,7 +467,7 @@ public class Non_booleans_properties
             try {
                 Files.createDirectory(conf_dir1);
             } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed " + e;
+                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed (1)" + e;
                 if (can_fail) {
                     logger.log(err);
                     return null;
@@ -484,7 +484,7 @@ public class Non_booleans_properties
             try {
                 Files.createDirectory(conf_dir2);
             } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed";
+                String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed (2)";
                 Popups.popup_Exception(e, 300, err, owner, logger);
                 return null;
             }
@@ -498,7 +498,7 @@ public class Non_booleans_properties
                 Files.createDirectory(returned);
                 return returned;
             } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed";
+                String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed (3)";
                 Popups.popup_Exception(e, 300, err, owner, logger);
                 return null;
             }

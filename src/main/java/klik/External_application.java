@@ -16,6 +16,7 @@ public enum External_application
 //**********************************************************
 {
     Ytdlp,
+    fpcalc,
     ImageMagick,
     FFmpeg,
     Vips,
@@ -24,10 +25,7 @@ public enum External_application
 
 
     //**********************************************************
-    public Button get_button(
-            double width, double icon_size,
-            //VBox vbox,
-            Look_and_feel look_and_feel, Window owner, Logger logger)
+    public Button get_button(double width, double icon_size, Look_and_feel look_and_feel, Window owner, Logger logger)
     //**********************************************************
     {
         Button b = new Button(My_I18n.get_I18n_string(get_I18n_key(), owner,logger));
@@ -58,6 +56,8 @@ public enum External_application
         {
             case Ytdlp:
                 return "Install_Youtubedownloader";
+            case fpcalc:
+                return "Install_Fpcalc";
             case ImageMagick:
                 return "Install_Imagemagick";
             case FFmpeg:
@@ -80,6 +80,8 @@ public enum External_application
         {
             case Ytdlp:
                 return "yt-dlp";
+            case fpcalc:
+                return "chromaprint (for fpcalc)";
             case ImageMagick:
                 return "imagemagick";
             case FFmpeg:

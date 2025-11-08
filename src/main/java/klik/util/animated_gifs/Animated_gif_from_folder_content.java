@@ -6,6 +6,7 @@
 package klik.util.animated_gifs;
 
 import javafx.stage.Window;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
@@ -92,7 +93,7 @@ public class Animated_gif_from_folder_content
             Path p = paths.get(i);
             String local = Icon_caching.make_cache_name(path_list_provider.get_name(), FRAME1 + i, Icon_caching.png_extension);
             Path destination = Path.of(icon_cache_dir.toAbsolutePath().toString(),local);
-            generate_padded_icon(p,icon_size,destination,logger);
+            generate_padded_icon(p,icon_size,destination,owner,logger);
             //to_be_cleaned_up.add(destination);
         }
 
@@ -110,11 +111,18 @@ public class Animated_gif_from_folder_content
             if ( dbg_GraphicsMagick_call) logger.log("\n\nexecute = "+graphicsMagick_command_line);
             StringBuilder sb = null;
             if (dbg_GraphicsMagick_call) sb = new StringBuilder();
-            if (Execute_command.execute_command_list(graphicsMagick_command_line, icon_cache_dir.toFile(), 2000, sb, logger) == null)
+            Execute_result res = Execute_command.execute_command_list(graphicsMagick_command_line, icon_cache_dir.toFile(), 2000, sb, logger);
+            if ( !res.status())
             {
-                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
-                logger.log(" make_animated_gif_from_all_images_in_folder convert call failed");
-                return null;
+                List<String> verify = new ArrayList<>();
+                verify.add("gm");
+                verify.add("--version");
+                String home = System.getProperty(Non_booleans_properties.USER_HOME);
+                Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+                if ( !res2.status())
+                {
+                    Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+                }
             }
             else
             {
@@ -135,7 +143,7 @@ public class Animated_gif_from_folder_content
     }
 
     //**********************************************************
-    private static void generate_padded_icon(Path p, int icon_ize, Path destination, Logger logger)
+    private static void generate_padded_icon(Path p, int icon_ize, Path destination, Window owner, Logger logger)
     //**********************************************************
     {
         // gm convert in.jpg -resize 256x256 -gravity center -background transparent -extent 256x256 padded_icon.png
@@ -156,9 +164,18 @@ public class Animated_gif_from_folder_content
 
         StringBuilder sb = null;
         if (dbg_GraphicsMagick_call) sb = new StringBuilder();
-        if (Execute_command.execute_command_list(graphicsMagick_command_line, new File("."), 2000, sb, logger) == null)
+        Execute_result res = Execute_command.execute_command_list(graphicsMagick_command_line, new File("."), 2000, sb, logger);
+        if ( !res.status())
         {
-            logger.log("FAILED: make_animated_gif_from_all_images_in_folder "+graphicsMagick_command_line);
+            List<String> verify = new ArrayList<>();
+            verify.add("gm");
+            verify.add("--version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+            }
         }
         else
         {

@@ -49,7 +49,7 @@ public class Execute_via_script_in_tmp_file
         LinkedBlockingQueue<String> output_queue;
         if ( show_window)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("Showing output window for command: "+the_command));
+            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("Showing output window for command: "+the_command));
             output_queue = new LinkedBlockingQueue<>();
             Platform.runLater(()-> Text_frame.show(the_command, output_queue,logger));
         }

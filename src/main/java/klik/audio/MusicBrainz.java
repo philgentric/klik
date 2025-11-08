@@ -207,7 +207,7 @@ public class MusicBrainz
         }
         catch (IOException e)
         {
-            logger.log("❌ WARNING icon acquired from:"+image_URL+" NOT saved as: "+icon_file+" "+e);
+            logger.log("❗Warning icon acquired from:"+image_URL+" NOT saved as: "+icon_file+" "+e);
 
         }
         return null;

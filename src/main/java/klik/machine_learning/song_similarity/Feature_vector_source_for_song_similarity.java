@@ -4,6 +4,8 @@
 package klik.machine_learning.song_similarity;
 
 import javafx.stage.Window;
+import klik.properties.boolean_features.Booleans;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector;
 import klik.machine_learning.feature_vector.Feature_vector_source;
@@ -42,7 +44,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
             return null;
         }
 
-        String result = call_fpcalc_to_get_embedding(wav_path, logger);
+        String result = call_fpcalc_to_get_embedding(wav_path, owner, logger);
         if (result == null)
         {
             new File(wav_path).delete();
@@ -67,7 +69,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
     }
 
     //**********************************************************
-    private String call_fpcalc_to_get_embedding(String wav_path, Logger logger)
+    private String call_fpcalc_to_get_embedding(String wav_path, Window owner, Logger logger)
     //**********************************************************
     {
         List<String> cmds = new ArrayList<>();
@@ -76,14 +78,27 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
         cmds.add(wav_path);
 
         StringBuilder sb = new StringBuilder();
-        String out = Execute_command.execute_command_list(
+        Execute_result res = Execute_command.execute_command_list(
                 cmds,
                 new File("."),
                 1000*60,
                 sb, logger);
 
-        if ( ultra_dbg) logger.log(wav_path+"\nfpcalc output:\n"+out);
-        return out;
+        if ( !res.status())
+        {
+            List<String> verify = new ArrayList<>();
+            verify.add("fpcalc");
+            verify.add("-version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_fpcalc_install_warning(owner,logger);
+            }
+            return null;
+        }
+        if ( ultra_dbg) logger.log(wav_path+"\nfpcalc output:\n"+res.output());
+        return res.output();
     }
 
     //**********************************************************
@@ -113,12 +128,25 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
 
 
         StringBuilder sb = new StringBuilder();
-        String out = Execute_command.execute_command_list(
+        Execute_result res = Execute_command.execute_command_list(
                 cmds,
                 new File("."),
                 1000*60,
                 sb, logger);
 
+        if ( !res.status())
+        {
+            List<String> verify = new ArrayList<>();
+            verify.add("ffmpeg");
+            verify.add("-version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_ffmpeg_install_warning(owner,logger);
+            }
+            return null;
+        }
         if ( sb.toString().contains("Error while decoding stream"))
         {
             logger.log("WARNING: ffmpeg could not decode "+path);

@@ -82,7 +82,7 @@ public class Audio_player_application extends Application
                 }
             }
         } catch (IOException | NumberFormatException e) {
-            logger.log("❌ WARNING: could not read reply_port "+p);
+            logger.log("❗Warning: could not read reply_port "+p);
         }
         return null;
     }

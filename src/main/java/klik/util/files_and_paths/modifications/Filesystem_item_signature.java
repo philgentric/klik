@@ -4,6 +4,7 @@
 package klik.util.files_and_paths.modifications;
 
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,8 +17,8 @@ import java.util.Arrays;
 public class Filesystem_item_signature
 //**********************************************************
 {
-    byte[] file_signature_array; // MD5 hash of file content
-    String[] folder_signature_array; // list of files/folders
+    byte[] file_signature_array; // MD5 hash of file content, null if file is a folder
+    String[] folder_signature_array; // list of files/folders, null if file is a file
     final static int internal_hash_computation_buffer_size_in_bytes = 1024;
     final Logger logger;
 
@@ -30,7 +31,7 @@ public class Filesystem_item_signature
 
 
     //**********************************************************
-    public boolean init(Path path)
+    public File_status init(Path path)
     //**********************************************************
     {
         if ( path.toFile().isDirectory())
@@ -41,7 +42,7 @@ public class Filesystem_item_signature
             if ( folder_signature_array ==null)
             {
                 logger.log("❌ FATAL: Filesystem_item_signature scanning failed for "+path);
-                return false;
+                return File_status.FOLDER_NOT_FOUND;
             }
             // File.list() returns an OS dependent order, which is also user choice dependant
             // so the same folder may show a different order at different times
@@ -51,24 +52,29 @@ public class Filesystem_item_signature
         else
         {
             folder_signature_array = null;
-            file_signature_array = get_file_hash(path, logger);
+            Hash_and_status hash_and_status = get_file_hash(path, logger);
+            if ( hash_and_status.status() != File_status.OK)
+            {
+                return hash_and_status.status();
+            }
+            file_signature_array = hash_and_status.hash();
             if ( file_signature_array ==null)
             {
-                logger.log("❌ FATAL: Filesystem_item_signature file_signature_array == null for "+path);
-                return false;
+                logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN: Filesystem_item_signature file_signature_array == null for "+path));
+                return File_status.EXCEPTION;
             }
             if ( file_signature_array.length == 0)
             {
-                logger.log("WARNING: Filesystem_item_signature file_signature_array is empty ??? for "+path);
-                return false;
+                logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN: Filesystem_item_signature file_signature_array is empty for "+path));
+                return File_status.EXCEPTION;
             }
         }
-        return true;
+        return File_status.OK;
     }
 
 
     //**********************************************************
-    public static byte[] get_file_hash(Path path, Logger logger)
+    public static Hash_and_status get_file_hash(Path path, Logger logger)
     //**********************************************************
     {
         byte[] hash = null;
@@ -90,12 +96,12 @@ public class Filesystem_item_signature
 
         } catch (FileNotFoundException e) {
             logger.log("Filesystem_item_signature get_file_hash() fails because of: " + e);
-            return new byte[0];
+            return new Hash_and_status(new byte[0],File_status.FILE_NOT_FOUND);
         } catch (Exception e) {
             logger.log("Filesystem_item_signature get_file_hash() fails because of: " + e);
-            return new byte[0];
+            return new Hash_and_status(new byte[0],File_status.EXCEPTION);
         }
-        return hash;
+        return new Hash_and_status(hash,File_status.OK);
     }
 
 

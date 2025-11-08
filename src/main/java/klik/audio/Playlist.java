@@ -297,7 +297,7 @@ public class Playlist
         Song future = path_to_Song.get(the_song_path);
         if ( future == null)
         {
-            if ( dbg) logger.log("❌ WARNING: this file is not mapped: " + the_song_path);
+            if ( dbg) logger.log("❗Warning: this file is not mapped: " + the_song_path);
             return;
         }
         if ( selected != null)

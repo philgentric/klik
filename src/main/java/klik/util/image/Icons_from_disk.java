@@ -275,7 +275,7 @@ public class Icons_from_disk
             Logger logger)
     //**********************************************************
     {
-        logger.log("load_icon_from_disk_cache");
+        //logger.log("load_icon_from_disk_cache");
 
         if (Check_remaining_RAM.RAM_running_low(logger))
         {

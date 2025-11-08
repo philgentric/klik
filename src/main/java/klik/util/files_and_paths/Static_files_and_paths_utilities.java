@@ -750,7 +750,7 @@ public class Static_files_and_paths_utilities
         try
         {
             Files.delete(p);
-            logger.log("Deleted for ever: " + p);
+            if ( dbg) logger.log("Deleted for ever: " + p);
         }
         catch (NoSuchFileException x)
         {

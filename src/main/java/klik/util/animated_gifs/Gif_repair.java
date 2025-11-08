@@ -5,6 +5,7 @@ package klik.util.animated_gifs;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
@@ -14,6 +15,7 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,10 +69,18 @@ public class Gif_repair
         graphicsMagick_command_line.add(uuid+"_frame_%03d.gif");
         StringBuilder sb = null;
         if ( dbg) sb = new StringBuilder();
-        if ( Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb, logger) ==null)
+        Execute_result res = Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb, logger);
+        if ( !res.status())
         {
-            Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
-            // and restore the file
+            List<String> verify = new ArrayList<>();
+            verify.add("gm");
+            verify.add("--version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+            }
             Moving_files.safe_move_a_file_or_dir_NOT_in_a_thread(old_path_for_restore,new_path.toFile(), 100,100,owner,aborter, logger);
             return null;
         }
@@ -96,9 +106,18 @@ public class Gif_repair
             graphicsMagick_command_line.add(final_dest.toAbsolutePath().toString());
             StringBuilder sb = null;
             if ( dbg) sb = new StringBuilder();
-            if ( Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb,logger) == null)
+            Execute_result res = Execute_command.execute_command_list(graphicsMagick_command_line, tmp_dir.toFile(), 2000, sb,logger);
+            if ( !res.status())
             {
-                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+                List<String> verify = new ArrayList<>();
+                verify.add("gm");
+                verify.add("--version");
+                String home = System.getProperty(Non_booleans_properties.USER_HOME);
+                Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+                if ( !res2.status())
+                {
+                    Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+                }
                 return null;
             }
             if ( dbg) logger.log(sb.toString());
@@ -110,9 +129,9 @@ public class Gif_repair
             l.add("rm");
             l.add("frame_0*.gif");
             l.add(image_context.path.getFileName().toString());
-            if ( Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger) == null)
+            Execute_result res = Execute_command.execute_command_list(l, tmp_dir.toFile(), 2000, null, logger);
+            if ( !res.status())
             {
-                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
                 return null;
             }
 

@@ -23,6 +23,7 @@ import javafx.scene.control.*;
 import javafx.stage.Window;
 import klik.Window_type;
 import klik.Instructions;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Actor_engine;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.Icon_size;
@@ -375,9 +376,19 @@ public class Virtual_landscape_menus
         StringBuilder sb = null;
         if ( dbg) sb = new StringBuilder();
         File wd = (virtual_landscape.path_list_provider.get_folder_path()).toFile();
-        if ( Execute_command.execute_command_list(graphicsMagick_command_line, wd, 2000, sb, logger) == null)
+        Execute_result res = Execute_command.execute_command_list(graphicsMagick_command_line, wd, 2000, sb, logger);
+        if ( !res.status())
         {
-            Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+            List<String> verify = new ArrayList<>();
+            verify.add("gm");
+            verify.add("--version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+            }
+            return;
         }
         else
         {

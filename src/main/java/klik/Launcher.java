@@ -15,9 +15,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.audio.Audio_player_access;
@@ -182,7 +184,7 @@ public class Launcher extends Application implements UI_change
         {
             Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", stage,logger));
             vbox.getChildren().add(b);
-            look_and_feel.set_Button_look(b, WIDTH,icon_size,Icon_type.IMAGE, stage,logger);
+            look_and_feel.set_Button_look(b, 2*WIDTH,icon_size,Icon_type.IMAGE, stage,logger);
             b.setOnAction(event -> {
                 if ( Launcher.gluon)
                 {
@@ -197,7 +199,7 @@ public class Launcher extends Application implements UI_change
         {
             Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", stage,logger));
             vbox.getChildren().add(b);
-            look_and_feel.set_Button_look(b, WIDTH,icon_size,Icon_type.MUSIC, stage,logger);
+            look_and_feel.set_Button_look(b, 2*WIDTH,icon_size,Icon_type.MUSIC, stage,logger);
             b.setOnAction(event -> {
                 start_app_with_gradle_and_listen("audio_player",stage, logger);
                 propagate_to.add(Audio_player_access.AUDIO_PLAYER_PORT);
@@ -205,20 +207,22 @@ public class Launcher extends Application implements UI_change
         }
 
 
-
         {
             Separator separator = new Separator();
             vbox.getChildren().add(separator);
         }
+        HBox hbox = new HBox();
+        VBox vbox1 =  new VBox();
+        hbox.getChildren().add(vbox1);
         {
             Button b = new Button(My_I18n.get_I18n_string("Start_Image_Similarity_Servers", stage,logger));
-            vbox.getChildren().add(b);
+            vbox1.getChildren().add(b);
             look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false,stage, logger));
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Stop_Image_Similarity_Servers", stage,logger));
-            vbox.getChildren().add(b);
+            vbox1.getChildren().add(b);
             look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false,stage, logger));
         }
@@ -226,53 +230,53 @@ public class Launcher extends Application implements UI_change
 
         {
             Separator separator = new Separator();
-            vbox.getChildren().add(separator);
+            vbox1.getChildren().add(separator);
         }
 
         {
             Button b = new Button(My_I18n.get_I18n_string("Start_Face_Recognition_Servers", stage,logger));
-            vbox.getChildren().add(b);
+            vbox1.getChildren().add(b);
             look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), false,stage, logger));
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Stop_Face_Recognition_Servers", stage,logger));
-            vbox.getChildren().add(b);
+            vbox1.getChildren().add(b);
             look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
             b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false,stage, logger));
         }
 
-
         {
             Separator separator = new Separator();
-            vbox.getChildren().add(separator);
-        }
-        {
-            for (External_application app : External_application.values())
-            {
-                Button b = app.get_button(WIDTH, icon_size, look_and_feel, stage, logger);
-                vbox.getChildren().add(b);
-            }
-        }
-
-
-
-        {
-            Separator separator = new Separator();
-            vbox.getChildren().add(separator);
+            vbox1.getChildren().add(separator);
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Show_Version", stage,logger));
-            vbox.getChildren().add(b);
+            vbox1.getChildren().add(b);
             look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
             b.setOnAction(e -> show_version(stage, logger));
         }
         {
             Button b = new Button(My_I18n.get_I18n_string("Get_Most_Recent_Version", stage,logger));
-            vbox.getChildren().add(b);
+            vbox1.getChildren().add(b);
             look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
             b.setOnAction(e -> get_most_recent_version(stage, logger));
         }
+
+        {
+            Separator separator = new Separator();
+            hbox.getChildren().add(separator);
+        }
+        VBox vbox2 =  new VBox();
+        hbox.getChildren().add(vbox2);
+        {
+            for (External_application app : External_application.values())
+            {
+                Button b = app.get_button(WIDTH, icon_size, look_and_feel, stage, logger);
+                vbox2.getChildren().add(b);
+            }
+        }
+        vbox.getChildren().add(hbox);
     }
 
     //**********************************************************
@@ -316,9 +320,13 @@ public class Launcher extends Application implements UI_change
         cmds.add("--count");
         cmds.add("HEAD");
 
-        StringBuilder sb = null;//new StringBuilder();
-        String commit_count = Execute_command.execute_command_list(cmds, new File("."), 20 * 1000, sb, logger);
-        //logger.log(sb.toString());
+        Execute_result res = Execute_command.execute_command_list(cmds, new File("."), 20 * 1000, null, logger);
+        if ( !res.status())
+        {
+            logger.log("❗Warning cannot get commit count, is git installed ?");
+            return "❗Warning cannot get commit count, is git installed ?";
+        }
+        String commit_count = res.output();
         return commit_count;
     }
 
@@ -332,8 +340,14 @@ public class Launcher extends Application implements UI_change
         cmds.add("build.gradle");
 
         StringBuilder sb = null;//new StringBuilder();
-        String commit_count = Execute_command.execute_command_list(cmds, new File("."), 20 * 1000, sb, logger);
-        String[] lines = commit_count.split("\n");
+        Execute_result res = Execute_command.execute_command_list(cmds, new File("."), 20 * 1000, sb, logger);
+        if ( !res.status())
+        {
+            logger.log("❗Warning cannot get version from build.gradle");
+            return "❗Warning cannot get version from build.gradle";
+        }
+        String version_string = res.output();
+        String[] lines = version_string.split("\n");
         for ( String s : lines)
         {
             if ( s.contains("application_version"))
@@ -427,17 +441,7 @@ public class Launcher extends Application implements UI_change
 
         AtomicBoolean failed = new AtomicBoolean(false);
         Runnable r = () -> {
-            StringBuilder sb = new StringBuilder();
-            Execute_command.execute_command_list_no_wait(cmds, new File("."), 20 * 1000, sb, logger);
-            logger.log(sb.toString());
-            if ( sb.toString().contains("BUILD FAILED"))
-            {
-                // this does not work because execute_command_list_no_wait does not write anything into the sb
-                logger.log("\n\n\n\n\n\nBUILD FAILED\n\n\n\n\n\n");
-                Platform.runLater(() -> Popups.simple_alert("BUILD FAILED",stage,logger));
-                failed.set(true);
-                TCP_client.send("localhost",port_to_reply_about_start,Launcher.NOT_STARTED,logger); // this is to unblock the hourglass
-            }
+            Execute_command.execute_command_list_no_wait(cmds, new File("."), logger);
         };
         Actor_engine.execute(r, "gradle "+app_name,logger);
 
@@ -531,7 +535,7 @@ public class Launcher extends Application implements UI_change
         }
         catch (IOException e)
         {
-            logger.log("❌ WARNING: Launcher::write_UI_change_listening_port_to_file: cannot write to file "+p);
+            logger.log("❗Warning: Launcher::write_UI_change_listening_port_to_file: cannot write to file "+p);
         }
     }
 
@@ -551,7 +555,7 @@ public class Launcher extends Application implements UI_change
         }
         catch (IOException e)
         {
-            logger.log("❌ WARNING: Launcher::port_to_reply_about_start: cannot write to file "+p);
+            logger.log("❗Warning: Launcher::port_to_reply_about_start: cannot write to file "+p);
         }
     }
 }

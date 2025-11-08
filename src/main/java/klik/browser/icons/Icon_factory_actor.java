@@ -13,6 +13,7 @@ package klik.browser.icons;
 
 import javafx.scene.image.Image;
 import javafx.stage.Window;
+import klik.util.execute.Execute_result;
 import klik.util.execute.actor.*;
 import klik.util.animated_gifs.Ffmpeg_utils;
 import klik.browser.Image_and_properties;
@@ -495,9 +496,18 @@ public class Icon_factory_actor implements Actor
             StringBuilder sb = null;
             if ( pdf_dbg) sb = new StringBuilder();
             File wd = file_in.getParentFile();
-            if ( Execute_command.execute_command_list(command_line_for_GraphicsMagic, wd, 2000, sb,logger) == null)
+            Execute_result res = Execute_command.execute_command_list(command_line_for_GraphicsMagic, wd, 2000, sb,logger);
+            if ( !res.status())
             {
-                Booleans.manage_show_graphicsmagick_install_warning(icon_factory_request.owner,logger);
+                List<String> verify = new ArrayList<>();
+                verify.add("gm");
+                verify.add("--version");
+                String home = System.getProperty(Non_booleans_properties.USER_HOME);
+                Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+                if ( !res2.status())
+                {
+                    Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
+                }
                 return null;
             }
             if ( pdf_dbg) logger.log(sb.toString());

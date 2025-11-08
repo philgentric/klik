@@ -19,6 +19,7 @@ import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
 import klik.change.Change_gang;
+import klik.util.files_and_paths.modifications.File_status;
 import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.modifications.Filesystem_modification_reporter;
 import klik.util.files_and_paths.old_and_new.Command;
@@ -239,7 +240,7 @@ public class Image_context
             };
             Filesystem_item_modification_watcher ephemeral_filesystem_item_modification_watcher = new Filesystem_item_modification_watcher();
             // will die after 10 minutes
-            if ( !ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,new Aborter("edit",logger), logger))
+            if ( ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,new Aborter("edit",logger), logger) != File_status.OK)
             {
                 logger.log("Warning: cannot start monitoring: "+path);
             }
@@ -269,7 +270,7 @@ public class Image_context
             };
             Filesystem_item_modification_watcher ephemeral_filesystem_item_modification_watcher = new Filesystem_item_modification_watcher();
             // will die after 10 minutes
-            if ( !ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,aborter,logger))
+            if ( ephemeral_filesystem_item_modification_watcher.init(path,reporter,false,10,aborter,logger) != File_status.OK)
             {
                 logger.log("Warning: cannot start monitoring: "+path);
             }

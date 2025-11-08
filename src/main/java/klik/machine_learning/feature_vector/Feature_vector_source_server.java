@@ -315,7 +315,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         //list.add("Python.*run_server.*");
         StringBuilder sb = new StringBuilder();
         File wd = new File (".");
-        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger)==null)
+        if (! Execute_command.execute_command_list(list, wd, 2000, sb, logger).status())
         {
             logger.log("WARNING, checking if servers are running => failed(1):\n"+ sb );
             return false;

@@ -4,10 +4,13 @@
 package klik.audio;
 
 import javafx.stage.Window;
+import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
+import klik.util.execute.Execute_result;
 import klik.util.log.Logger;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,18 +24,27 @@ public class MediaInfo
     public static List<String> get(Path path, Window owner, Logger logger)
     //**********************************************************
     {
-        List<String> cmds = new ArrayList<>();
-        cmds.add("mediainfo");
-        cmds.add(path.toAbsolutePath().toString());
+        List<String> command_line_for_media_info = new ArrayList<>();
+        command_line_for_media_info.add("mediainfo");
+        command_line_for_media_info.add(path.toAbsolutePath().toString());
 
         StringBuilder sb = new StringBuilder();
-        String out = Execute_command.execute_command_list(cmds, path.getParent().toFile(), 2000, sb,logger);
-        if ( out == null)
+        Execute_result res = Execute_command.execute_command_list(command_line_for_media_info, path.getParent().toFile(), 2000, sb,logger);
+        if ( !res.status())
         {
-            Booleans.manage_show_mediainfo_install_warning(owner,logger);
-            return List.of("nothing found");
+            List<String> verify = new ArrayList<>();
+            verify.add("mediainfo");
+            verify.add("--version");
+            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
+            if ( !res2.status())
+            {
+                Booleans.manage_show_mediainfo_install_warning(owner,logger);
+            }
+            return List.of();
         }
-        String[] lines = out.split("\\R");
+
+        String[] lines = res.output().split("\\R");
 
         return List.of(lines);
     }
