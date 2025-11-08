@@ -249,14 +249,20 @@ public class Preferences_stage
     //**********************************************************
     {
         HBox hb = new HBox();
-        Button bb = new Button(My_I18n.get_I18n_string(key, owner, logger));
-        look_and_feel.set_Button_look(bb, width, icon_size, null, owner, logger);
-        bb.setOnAction(handler);
-        hb.getChildren().add(bb);
+        Button b = new Button(My_I18n.get_I18n_string(key, owner, logger));
+        Look_and_feel_manager.set_button_look(b,true,owner,logger);
+        //look_and_feel.set_Button_look(b, width, icon_size, null, owner, logger);
+        b.setOnAction(handler);
+        hb.getChildren().add(b);
         if ( !Feature_cache.get(Feature.Hide_question_mark_buttons_on_mysterious_menus))
         {
             Button explain = Preferences_stage.make_explanation_button(key, owner, logger);
             hb.getChildren().add(explain);
+            b.setPrefWidth(width-70);
+        }
+        else
+        {
+            b.setPrefWidth(width);
         }
         return hb;
     }

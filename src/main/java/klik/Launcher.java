@@ -13,7 +13,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
@@ -49,7 +48,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 // the launcher can start applications (the image browser klik, the audio player)
 // they are started as new processes
@@ -91,7 +89,8 @@ public class Launcher extends Application implements UI_change
     private Aborter aborter;
 
     private Logger logger;
-    private VBox vbox;
+    private HBox  main = new HBox();
+
     private static ConcurrentLinkedQueue<Integer> propagate_to = new ConcurrentLinkedQueue<>();
 
 
@@ -115,23 +114,18 @@ public class Launcher extends Application implements UI_change
         logger.log("Launcher starting");
         System_info.print(Launcher.class);
 
-        vbox = new VBox();
-        vbox.setAlignment(Pos.CENTER);
-        Look_and_feel_manager.set_region_look(vbox,stage,logger);
 
         String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,stage,logger);
-
         Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER,stage,logger);
 
-
-        define_UI( );
+        Scene scene = new Scene(main);
+        define_UI();
 
 
         int ui_change_listening_port = UI_change.start_UI_change_server(propagate_to,this,"Launcher",aborter,stage,logger);
 
 
         write_UI_change_listening_port_to_file(ui_change_listening_port,logger);
-        Scene scene = new Scene(vbox);
         stage.setTitle("Klik "+launcher);
         stage.setScene(scene);
         stage.show();
@@ -182,15 +176,21 @@ public class Launcher extends Application implements UI_change
     public void define_UI()
     //**********************************************************
     {
+        logger.log("Launcher define_UI");
         Look_and_feel look_and_feel = Look_and_feel_manager.get_instance(stage,logger);
 
-        vbox.getChildren().clear();
+        Look_and_feel_manager.set_region_look(main,stage,logger);
+
+        main.getChildren().clear();
+        VBox left = new VBox();
+        main.getChildren().add(left);
+        VBox right = new VBox();
+        main.getChildren().add(right);
+
         {
-            HBox hbox = new HBox();
-            vbox.getChildren().add(hbox);
             {
                 Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", stage, logger));
-                hbox.getChildren().add(b);
+                left.getChildren().add(b);
                 look_and_feel.set_Button_look(b, WIDTH, icon_size, Icon_type.IMAGE, stage, logger);
                 b.setOnAction(event -> {
                     if (Launcher.gluon) {
@@ -202,7 +202,7 @@ public class Launcher extends Application implements UI_change
             }
             {
                 Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", stage, logger));
-                hbox.getChildren().add(b);
+                right.getChildren().add(b);
                 look_and_feel.set_Button_look(b, WIDTH, icon_size, Icon_type.MUSIC, stage, logger);
                 b.setOnAction(event -> {
                     start_app_with_gradle_and_listen("audio_player", stage, logger);
@@ -213,16 +213,10 @@ public class Launcher extends Application implements UI_change
         }
         {
             Separator separator = new Separator();
-            vbox.getChildren().add(separator);
+            left.getChildren().add(separator);
+            right.getChildren().add(separator);
         }
-        HBox hbox = new HBox();
-        VBox vbox1 =  new VBox();
-        hbox.getChildren().add(vbox1);
 
-        {
-            Separator separator = new Separator();
-            vbox1.getChildren().add(separator);
-        }
         {
             String key = "Start_Image_Similarity_Servers";
             EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false,false,stage, logger);
@@ -234,7 +228,7 @@ public class Launcher extends Application implements UI_change
                     look_and_feel,
                     stage,
                     logger);
-            vbox1.getChildren().add(hb);
+            left.getChildren().add(hb);
         }
         {
             String key = "Stop_Image_Similarity_Servers";
@@ -247,13 +241,13 @@ public class Launcher extends Application implements UI_change
                     look_and_feel,
                     stage,
                     logger);
-            vbox1.getChildren().add(hb);
+            left.getChildren().add(hb);
         }
 
 
         {
             Separator separator = new Separator();
-            vbox1.getChildren().add(separator);
+            left.getChildren().add(separator);
         }
 
 
@@ -268,7 +262,7 @@ public class Launcher extends Application implements UI_change
                 look_and_feel,
                 stage,
                 logger);
-            vbox1.getChildren().add(hb);
+            left.getChildren().add(hb);
         }
 
         {
@@ -282,12 +276,12 @@ public class Launcher extends Application implements UI_change
                 look_and_feel,
                 stage,
                 logger);
-            vbox1.getChildren().add(hb);
+            left.getChildren().add(hb);
         }
 
         {
             Separator separator = new Separator();
-            vbox1.getChildren().add(separator);
+            left.getChildren().add(separator);
         }
         {
             String key = "Show_Version";
@@ -300,7 +294,7 @@ public class Launcher extends Application implements UI_change
                     look_and_feel,
                     stage,
                     logger);
-            vbox1.getChildren().add(hb);
+            left.getChildren().add(hb);
         }
         {
             String key = "Get_Most_Recent_Version";
@@ -313,15 +307,9 @@ public class Launcher extends Application implements UI_change
                     look_and_feel,
                     stage,
                     logger);
-            vbox1.getChildren().add(hb);
+            left.getChildren().add(hb);
         }
 
-        {
-            Separator separator = new Separator();
-            hbox.getChildren().add(separator);
-        }
-        VBox vbox2 =  new VBox();
-        hbox.getChildren().add(vbox2);
         {
             {
                 String key = "Install_All_Tools";
@@ -334,7 +322,7 @@ public class Launcher extends Application implements UI_change
                         look_and_feel,
                         stage,
                         logger);
-                vbox2.getChildren().add(hb);
+                right.getChildren().add(hb);
             }
 
             {
@@ -348,15 +336,14 @@ public class Launcher extends Application implements UI_change
                         look_and_feel,
                         stage,
                         logger);
-                vbox2.getChildren().add(hb);
+                right.getChildren().add(hb);
             }
             for (External_application app : External_application.values())
             {
                 HBox hb = app.get_button(WIDTH, icon_size, look_and_feel, stage, logger);
-                vbox2.getChildren().add(hb);
+                right.getChildren().add(hb);
             }
         }
-        vbox.getChildren().add(hbox);
     }
 
     //**********************************************************
@@ -626,6 +613,7 @@ public class Launcher extends Application implements UI_change
         {
             try ( BufferedWriter writer = java.nio.file.Files.newBufferedWriter(p))
             {
+                logger.log("ui change port is :"+ui_change_listening_port);
                 writer.write(""+ui_change_listening_port);
                 writer.newLine();
             }
