@@ -48,7 +48,7 @@ public class Finder_frame implements Search_receiver
 	Logger logger;
 	private final Aborter aborter;
 
-	Path target_path;
+	private Path target_path;
 
 	final private Map<String, Keyword_slot> keyword_to_slot =  new HashMap<>(); // this is the textfield to report the number of matches
 	final Stage stage;
@@ -473,8 +473,8 @@ public class Finder_frame implements Search_receiver
 	void start_search()
 	//**********************************************************
 	{
-		logger.log("Finder_frame::start_search()");
 		List<String> keywords = new ArrayList<>(keyword_to_slot.keySet());
+        logger.log("Finder_frame::start_search() "+keywords+" in: "+target_path);
 
 		String local_extension = null;
 		if ( use_extension)

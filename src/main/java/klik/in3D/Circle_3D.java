@@ -47,6 +47,7 @@ import klik.util.ui.progress.Progress_window;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 
@@ -198,6 +199,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
         logger.log("camera FarClip = " + perspective_camera.getFarClip());
         perspective_camera.setFieldOfView(60);
 
+        Map< LocalDateTime,String> the_whole_history = new HashMap<>();
         subScene.setCamera(perspective_camera);
         resetCamera();
 
@@ -219,7 +221,12 @@ public class Circle_3D implements Window_provider, Shutdown_target
         }
 
         {
-            Button undo_and_bookmark_and_history = Virtual_landscape.make_button_undo_and_bookmark_and_history(Window_type.File_system_3D,20, stage, logger);
+            Button undo_and_bookmark_and_history = Virtual_landscape.make_button_undo_and_bookmark_and_history(
+                    the_whole_history,
+                    path_list_provider,
+                    null,
+                    null,
+            Window_type.File_system_3D,20, stage, logger);
             buttons_box.getChildren().add(undo_and_bookmark_and_history);
         }
 

@@ -3,6 +3,7 @@
 
 package klik.machine_learning.feature_vector;
 
+import javafx.application.Platform;
 import javafx.stage.Window;
 import klik.Shared_services;
 import klik.util.execute.actor.Aborter;
@@ -74,6 +75,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         Actor_engine.execute(r, "Monitor embeddings stats",l);
     }
 
+    private static AtomicBoolean user_has_been_asked_if_servers_are_started = new AtomicBoolean(false);
     //**********************************************************
     public Feature_vector get_feature_vector_from_server(Path path, Window owner, Logger logger)
     //**********************************************************
@@ -94,12 +96,19 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
 
         if ( x==null)
         {
-            logger.log("get_feature_vector_from_server_generic: FAILED for:->"+path+"<- random_port="+random_port);
             if ( path.toFile().exists())
             {
-                logger.log("file exists, "+path.toFile().length()+" but feature vector is null");
+                if ( !user_has_been_asked_if_servers_are_started.get())
+                {
+                    user_has_been_asked_if_servers_are_started.set(true);
+                    Platform.runLater(()->Popups.popup_warning("Image similarity error","Did you start the servers ?",false,owner,logger));
+                }
+                logger.log("get_feature_vector_from_server_generic: FAILED but file exists, "+path.toFile().length()+" but feature vector is null");
             }
-            else logger.log("file does not exist: "+path);
+            else
+            {
+                logger.log("get_feature_vector_from_server_generic: FAILED because file does not exist: "+path);
+            }
         }
         long local_end = System.nanoTime();
         long local_dur_us = (local_end - local_start)/1000;

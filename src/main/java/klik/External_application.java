@@ -3,10 +3,14 @@
 
 package klik;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import javafx.stage.Window;
 import klik.look.Look_and_feel;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.boolean_features.Preferences_stage;
 import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
@@ -15,28 +19,36 @@ import klik.util.ui.Popups;
 public enum External_application
 //**********************************************************
 {
-    Ytdlp,
-    fpcalc,
-    ImageMagick,
     FFmpeg,
-    Vips,
     GraphicsMagick,
-    MediaInfo;
+    MediaInfo,
+    Ytdlp,
+    AcousticID_chromaprint,
+    ImageMagick,
+    Vips;
 
 
     //**********************************************************
-    public Button get_button(double width, double icon_size, Look_and_feel look_and_feel, Window owner, Logger logger)
+    public HBox get_button(double width, double icon_size, Look_and_feel look_and_feel, Window owner, Logger logger)
     //**********************************************************
     {
-        Button b = new Button(My_I18n.get_I18n_string(get_I18n_key(), owner,logger));
-        look_and_feel. set_Button_look(b, width, icon_size,null, owner,logger);
-        b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install(owner,logger), true, owner, logger));
-        return b;
+        EventHandler<ActionEvent> handler =  e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install(owner,logger), true,true,owner,logger);
+        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+                get_I18n_key(),
+                handler,
+                width,
+                icon_size,
+                look_and_feel,
+                owner,
+                logger);
+
+        return hb;
     }
 
 
+
     //**********************************************************
-    private String get_command_string_to_install(Window owner, Logger logger)
+    String get_command_string_to_install(Window owner, Logger logger)
     //**********************************************************
     {
         if ( System.getProperty("os.name").toLowerCase().contains("mac")) {
@@ -48,15 +60,18 @@ public enum External_application
     }
 
 
+
     //**********************************************************
     public String get_I18n_key()
     //**********************************************************
     {
+        // this is NOT for display: this MUST be the exact string
+        // as found in the ressource bundles
         switch (this)
         {
             case Ytdlp:
                 return "Install_Youtubedownloader";
-            case fpcalc:
+            case AcousticID_chromaprint:
                 return "Install_Fpcalc";
             case ImageMagick:
                 return "Install_Imagemagick";
@@ -76,12 +91,14 @@ public enum External_application
     public String get_brew_install_name()
     //**********************************************************
     {
+        // this is NOT for display: this MUST be th exact required string in:
+        // brew install <REQUIRED_STRING>
         switch (this)
         {
             case Ytdlp:
                 return "yt-dlp";
-            case fpcalc:
-                return "chromaprint (for fpcalc)";
+            case AcousticID_chromaprint:
+                return "chromaprint";
             case ImageMagick:
                 return "imagemagick";
             case FFmpeg:

@@ -4,7 +4,7 @@ Klik has 4 different image ML services
 - face recognition
 - image similarity on demand: for one picture in a folder get the 5 closest pictures in the same folder
 - image similarity for the whole folder: sort the folder by image similarity
-- image de-duplication by similarity (in a folder): find quasi-duplicated images
+- image de-duplication by similarity (in a folder): find quasi-duplicated images (with 2 variants, one uses distance=0 to detect images that differ by extremely small details such as metadata discrepancies)
 
 All use python open-source code and models. 
 

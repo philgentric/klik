@@ -87,7 +87,7 @@ public class Properties_manager
             {
                 if (aborter.should_abort())
                 {
-                    logger.log("Properties store engine aborting: " + purpose + " " + the_properties_path);
+                    if ( dbg) logger.log("Properties store engine aborting: " + purpose + " " + the_properties_path);
                 }
                 try {
                     Boolean reload_before_save = disk_store_request_queue.poll(20, TimeUnit.SECONDS);

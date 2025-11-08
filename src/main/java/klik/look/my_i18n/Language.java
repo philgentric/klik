@@ -20,6 +20,11 @@ public enum Language
     Portuguese,
     Spanish;
 
+    public String get_emoticon()
+    {
+        Image icon = Jar_utils.load_jfx_image_from_jar(this.name()+".png", 128, owner,logger);
+        return icon;
+    }
     //**********************************************************
     public Locale get_locale()
     //**********************************************************

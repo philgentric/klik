@@ -114,7 +114,6 @@ public class Audio_player_FX_UI implements Media_callbacks
         stage.setHeight(r.getHeight());
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
             //if ( dbg) logger.log("ChangeListener: image window position and/or size changed");
-            Rectangle2D b = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
             Non_booleans_properties.save_window_bounds(stage, AUDIO_PLAYER,logger);
         };
         stage.xProperty().addListener(change_listener);
@@ -204,6 +203,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         return returned;
     }
 
+
     //**********************************************************
     private HBox define_playlist_hbox()
     //**********************************************************
@@ -227,19 +227,7 @@ public class Audio_player_FX_UI implements Media_callbacks
             undo_remove_button.setOnAction(actionEvent -> playlist.undo_remove());
             returned.getChildren().add(undo_remove_button);
         }
-        {
-            Region spacer = new Region();
-            Look_and_feel_manager.set_region_look(spacer,stage,logger);
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            returned.getChildren().add(spacer);
-        }
-        {
 
-            Button search = new Button(My_I18n.get_I18n_string("Search",stage,logger));
-            Look_and_feel_manager.set_button_look(search,true,stage,logger);
-            returned.getChildren().add(search);
-            search.setOnAction(actionEvent -> playlist.search());
-        }
         {
             Region spacer = new Region();
             Look_and_feel_manager.set_region_look(spacer,stage,logger);
@@ -526,6 +514,11 @@ public class Audio_player_FX_UI implements Media_callbacks
         next.setOnAction((ActionEvent e) -> playlist.jump_to_next_from_user());
         returned.getChildren().add(next);
 
+
+        Button search = new Button(My_I18n.get_I18n_string("Search_For_A_Song",stage,logger)+ " (press s or k)");
+        Look_and_feel_manager.set_button_look(search,true,stage,logger);
+        returned.getChildren().add(search);
+        search.setOnAction(actionEvent -> playlist.search());
 
         Button shuffle = new Button(My_I18n.get_I18n_string("Shuffle",stage,logger));
         Look_and_feel_manager.set_button_look(shuffle, true,stage,logger);
@@ -1149,6 +1142,11 @@ public class Audio_player_FX_UI implements Media_callbacks
         {
             case"=" -> {
                 if (keyword_dbg) logger.log("=");
+                return;
+            }
+            case"s","k" -> {
+                if (keyword_dbg) logger.log("s or k");
+                playlist.search();
                 return;
             }
         }

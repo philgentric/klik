@@ -23,6 +23,7 @@ import javafx.scene.control.*;
 import javafx.stage.Window;
 import klik.Window_type;
 import klik.Instructions;
+import klik.path_lists.Path_list_provider;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Actor_engine;
 import klik.browser.Clearable_RAM_cache;
@@ -98,7 +99,6 @@ public class Virtual_landscape_menus
     public final Logger logger;
     CheckMenuItem select_all_files_menu_item;
     CheckMenuItem select_all_folders_menu_item;
-    Map<LocalDateTime,String> the_whole_history;
 
     private static final double too_far_away_image = 0.14;
     private static final double too_far_away_song = 0.05;//0.04;
@@ -1110,63 +1110,87 @@ public class Virtual_landscape_menus
     }
 
     //**********************************************************
-    public Menu make_history_menu(Window_type context_type)
+    public static Menu make_history_menu(
+            Map<LocalDateTime,String> the_whole_history,
+            Path_list_provider path_list_provider,
+            Path top_left,
+            Shutdown_target shutdown_target,
+            Window_type context_type, Window owner, Logger logger)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("History",virtual_landscape.owner,logger);
+        String text = My_I18n.get_I18n_string("History",owner,logger);
 
         Menu history_menu = new Menu(text);
-        Look_and_feel_manager.set_menu_item_look(history_menu,virtual_landscape.owner, logger);
+        Look_and_feel_manager.set_menu_item_look(history_menu,owner, logger);
 
-        create_history_menu(history_menu, context_type);
+        create_history_menu(the_whole_history,path_list_provider, top_left, shutdown_target, history_menu, context_type, owner,logger);
         return history_menu;
     }
 
     //**********************************************************
-    public Menu make_bookmarks_menu(Window_type context_type)
+    public static Menu make_bookmarks_menu(Path path, Path top_left, Shutdown_target shutdown_target, Window_type context_type, Window owner, Logger logger)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("Bookmarks",virtual_landscape.owner,logger);
+        String text = My_I18n.get_I18n_string("Bookmarks",owner,logger);
         Menu bookmarks_menu = new Menu(text);
-        Look_and_feel_manager.set_menu_item_look(bookmarks_menu,virtual_landscape.owner, logger);
+        Look_and_feel_manager.set_menu_item_look(bookmarks_menu,owner, logger);
 
-        create_bookmarks_menu(bookmarks_menu, context_type);
+        create_bookmarks_menu(bookmarks_menu, path, top_left, shutdown_target, context_type,owner,logger);
         return bookmarks_menu;
     }
     //**********************************************************
-    public Menu make_roots_menu()
+    public static Menu make_roots_menu(
+            Path_list_provider path_list_provider,
+            Path top_left,
+            Shutdown_target shutdown_target,
+            Window_type window_type,
+            Window owner, Logger logger)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("File_System_Roots",virtual_landscape.owner,logger);
+        String text = My_I18n.get_I18n_string("File_System_Roots",owner,logger);
         Menu roots_menu = new Menu(text);
-        Look_and_feel_manager.set_menu_item_look(roots_menu,virtual_landscape.owner, logger);
+        Look_and_feel_manager.set_menu_item_look(roots_menu,owner, logger);
 
-        create_roots_menu(roots_menu);
+        create_roots_menu(
+                roots_menu,
+                path_list_provider,
+                top_left,
+                shutdown_target,
+                window_type,
+                owner,
+                logger);
         return roots_menu;
     }
     //**********************************************************
-    public Menu make_undos_menu()
+    public static Menu make_undos_menu(Window owner,Logger logger)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string("Undo",virtual_landscape.owner,logger);
+        String text = My_I18n.get_I18n_string("Undo",owner,logger);
         Menu undos_menu = new Menu(text);
-        Look_and_feel_manager.set_menu_item_look(undos_menu,virtual_landscape.owner, logger);
+        Look_and_feel_manager.set_menu_item_look(undos_menu,owner, logger);
 
-        create_undos_menu(undos_menu);
+        create_undos_menu(undos_menu,owner,logger);
         return undos_menu;
     }
 
 
 
     //**********************************************************
-    public void create_history_menu(Menu history_menu, Window_type context_type_)
+    public static void create_history_menu(
+            Map<LocalDateTime,String> the_whole_history,
+            Path_list_provider path_list_provider,
+            Path top_left,
+            Shutdown_target shutdown_target,
+            Menu history_menu,
+            Window_type window_type,
+            Window owner, Logger logger)
     //**********************************************************
     {
         Menu_items.add_menu_item2("Clear_History",
                     event -> {
                         logger.log("clearing history");
-                        History_engine.get(virtual_landscape.owner).clear();
-                        virtual_landscape.replace_same(context_type_);
+                        History_engine.get(owner).clear();
+                        Instructions.replace_same_folder(shutdown_target, window_type,path_list_provider,top_left,owner,logger);
                     },history_menu,owner,logger);
 
 
@@ -1174,7 +1198,7 @@ public class Virtual_landscape_menus
         int on_screen = 0;
         MenuItem more = null;
         Map<String, History_item> path_already_done = new HashMap<>();
-        for (History_item hi : History_engine.get(virtual_landscape.owner).get_all_history_items())
+        for (History_item hi : History_engine.get(owner).get_all_history_items())
         {
             if ( on_screen < max_on_screen)
             {
@@ -1191,9 +1215,9 @@ public class Virtual_landscape_menus
                     displayed_string = displayed_string.substring(0,MAX_MENU_ITEM_STRING_LENGTH)+" ...";
                 }
                 MenuItem item = new MenuItem(displayed_string);
-                Look_and_feel_manager.set_menu_item_look(item, virtual_landscape.owner, logger);
+                Look_and_feel_manager.set_menu_item_look(item, owner, logger);
                 item.setMnemonicParsing(false);
-                if ( hi.value.equals(virtual_landscape.path_list_provider.get_folder_path().toAbsolutePath().toString()))
+                if ( hi.value.equals(path_list_provider.get_folder_path().toAbsolutePath().toString()))
                 {
                     // show the one we are in as inactive
                     item.setDisable(true);
@@ -1205,9 +1229,9 @@ public class Virtual_landscape_menus
                 item.setOnAction(event ->
                 {
                     Path path = Path.of(hi.value);
-                    Path old_folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                    Browsing_caches.scroll_position_cache_write(old_folder_path,virtual_landscape.get_top_left());
-                    Instructions.replace_different_folder( virtual_landscape.shutdown_target, context_type_,new Path_list_provider_for_file_system(path), owner,logger);
+                    Path old_folder_path = path_list_provider.get_folder_path();
+                    Browsing_caches.scroll_position_cache_write(old_folder_path,top_left);
+                    Instructions.replace_different_folder( shutdown_target, window_type,new Path_list_provider_for_file_system(path), owner,logger);
                 });
                 path_already_done.put(hi.value,hi);
                 history_menu.getItems().add(item);
@@ -1217,20 +1241,27 @@ public class Virtual_landscape_menus
             {
                 if ( more == null)
                 {
-                    String text = My_I18n.get_I18n_string("Show_Whole_History",virtual_landscape.owner,logger);
+                    String text = My_I18n.get_I18n_string("Show_Whole_History",owner,logger);
                     more =  new MenuItem(text);
-                    Look_and_feel_manager.set_menu_item_look(more, virtual_landscape.owner, logger);
+                    Look_and_feel_manager.set_menu_item_look(more, owner, logger);
 
                     history_menu.getItems().add(more);
-                    more.setOnAction(actionEvent -> pop_up_whole_history());
+                    more.setOnAction(actionEvent -> pop_up_whole_history(
+                            the_whole_history,
+                             path_list_provider,
+                             top_left,
+                             shutdown_target,
+                             window_type,
+                             owner, logger
+                    ));
                 }
-                add_to_whole_history(hi);
+                add_to_whole_history(the_whole_history, hi);
             }
         }
     }
 
     //**********************************************************
-    private void add_to_whole_history(History_item hi)
+    private static void add_to_whole_history(Map<LocalDateTime, String> the_whole_history, History_item hi)
     //**********************************************************
     {
         if ( the_whole_history == null) the_whole_history = new HashMap<>();
@@ -1239,12 +1270,18 @@ public class Virtual_landscape_menus
 
 
     //**********************************************************
-    private void pop_up_whole_history()
+    private static void pop_up_whole_history(
+            Map<LocalDateTime,String> the_whole_history,
+            Path_list_provider path_list_provider,
+            Path top_left,
+            Shutdown_target shutdown_target,
+            Window_type window_type,
+            Window owner,Logger logger)
     //**********************************************************
     {
         Active_list_stage_action action = text -> {
-            Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left());
-            Instructions.replace_different_folder( virtual_landscape.shutdown_target, virtual_landscape.context_type, new Path_list_provider_for_file_system(Path.of(text)), owner, logger);
+            Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
+            Instructions.replace_different_folder( shutdown_target, window_type, new Path_list_provider_for_file_system(Path.of(text)), owner, logger);
         };
         Datetime_to_signature_source source = new Datetime_to_signature_source() {
             @Override
@@ -1256,25 +1293,30 @@ public class Virtual_landscape_menus
     }
 
     //**********************************************************
-    public void create_bookmarks_menu(Menu bookmarks_menu, Window_type context_type)
+    public static void create_bookmarks_menu(
+            Menu bookmarks_menu,
+            Path path,
+            Path top_left,
+            Shutdown_target shutdown_target,
+            Window_type context_type,
+            Window owner, Logger logger)
     //**********************************************************
     {
-        Path local = virtual_landscape.path_list_provider.get_folder_path();
         Menu_items.add_menu_item2("Bookmark_this",
-                event -> Bookmarks.get(virtual_landscape.owner).add(local.toAbsolutePath().toString()),
+                event -> Bookmarks.get(owner).add(path.toAbsolutePath().toString()),
                 bookmarks_menu,owner,logger);
         Menu_items.add_menu_item2("Clear_Bookmarks",
-                event -> Bookmarks.get(virtual_landscape.owner).clear(),
+                event -> Bookmarks.get(owner).clear(),
                 bookmarks_menu,owner,logger);
 
 
-        for (String hi : Bookmarks.get(virtual_landscape.owner).get_list())
+        for (String hi : Bookmarks.get(owner).get_list())
         {
             MenuItem item = new MenuItem(hi);
-            Look_and_feel_manager.set_menu_item_look(item, virtual_landscape.owner, logger);
+            Look_and_feel_manager.set_menu_item_look(item, owner, logger);
             item.setOnAction(event -> {
-                Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left());
-                Instructions.replace_different_folder( virtual_landscape.shutdown_target, virtual_landscape.context_type, new Path_list_provider_for_file_system(Path.of(hi)), owner,logger);
+                Browsing_caches.scroll_position_cache_write(path,top_left);
+                Instructions.replace_different_folder( shutdown_target, context_type, new Path_list_provider_for_file_system(Path.of(hi)), owner,logger);
             });
             bookmarks_menu.getItems().add(item);
 
@@ -1283,7 +1325,7 @@ public class Virtual_landscape_menus
 
 
     //**********************************************************
-    public void create_undos_menu(Menu undos_menu)
+    public static void create_undos_menu(Menu undos_menu, Window owner, Logger logger)
     //**********************************************************
     {
         double x = owner.getX()+100;
@@ -1294,47 +1336,53 @@ public class Virtual_landscape_menus
                 event -> Undo_for_moves.perform_last_undo_fx(owner, x, y, logger),owner,logger));
         undos_menu.getItems().add(Menu_items.make_menu_item(
                 "Show_Undos",
-                event -> pop_up_whole_undo_history(),owner,logger));
+                event -> pop_up_whole_undo_history(owner,logger),owner,logger));
         undos_menu.getItems().add(Menu_items.make_menu_item(
                 "Clear_Undos",
                 event -> Undo_for_moves.remove_all_undo_items(owner, logger),owner,logger));
     }
 
     //**********************************************************
-    public void create_roots_menu(Menu roots_menu)
+    public static void create_roots_menu(
+            Menu roots_menu,
+            Path_list_provider path_list_provider,
+            Path top_left,
+            Shutdown_target shutdown_target,
+            Window_type window_type,
+            Window owner, Logger logger)
     //**********************************************************
     {
         for ( File f : File.listRoots())
         {
             String text = f.getAbsolutePath().toString();
             MenuItem item = new MenuItem(text);
-            Look_and_feel_manager.set_menu_item_look(item, virtual_landscape.owner, logger);
+            Look_and_feel_manager.set_menu_item_look(item, owner, logger);
 
             item.setOnAction(event -> {
-                Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(),virtual_landscape.get_top_left());
-                Instructions.replace_different_folder( virtual_landscape.shutdown_target,virtual_landscape.context_type, new Path_list_provider_for_file_system(f.toPath()),owner,logger);
+                Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
+                Instructions.replace_different_folder( shutdown_target,window_type, new Path_list_provider_for_file_system(f.toPath()),owner,logger);
             });
             roots_menu.getItems().add(item);
         }
     }
 
     //**********************************************************
-    private void pop_up_whole_undo_history()
+    private static void pop_up_whole_undo_history(Window owner,Logger logger)
     //**********************************************************
     {
         Active_list_stage_action action = signature ->
         {
-            Map<String, Undo_item> signature_to_undo_item = Undo_for_moves.get_instance(virtual_landscape.owner, logger).get_signature_to_undo_item();
+            Map<String, Undo_item> signature_to_undo_item = Undo_for_moves.get_instance(owner, logger).get_signature_to_undo_item();
             Undo_item item = signature_to_undo_item.get(signature);
             if ( item == null)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("❌ item == null for signature="+signature));
                 return;
             }
-            if ( !Undo_for_moves.check_validity(item, virtual_landscape.owner,logger))
+            if ( !Undo_for_moves.check_validity(item, owner,logger))
             {
                 Popups.popup_warning("❗ Invalid undo item ignored","The file was probably moved since?",true,owner,logger);
-                Undo_for_moves.remove_invalid_undo_item(item, virtual_landscape.owner,logger);
+                Undo_for_moves.remove_invalid_undo_item(item, owner,logger);
                 return;
             }
             logger.log("✅ undo_item="+item.to_string());
@@ -1349,8 +1397,8 @@ public class Virtual_landscape_menus
 
             if ( ok) Undo_for_moves.perform_undo(item, owner, x, y, logger);
         };
-        String title = My_I18n.get_I18n_string("Whole_Undo_History",virtual_landscape.owner,logger);
-        Undo_for_moves.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_for_moves.get_instance(virtual_landscape.owner,logger), action, logger));
+        String title = My_I18n.get_I18n_string("Whole_Undo_History",owner,logger);
+        Undo_for_moves.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_for_moves.get_instance(owner,logger), action, logger));
     }
 
 
@@ -1674,7 +1722,9 @@ public class Virtual_landscape_menus
                 {
                     Sort_files_by.set_sort_files_by(virtual_landscape.path_list_provider.get_folder_path(),sort_by,owner,logger);
                     logger.log("new file/image sorting order= "+sort_by);
-                    virtual_landscape.replace_same(this.virtual_landscape.context_type);
+                    Instructions.replace_same_folder(virtual_landscape.shutdown_target, Window_type.File_system_2D,virtual_landscape.path_list_provider,virtual_landscape.get_top_left(),owner,logger);
+
+                    //virtual_landscape.replace_same(this.virtual_landscape.context_type);
                 }
             }
         });

@@ -11,6 +11,8 @@ package klik;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -19,6 +21,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.properties.boolean_features.Preferences_stage;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
@@ -46,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 // the launcher can start applications (the image browser klik, the audio player)
 // they are started as new processes
@@ -182,31 +186,31 @@ public class Launcher extends Application implements UI_change
 
         vbox.getChildren().clear();
         {
-            Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", stage,logger));
-            vbox.getChildren().add(b);
-            look_and_feel.set_Button_look(b, 2*WIDTH,icon_size,Icon_type.IMAGE, stage,logger);
-            b.setOnAction(event -> {
-                if ( Launcher.gluon)
-                {
-                    start_app_with_gradle_and_listen("nativeRun",stage, logger);
-                }
-                else
-                {
-                    start_app_with_gradle_and_listen("klik",stage, logger);
-                }
-            });
-        }
-        {
-            Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", stage,logger));
-            vbox.getChildren().add(b);
-            look_and_feel.set_Button_look(b, 2*WIDTH,icon_size,Icon_type.MUSIC, stage,logger);
-            b.setOnAction(event -> {
-                start_app_with_gradle_and_listen("audio_player",stage, logger);
-                propagate_to.add(Audio_player_access.AUDIO_PLAYER_PORT);
-            });
-        }
+            HBox hbox = new HBox();
+            vbox.getChildren().add(hbox);
+            {
+                Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", stage, logger));
+                hbox.getChildren().add(b);
+                look_and_feel.set_Button_look(b, WIDTH, icon_size, Icon_type.IMAGE, stage, logger);
+                b.setOnAction(event -> {
+                    if (Launcher.gluon) {
+                        start_app_with_gradle_and_listen("nativeRun", stage, logger);
+                    } else {
+                        start_app_with_gradle_and_listen("klik", stage, logger);
+                    }
+                });
+            }
+            {
+                Button b = new Button(My_I18n.get_I18n_string("Launch_Music_Player", stage, logger));
+                hbox.getChildren().add(b);
+                look_and_feel.set_Button_look(b, WIDTH, icon_size, Icon_type.MUSIC, stage, logger);
+                b.setOnAction(event -> {
+                    start_app_with_gradle_and_listen("audio_player", stage, logger);
+                    propagate_to.add(Audio_player_access.AUDIO_PLAYER_PORT);
+                });
+            }
 
-
+        }
         {
             Separator separator = new Separator();
             vbox.getChildren().add(separator);
@@ -214,17 +218,36 @@ public class Launcher extends Application implements UI_change
         HBox hbox = new HBox();
         VBox vbox1 =  new VBox();
         hbox.getChildren().add(vbox1);
+
         {
-            Button b = new Button(My_I18n.get_I18n_string("Start_Image_Similarity_Servers", stage,logger));
-            vbox1.getChildren().add(b);
-            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false,stage, logger));
+            Separator separator = new Separator();
+            vbox1.getChildren().add(separator);
         }
         {
-            Button b = new Button(My_I18n.get_I18n_string("Stop_Image_Similarity_Servers", stage,logger));
-            vbox1.getChildren().add(b);
-            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false,stage, logger));
+            String key = "Start_Image_Similarity_Servers";
+            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false,false,stage, logger);
+            HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+                    key,
+                    handler,
+                    WIDTH,
+                    icon_size,
+                    look_and_feel,
+                    stage,
+                    logger);
+            vbox1.getChildren().add(hb);
+        }
+        {
+            String key = "Stop_Image_Similarity_Servers";
+            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false,false,stage, logger);
+            HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+                    key,
+                    handler,
+                    WIDTH,
+                    icon_size,
+                    look_and_feel,
+                    stage,
+                    logger);
+            vbox1.getChildren().add(hb);
         }
 
 
@@ -233,17 +256,33 @@ public class Launcher extends Application implements UI_change
             vbox1.getChildren().add(separator);
         }
 
+
         {
-            Button b = new Button(My_I18n.get_I18n_string("Start_Face_Recognition_Servers", stage,logger));
-            vbox1.getChildren().add(b);
-            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), false,stage, logger));
+            String key = "Start_Face_Recognition_Servers";
+            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), false,false,stage, logger);
+            HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+                key,
+                handler,
+                WIDTH,
+                icon_size,
+                look_and_feel,
+                stage,
+                logger);
+            vbox1.getChildren().add(hb);
         }
+
         {
-            Button b = new Button(My_I18n.get_I18n_string("Stop_Face_Recognition_Servers", stage,logger));
-            vbox1.getChildren().add(b);
-            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
-            b.setOnAction(e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false,stage, logger));
+            String key = "Stop_Face_Recognition_Servers";
+            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false,false,stage, logger);
+            HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+                key,
+                handler,
+                WIDTH,
+                icon_size,
+                look_and_feel,
+                stage,
+                logger);
+            vbox1.getChildren().add(hb);
         }
 
         {
@@ -251,16 +290,30 @@ public class Launcher extends Application implements UI_change
             vbox1.getChildren().add(separator);
         }
         {
-            Button b = new Button(My_I18n.get_I18n_string("Show_Version", stage,logger));
-            vbox1.getChildren().add(b);
-            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
-            b.setOnAction(e -> show_version(stage, logger));
+            String key = "Show_Version";
+            EventHandler<ActionEvent> handler =e -> show_version(stage, logger);
+            HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+                    key,
+                    handler,
+                    WIDTH,
+                    icon_size,
+                    look_and_feel,
+                    stage,
+                    logger);
+            vbox1.getChildren().add(hb);
         }
         {
-            Button b = new Button(My_I18n.get_I18n_string("Get_Most_Recent_Version", stage,logger));
-            vbox1.getChildren().add(b);
-            look_and_feel.set_Button_look(b, WIDTH,icon_size,null, stage,logger);
-            b.setOnAction(e -> get_most_recent_version(stage, logger));
+            String key = "Get_Most_Recent_Version";
+            EventHandler<ActionEvent> handler =e -> get_most_recent_version(stage, logger);
+            HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+                    key,
+                    handler,
+                    WIDTH,
+                    icon_size,
+                    look_and_feel,
+                    stage,
+                    logger);
+            vbox1.getChildren().add(hb);
         }
 
         {
@@ -270,13 +323,57 @@ public class Launcher extends Application implements UI_change
         VBox vbox2 =  new VBox();
         hbox.getChildren().add(vbox2);
         {
+            {
+                String key = "Install_All_Tools";
+                EventHandler<ActionEvent> handler = e -> install_all(stage, logger);
+                HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+                        key,
+                        handler,
+                        WIDTH,
+                        icon_size,
+                        look_and_feel,
+                        stage,
+                        logger);
+                vbox2.getChildren().add(hb);
+            }
+
+            {
+                String key = "Install_Python_Libs_For_ML";
+                EventHandler<ActionEvent> handler = e -> ML_servers_util.install_python_libs_for_ML(stage,logger);
+                HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+                        key,
+                        handler,
+                        WIDTH,
+                        icon_size,
+                        look_and_feel,
+                        stage,
+                        logger);
+                vbox2.getChildren().add(hb);
+            }
             for (External_application app : External_application.values())
             {
-                Button b = app.get_button(WIDTH, icon_size, look_and_feel, stage, logger);
-                vbox2.getChildren().add(b);
+                HBox hb = app.get_button(WIDTH, icon_size, look_and_feel, stage, logger);
+                vbox2.getChildren().add(hb);
             }
         }
         vbox.getChildren().add(hbox);
+    }
+
+    //**********************************************************
+    private void install_all(Window owner, Logger logger)
+    //**********************************************************
+    {
+       Actor_engine.execute(()->install_all_in_a_thread(owner,logger),"Installing all tools",logger);
+    }
+    //**********************************************************
+    private void install_all_in_a_thread(Window owner, Logger logger)
+    //**********************************************************
+    {
+        ML_servers_util.install_python_libs_for_ML(owner,logger);
+        for (External_application app : External_application.values())
+        {
+            Execute_via_script_in_tmp_file.execute(app.get_command_string_to_install(owner,logger), true, true,owner, logger);
+        }
     }
 
     //**********************************************************

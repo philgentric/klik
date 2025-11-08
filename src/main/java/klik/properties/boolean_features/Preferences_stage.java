@@ -4,6 +4,7 @@
 package klik.properties.boolean_features;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -11,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.util.log.Logger;
@@ -218,10 +220,9 @@ public class Preferences_stage
 
             if (value0 == null) {
                 logger.log("warning, no Boolean found for: " + bf.name());
-                value0 = (Boolean) false;
+                value0 = false;
                 Booleans.set_boolean(bf.name(), value0, stage);
                 Feature_cache.update_cached_boolean(bf, value0, stage);
-
             }
             cb.setSelected(value0);
             Look_and_feel_manager.set_CheckBox_look(cb, stage, logger);
@@ -235,7 +236,7 @@ public class Preferences_stage
             });
             hbox.getChildren().add(cb);
 
-            Button button = make_explanation_button(bf.name(), stage,logger);
+            Button button =make_explanation_button(bf.name(), stage,logger);
             if (button == null) return;
             hbox.getChildren().add(button);
 
@@ -243,6 +244,22 @@ public class Preferences_stage
         vbox.getChildren().add(hbox);
     }
 
+    //**********************************************************
+    public static HBox make_hbox_with_button_and_explanation(String key, EventHandler<ActionEvent> handler, double width, double icon_size, Look_and_feel look_and_feel, Window owner, Logger logger)
+    //**********************************************************
+    {
+        HBox hb = new HBox();
+        Button bb = new Button(My_I18n.get_I18n_string(key, owner, logger));
+        look_and_feel.set_Button_look(bb, width, icon_size, null, owner, logger);
+        bb.setOnAction(handler);
+        hb.getChildren().add(bb);
+        if ( !Feature_cache.get(Feature.Hide_question_mark_buttons_on_mysterious_menus))
+        {
+            Button explain = Preferences_stage.make_explanation_button(key, owner, logger);
+            hb.getChildren().add(explain);
+        }
+        return hb;
+    }
     //**********************************************************
     public static Button make_explanation_button(String key,Window stage, Logger logger)
     //**********************************************************

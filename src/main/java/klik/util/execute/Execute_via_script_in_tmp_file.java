@@ -39,17 +39,18 @@ public class Execute_via_script_in_tmp_file
     // writes the command to it, and then executes that script.
     // Logs are also created in the klik trash directory.
 
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     public static final String END = "__END_OF_PROCESS_OUTPUT__";
 
     //**********************************************************
-    public static void execute(String the_command,  boolean show_window, Window owner, Logger logger)
+    public static void execute(String the_command,  boolean show_window, boolean wait, Window owner, Logger logger)
     //**********************************************************
     {
         LinkedBlockingQueue<String> output_queue;
         if ( show_window)
         {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace("Showing output window for command: "+the_command));
+            //if ( dbg)
+                logger.log(("Showing output window for command: "+the_command));
             output_queue = new LinkedBlockingQueue<>();
             Platform.runLater(()-> Text_frame.show(the_command, output_queue,logger));
         }
@@ -57,9 +58,16 @@ public class Execute_via_script_in_tmp_file
         {
             output_queue = null;
         }
-        Runnable r = () -> execute_internal(the_command,show_window,output_queue,owner,logger);
-        Actor_engine.execute(r,"Execute script",logger);
 
+        Runnable r = () -> execute_internal(the_command,show_window,output_queue,owner,logger);
+        if (wait)
+        {
+            r.run();
+        }
+        else
+        {
+            Actor_engine.execute(r, "Execute_via_script_in_tmp_file in a thread", logger);
+        }
     }
     //**********************************************************
     private static void execute_internal(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
@@ -93,26 +101,25 @@ public class Execute_via_script_in_tmp_file
 
         if ( dbg)
         {
-            logger.log("Working directory: " + pb.directory());
-            logger.log("Command: " + String.join(" ", pb.command()));
+            logger.log("Working directory: " + pb.directory()+"\nCommand: " + String.join(" ", pb.command()));
 
             // Add environment variables debugging
-            Map<String, String> env = pb.environment();
+            /*Map<String, String> env = pb.environment();
             logger.log("Environment variables:");
             env.forEach((k, v) -> logger.log(k + "=" + v));
-
+            */
         }
         pb.inheritIO();
         try {
-            if ( dbg) logger.log("Going to execute:->"+the_command+"<-");
-            Process process = pb.start();
+            if ( dbg) logger.log("Executing:->"+the_command+"<-");
+            Process the_command_process = pb.start();
 
             // Read output in a separate thread to prevent blocking
             // this is a bit of a too-careful, the output is redirected
             // so normally nothing will come out of here
             Runnable r =() -> {
                 try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(process.getInputStream())))
+                        new InputStreamReader(the_command_process.getInputStream())))
                 {
                     //logger.log("going to read Process output");
                     String line;
@@ -123,13 +130,15 @@ public class Execute_via_script_in_tmp_file
                     }
                     //logger.log("End of Process output");
 
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     logger.log("Error reading process output: " + e);
                 }
             };
             Actor_engine.execute(r,"Monitor execution process",logger);
 
-            Aborter aborter = new Aborter("Execute_via_script_in_tmp_file tailer", logger);
+            Aborter aborter_local = new Aborter("Execute_via_script_in_tmp_file tailer", logger);
 
             // use a Tail-er to read the log file as it is written
             TailerListener listener = new TailerListener()
@@ -139,6 +148,7 @@ public class Execute_via_script_in_tmp_file
                 @Override
                 public void init(Tailer tailer)
                 {
+                    logger.log("TailerListener INIT "+tailer.toString());
                     this.tailer = tailer;
                     Runnable suicidor = () ->
                     {
@@ -147,24 +157,24 @@ public class Execute_via_script_in_tmp_file
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {
-                                logger.log("Tailer monitor interrupted: " + e);
+                                logger.log("TailerListener monitor interrupted: " + e);
                                 return;
                             }
                             if ( last < 0) continue;
-                            if ( aborter.should_abort())
+                            if ( aborter_local.should_abort())
                             {
                                 if ( dbg) logger.log("TailerListener: abort detected, stopping tailer");
                                 tailer.stop();
                                 if ( output_queue != null) output_queue.add(END);
-                                if ( show_window) Platform.runLater(() ->Popups.info_popup(the_command+" finished",null,owner,logger));
+                                if ( show_window) Platform.runLater(() ->Popups.info_popup("'"+the_command+"' ➡\uFE0F done",null,owner,logger));
                                 return;
                             }
                             if ( System.currentTimeMillis()-last> 600_000)
                             {
-                                if ( dbg) logger.log("TailerListener: stopping tailer");
+                                if ( dbg) logger.log("TailerListener: stopping tailer on timeout");
                                 tailer.stop();
                                 if ( output_queue != null) output_queue.add(END);
-                                aborter.abort("timeout");
+                                aborter_local.abort("TailerListener timeout");
                                 return;
                             }
                         }
@@ -175,22 +185,24 @@ public class Execute_via_script_in_tmp_file
 
                 @Override
                 public void fileNotFound() {
-                    if ( dbg) logger.log("Log file not found: " + log_file_name);
+                    logger.log("❗Warning: TailerListener Log file not found: " + log_file_name);
                 }
 
                 @Override
                 public void fileRotated() {
+                    if ( dbg) logger.log("❗Warning: TailerListener Log file ROTATED: " + log_file_name);
                 }
 
                 @Override
                 public void handle(String line) {
+                    logger.log("TailerListener, adding output :"+line);
                     if ( output_queue != null) output_queue.add(line);
                     last = System.currentTimeMillis();
                 }
 
                 @Override
                 public void handle(Exception ex) {
-                    logger.log("Error tailing log file: " + ex);
+                    logger.log("❌ WARNING: TailerListener, Error tailing log file: " + ex);
                 }
             };
 
@@ -199,11 +211,25 @@ public class Execute_via_script_in_tmp_file
             Actor_engine.execute(tailer,"Run tailer for execution log",logger);
 
             try {
-                if (process.waitFor(10, TimeUnit.MINUTES))
+                if (the_command_process.waitFor(10, TimeUnit.MINUTES))
                 {
-                    int exitValue = process.exitValue();
-                    if ( dbg) logger.log("Process exited with value: " + exitValue);
-                    aborter.abort("process ended");
+                    int exitValue = the_command_process.exitValue();
+                    if ( exitValue != 0)
+                    {
+                        logger.log("❗Warning Process ->"+the_command+"<- exited with value: " + exitValue);
+                    }
+                    else if ( dbg) logger.log("Process exited with value: " + exitValue);
+                    // wait a bit before aborting the tailer or we might miss the output
+
+                    Actor_engine.execute(()->{
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            logger.log(""+e);
+                        }
+                        aborter_local.abort("process ended");
+                    },"wait a bit before aborting tailer",logger);
+
                 }
 
             } catch (InterruptedException e) {

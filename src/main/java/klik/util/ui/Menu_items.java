@@ -13,6 +13,8 @@ import javafx.stage.Window;
 import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.properties.boolean_features.Preferences_stage;
 import klik.util.log.Logger;
 
@@ -68,8 +70,11 @@ public class Menu_items
         Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setMnemonicParsing(false);
         menu_item.setOnAction(ev);
-        Button explanation = Preferences_stage.make_explanation_button(text,owner, logger);
-        menu_item.setGraphic(explanation);
+        if ( !Feature_cache.get(Feature.Hide_question_mark_buttons_on_mysterious_menus))
+        {
+            Button explanation = Preferences_stage.make_explanation_button(text, owner, logger);
+            menu_item.setGraphic(explanation);
+        }
         return menu_item;
     }
 }

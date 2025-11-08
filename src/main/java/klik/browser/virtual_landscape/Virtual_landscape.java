@@ -76,6 +76,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -100,6 +101,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private static final double MARGIN_Y = 50;
 
 
+    Map<LocalDateTime,String> the_whole_history;
 
 
     public final Aborter aborter;
@@ -144,7 +146,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public final Scene the_Scene;
     public final Pane the_Pane;
     public final Selection_handler selection_handler;
-    public static Virtual_landscape_menus virtual_landscape_menus;
+    public Virtual_landscape_menus virtual_landscape_menus;
     MenuItem stop_full_screen_menu_item;
     MenuItem start_full_screen_menu_item;
     public List<Button> top_buttons = new ArrayList<>();
@@ -234,20 +236,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         logger.log("virtual_landscape receiving update_config_string key="+key+" val="+new_value);
         if ( key.equals(Non_booleans_properties.LANGUAGE_KEY))
         {
-            replace_same(context_type);
+            Instructions.replace_same_folder(shutdown_target, context_type,path_list_provider,get_top_left(),owner,logger);
         }
         else if ( key.equals(Non_booleans_properties.STYLE_KEY))
         {
-            replace_same(context_type);
+            Instructions.replace_same_folder(shutdown_target, context_type,path_list_provider,get_top_left(),owner,logger);
         }
     }
 
-    //**********************************************************
-    void replace_same(Window_type context_type)
-    //**********************************************************
-    {
-        Instructions.replace_same_folder(shutdown_target, context_type,path_list_provider,get_top_left(),owner,logger);
-    }
+
     //**********************************************************
     @Override // Selection_reporter
     public void report(String s)
@@ -304,7 +301,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
 
             if (keyEvent.getCharacter().equals("k")) {
-                if (Browser.keyboard_dbg) logger.log("character is k = keyword search");
+                //if (Browser.keyboard_dbg)
+                logger.log("character is k = keyword search");
+                logger.log("character is k = keyword search");
                 virtual_landscape_menus.search_files_by_keyworks_fx();
             }
             if (keyEvent.getCharacter().equals("s")) {
@@ -1770,7 +1769,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         {
-            Button undo_bookmark_history_button = make_button_undo_and_bookmark_and_history(Window_type.File_system_2D, height,owner,logger);
+            Button undo_bookmark_history_button = make_button_undo_and_bookmark_and_history(
+                    the_whole_history,
+                    path_list_provider,
+                    top_left,
+                    shutdown_target,
+                    Window_type.File_system_2D, height,owner,logger);
 
             top_pane.getChildren().add(undo_bookmark_history_button);
             top_buttons.add(undo_bookmark_history_button);
@@ -1805,23 +1809,44 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    public static Button make_button_undo_and_bookmark_and_history(Window_type context_type, double height, Window owner, Logger logger)
+    public static Button make_button_undo_and_bookmark_and_history(
+            Map<LocalDateTime,String> the_whole_history,
+            Path_list_provider path_list_provider,
+            Path top_left,
+            Shutdown_target shutdown_target,
+            Window_type context_type,
+            double height,
+            Window owner, Logger logger)
     //**********************************************************
     {
         String undo_bookmark_history = My_I18n.get_I18n_string("Bookmarks", owner,logger);
         undo_bookmark_history += " & " + My_I18n.get_I18n_string("History", owner,logger);
         Button undo_bookmark_history_button = new Button(undo_bookmark_history);
-        undo_bookmark_history_button.setOnAction(e -> button_undo_and_bookmark_and_history(e,context_type,owner,logger));
+        undo_bookmark_history_button.setOnAction(e -> button_undo_and_bookmark_and_history(
+                e,
+                the_whole_history,
+                path_list_provider,
+                top_left,
+                shutdown_target,
+                context_type,owner,logger));
         Image icon = Look_and_feel_manager.get_bookmarks_icon(height,owner,logger);
         Look_and_feel_manager.set_button_and_image_look(undo_bookmark_history_button, icon, height,null, false,owner,logger);
         return undo_bookmark_history_button;
     }
 
     //**********************************************************
-    private static void button_undo_and_bookmark_and_history(ActionEvent e, Window_type context_type, Window owner, Logger logger)
+    private static void button_undo_and_bookmark_and_history(ActionEvent e, Map<LocalDateTime,String> the_whole_history,
+                                                             Path_list_provider path_list_provider,
+                                                             Path top_left,
+                                                             Shutdown_target shutdown_target, Window_type context_type, Window owner, Logger logger)
     //**********************************************************
     {
-        ContextMenu undo_and_bookmark_and_history = define_contextmenu_undo_bookmark_history(context_type,owner,logger);
+        ContextMenu undo_and_bookmark_and_history = define_contextmenu_undo_bookmark_history(
+                the_whole_history,
+                path_list_provider,
+                top_left,
+                shutdown_target,
+                context_type,owner,logger);
         Button b = (Button) e.getSource();
         undo_and_bookmark_and_history.show(b, Side.TOP, 0, 0);
     }
@@ -1873,16 +1898,33 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
     //**********************************************************
-    private static ContextMenu define_contextmenu_undo_bookmark_history(Window_type context_type, Window owner, Logger logger)
+    private static ContextMenu define_contextmenu_undo_bookmark_history(
+            Map<LocalDateTime,String> the_whole_history,
+            Path_list_provider path_list_provider,
+            Path top_left,
+            Shutdown_target shutdown_target,
+            Window_type window_type,
+            Window owner, Logger logger)
     //**********************************************************
     {
         ContextMenu undo_bookmark_history_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(undo_bookmark_history_menu,owner,logger);
 
-        undo_bookmark_history_menu.getItems().add(virtual_landscape_menus.make_undos_menu());
-        undo_bookmark_history_menu.getItems().add(virtual_landscape_menus.make_bookmarks_menu(context_type));
-        undo_bookmark_history_menu.getItems().add(virtual_landscape_menus.make_history_menu(context_type));
-        undo_bookmark_history_menu.getItems().add(virtual_landscape_menus.make_roots_menu());
+        undo_bookmark_history_menu.getItems().add(Virtual_landscape_menus.make_undos_menu(owner,logger));
+        undo_bookmark_history_menu.getItems().add(Virtual_landscape_menus.make_bookmarks_menu(path_list_provider.get_folder_path(),top_left,shutdown_target, window_type,owner,logger));
+        undo_bookmark_history_menu.getItems().add(Virtual_landscape_menus.make_history_menu(
+                the_whole_history,
+                path_list_provider,
+                top_left,
+                shutdown_target,
+                window_type,
+                owner,logger));
+        undo_bookmark_history_menu.getItems().add(Virtual_landscape_menus.make_roots_menu(
+                path_list_provider,
+                top_left,
+                shutdown_target,
+                window_type,
+                owner,logger));
         return undo_bookmark_history_menu;
     }
 
