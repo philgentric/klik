@@ -20,6 +20,7 @@ package klik.browser.virtual_landscape;
 
 import javafx.application.Platform;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.stage.Window;
 import klik.Window_type;
 import klik.Instructions;
@@ -1503,6 +1504,7 @@ public class Virtual_landscape_menus
     {
         CheckMenuItem item = new CheckMenuItem(language_key.name());
         Look_and_feel_manager.set_menu_item_look(item, virtual_landscape.owner, logger);
+        item.setGraphic(new ImageView(language_key.get_icon(owner,logger)));
         item.setSelected(current.equals(language_key.name()));
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();

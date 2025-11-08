@@ -3,6 +3,11 @@
 
 package klik.look.my_i18n;
 
+import javafx.scene.image.Image;
+import javafx.stage.Window;
+import klik.look.Jar_utils;
+import klik.util.log.Logger;
+
 import java.util.Locale;
 
 //**********************************************************
@@ -20,9 +25,9 @@ public enum Language
     Portuguese,
     Spanish;
 
-    public String get_emoticon()
+    public Image get_icon(Window owner, Logger logger)
     {
-        Image icon = Jar_utils.load_jfx_image_from_jar(this.name()+".png", 128, owner,logger);
+        Image icon = Jar_utils.load_jfx_image_from_jar("icons/"+this.name()+".png", 64, owner,logger);
         return icon;
     }
     //**********************************************************
