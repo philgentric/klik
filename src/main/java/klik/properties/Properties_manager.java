@@ -203,6 +203,7 @@ public class Properties_manager
         if (!Files.exists(the_properties_path))
         {
             try {
+                Files.createDirectories(the_properties_path.getParent());
                 Files.createFile(the_properties_path);
             }
             catch (FileAlreadyExistsException e)

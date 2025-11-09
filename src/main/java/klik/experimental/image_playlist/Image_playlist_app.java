@@ -180,7 +180,11 @@ public class Image_playlist_app extends Application
         {
             path = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, "default."+ Path_list_provider_for_playlist.KLIK_IMAGE_PLAYLIST_EXTENSION);
             logger.log("trying default playlist");
-            if (!Files.exists(path)) Files.createFile(path);
+            if (!Files.exists(path))
+            {
+                Files.createDirectories(path.getParent());
+                Files.createFile(path);
+            }
         }
         logger.log("Starting playlist browser on path ->" + path+"<-");
         Instructions.additional_no_past(Window_type.Image_playlist_2D,new Path_list_provider_for_playlist(path,logger),primary_stage_,logger);

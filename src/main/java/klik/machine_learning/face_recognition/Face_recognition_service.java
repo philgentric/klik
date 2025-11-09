@@ -214,6 +214,7 @@ public class Face_recognition_service
                         owner, logger);
                 if (reply) {
                     try {
+                        Files.createDirectories(check.toPath().getParent());
                         Files.createFile(check.toPath());
                     } catch (IOException e) {
                         logger.log("❌ auto_internal FATAL cannot create file '.folder_name_is_recognition_label' in folder " + target);

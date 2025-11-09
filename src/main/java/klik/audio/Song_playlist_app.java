@@ -181,7 +181,11 @@ public class Song_playlist_app extends Application
         {
             path = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, "default."+ Guess_file_type.KLIK_AUDIO_PLAYLIST_EXTENSION);
             logger.log("trying default playlist");
-            if (!Files.exists(path)) Files.createFile(path);
+            if (!Files.exists(path))
+            {
+                Files.createDirectories(path.getParent());
+                Files.createFile(path);
+            }
         }
         logger.log("Starting playlist browser on path ->" + path+"<-");
         Instructions.additional_no_past(Window_type.Song_playlist_1D,new Path_list_provider_for_playlist(path,logger),primary_stage_,logger);
