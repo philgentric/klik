@@ -116,7 +116,7 @@ public class Launcher extends Application implements UI_change
 
 
         String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,stage,logger);
-        //Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER,stage,logger);
+        Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER,stage,logger);
 
         Scene scene = new Scene(main);
         define_UI();
@@ -128,7 +128,8 @@ public class Launcher extends Application implements UI_change
         write_UI_change_listening_port_to_file(ui_change_listening_port,logger);
         stage.setTitle("Klik "+launcher);
         stage.setScene(scene);
-        Platform.runLater(()->stage.show());
+        stage.show();
+        stage.requestFocus();
 
 
 
