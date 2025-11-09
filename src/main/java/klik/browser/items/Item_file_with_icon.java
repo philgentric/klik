@@ -452,7 +452,7 @@ public class Item_file_with_icon extends Item_file
     public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
-        //logger.log("RECEIVING icon");
+        logger.log("ITEM FILE WITH ICON RECEIVING icon");
         // this is NOT on the FX thread
         if ( image_view == null)
         {

@@ -13,6 +13,7 @@ package klik.browser.icons;
 
 import javafx.scene.image.Image;
 import javafx.stage.Window;
+import klik.look.Jar_utils;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.*;
 import klik.util.animated_gifs.Ffmpeg_utils;
@@ -252,10 +253,10 @@ public class Icon_factory_actor implements Actor
         if (op.isEmpty()) {
             //if (dbg)
             logger.log("❌ Making an icon FAILED (1) for " + path.getFileName());
-            return Optional.empty();
+            //return Optional.empty();
 
-            //image_from_disk = Jar_utils.get_broken_icon(300,icon_factory_request.owner,logger);
-            //write_icon_to_cache = false; // do not write the broken icon to the cache
+            image_from_disk = Jar_utils.get_broken_icon(icon_factory_request.icon_size,icon_factory_request.owner,logger);
+            write_icon_to_cache = false; // do not write the broken icon to the cache
         }
         else
         {
@@ -305,7 +306,12 @@ public class Icon_factory_actor implements Actor
         {
             properties = new Image_properties(image_from_disk.getWidth(), image_from_disk.getHeight(), Rotation.normal);
             image_properties_RAM_cache.inject(destination.get_path_for_display_icon_destination(), properties,true);
+            logger.log("properties computed "+properties.to_string()+ "for path :"+destination.get_path_for_display_icon_destination());
         }
+        else {
+            logger.log("properties from cache "+properties.to_string()+ "for path :"+destination.get_path_for_display_icon_destination());
+        }
+        logger.log("image from disk "+image_from_disk.getWidth());
         return Optional.of(new Image_and_properties(image_from_disk,properties));
     }
 

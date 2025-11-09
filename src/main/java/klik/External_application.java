@@ -55,11 +55,11 @@ public enum External_application
     //**********************************************************
     {
         if (( System.getProperty("os.name").toLowerCase().contains("mac"))
-        || ( System.getProperty("os.name").toLowerCase().contains("Linux")))
+        || ( System.getProperty("os.name").toLowerCase().contains("inux")))
         {
             return "brew install "+get_brew_install_name();
         }
-        Popups.popup_warning("❗Warning", "Sorry, this is implemented only for Mac and Linux.",
+        Popups.popup_warning("❗Warning", "Sorry, this is implemented only for Mac and Linux. Your OS: "+System.getProperty("os.name"),
                 false, owner, logger);
         return null;
     }

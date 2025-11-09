@@ -208,7 +208,7 @@ public class Icons_from_disk
         Image image = new Image(input_stream, icon_size, icon_size, true, true);
         if ( image.isError())
         {
-            logger.log(Stack_trace_getter.get_stack_trace("Icons_from_disk WARNING: an error occurred when reading AND resizing: "));
+            logger.log(("Icons_from_disk WARNING: an error occurred when reading AND resizing: "));
             return Optional.empty();
 
             // the image format is not supported WITH RESIZE

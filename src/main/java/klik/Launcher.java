@@ -129,7 +129,7 @@ public class Launcher extends Application implements UI_change
         stage.setTitle("Klik "+launcher);
         stage.setScene(scene);
         stage.show();
-        stage.requestFocus();
+        stage.requestFocus(); // trying to make sure it comes on top
 
 
 

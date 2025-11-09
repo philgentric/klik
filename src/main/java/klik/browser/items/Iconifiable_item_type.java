@@ -41,12 +41,13 @@ public enum Iconifiable_item_type
             return no_path;
         }
 
+        /*
         // special macos
         if (path.getFileName().toString().startsWith("._"))
         {
             //System.out.println(Stack_trace_getter.get_stack_trace("path.getFileName() starts with ._"));
             return no_path;
-        }
+        }*/
 
         if ( path.toFile().isDirectory())
         {

@@ -7,6 +7,8 @@ import klik.util.execute.actor.Actor;
 import klik.util.execute.actor.Message;
 import klik.util.image.decoding.Fast_image_property_from_exif_metadata_extractor;
 
+import java.util.Optional;
+
 //**********************************************************
 public class Image_properties_actor implements Actor
 //**********************************************************
@@ -27,9 +29,10 @@ public class Image_properties_actor implements Actor
             return "aborted";
         }
 
-        Image_properties ip = Fast_image_property_from_exif_metadata_extractor.get_image_properties(image_properties_message.path,true,image_properties_message.aborter, image_properties_message.logger).orElse(new Image_properties(0,0,Rotation.normal));
-
-        image_properties_message.image_properties_cache.inject(image_properties_message.path,ip,false);
+        Optional<Image_properties> ip = Fast_image_property_from_exif_metadata_extractor.get_image_properties(image_properties_message.path,true,image_properties_message.aborter, image_properties_message.logger);
+        if (ip.isPresent()) {
+            image_properties_message.image_properties_cache.inject(image_properties_message.path, ip.get(), false);
+        }
         return "ok";
     }
 
