@@ -80,22 +80,36 @@ tasks.register('klik', JavaExec) {
     //jvmArgs = ['--enable-native-access=ALL-UNNAMED', '-Djava.library.path=/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib']
 
     doFirst {
-        println "doFirst start"
-        def props = new Properties()
-        def dir = new File(System.getProperty("user.home"),".klik")
-        def file = new File(dir, "ram.properties")
-        file.withInputStream {
-            props.load(it)
-            println "doFirst props loaded: ${props}"
-            null
+        println 'doFirst start'
+
+        def props   = new Properties()
+        def dir     = new File(System.getProperty('user.home'), '.klik')
+        def file    = new File(dir, 'ram.properties')
+
+        // 1️⃣ Make sure the file exists
+        if (file.exists()) {
+            // 2️⃣ Load it safely
+            try {
+                file.withInputStream { stream -> props.load(stream) }
+                println "doFirst props loaded: ${props}"
+            } catch (Exception e) {
+                println "⚠️  Failed to load ${file}: ${e.message}"
+                // Optional: decide whether to abort or continue
+            }
+
+            // 3️⃣ Use the property if present
+            def maxRam = props['max_RAM_in_GBytes']
+            if (maxRam) {
+                println "doFirst found max_RAM_in_GBytes: ${maxRam}"
+                jvmArgs "-Xmx${maxRam}G"
+            }
+        } else {
+            println "⚠️  ${file} not found – using default JVM arguments."
         }
-        if (props['max_RAM_in_GBytes']) {
-            println "doFirst found max_RAM_in_GBytes: ${props}"
-            jvmArgs "-Xmx${props['max_RAM_in_GBytes']}G"
-        }
+
+        // If you need to return something from doFirst, put it here.
         return
     }
-
 }
 
 tasks.register('audio_player', JavaExec) {

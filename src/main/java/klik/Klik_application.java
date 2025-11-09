@@ -184,26 +184,23 @@ public class Klik_application extends Application
         {
             logger.log("Starting browser on path ->" + path+"<-");
         }
-        else
-        {
-            if (Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), primary_stage))
-            {
+        else {
+            if (Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), primary_stage)) {
                 List<History_item> l = History_engine.get(primary_stage).get_all_history_items();
-                if (!l.isEmpty())
-                {
+                if (!l.isEmpty()) {
                     History_item h = History_engine.get(primary_stage).get_all_history_items().get(0);
-                    if (h != null)
-                    {
+                    if (h != null) {
                         path = Path.of(h.value);
                         logger.log("reloading last folder from history:" + path);
                     }
                 }
             }
-            else
-            {
-                path = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
-            }
         }
+        if( path == null)
+        {
+            path = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
+        }
+
         Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(path),primary_stage_,logger);
         new Monitor(()->primary_stage, logger).start();
 
