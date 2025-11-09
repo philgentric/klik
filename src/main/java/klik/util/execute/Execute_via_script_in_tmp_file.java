@@ -89,6 +89,10 @@ public class Execute_via_script_in_tmp_file
             Files.write(script_path, script_content.getBytes());
             Files.setPosixFilePermissions(script_path, PosixFilePermissions.fromString("rwxr-xr-x"));
         }
+        catch (UnsupportedOperationException e) {
+            logger.log("THIS IS NORMAL ON WINDOWS: " + e);
+            return;
+        }
         catch (IOException e) {
             logger.log("Error with script file: " + e);
             return;

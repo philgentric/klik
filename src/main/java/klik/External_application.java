@@ -5,11 +5,9 @@ package klik;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.stage.Window;
 import klik.look.Look_and_feel;
-import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Preferences_stage;
 import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.log.Logger;
@@ -32,7 +30,12 @@ public enum External_application
     public HBox get_button(double width, double icon_size, Look_and_feel look_and_feel, Window owner, Logger logger)
     //**********************************************************
     {
-        EventHandler<ActionEvent> handler =  e -> Execute_via_script_in_tmp_file.execute(get_command_string_to_install(owner,logger), true,true,owner,logger);
+        EventHandler<ActionEvent> handler =  e ->
+        {
+            String cmd = get_command_string_to_install(owner,logger);
+            if ( cmd == null) return;
+            Execute_via_script_in_tmp_file.execute(cmd, true,true,owner,logger);
+        };
         HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
                 get_I18n_key(),
                 handler,
@@ -51,10 +54,12 @@ public enum External_application
     String get_command_string_to_install(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( System.getProperty("os.name").toLowerCase().contains("mac")) {
+        if (( System.getProperty("os.name").toLowerCase().contains("mac"))
+        || ( System.getProperty("os.name").toLowerCase().contains("Linux")))
+        {
             return "brew install "+get_brew_install_name();
         }
-        Popups.popup_warning("❗Warning", "Sorry, this is implemented only for Mac.",
+        Popups.popup_warning("❗Warning", "Sorry, this is implemented only for Mac and Linux.",
                 false, owner, logger);
         return null;
     }

@@ -128,7 +128,7 @@ public class Launcher extends Application implements UI_change
         write_UI_change_listening_port_to_file(ui_change_listening_port,logger);
         stage.setTitle("Klik "+launcher);
         stage.setScene(scene);
-        stage.show();
+        Platform.runLater(()->stage.show());
 
 
 
@@ -359,7 +359,9 @@ public class Launcher extends Application implements UI_change
         ML_servers_util.install_python_libs_for_ML(owner,logger);
         for (External_application app : External_application.values())
         {
-            Execute_via_script_in_tmp_file.execute(app.get_command_string_to_install(owner,logger), true, true,owner, logger);
+            String cmd = app.get_command_string_to_install(owner,logger);
+            if ( cmd == null) continue;
+            Execute_via_script_in_tmp_file.execute(cmd, true, true,owner, logger);
         }
     }
 
