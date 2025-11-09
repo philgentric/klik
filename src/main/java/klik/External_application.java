@@ -55,7 +55,7 @@ public enum External_application
     //**********************************************************
     {
         if (( System.getProperty("os.name").toLowerCase().contains("mac"))
-        || ( System.getProperty("os.name").toLowerCase().contains("inux")))
+        || ( System.getProperty("os.name").toLowerCase().contains("linux")))
         {
             return "brew install "+get_brew_install_name();
         }

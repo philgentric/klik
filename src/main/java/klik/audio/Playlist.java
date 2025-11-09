@@ -373,8 +373,8 @@ public class Playlist
         load_playlist(playlist_file);
         String song = Non_booleans_properties.get_current_song(owner);
         if (song == null) {
+            if ( the_playlist.size() == 0) return;
             song = the_playlist.get(0);
-            if (song == null) return;
         }
         change_song(song,start, true);
     }
