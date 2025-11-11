@@ -180,7 +180,7 @@ public enum External_application
                 vbox.getChildren().add(pwf);
                 Label l1 = new Label("Sudo password required to install ffmpeg ");
                 vbox.getChildren().add(l1);
-                Label l2 = new Label("the command to be executed is: 'echo 'password' | sudo -S apt install ffmpeg");
+                Label l2 = new Label("the command that will be executed is: echo 'password' | sudo -S apt install ffmpeg");
                 vbox.getChildren().add(l2);
                 dialog.getDialogPane().setContent(vbox);
 
@@ -188,7 +188,7 @@ public enum External_application
                 if (result.isPresent()) {
                     String password = pwf.getText();
                     dialog.close();
-                    return "echo "+password+"sudo -S apt install ffmpeg";
+                    return "echo "+password+" | sudo -S apt install ffmpeg";
                 }
                 dialog.close();
             }
