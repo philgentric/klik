@@ -188,6 +188,7 @@ public enum External_application
 
                 dialog.showAndWait();
                 dialog.close();
+                return null;
             }
             case Vips:
                 return "brew install vips";
