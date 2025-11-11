@@ -107,7 +107,6 @@ public class System_open_actor implements Actor
     //**********************************************************
     {
         String extension = Extensions.get_extension(som.path.toFile().getName());
-
         String app = Registered_applications.get_registered_application(extension, som.owner, som.aborter,som.logger);
 
         if ( app == null)
@@ -116,7 +115,6 @@ public class System_open_actor implements Actor
             return null;
         }
         som.logger.log("❗ special open for " + som.path + " with " + app);
-        Jfx_batch_injector.inject(() -> Popups.popup_warning( "❗ Calling MacOS open for: ", "Please wait " + som.path,true,som.owner,som.logger), som.logger);
 
         call_MACOS_open(som, app);
         //call_exec(som, app));
@@ -128,6 +126,8 @@ public class System_open_actor implements Actor
     private boolean call_MACOS_open(System_open_message som, String app)
     //**********************************************************
     {
+        Jfx_batch_injector.inject(() -> Popups.popup_warning( "❗ Calling macOS to open: "+som.path, "Please wait ",true,som.owner,som.logger), som.logger);
+
         List<String> list = new ArrayList<>();
         list.add("open");
         list.add(som.path.toFile().getAbsolutePath());
