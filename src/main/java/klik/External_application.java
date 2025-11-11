@@ -5,9 +5,11 @@ package klik;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
@@ -172,11 +174,16 @@ public enum External_application
                 TextInputDialog dialog = new TextInputDialog("");
                 Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
                 dialog.initOwner(owner);
-                dialog.setWidth(800);
+                dialog.setWidth(1000);
+                VBox vbox = new VBox();
                 PasswordField pwf = new PasswordField();
-                dialog.getDialogPane().getChildren().add(pwf);
-                dialog.setHeaderText("Sudo password required to install ffmpeg ");
-                dialog.setContentText("the command to be executed is: 'echo 'password' | sudo -S apt install ffmpeg");
+                vbox.getChildren().add(pwf);
+                Label l1 = new Label("Sudo password required to install ffmpeg ");
+                vbox.getChildren().add(l1);
+                Label l2 = new Label("the command to be executed is: 'echo 'password' | sudo -S apt install ffmpeg");
+                vbox.getChildren().add(l2);
+                dialog.getDialogPane().setContent(vbox);
+
                 Optional<String> result = dialog.showAndWait();
                 if (result.isPresent()) {
                     String password = pwf.getText();
