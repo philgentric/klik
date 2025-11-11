@@ -112,8 +112,10 @@ import klik.change.history.History_engine;
 import klik.change.history.History_item;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.properties.Non_booleans_properties;
+import klik.properties.Properties_manager;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
+import klik.util.Github_stars;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
@@ -154,6 +156,7 @@ public class Klik_application extends Application
         Shared_services.init(name,primary_stage_);
         Logger logger = Shared_services.logger();
         //Perf.monitor(logger);
+        Github_stars.init(getHostServices());
 
         primary_stage = primary_stage_;
         Start_context context = Start_context.get_context_and_args(this);
@@ -209,6 +212,25 @@ public class Klik_application extends Application
         {
             TCP_client.send_in_a_thread("localhost", reply_port, Launcher.STARTED, logger);
         }
+
+        int count = 0;
+        String how_many_times = Shared_services.main_properties().get("HOW_MANY_TIMES");
+        if ( how_many_times != null) count = Integer.parseInt(how_many_times);
+        count ++;
+        logger.log("count="+count);
+        Shared_services.main_properties().set("HOW_MANY_TIMES",""+count);
+        if ( count> 10)
+        {
+            String s = Shared_services.main_properties().get("GITHUB_STAR_ASK_DONE");
+            boolean already_asked = false;
+            if ( s != null)
+            {
+                already_asked = Boolean.parseBoolean(s);
+            }
+            if ( !already_asked)  Github_stars.ask_for_github_star();
+        }
+
+
     }
 
     //**********************************************************
