@@ -34,7 +34,7 @@ public enum External_application
         {
             String cmd = get_command_string_to_install(owner,logger);
             if ( cmd == null) return;
-            Execute_via_script_in_tmp_file.execute(cmd, true,true,owner,logger);
+            Execute_via_script_in_tmp_file.execute(cmd, true,false,owner,logger);
         };
         HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
                 get_I18n_key(),
@@ -54,10 +54,13 @@ public enum External_application
     String get_command_string_to_install(Window owner, Logger logger)
     //**********************************************************
     {
-        if (( System.getProperty("os.name").toLowerCase().contains("mac"))
-        || ( System.getProperty("os.name").toLowerCase().contains("linux")))
+        if ( System.getProperty("os.name").toLowerCase().contains("mac"))
         {
-            return "brew install "+get_brew_install_name();
+            return get_macOS_install_command();
+        }
+        if  ( System.getProperty("os.name").toLowerCase().contains("linux"))
+        {
+            return get_Linux_install_command();
         }
         Popups.popup_warning("❗Warning", "Sorry, this is implemented only for Mac and Linux. Your OS: "+System.getProperty("os.name"),
                 false, owner, logger);
@@ -93,7 +96,7 @@ public enum External_application
         }
     }
     //**********************************************************
-    public String get_brew_install_name()
+    public String get_macOS_install_command()
     //**********************************************************
     {
         // this is NOT for display: this MUST be th exact required string in:
@@ -101,19 +104,47 @@ public enum External_application
         switch (this)
         {
             case Ytdlp:
-                return "yt-dlp";
+                return "brew install yt-dlp";
             case AcousticID_chromaprint:
-                return "chromaprint";
+                return "brew install chromaprint";
             case ImageMagick:
-                return "imagemagick";
+                return "brew install imagemagick";
             case FFmpeg:
-                return "ffmpeg";
+                return "brew install ffmpeg";
             case Vips:
-                return "vips";
+                return "brew install vips";
             case GraphicsMagick:
-                return "graphicsmagick";
+                return "brew install graphicsmagick";
             case MediaInfo:
-                return "mediainfo";
+                return "brew install mediainfo";
+            default:
+                return null;
+        }
+    }
+
+    //**********************************************************
+    public String get_Linux_install_command()
+    //**********************************************************
+    {
+        // this is NOT for display: this MUST be th exact required string in:
+        // brew install <REQUIRED_STRING>
+        switch (this)
+        {
+            case Ytdlp:
+                return "brew install yt-dlp";
+            case AcousticID_chromaprint:
+                return "brew install chromaprint";
+            case ImageMagick:
+                return "brew install imagemagick";
+            case FFmpeg:
+                // super important: javafx audio REQUIRES ffmpeg
+                return "sudo apt install ffmpeg";
+            case Vips:
+                return "brew install vips";
+            case GraphicsMagick:
+                return "brew install graphicsmagick";
+            case MediaInfo:
+                return "brew install mediainfo";
             default:
                 return null;
         }

@@ -43,13 +43,13 @@ public class Execute_via_script_in_tmp_file
     public static final String END = "__END_OF_PROCESS_OUTPUT__";
 
     //**********************************************************
-    public static void execute(String the_command,  boolean show_window, boolean wait, Window owner, Logger logger)
+    public static void execute(String the_command,  boolean show_window, boolean in_a_thread, Window owner, Logger logger)
     //**********************************************************
     {
         LinkedBlockingQueue<String> output_queue;
         if ( show_window)
         {
-            //if ( dbg)
+            if ( dbg)
                 logger.log(("Showing output window for command: "+the_command));
             output_queue = new LinkedBlockingQueue<>();
             Platform.runLater(()-> Text_frame.show(the_command, output_queue,logger));
@@ -60,14 +60,15 @@ public class Execute_via_script_in_tmp_file
         }
 
         Runnable r = () -> execute_internal(the_command,show_window,output_queue,owner,logger);
-        if (wait)
-        {
-            r.run();
-        }
-        else
+        if (in_a_thread)
         {
             Actor_engine.execute(r, "Execute_via_script_in_tmp_file in a thread", logger);
         }
+        else
+        {
+            r.run();
+        }
+
     }
     //**********************************************************
     private static void execute_internal(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)

@@ -190,12 +190,12 @@ public class ML_servers_util
         {
             for (String s : commands_to_install_python)
             {
-                Execute_via_script_in_tmp_file.execute(s, true, true,owner, logger);
+                Execute_via_script_in_tmp_file.execute(s, true, false,owner, logger);
             }
         }
         {
             for (String s : commands_to_install_metal) {
-                Execute_via_script_in_tmp_file.execute(s, true, true,owner, logger);
+                Execute_via_script_in_tmp_file.execute(s, true, false,owner, logger);
             }
         }
     }

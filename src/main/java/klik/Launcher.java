@@ -84,6 +84,7 @@ public class Launcher extends Application implements UI_change
     public static final int icon_size = 100;
     public static final String STARTED = "STARTED";
     public static final String NOT_STARTED = "NOT_STARTED";
+    private static final boolean use_script_in_tmp = true;
 
     private Stage stage;
     private Aborter aborter;
@@ -220,7 +221,7 @@ public class Launcher extends Application implements UI_change
 
         {
             String key = "Start_Image_Similarity_Servers";
-            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false,false,stage, logger);
+            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false,true,stage, logger);
             HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
                     key,
                     handler,
@@ -233,7 +234,7 @@ public class Launcher extends Application implements UI_change
         }
         {
             String key = "Stop_Image_Similarity_Servers";
-            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false,false,stage, logger);
+            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false,true,stage, logger);
             HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
                     key,
                     handler,
@@ -254,7 +255,7 @@ public class Launcher extends Application implements UI_change
 
         {
             String key = "Start_Face_Recognition_Servers";
-            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), false,false,stage, logger);
+            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), false,true,stage, logger);
             HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
@@ -268,7 +269,7 @@ public class Launcher extends Application implements UI_change
 
         {
             String key = "Stop_Face_Recognition_Servers";
-            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false,false,stage, logger);
+            EventHandler<ActionEvent> handler =e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false,true,stage, logger);
             HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
@@ -362,7 +363,7 @@ public class Launcher extends Application implements UI_change
         {
             String cmd = app.get_command_string_to_install(owner,logger);
             if ( cmd == null) continue;
-            Execute_via_script_in_tmp_file.execute(cmd, true, true,owner, logger);
+            Execute_via_script_in_tmp_file.execute(cmd, true, false,owner, logger);
         }
     }
 
@@ -521,16 +522,22 @@ public class Launcher extends Application implements UI_change
 
         int port_to_reply_about_start = start_launch_status_server(app_name, local_hourglass, stage,logger);
         write_port_to_reply_about_start(port_to_reply_about_start,logger);
-        List<String> cmds = new ArrayList<>();
-        cmds.add("gradle");
-        cmds.add(app_name);
 
-
-        AtomicBoolean failed = new AtomicBoolean(false);
-        Runnable r = () -> {
-            Execute_command.execute_command_list_no_wait(cmds, new File("."), logger);
-        };
-        Actor_engine.execute(r, "gradle "+app_name,logger);
+        if ( use_script_in_tmp)
+        {
+            String cmd = "gradle "+app_name;
+            Execute_via_script_in_tmp_file.execute(cmd,false, true,stage,logger);
+        }
+        else
+        {
+            List<String> cmds = new ArrayList<>();
+            cmds.add("gradle");
+            cmds.add(app_name);
+            Actor_engine.execute(
+                    () -> Execute_command.execute_command_list_no_wait(cmds, new File("."), logger),
+                    "gradle " + app_name,
+                    logger);
+        }
 
     }
 
