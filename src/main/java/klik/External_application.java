@@ -174,22 +174,19 @@ public enum External_application
                 TextInputDialog dialog = new TextInputDialog("");
                 Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
                 dialog.initOwner(owner);
-                dialog.setWidth(1000);
+                dialog.setWidth(1200);
                 VBox vbox = new VBox();
-                PasswordField pwf = new PasswordField();
-                vbox.getChildren().add(pwf);
-                Label l1 = new Label("Sudo password required to install ffmpeg ");
+                //PasswordField pwf = new PasswordField();
+                //vbox.getChildren().add(pwf);
+                Label l1 = new Label("Installing ffmpeg is required for audio playback (and more features)");
                 vbox.getChildren().add(l1);
-                Label l2 = new Label("the command that will be executed is: echo 'password' | sudo -S apt install ffmpeg");
+                Label l2 = new Label("The command is:");
                 vbox.getChildren().add(l2);
+                Label l3 = new Label("sudo apt install ffmpeg");
+                vbox.getChildren().add(l3);
                 dialog.getDialogPane().setContent(vbox);
 
-                Optional<String> result = dialog.showAndWait();
-                if (result.isPresent()) {
-                    String password = pwf.getText();
-                    dialog.close();
-                    return "echo "+password+" | sudo -S apt install ffmpeg";
-                }
+                dialog.showAndWait();
                 dialog.close();
             }
             case Vips:
