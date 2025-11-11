@@ -224,7 +224,7 @@ public class Media_instance
             if ( first_time) {
                 Integer current_time_s = get_current_time(song, owner);
                 //if ( dbg)
-                logger.log("✅ seeking to " + current_time_s);
+                logger.log("✅ seeking song to " + current_time_s + " s");
                 Duration target = Duration.seconds(current_time_s);
                 the_media_player.seek(target);
             }

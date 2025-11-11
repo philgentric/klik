@@ -38,10 +38,11 @@ to start the music player directly:
 
 **gradle audio_player**
 
-(note well: normally you can run only one player at a time)
+(note well: you can run only one player at a time)
 
-Note: as an alternative to gradle, you can use jbang:
+Note: as an alternative to gradle, you can use (1) jbang or (2) the mill
 
 **sdk install jbang**
 
 **jbang src/main/java/klik/Klik_application.java**
+

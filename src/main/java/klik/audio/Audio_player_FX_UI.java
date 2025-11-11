@@ -1003,9 +1003,11 @@ public class Audio_player_FX_UI implements Media_callbacks
     public void scroll_to(String target)
     //**********************************************************
     {
+        //logger.log("scroll to :"+target);
         double x = playlist.get_scroll_for(target);
         double h = scroll_pane.getViewportBounds().getHeight();
         double max = scroll_pane.getContent().getLayoutBounds().getMaxY();
+        if ( max == 0) max = 1; // avoid NaN
         double y = x * (1 + h/max)- h/2/max;
         if ( y < 0 ) y = 0;
         if ( y > 1 ) y = 1;

@@ -98,10 +98,9 @@ public class Playlist
     private void add_all_to_playlist(List<String> file_paths)
     //**********************************************************
     {
-        the_playlist.clear();
         the_playlist.addAll(file_paths);
         path_to_Song.clear();
-        for (String file_path : file_paths)
+        for (String file_path : the_playlist)
         {
             Optional<Node> op = define_node_for_a_song(file_path);
             if ( op.isEmpty() ) continue;
@@ -566,6 +565,7 @@ public class Playlist
 
             logger.log("\n\n✅ loaded " + the_playlist.size() + " songs from file:" + playlist_file.getAbsolutePath() + "\n\n");
             update_playlist_size_info();
+            the_music_ui.set_playlist_name_display(extract_playlist_name());
 
         }
         catch (FileNotFoundException e)
@@ -762,6 +762,11 @@ public class Playlist
         for ( String path : the_playlist)
         {
             Song local_song = path_to_Song.get(path);
+            if ( local_song == null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("PANIC local_song == null"));
+                continue;
+            }
             if ( !local_songs.contains(local_song)) local_songs.add(local_song);
             if ( selected !=null) if ( local_song.path.equals(selected.path)) selected_path = path;
         }

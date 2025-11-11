@@ -82,7 +82,7 @@ public class Song
             });
 
         }
-        //WOW23 add_context_menu_to_node(playlist,owner,logger);
+        add_context_menu_to_node(playlist,owner,logger);
     }
 
     //**********************************************************
