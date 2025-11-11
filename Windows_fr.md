@@ -8,7 +8,7 @@
 
 ## Installation
 
-**Vous avez besoin de savoir comment ouvrir un terminal "power user".**
+**Vous avez besoin de savoir comment ouvrir un terminal.**
 
 Sur Window c'est une Application... qui s'appelle "Power shell" 
 

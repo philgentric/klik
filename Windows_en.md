@@ -1,22 +1,42 @@
 # Installation for Windows
 
-## With Chocolatey
+# option #1 via git bash (easiest)
 
-you need a JDK bundled with javaFX, the tested option is:
-Azul 'zulu' JDK25 - FX
+'git bash' is a MINGW64 shell (a terminal/console, similar to PowerShell, but more Unix-like)
 
-go to the Azul web site: https://www.azul.com
+It is installed when you install git for windows:
 
-in the 'dowload' page select:
-- Operating System : Windows
-- Java Package : JDK FX
-- Download the most recent (e.g. Azul Zulu: 25.30.17)
+https://gitforwindows.org/
 
-## Alternate method: with WSL2
+then open 'git bash' and proceed to step 'install sdkman'
 
-Install WSL2:
+Caveat: you will have to reopen 'gitbash' whenever you want to start Klik (launcher)
+
+#  option #2 via WSL 
+
+
+Install WSL2: 
+
+(exact steps depend on the exact Windows version ... can be complicated)
+
+Go to Settings and search for 'Optional features' then 'More Optional features'
+
+Check:
+- Hyper-V : Hyper-V Platform
+- virtual machine platform
+- windows subsystenm for Linux
+
+
+open a "windows power shell" in administrator mode
+(search for 'power', then right-click the icon 'Windows PowerShell')
 
 **wsl --install**
+
+
+### Install git
+
+**https://git-scm.com/downloads/win**
+
 
 
 ### Install sdkman
@@ -26,37 +46,31 @@ Install WSL2:
 
 ### Install gradle
 
-**sdk install gradle 9.0.0**
+**sdk install gradle 9.2.0**
 
-### Install java24
+### Install java
 
-**sdk install java 24.fx-zulu**
-
-### Install git
-
-**https://git-scm.com/downloads/win**
+**sdk install java 25.fx-zulu**
 
 ### Get the source code
 
 **git clone https://github.com/philgentric/klik.git**
 
-### Start Klik
+### Start Klik (launcher)
 
 **cd klik**
 
 **gradle run**
 
-### To get the latest version
-
-**cd klik**
-
-**git pull**
-
 
 **IMPORTANT:**
-If after upgrading the source code you have a an error when starting, come read this doc again as sometimes upgrading the source code also requires the upgrade of the compilation tools 'gradle' and 'java', this doc will also be updated and you will be told the new command lines.
+If you have an error when starting after a source code update, 
+come read this doc again as sometimes updating 
+the source code also requires to upgrade tools like 'gradle' and 'java', 
+this doc will also be updated along with the source
+and you will be told the new command lines.
 
-Try:
+In all other cases, try:
 
 **gradle clean run**
 
