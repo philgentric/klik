@@ -60,12 +60,15 @@ public class Booleans
 
 
 
+    private static boolean show_ffmpeg_install_warning_done = false;
     //**********************************************************
     public static void manage_show_ffmpeg_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
         if ( get_boolean_defaults_to_true(Feature.Show_ffmpeg_install_warning.name(),owner))
         {
+            if ( show_ffmpeg_install_warning_done) return;
+            show_ffmpeg_install_warning_done = true;
             String msg = "klik uses ffmpeg to support several features. " +
                     "\nIt is easy and free to install (https://ffmpeg.org/)"+
                     "\nOn Mac: use the launcher or type 'brew install ffmpeg' in a shell";
@@ -78,12 +81,15 @@ public class Booleans
         }
     }
 
+    private static boolean show_graphicsmagick_install_warning_done = false;
     //**********************************************************
     public static void manage_show_graphicsmagick_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
         if ( get_boolean_defaults_to_true(Feature.Show_graphicsmagick_install_warning.name(),owner))
         {
+            if ( show_graphicsmagick_install_warning_done) return;
+            show_graphicsmagick_install_warning_done = true;
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
@@ -102,12 +108,15 @@ public class Booleans
         }
     }
 
+    private static boolean show_fpcalc_install_warning_done = false;
     //**********************************************************
     public static void manage_show_fpcalc_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
         if ( get_boolean_defaults_to_true(Feature.Show_fpcalc_install_warning.name(),owner))
         {
+            if ( show_fpcalc_install_warning_done) return;
+            show_fpcalc_install_warning_done = true;
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
@@ -125,12 +134,15 @@ public class Booleans
         }
     }
 
+    private static boolean show_imagemagick_install_warning_done = false;
     //**********************************************************
     public static void manage_show_imagemagick_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
         if ( get_boolean_defaults_to_true(Feature.Show_imagemagick_install_warning.name(),owner))
         {
+            if ( show_imagemagick_install_warning_done) return;
+            show_imagemagick_install_warning_done = true;
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
@@ -149,12 +161,15 @@ public class Booleans
         }
     }
 
+    private static boolean show_mediainfo_install_warning_done = false;
     //**********************************************************
     public static void manage_show_mediainfo_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
         if ( get_boolean_defaults_to_true(Feature.Show_mediainfo_install_warning.name(),owner))
         {
+            if ( show_mediainfo_install_warning_done) return;
+            show_mediainfo_install_warning_done = true;
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
@@ -173,12 +188,15 @@ public class Booleans
         }
     }
 
+    private static boolean show_ytdlp_install_warning_done = false;
     //**********************************************************
     public static void manage_show_ytdlp_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
         if ( get_boolean_defaults_to_true(Feature.Show_ytdlp_install_warning.name(),owner))
         {
+            if ( show_ytdlp_install_warning_done) return;
+            show_ytdlp_install_warning_done = true;
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
