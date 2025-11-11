@@ -67,7 +67,8 @@ public class Song
                 playlist.change_song(path, start,false);
             });
         }
-        else {
+        else
+        {
             node.setOnMouseClicked(event ->
             {
                 if ( event.getButton() != MouseButton.PRIMARY)
@@ -81,7 +82,7 @@ public class Song
             });
 
         }
-        add_context_menu_to_node(playlist,owner,logger);
+        //WOW23 add_context_menu_to_node(playlist,owner,logger);
     }
 
     //**********************************************************

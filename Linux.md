@@ -5,11 +5,11 @@
 
 ###  install gradle
 
-**sdk install gradle 9.0.0**
+**sdk install gradle 9.2.0**
 
 ###  install java (with fx)
 
-**sdk install java 24.fx-zulu**
+**sdk install java 25.fx-zulu**
 
 ###  install git
 

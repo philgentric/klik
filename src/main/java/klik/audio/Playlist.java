@@ -85,7 +85,9 @@ public class Playlist
     //**********************************************************
     {
         the_playlist.add(file_path);
-        Node node = define_node_for_a_song(file_path);
+        Optional<Node> op = define_node_for_a_song(file_path);
+        if ( op.isEmpty()) return;
+        Node node = op.get();
         Song local = new Song(file_path,node);
         local.init(this,owner,logger);
         path_to_Song.put(file_path, local);
@@ -101,7 +103,9 @@ public class Playlist
         path_to_Song.clear();
         for (String file_path : file_paths)
         {
-            Node node = define_node_for_a_song(file_path);
+            Optional<Node> op = define_node_for_a_song(file_path);
+            if ( op.isEmpty() ) continue;
+            Node node = op.get();
             Song local = new Song(file_path, node);
             local.init(this,owner,logger);
             path_to_Song.put(file_path, local);
@@ -112,13 +116,18 @@ public class Playlist
 
 
     //**********************************************************
-    private Node define_node_for_a_song(String file_path)
+    private Optional<Node> define_node_for_a_song(String file_path)
     //**********************************************************
     {
+        if ( file_path.isBlank()) return Optional.empty();
         File f = new File(file_path);
         //Label node = new Label(f.getParentFile().getName() + "    /    " + f.getName());
         //Look_and_feel_manager.set_label_look(node,owner,logger);
-
+        if ( f.getParentFile() == null)
+        {
+            logger.log("f.getParentFile() == null because file_path=->"+f+"<-");
+            return Optional.empty();
+        }
         Button node = new Button(f.getParentFile().getName() + "    /    " + f.getName());
         node.setMnemonicParsing(false);
         Look_and_feel_manager.set_button_look(node,false,owner,logger);
@@ -128,7 +137,7 @@ public class Playlist
         Song local = new Song(file_path, node);
         local.init(this,owner,logger);
         path_to_Song.put(file_path, local);
-        return node;
+        return Optional.of(node);
     }
 
 
@@ -545,6 +554,7 @@ public class Playlist
             {
                 String song_path = br.readLine();
                 if (song_path == null) break;
+                if ( song_path.isBlank()) continue;
                 if ( (new File(song_path)).exists())
                 {
                     to_be_loaded.add(song_path);
