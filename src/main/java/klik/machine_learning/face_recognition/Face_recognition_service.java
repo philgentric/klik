@@ -87,7 +87,7 @@ public class Face_recognition_service
         this.logger = logger;
         Path face_reco_folder = Static_files_and_paths_utilities.get_face_reco_folder(owner,logger);
         face_recognizer_path = Path.of(face_reco_folder.toAbsolutePath().toString(),face_recognizer_name);
-        Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(face_recognizer_path),owner,logger);
+        Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(face_recognizer_path,logger),owner,logger);
 
         last_report = System.currentTimeMillis();
         recognition_stats = new Recognition_stats();
@@ -346,7 +346,7 @@ public class Face_recognition_service
                     return false;
                 }
             }
-            if (Guess_file_type.is_this_file_an_image(f))
+            if (Guess_file_type.is_this_file_an_image(f,logger))
             {
                 label_in_flight.increment();
                 Face_recognition_message msg = new Face_recognition_message(f, Face_detection_type.MTCNN, true, label, false, aborter_for_auto_train, files_in_flight);

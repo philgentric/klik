@@ -281,7 +281,7 @@ public class Item_folder extends Item implements Icon_destination
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_this_file_an_image(f)) continue; // ignore non images
+            if (!Guess_file_type.is_this_file_an_image(f,logger)) continue; // ignore non images
             if( make_animated_gif)
             {
                 Objects.requireNonNull(images_in_folder).add(f);
@@ -302,7 +302,7 @@ public class Item_folder extends Item implements Icon_destination
 
             Path returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
                     owner,
-                    new Path_list_provider_for_file_system(local_path),
+                    new Path_list_provider_for_file_system(local_path,logger),
                     path_comparator_source,
                     images_in_folder,
                     image_properties_RAM_cache,
@@ -402,7 +402,7 @@ public class Item_folder extends Item implements Icon_destination
             Instructions.replace_different_folder(
                     shutdown_target,
                     Window_type.File_system_2D,
-                    new Path_list_provider_for_file_system(get_item_path()),
+                    new Path_list_provider_for_file_system(get_item_path(),logger),
                     owner,
                     logger);
 

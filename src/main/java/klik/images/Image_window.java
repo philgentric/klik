@@ -185,7 +185,7 @@ public class Image_window
 
             Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
             if (tmp == null) {
-                tmp = Image_properties_RAM_cache.get(new Path_list_provider_for_file_system(first_image_path.getParent()), owner, aborter, logger);
+                tmp = Image_properties_RAM_cache.get(new Path_list_provider_for_file_system(first_image_path.getParent(),logger), owner, aborter, logger);
                 Browsing_caches.image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), tmp);
             }
             image_properties_cache = tmp;
@@ -227,7 +227,7 @@ public class Image_window
             } else {
                 // this is going to take possibly a long time !!!
                 long start = System.currentTimeMillis();
-                local_comp = Sort_files_by.get_image_comparator(new Path_list_provider_for_file_system(first_image_path.getParent()), path_comparator_source, image_properties_cache, stage, x + 100, y + 100, aborter, logger);
+                local_comp = Sort_files_by.get_image_comparator(new Path_list_provider_for_file_system(first_image_path.getParent(),logger), path_comparator_source, image_properties_cache, stage, x + 100, y + 100, aborter, logger);
                 long now = System.currentTimeMillis();
                 logger.log("get_image_comparator took " + (now - start) + " ms");
             }

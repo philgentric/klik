@@ -408,7 +408,7 @@ public class Static_files_and_paths_utilities
             else
             {
                 files++;
-                if( Guess_file_type.is_this_file_an_image(f)) images++;
+                if( Guess_file_type.is_this_file_an_image(f,logger)) images++;
                 bytes += f.length();
             }
         }
@@ -443,7 +443,7 @@ public class Static_files_and_paths_utilities
         File_payload fp = (f, file_count_stop_counter) -> {
             bytes.addAndGet(f.length());
             files.incrementAndGet();
-            if ( Guess_file_type.is_this_file_an_image(f)) images.incrementAndGet();
+            if ( Guess_file_type.is_this_file_an_image(f,logger)) images.incrementAndGet();
             file_count_stop_counter.decrement();
         };
         Dir_payload dp = f -> {
@@ -514,7 +514,7 @@ public class Static_files_and_paths_utilities
         AtomicLong files = new AtomicLong(0);
         File_payload fp = (f, file_count_stop_counter) ->
         {
-            if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath()))
+            if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath(),logger))
             {
                 if ( !Feature_cache.get(Feature.Show_hidden_files))
                 {
@@ -878,7 +878,7 @@ public class Static_files_and_paths_utilities
         if (Extensions.get_extension(new_name).isEmpty()) {
             if (!Extensions.get_extension(old_name).isEmpty()) {
                 logger.log("❗ WARNING, should not remove extension");
-                if (Guess_file_type.is_this_path_an_image(path) || Guess_file_type.is_this_path_a_video(path)) {
+                if (Guess_file_type.is_this_path_an_image(path,logger) || Guess_file_type.is_this_path_a_video(path,logger)) {
                     logger.log("❗ WARNING, extension restored");
                     new_name = Extensions.add(new_name ,Extensions.get_extension(old_name));
                     Popups.popup_warning( "❗ extension restored: ", old_name + "=>" + new_name, true, owner,logger);

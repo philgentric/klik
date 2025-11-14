@@ -124,7 +124,7 @@ public class Folder_chooser
         path_textfield.setText(answer[0].toString());
 
         Runnable refresher = () -> {
-            list.getItems().setAll(list_paths(answer[0], show_hidden_checkbox.isSelected()));
+            list.getItems().setAll(list_paths(answer[0], show_hidden_checkbox.isSelected(),logger));
             list.getSelectionModel().clearSelection();
             up_button.setDisable(answer[0].getParent() == null);
             path_textfield.setText(answer[0].toString());
@@ -216,7 +216,7 @@ public class Folder_chooser
     }
 
     //**********************************************************
-    private static List<Path> list_paths(Path folder, boolean also_hidden)
+    private static List<Path> list_paths(Path folder, boolean also_hidden,Logger logger)
     //**********************************************************
     {
         List<Path> out = new ArrayList<>();
@@ -224,7 +224,7 @@ public class Folder_chooser
             for (Path p : ds) {
                 try {
                     if (Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
-                        if (also_hidden || !Guess_file_type.should_ignore(p))
+                        if (also_hidden || !Guess_file_type.should_ignore(p,logger))
                         {
                             out.add(p);
                         }

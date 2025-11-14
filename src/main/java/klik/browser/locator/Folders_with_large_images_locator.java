@@ -173,7 +173,7 @@ public class Folders_with_large_images_locator
             }
 
             if (!f.isFile()) continue;
-            if (Guess_file_type.is_this_file_an_image(f))
+            if (Guess_file_type.is_this_file_an_image(f,logger))
             {
                 if ( f.length() >= min_bytes)
                 {
@@ -391,7 +391,7 @@ public class Folders_with_large_images_locator
                 String final_S = s;
                 Jfx_batch_injector.inject(()-> Instructions.additional_no_past(
                         Window_type.File_system_2D,
-                        new Path_list_provider_for_file_system(key_to_path(final_S)),
+                        new Path_list_provider_for_file_system(key_to_path(final_S),logger),
                         owner,
                         logger),logger);
                 count++;

@@ -215,7 +215,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
             Button up = new Button("Up");
             Look_and_feel_manager.set_button_look(up, true, stage, logger);
             up.setOnAction(event -> {
-                Instructions.replace_different_folder(this, Window_type.File_system_3D,new Path_list_provider_for_file_system(the_path.getParent()),stage,logger);
+                Instructions.replace_different_folder(this, Window_type.File_system_3D,new Path_list_provider_for_file_system(the_path.getParent(),logger),stage,logger);
             });
             buttons_box.getChildren().add(up);
         }
@@ -555,12 +555,12 @@ public class Circle_3D implements Window_provider, Shutdown_target
                 if (Files.isDirectory(p))
                 {
                     logger.log("is folder: "+p);
-                    Instructions.replace_different_folder(this, Window_type.File_system_3D,new Path_list_provider_for_file_system(p),stage,logger);
+                    Instructions.replace_different_folder(this, Window_type.File_system_3D,new Path_list_provider_for_file_system(p,logger),stage,logger);
                 }
                 else 
                 {
                     logger.log("is not folder : "+p);
-                    Image_window image_stage = Image_window.get_Image_window(p, new Path_list_provider_for_file_system(p.getParent()), Optional.empty(),scene.getWindow(),new Aborter("dummy",logger),logger);
+                    Image_window image_stage = Image_window.get_Image_window(p, new Path_list_provider_for_file_system(p.getParent(),logger), Optional.empty(),scene.getWindow(),new Aborter("dummy",logger),logger);
                 }
             }
             else

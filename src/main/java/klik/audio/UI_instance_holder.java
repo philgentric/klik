@@ -66,13 +66,13 @@ public class UI_instance_holder
             return;
         }
 
-        if (Guess_file_type.is_this_path_a_music(Path.of(file)))
+        if (Guess_file_type.is_this_path_a_music(Path.of(file),logger))
         {
             logger.log("audio player going to play song:"+file);
             play_this_song(file,start,first_time,logger);
             return;
         }
-        if (Guess_file_type.is_this_path_an_audio_playlist(Path.of(file)))
+        if (Guess_file_type.is_this_path_an_audio_playlist(Path.of(file),logger))
         {
             logger.log("audio player going to play playlist:"+file);
             play_playlist(new File(file),logger);

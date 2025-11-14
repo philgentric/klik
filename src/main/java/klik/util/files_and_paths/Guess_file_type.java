@@ -118,10 +118,10 @@ public class Guess_file_type
 
  */
     //**********************************************************
-    public static boolean is_this_file_an_image(File f)
+    public static boolean is_this_file_an_image(File f,Logger logger)
     //**********************************************************
     {
-        return is_this_path_an_image(f.toPath());
+        return is_this_path_an_image(f.toPath(),logger);
     }
 /*
     //**********************************************************
@@ -144,26 +144,31 @@ public class Guess_file_type
 
 
     //**********************************************************
-    public static boolean is_this_path_a_text(Path path)
+    public static boolean is_this_path_a_text(Path path,Logger logger)
     //**********************************************************
     {
-        if (should_ignore(path)) return false;
+        if (should_ignore(path,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_text(extension);
     }
     //**********************************************************
-    public static boolean is_this_path_an_image(Path path)
+    public static boolean is_this_path_an_image(Path path,Logger logger)
     //**********************************************************
     {
-        if (should_ignore(path)) return false;
+        if (should_ignore(path,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_image(extension);
     }
 
     //**********************************************************
-    public static boolean should_ignore(Path path)
+    public static boolean should_ignore(Path path,Logger logger)
     //**********************************************************
     {
+        if ( path.getFileName() == null)
+        {
+            logger.log("Warning ignoring path with no name ->"+path);
+            return true;
+        }
         for ( String i : invisible_if_starts_with)
         {
             if (path.getFileName().toString().startsWith(i)) return true;
@@ -178,52 +183,52 @@ public class Guess_file_type
 
 
     //**********************************************************
-    public static boolean is_this_path_a_music(Path path)
+    public static boolean is_this_path_a_music(Path path,Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path)) return false;
+        if ( should_ignore(path,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_audio(extension);
     }
 
     //**********************************************************
-    public static boolean is_this_path_an_audio_playlist(Path path)
+    public static boolean is_this_path_an_audio_playlist(Path path,Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path)) return false;
+        if ( should_ignore(path,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_audio_playlist(extension);
     }
     //**********************************************************
-    public static boolean is_this_path_an_image_playlist(Path path)
+    public static boolean is_this_path_an_image_playlist(Path path,Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path)) return false;
+        if ( should_ignore(path,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_image_playlist(extension);
     }
     //**********************************************************
-    public static boolean is_this_path_a_pdf(Path path)
+    public static boolean is_this_path_a_pdf(Path path,Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path)) return false;
+        if ( should_ignore(path,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_pdf(extension);
     }
     //**********************************************************
-    public static boolean is_this_path_a_gif(Path path)
+    public static boolean is_this_path_a_gif(Path path,Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path)) return false;
+        if ( should_ignore(path,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_gif(extension);
     }
 
     //**********************************************************
-    public static boolean is_this_path_a_video(Path path)
+    public static boolean is_this_path_a_video(Path path,Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path)) return false;
+        if ( should_ignore(path,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_video(extension);
     }
@@ -300,7 +305,7 @@ public class Guess_file_type
     public static boolean is_this_path_a_animated_gif(Path path, Window owner,Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (! Guess_file_type.is_this_path_a_gif(path)) return false;
+        if (! Guess_file_type.is_this_path_a_gif(path,logger)) return false;
 
         Exif_metadata_extractor e = new Exif_metadata_extractor(path,owner,logger);
         List<String> l = e.get_exif_metadata(42,true,aborter,false);
@@ -329,10 +334,10 @@ public class Guess_file_type
 
 
     //**********************************************************
-    public static boolean is_this_path_invisible_when_browsing(Path path)
+    public static boolean is_this_path_invisible_when_browsing(Path path,Logger logger)
     //**********************************************************
     {
-        return (should_ignore(path));
+        return (should_ignore(path,logger));
     }
 
     //**********************************************************

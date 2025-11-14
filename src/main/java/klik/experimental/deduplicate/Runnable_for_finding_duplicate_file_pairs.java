@@ -112,7 +112,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	private File_pair_deduplication decide_which_to_delete(int i, int j)
 	//**********************************************************
 	{
-		boolean is_image = Guess_file_type.is_this_path_an_image(all_files.get(i).file.toPath());
+		boolean is_image = Guess_file_type.is_this_path_an_image(all_files.get(i).file.toPath(),logger);
 
 		// first we check if the one of the file names has been cleaned
 		if(Name_cleaner.clean(all_files.get(i).file.getName(),true,logger).equals(all_files.get(j).file.getName()))

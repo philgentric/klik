@@ -877,7 +877,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             if (ultra_dbg) logger.log("✅ Virtual_landscape process_non_iconized_files "+path.toAbsolutePath());
             String text = path.getFileName().toString();
             long size = path.toFile().length() / 1000_000L;
-            if (Guess_file_type.is_this_path_a_video(path)) text = size + "MB VIDEO: " + text;
+            if (Guess_file_type.is_this_path_a_video(path,logger)) text = size + "MB VIDEO: " + text;
             Item item = all_items_map.get(path);
             if ( item == null)
             {
@@ -1017,7 +1017,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         null,
                         browsing_caches.image_properties_RAM_cache,
                         shutdown_target,
-                        new Path_list_provider_for_file_system(folder_path),
+                        new Path_list_provider_for_file_system(folder_path,logger),
                         this,
                         this,
                         aborter,
@@ -1081,7 +1081,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         null,
                         browsing_caches.image_properties_RAM_cache,
                         shutdown_target,
-                        new Path_list_provider_for_file_system(folder_path),
+                        new Path_list_provider_for_file_system(folder_path,logger),
                         this,
                         this,
 

@@ -293,8 +293,8 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_this_file_an_image(f)) continue; // ignore non images
-            if (Guess_file_type.is_this_path_a_gif(f.toPath()))
+            if (!Guess_file_type.is_this_file_an_image(f,logger)) continue; // ignore non images
+            if (Guess_file_type.is_this_path_a_gif(f.toPath(),logger))
             {
                 if (Guess_file_type.is_this_path_a_animated_gif(f.toPath(), owner, aborter, logger))
                 {
@@ -313,8 +313,8 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                     Arrays.sort(files2);
                     for (File f2 : files2) {
                         if (f2.isDirectory()) continue; // ignore folders
-                        if (!Guess_file_type.is_this_file_an_image(f2)) continue; // ignore non images
-                        if (Guess_file_type.is_this_path_a_gif(f2.toPath())) {
+                        if (!Guess_file_type.is_this_file_an_image(f2,logger)) continue; // ignore non images
+                        if (Guess_file_type.is_this_path_a_gif(f2.toPath(),logger)) {
                             if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), owner,aborter, logger)) {
                                 return f2.toPath();
                             }
@@ -331,7 +331,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
 
         Path returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
                 owner,
-                new Path_list_provider_for_file_system(get_item_path()),
+                new Path_list_provider_for_file_system(get_item_path(),logger),
                 path_comparator_source,
                 images_in_folder,  image_properties_RAM_cache, aborter,logger);
         if ( returned != null)

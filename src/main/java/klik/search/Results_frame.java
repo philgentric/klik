@@ -129,11 +129,11 @@ public class Results_frame
 
 			if (Files.isDirectory(path))
 			{
-				Instructions.additional_no_past(Window_type.File_system_2D, new Path_list_provider_for_file_system(path),owner,logger);
+				Instructions.additional_no_past(Window_type.File_system_2D, new Path_list_provider_for_file_system(path,logger),owner,logger);
 			}
-			else if (Guess_file_type.is_this_file_an_image(path.toFile()))
+			else if (Guess_file_type.is_this_file_an_image(path.toFile(),logger))
 			{
-                Path_list_provider new_path_list_provider = new Path_list_provider_for_file_system(path.getParent());
+                Path_list_provider new_path_list_provider = new Path_list_provider_for_file_system(path.getParent(),logger);
 				Item_file_with_icon.open_an_image(
 						new_path_list_provider,
 						path_comparator_source,
@@ -141,10 +141,10 @@ public class Results_frame
 						owner,
 						logger);
 				//Image_window is = Image_window.get_Image_window(the_browser, path, logger);
-			} else if (Guess_file_type.is_this_path_a_music(path)) {
+			} else if (Guess_file_type.is_this_path_a_music(path,logger)) {
 				logger.log("opening audio file: " + path.toAbsolutePath());
 				Audio_player_access.play_song_in_separate_process(path.toFile(), logger);
-			} else if (Guess_file_type.is_this_path_a_text(path)) {
+			} else if (Guess_file_type.is_this_path_a_text(path,logger)) {
 				logger.log("opening text file: " + path.toAbsolutePath());
 				Text_frame.show(path, logger);
 			} else {
@@ -162,7 +162,7 @@ public class Results_frame
 			//logger.log("Browse_in_new_window");
 			Path local = path;
 			if (! local.toFile().isDirectory()) local = local.getParent();
-			Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(local),owner,logger);
+			Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(local,logger),owner,logger);
 		},context_menu,owner,logger);
 
 		if (! path.toFile().isDirectory())

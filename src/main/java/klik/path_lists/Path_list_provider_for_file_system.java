@@ -21,12 +21,14 @@ public class Path_list_provider_for_file_system implements Path_list_provider
 //**********************************************************
 {
     private final Path folder_path;
+    private final Logger logger;
     Change change = new Change();
     //**********************************************************
-    public Path_list_provider_for_file_system(Path folder_path)
+    public Path_list_provider_for_file_system(Path folder_path, Logger logger)
     //**********************************************************
     {
         this.folder_path = folder_path;
+        this.logger = logger;
     }
 
     //**********************************************************
@@ -51,7 +53,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
             if ( file.isDirectory() ) continue;
             if (! consider_also_hidden_files)
             {
-                if ( Guess_file_type.should_ignore(file.toPath())) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
             }
             returned.add(file.toPath());
         }
@@ -70,10 +72,10 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (File file : files)
         {
             if ( file.isDirectory() ) continue;
-            if ( !Guess_file_type.is_this_path_an_image(file.toPath())) continue;
+            if ( !Guess_file_type.is_this_path_an_image(file.toPath(),logger)) continue;
             if (! consider_also_hidden_files)
             {
-                if ( Guess_file_type.should_ignore(file.toPath())) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
             }
             returned.add(file.toPath());
         }
@@ -93,10 +95,10 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (File file : files)
         {
             if ( file.isDirectory() ) continue;
-            if ( !Guess_file_type.is_this_path_a_music(file.toPath())) continue;
+            if ( !Guess_file_type.is_this_path_a_music(file.toPath(),logger)) continue;
             if (! consider_also_hidden_files)
             {
-                if ( Guess_file_type.should_ignore(file.toPath())) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
             }
             returned.add(file.toPath());
         }
@@ -118,14 +120,14 @@ public class Path_list_provider_for_file_system implements Path_list_provider
             {
                 if (! consider_also_hidden_folders)
                 {
-                    if ( Guess_file_type.should_ignore(file.toPath())) continue;
+                    if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
                 }
                 returned++;
                 continue;
             }
             if (! consider_also_hidden_files)
             {
-                if ( Guess_file_type.should_ignore(file.toPath())) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
             }
             returned++;
         }
@@ -146,7 +148,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
             if ( !file.isDirectory() ) continue;
             if (! consider_also_hidden_folders)
             {
-                if ( Guess_file_type.should_ignore(file.toPath())) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
             }
             returned.add(file.toPath());
         }
@@ -198,7 +200,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (File file : files)
         {
             if( file.isDirectory() ) continue;
-            if (!hidden_files) if ( Guess_file_type.should_ignore(file.toPath())) continue;
+            if (!hidden_files) if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
             returned.add(file);
         }
         return returned;
@@ -216,7 +218,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (File file : files)
         {
             if( !file.isDirectory() ) continue;
-            if (!consider_also_hidden_folders) if ( Guess_file_type.should_ignore(file.toPath())) continue;
+            if (!consider_also_hidden_folders) if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
             returned.add(file);
         }
         return returned;
