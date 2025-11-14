@@ -130,7 +130,7 @@ public class Item_folder extends Item implements Icon_destination
         }
         else
         {
-            logger.log("❌ SHOULD NOT HAPPEN Item_folder path is not a directory! "+text);
+            logger.log("❌ SHOULD NOT HAPPEN Item_folder path is not a directory text=->"+text+"<-+path ="+local);
             return;
         }
         Look_and_feel_manager.set_button_look(button,false,owner,logger);
