@@ -922,16 +922,18 @@ public class Audio_player_FX_UI implements Media_callbacks
     //**********************************************************
     {
         String encoded;
-        try
+        //try
         {
-            encoded = "file://"+(new File(new_song)).getCanonicalPath();
-        }
+            //encoded = "file://"+(new File(new_song)).getCanonicalPath();
+            encoded = (new File(new_song)).toURI().toString();
+        }/*
         catch (IOException e)
         {
             logger.log("ERROR "+e);
             return;
         }
         encoded = encoded.replaceAll(" ","%20");
+        */
 
         Media_instance_statics.play_this(encoded,this, first_time,stage,logger);
 
