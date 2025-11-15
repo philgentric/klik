@@ -38,6 +38,6 @@ public class The_main_circular_3 extends Application
         Perf.monitor(logger);
 
         Path p = Path.of(System.getProperty("user.home"));
-        Instructions.additional_no_past(Window_type.File_system_3D,new Path_list_provider_for_file_system(p,logger),primaryStage,logger);
+        Instructions.additional_no_past(Window_type.File_system_3D,new Path_list_provider_for_file_system(p,primaryStage,logger),primaryStage,logger);
     }
 }

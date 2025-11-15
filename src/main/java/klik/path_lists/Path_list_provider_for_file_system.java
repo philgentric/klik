@@ -22,13 +22,15 @@ public class Path_list_provider_for_file_system implements Path_list_provider
 {
     private final Path folder_path;
     private final Logger logger;
+    private final Window owner;
     Change change = new Change();
     //**********************************************************
-    public Path_list_provider_for_file_system(Path folder_path, Logger logger)
+    public Path_list_provider_for_file_system(Path folder_path, Window owner, Logger logger)
     //**********************************************************
     {
         this.folder_path = folder_path;
         this.logger = logger;
+        this.owner = owner;
     }
 
     //**********************************************************
@@ -53,7 +55,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
             if ( file.isDirectory() ) continue;
             if (! consider_also_hidden_files)
             {
-                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
             }
             returned.add(file.toPath());
         }
@@ -72,10 +74,10 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (File file : files)
         {
             if ( file.isDirectory() ) continue;
-            if ( !Guess_file_type.is_this_path_an_image(file.toPath(),logger)) continue;
+            if ( !Guess_file_type.is_this_path_an_image(file.toPath(),owner,logger)) continue;
             if (! consider_also_hidden_files)
             {
-                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
             }
             returned.add(file.toPath());
         }
@@ -95,10 +97,10 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (File file : files)
         {
             if ( file.isDirectory() ) continue;
-            if ( !Guess_file_type.is_this_path_a_music(file.toPath(),logger)) continue;
+            if ( !Guess_file_type.is_this_path_a_music(file.toPath(),owner,logger)) continue;
             if (! consider_also_hidden_files)
             {
-                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
             }
             returned.add(file.toPath());
         }
@@ -120,14 +122,14 @@ public class Path_list_provider_for_file_system implements Path_list_provider
             {
                 if (! consider_also_hidden_folders)
                 {
-                    if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                    if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
                 }
                 returned++;
                 continue;
             }
             if (! consider_also_hidden_files)
             {
-                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
             }
             returned++;
         }
@@ -150,7 +152,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
             {
                 if ( ! consider_also_hidden_folders)
                 {
-                    if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                    if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
                 }
                 folder_paths.add(file.toPath());
             }
@@ -158,7 +160,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
             {
                 if (! consider_also_hidden_files)
                 {
-                    if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                    if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
                 }
                 file_paths.add(file.toPath());
 
@@ -182,7 +184,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
             if ( !file.isDirectory() ) continue;
             if (! consider_also_hidden_folders)
             {
-                if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
             }
             returned.add(file.toPath());
         }
@@ -235,7 +237,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (File file : files)
         {
             if( file.isDirectory() ) continue;
-            if (!hidden_files) if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+            if (!hidden_files) if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
             returned.add(file);
         }
         return returned;
@@ -253,7 +255,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (File file : files)
         {
             if( !file.isDirectory() ) continue;
-            if (!consider_also_hidden_folders) if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+            if (!consider_also_hidden_folders) if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
             returned.add(file);
         }
         return returned;

@@ -163,7 +163,7 @@ public class Item_file_with_icon extends Item_file
     {
         selection_handler.reset_selection(); // will clear all selections
 
-        if ( Guess_file_type.is_this_path_an_image(get_item_path(),logger))
+        if ( Guess_file_type.is_this_path_an_image(get_item_path(),owner,logger))
         {
             open_an_image(path_list_provider,path_comparator_source,get_item_path(),owner,logger);
         }
@@ -321,7 +321,7 @@ public class Item_file_with_icon extends Item_file
             {
                 double x = owner.getX()+100;
                 double y = owner.getY()+100;
-                Path_list_provider path_list_provider = new Path_list_provider_for_file_system(image_path.getParent(),logger);
+                Path_list_provider path_list_provider = new Path_list_provider_for_file_system(image_path.getParent(),owner,logger);
                 List<Path> paths =  path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
                 Similarity_engine image_similarity = new Similarity_engine(
                         paths,
@@ -493,7 +493,7 @@ public class Item_file_with_icon extends Item_file
                 if (Files.exists(get_item_path()))
                 {
                     if (
-                            (Guess_file_type.is_this_path_a_video(get_item_path(),logger)) || (Guess_file_type.is_this_path_a_pdf(get_item_path(),logger))
+                            (Guess_file_type.is_this_path_a_video(get_item_path(),owner,logger)) || (Guess_file_type.is_this_path_a_pdf(get_item_path(),owner,logger))
                     ) {
                         if (dbg) logger.log("✅ PDF or video => rot=0");
                         local_rot = 0;

@@ -272,7 +272,7 @@ public class Moving_files
             Old_and_new_Path oand = the_list.get(0);
             if ( oand.old_Path.toFile().isDirectory())
             {
-                Sizes sizes =   Static_files_and_paths_utilities.get_sizes_on_disk_deep_concurrent(oand.old_Path, new Aborter("dummy",logger), logger);
+                Sizes sizes =   Static_files_and_paths_utilities.get_sizes_on_disk_deep_concurrent(oand.old_Path, new Aborter("dummy",logger), owner, logger);
                 if ( sizes.bytes() > 10_000_000) show_progress_window = true;
             }
             else

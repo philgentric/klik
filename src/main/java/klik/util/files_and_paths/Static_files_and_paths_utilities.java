@@ -380,7 +380,7 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    public static Sizes get_sizes_on_disk_shallow(Path path, Aborter aborter, Logger logger)
+    public static Sizes get_sizes_on_disk_shallow(Path path, Aborter aborter, Window owner,Logger logger)
     //**********************************************************
     {
         File[] all_files = path.toFile().listFiles();
@@ -409,7 +409,7 @@ public class Static_files_and_paths_utilities
             else
             {
                 files++;
-                if( Guess_file_type.is_this_file_an_image(f,logger)) images++;
+                if( Guess_file_type.is_this_file_an_image(f,owner,logger)) images++;
                 bytes += f.length();
             }
         }
@@ -417,17 +417,17 @@ public class Static_files_and_paths_utilities
 
     }
     //**********************************************************
-    public static Sizes get_sizes_on_disk_deep(Path path, Aborter aborter, Logger logger)
+    public static Sizes get_sizes_on_disk_deep(Path path, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
         //get_size_on_disk_with_streams(path,logger);
         // the concurrent version is at least 5 times faster!
-        return get_sizes_on_disk_deep_concurrent(path,aborter, logger);
+        return get_sizes_on_disk_deep_concurrent(path,aborter,owner, logger);
     }
 
 
     //**********************************************************
-    public static Sizes get_sizes_on_disk_deep_concurrent(Path path, Aborter aborter, Logger logger)
+    public static Sizes get_sizes_on_disk_deep_concurrent(Path path, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
         if ( !path.toFile().isDirectory())
@@ -444,7 +444,7 @@ public class Static_files_and_paths_utilities
         File_payload fp = (f, file_count_stop_counter) -> {
             bytes.addAndGet(f.length());
             files.incrementAndGet();
-            if ( Guess_file_type.is_this_file_an_image(f,logger)) images.incrementAndGet();
+            if ( Guess_file_type.is_this_file_an_image(f,owner,logger)) images.incrementAndGet();
             file_count_stop_counter.decrement();
         };
         Dir_payload dp = f -> {
@@ -496,15 +496,15 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static long get_how_many_files_deep(Path path, Aborter aborter, Logger logger)
+    public static long get_how_many_files_deep(Path path, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
         //return get_how_many_files_streams(path,logger);
-        return get_how_many_files_deep_concurrent(path,aborter, logger);
+        return get_how_many_files_deep_concurrent(path,aborter, owner, logger);
     }
 
     //**********************************************************
-    private static long get_how_many_files_deep_concurrent(Path path, Aborter aborter, Logger logger)
+    private static long get_how_many_files_deep_concurrent(Path path, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
         if ( !path.toFile().isDirectory())
@@ -515,7 +515,7 @@ public class Static_files_and_paths_utilities
         AtomicLong files = new AtomicLong(0);
         File_payload fp = (f, file_count_stop_counter) ->
         {
-            if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath(),logger))
+            if (Guess_file_type.is_this_path_invisible_when_browsing(f.toPath(),owner,logger))
             {
                 if ( !Feature_cache.get(Feature.Show_hidden_files))
                 {
@@ -879,7 +879,7 @@ public class Static_files_and_paths_utilities
         if (Extensions.get_extension(new_name).isEmpty()) {
             if (!Extensions.get_extension(old_name).isEmpty()) {
                 logger.log("❗ WARNING, should not remove extension");
-                if (Guess_file_type.is_this_path_an_image(path,logger) || Guess_file_type.is_this_path_a_video(path,logger)) {
+                if (Guess_file_type.is_this_path_an_image(path,owner,logger) || Guess_file_type.is_this_path_a_video(path,owner,logger)) {
                     logger.log("❗ WARNING, extension restored");
                     new_name = Extensions.add(new_name ,Extensions.get_extension(old_name));
                     Popups.popup_warning( "❗ extension restored: ", old_name + "=>" + new_name, true, owner,logger);

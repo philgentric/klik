@@ -333,7 +333,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         Image_properties ip0 = null;
         if ( image_properties_cache != null)
         {
-            ip0 = image_properties_cache.get(path0,aborter,null);
+            ip0 = image_properties_cache.get(path0,aborter,null,owner);
         }
         for(Path path1 : targets)
         {
@@ -341,7 +341,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             if ( image_properties_cache != null)
             {
                 // skip images of different size
-                Image_properties ip1 = image_properties_cache.get(path1,aborter,null);
+                Image_properties ip1 = image_properties_cache.get(path1,aborter,null,owner);
                 if ( ip1 == null) continue;
                 if ( ip0.w() != ip1.w()) continue;
                 if ( ip0.h() != ip1.h()) continue;

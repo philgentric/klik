@@ -247,7 +247,7 @@ public class Exif_stage
             {
                 Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
             }
-            return null;
+            return sb;
         }
         //logger.log(sb.toString());
         return sb;

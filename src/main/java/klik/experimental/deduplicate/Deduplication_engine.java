@@ -158,7 +158,7 @@ public class Deduplication_engine implements Againor, Abortable
             }
 
             // launch actor (feeder) in another tread
-            Runnable_for_finding_duplicate_file_pairs duplicate_finder = new Runnable_for_finding_duplicate_file_pairs(local_deduplication, files, i_min, i_max, same_file_pairs_input_queue, private_aborter, logger);
+            Runnable_for_finding_duplicate_file_pairs duplicate_finder = new Runnable_for_finding_duplicate_file_pairs(local_deduplication, files, i_min, i_max, same_file_pairs_input_queue, private_aborter,owner, logger);
             Actor_engine.execute(duplicate_finder,"Deduplicate (2)",logger);
 
             logger.log("Deduplication::runnable_deduplication thread launched on i_min="+i_min+ " i_max="+i_max);

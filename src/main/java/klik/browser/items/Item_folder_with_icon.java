@@ -293,8 +293,8 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_this_file_an_image(f,logger)) continue; // ignore non images
-            if (Guess_file_type.is_this_path_a_gif(f.toPath(),logger))
+            if (!Guess_file_type.is_this_file_an_image(f,owner,logger)) continue; // ignore non images
+            if (Guess_file_type.is_this_path_a_gif(f.toPath(),owner,logger))
             {
                 if (Guess_file_type.is_this_path_a_animated_gif(f.toPath(), owner, aborter, logger))
                 {
@@ -313,8 +313,8 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                     Arrays.sort(files2);
                     for (File f2 : files2) {
                         if (f2.isDirectory()) continue; // ignore folders
-                        if (!Guess_file_type.is_this_file_an_image(f2,logger)) continue; // ignore non images
-                        if (Guess_file_type.is_this_path_a_gif(f2.toPath(),logger)) {
+                        if (!Guess_file_type.is_this_file_an_image(f2,owner,logger)) continue; // ignore non images
+                        if (Guess_file_type.is_this_path_a_gif(f2.toPath(),owner,logger)) {
                             if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), owner,aborter, logger)) {
                                 return f2.toPath();
                             }
@@ -325,13 +325,13 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 }
             }
             create_label_for_sizes("...computing sizes...");
-            launch_disk_foot_print_thread(this, get_item_path(), aborter, logger);
+            launch_disk_foot_print_thread(this, get_item_path(), aborter, owner, logger);
             return null;
         }
 
         Path returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
                 owner,
-                new Path_list_provider_for_file_system(get_item_path(),logger),
+                new Path_list_provider_for_file_system(get_item_path(),owner,logger),
                 path_comparator_source,
                 images_in_folder,  image_properties_RAM_cache, aborter,logger);
         if ( returned != null)
@@ -486,7 +486,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
 
     static Random random = new Random();
     //**********************************************************
-    public static void launch_disk_foot_print_thread(Disk_foot_print_receiver disk_foot_print_receiver, Path path, Aborter aborter, Logger logger)
+    public static void launch_disk_foot_print_thread(Disk_foot_print_receiver disk_foot_print_receiver, Path path, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
         Runnable r = () -> {
@@ -496,7 +496,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 throw new RuntimeException(e);
             }
             if ( aborter.should_abort()) return;
-            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter,logger);
+            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, owner, logger);
             Jfx_batch_injector.inject(() -> disk_foot_print_receiver.set_disk_foot_print_text(sizes),logger);
         };
         Actor_engine.execute(r,"Compute size deep",logger);

@@ -40,7 +40,7 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
 
 
     //**********************************************************
-    public static Image_properties_RAM_cache get(Path_list_provider path_list_provider,Window owner, Logger logger)
+    public static Image_properties_RAM_cache build(Path_list_provider path_list_provider, Window owner, Logger logger)
     //**********************************************************
     {
         return new Image_properties_RAM_cache(path_list_provider,"Image properties cache", owner, logger);
@@ -85,7 +85,7 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
     // if tr is null then this routine will BLOCK until the Image_properties is in the cache,
     // if tr is not null then this routine will return null and start the cache filling
     // in a separate thread, which will call tr.has_ended when finished
-    public Image_properties get(Path p, Aborter aborter, Job_termination_reporter tr)
+    public Image_properties get(Path p, Aborter aborter, Job_termination_reporter tr, Window owner)
     //**********************************************************
     {
         Image_properties image_properties =  cache.get(key_from_path(p));
@@ -103,6 +103,7 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
         {
             //logger.log(instance_number+" OK aborter "+aborter.name+" reason="+aborter.reason);
         }
+        logger.log(Stack_trace_getter.get_stack_trace("Image_properties_RAM_cache get"));
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
         if ( tr == null)
         {
@@ -111,7 +112,7 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
             Image_properties x = cache.get(key_from_path(p));
             if ( x == null)
             {
-                if (Guess_file_type.is_this_path_an_image(p,logger))
+                if (Guess_file_type.is_this_path_an_image(p, owner, logger))
                 {
                     logger.log(Stack_trace_getter.get_stack_trace("❗ WARNING null Image_properties in cache after blocking call for :" + p));
                 }
@@ -127,6 +128,7 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
     //**********************************************************
     {
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
+        logger.log(Stack_trace_getter.get_stack_trace("Image_properties_RAM_cache prefill"));
         Actor_engine.run(image_properties_actor,imp,null,logger);
     }
 

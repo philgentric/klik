@@ -4,6 +4,7 @@
 package klik.audio;
 
 import javafx.application.Platform;
+import javafx.stage.Window;
 import klik.Shared_services;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.Execute_command;
@@ -57,7 +58,7 @@ public class UI_instance_holder
 
 
     //**********************************************************
-    public static void play_this(String file, long start, boolean first_time, Logger logger)
+    public static void play_this(String file, long start, boolean first_time, Window owner, Logger logger)
     //**********************************************************
     {
         if ( file == null)
@@ -66,13 +67,13 @@ public class UI_instance_holder
             return;
         }
 
-        if (Guess_file_type.is_this_path_a_music(Path.of(file),logger))
+        if (Guess_file_type.is_this_path_a_music(Path.of(file),owner, logger))
         {
             logger.log("audio player going to play song:"+file);
             play_this_song(file,start,first_time,logger);
             return;
         }
-        if (Guess_file_type.is_this_path_an_audio_playlist(Path.of(file),logger))
+        if (Guess_file_type.is_this_path_an_audio_playlist(Path.of(file),owner, logger))
         {
             logger.log("audio player going to play playlist:"+file);
             play_playlist(new File(file),logger);

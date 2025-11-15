@@ -98,7 +98,7 @@ public class Folder_size_stage
                 });
         Runnable r = () -> {
             // this call is blocking until tree has been explored
-            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path,local_aborter, logger);
+            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path,local_aborter, owner, logger);
 
             Jfx_batch_injector.inject(() -> {
                 String bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),owner,logger);

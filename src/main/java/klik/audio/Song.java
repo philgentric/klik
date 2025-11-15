@@ -209,7 +209,7 @@ public class Song
                 };
             }
         };
-        Path_list_provider path_list_provider = new Path_list_provider_for_playlist(Playlist.get_playlist_file(owner).toPath(),logger);
+        Path_list_provider path_list_provider = new Path_list_provider_for_playlist(Playlist.get_playlist_file(owner).toPath(),owner, logger);
         Similarity_engine similarity_engine = new Similarity_engine(
                 path_list_provider.only_file_paths(false),
                 path_list_provider,

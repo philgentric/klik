@@ -277,14 +277,14 @@ public abstract class Item implements Icon_destination
                             "Browse_in_new_window",
                             event -> {
                                 if (dbg) logger.log("Browse in new window!");
-                                Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(finalTarget,logger), owner, logger);
+                                Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(finalTarget,owner,logger), owner, logger);
                             }, context_menu, owner, logger);
 
                     Menu_items.add_menu_item(
                             "Browse_in_new_3D_window",
                             event -> {
                                 if (dbg) logger.log("Browse in new window!");
-                                Instructions.additional_no_past(Window_type.File_system_3D, new Path_list_provider_for_file_system(finalTarget,logger), owner, logger);
+                                Instructions.additional_no_past(Window_type.File_system_3D, new Path_list_provider_for_file_system(finalTarget,owner,logger), owner, logger);
                             }, context_menu, owner, logger);
                 }
                 create_open_with_system_menu_item(get_item_path(),context_menu);
@@ -312,10 +312,10 @@ public abstract class Item implements Icon_destination
         }
         else
         {
-            if (Guess_file_type.is_this_path_an_image(get_item_path(),logger)) {
+            if (Guess_file_type.is_this_path_an_image(get_item_path(), owner, logger)) {
                 create_open_exif_frame_menu_item(get_item_path(), context_menu);
             }
-            if (Guess_file_type.is_this_path_a_music(get_item_path(),logger)) {
+            if (Guess_file_type.is_this_path_a_music(get_item_path(),owner,logger)) {
                 create_open_mediainfo_frame_menu_item(get_item_path(), context_menu);
                 create_edit_metadata_frame_menu_item(get_item_path(), context_menu);
             }
@@ -688,7 +688,7 @@ public abstract class Item implements Icon_destination
                     }
                     local_button.setText(new_dir_name);
                     local_button.setGraphic(restored);
-                    path_list_provider = new Path_list_provider_for_file_system(new_path,logger);
+                    path_list_provider = new Path_list_provider_for_file_system(new_path,owner,logger);
                 }
                 else
                 {

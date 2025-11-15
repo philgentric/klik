@@ -4,6 +4,8 @@
 package klik.util.files_and_paths;
 
 import javafx.stage.Window;
+import klik.util.execute.Guess_OS;
+import klik.util.execute.Operating_system;
 import klik.util.execute.actor.Aborter;
 import klik.experimental.fusk.Fusk_static_core;
 //import klik.path_lists.Path_list_provider_for_playlist;
@@ -118,10 +120,10 @@ public class Guess_file_type
 
  */
     //**********************************************************
-    public static boolean is_this_file_an_image(File f,Logger logger)
+    public static boolean is_this_file_an_image(File f,Window owner, Logger logger)
     //**********************************************************
     {
-        return is_this_path_an_image(f.toPath(),logger);
+        return is_this_path_an_image(f.toPath(),owner,logger);
     }
 /*
     //**********************************************************
@@ -144,30 +146,35 @@ public class Guess_file_type
 
 
     //**********************************************************
-    public static boolean is_this_path_a_text(Path path,Logger logger)
+    public static boolean is_this_path_a_text(Path path,Window owner, Logger logger)
     //**********************************************************
     {
-        if (should_ignore(path,logger)) return false;
+        if (should_ignore(path,owner,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_text(extension);
     }
     //**********************************************************
-    public static boolean is_this_path_an_image(Path path,Logger logger)
+    public static boolean is_this_path_an_image(Path path,Window owner, Logger logger)
     //**********************************************************
     {
-        if (should_ignore(path,logger)) return false;
+        if (should_ignore(path,owner,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_image(extension);
     }
 
     //**********************************************************
-    public static boolean should_ignore(Path path,Logger logger)
+    public static boolean should_ignore(Path path,Window owner, Logger logger)
     //**********************************************************
     {
         if ( path.getFileName() == null)
         {
-            logger.log("Warning ignoring path with no name ->"+path);
-            return true;
+            if (Guess_OS.guess(owner,logger) == Operating_system.Windows)
+            {
+                // in Windows, this happens for DRIVES e.g. E:
+                return false;
+            }
+            logger.log("Warning, path with no name ->"+path);
+            return false;
         }
         for ( String i : invisible_if_starts_with)
         {
@@ -183,52 +190,52 @@ public class Guess_file_type
 
 
     //**********************************************************
-    public static boolean is_this_path_a_music(Path path,Logger logger)
+    public static boolean is_this_path_a_music(Path path,Window owner, Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path,logger)) return false;
+        if ( should_ignore(path,owner,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_audio(extension);
     }
 
     //**********************************************************
-    public static boolean is_this_path_an_audio_playlist(Path path,Logger logger)
+    public static boolean is_this_path_an_audio_playlist(Path path,Window owner, Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path,logger)) return false;
+        if ( should_ignore(path,owner,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_audio_playlist(extension);
     }
     //**********************************************************
-    public static boolean is_this_path_an_image_playlist(Path path,Logger logger)
+    public static boolean is_this_path_an_image_playlist(Path path,Window owner, Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path,logger)) return false;
+        if ( should_ignore(path,owner,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_an_image_playlist(extension);
     }
     //**********************************************************
-    public static boolean is_this_path_a_pdf(Path path,Logger logger)
+    public static boolean is_this_path_a_pdf(Path path,Window owner, Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path,logger)) return false;
+        if ( should_ignore(path,owner,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_pdf(extension);
     }
     //**********************************************************
-    public static boolean is_this_path_a_gif(Path path,Logger logger)
+    public static boolean is_this_path_a_gif(Path path,Window owner, Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path,logger)) return false;
+        if ( should_ignore(path,owner,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_gif(extension);
     }
 
     //**********************************************************
-    public static boolean is_this_path_a_video(Path path,Logger logger)
+    public static boolean is_this_path_a_video(Path path,Window owner, Logger logger)
     //**********************************************************
     {
-        if ( should_ignore(path,logger)) return false;
+        if ( should_ignore(path,owner,logger)) return false;
         String extension = Extensions.get_extension(path.getFileName().toString());
         return is_this_extension_a_video(extension);
     }
@@ -305,7 +312,7 @@ public class Guess_file_type
     public static boolean is_this_path_a_animated_gif(Path path, Window owner,Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (! Guess_file_type.is_this_path_a_gif(path,logger)) return false;
+        if (! Guess_file_type.is_this_path_a_gif(path, owner, logger)) return false;
 
         Exif_metadata_extractor e = new Exif_metadata_extractor(path,owner,logger);
         List<String> l = e.get_exif_metadata(42,true,aborter,false);
@@ -334,10 +341,10 @@ public class Guess_file_type
 
 
     //**********************************************************
-    public static boolean is_this_path_invisible_when_browsing(Path path,Logger logger)
+    public static boolean is_this_path_invisible_when_browsing(Path path,Window owner, Logger logger)
     //**********************************************************
     {
-        return (should_ignore(path,logger));
+        return (should_ignore(path,owner,logger));
     }
 
     //**********************************************************

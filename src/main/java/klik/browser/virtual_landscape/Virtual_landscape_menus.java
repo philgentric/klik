@@ -928,7 +928,7 @@ public class Virtual_landscape_menus
                 is_parent_of,
                 virtual_landscape.get_image_properties_ram_cache(),
                 virtual_landscape.shutdown_target,
-                new Path_list_provider_for_file_system(path,logger),
+                new Path_list_provider_for_file_system(path,owner,logger),
                 virtual_landscape,
                 virtual_landscape,
                 
@@ -1234,7 +1234,7 @@ public class Virtual_landscape_menus
                     Path path = Path.of(hi.value);
                     Path old_folder_path = path_list_provider.get_folder_path();
                     Browsing_caches.scroll_position_cache_write(old_folder_path,top_left);
-                    Instructions.replace_different_folder( shutdown_target, window_type,new Path_list_provider_for_file_system(path,logger), owner,logger);
+                    Instructions.replace_different_folder( shutdown_target, window_type,new Path_list_provider_for_file_system(path,owner,logger), owner,logger);
                 });
                 path_already_done.put(hi.value,hi);
                 history_menu.getItems().add(item);
@@ -1284,7 +1284,7 @@ public class Virtual_landscape_menus
     {
         Active_list_stage_action action = text -> {
             Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
-            Instructions.replace_different_folder( shutdown_target, window_type, new Path_list_provider_for_file_system(Path.of(text),logger), owner, logger);
+            Instructions.replace_different_folder( shutdown_target, window_type, new Path_list_provider_for_file_system(Path.of(text),owner,logger), owner, logger);
         };
         Datetime_to_signature_source source = new Datetime_to_signature_source() {
             @Override
@@ -1319,7 +1319,7 @@ public class Virtual_landscape_menus
             Look_and_feel_manager.set_menu_item_look(item, owner, logger);
             item.setOnAction(event -> {
                 Browsing_caches.scroll_position_cache_write(path,top_left);
-                Instructions.replace_different_folder( shutdown_target, context_type, new Path_list_provider_for_file_system(Path.of(hi),logger), owner,logger);
+                Instructions.replace_different_folder( shutdown_target, context_type, new Path_list_provider_for_file_system(Path.of(hi),owner,logger), owner,logger);
             });
             bookmarks_menu.getItems().add(item);
 
@@ -1363,7 +1363,7 @@ public class Virtual_landscape_menus
 
             item.setOnAction(event -> {
                 Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
-                Instructions.replace_different_folder( shutdown_target,window_type, new Path_list_provider_for_file_system(f.toPath(),logger),owner,logger);
+                Instructions.replace_different_folder( shutdown_target,window_type, new Path_list_provider_for_file_system(f.toPath(),owner,logger),owner,logger);
             });
             roots_menu.getItems().add(item);
         }
@@ -1905,7 +1905,7 @@ public class Virtual_landscape_menus
                 continue;
             }
 
-            if ( !Guess_file_type.is_this_file_an_image(f,logger)) continue;
+            if ( !Guess_file_type.is_this_file_an_image(f,owner,logger)) continue;
             Exif_metadata_extractor e = new Exif_metadata_extractor(f.toPath(),virtual_landscape.owner,logger);
             e.get_exif_metadata(0, true,virtual_landscape.aborter, false);
             if( !e.is_image_damaged()) continue;

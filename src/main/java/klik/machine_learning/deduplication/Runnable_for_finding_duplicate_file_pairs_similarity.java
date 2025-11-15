@@ -64,7 +64,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 		private_aborter = private_aborter_;
 		output_queue_of_same_in_pairs = output_queue;
 		deduplication_by_similarity_engine = deduplication_by_similarity_engine_;
-		Path_list_provider path_list_provider = new Path_list_provider_for_file_system(deduplication_by_similarity_engine.target_dir.toPath(),logger);
+		Path_list_provider path_list_provider = new Path_list_provider_for_file_system(deduplication_by_similarity_engine.target_dir.toPath(),owner,logger);
 		similarity_engine = new Similarity_engine(
                 paths,
                 path_list_provider,

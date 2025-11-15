@@ -117,7 +117,7 @@ public class Full_image_from_disk
             //logger.log("determine_width aborting");
             return null;
         }
-        if(Guess_file_type.is_this_file_an_image(path.toFile(),logger))
+        if(Guess_file_type.is_this_file_an_image(path.toFile(),owner,logger))
         {
             Optional<Image> op = load_native_resolution_image_from_disk( path,  true, owner, aborter,  logger);
             if ( op.isEmpty())
@@ -149,7 +149,7 @@ public class Full_image_from_disk
             //logger.log("get_aspect_ratio aborting");
             return null;
         }
-        if(Guess_file_type.is_this_file_an_image(path.toFile(),logger))
+        if(Guess_file_type.is_this_file_an_image(path.toFile(),owner, logger))
         {
             Optional<Image> op = load_native_resolution_image_from_disk( path,  true, owner, aborter,  logger);
             if ( op.isEmpty())

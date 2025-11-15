@@ -149,7 +149,7 @@ public class Backup_actor_for_one_folder implements Actor
                 return my_abort(request,"abort2 from duplicate_internal()");
             }
             if (file_to_be_copied.isDirectory()) continue;
-            if ( Guess_file_type.should_ignore(file_to_be_copied.toPath(),logger)) continue;
+            if ( Guess_file_type.should_ignore(file_to_be_copied.toPath(),owner,logger)) continue;
 
             /*
             //this is to do 1 thread per file, benchmarks indicate this is bad on small machines and/or slow (e.g. external) disks

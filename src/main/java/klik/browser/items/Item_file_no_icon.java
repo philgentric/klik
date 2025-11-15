@@ -243,7 +243,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_this_file_an_image(f,logger)) continue; // ignore non images
+            if (!Guess_file_type.is_this_file_an_image(f,owner,logger)) continue; // ignore non images
             if( make_animated_gif)
             {
                 images_in_folder.add(f);
@@ -265,7 +265,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
             Path returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
                     owner,
-                    new Path_list_provider_for_file_system(local_path,logger),
+                    new Path_list_provider_for_file_system(local_path,owner,logger),
                     path_comparator_source,
                     images_in_folder,
                     image_properties_RAM_cache,
@@ -351,13 +351,13 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
             logger.log("✅ ON ACTION " + get_item_path().toAbsolutePath());
 
-            if ( Guess_file_type.is_this_path_a_text(get_item_path(),logger))
+            if ( Guess_file_type.is_this_path_a_text(get_item_path(),owner,logger))
             {
                 logger.log("✅ opening text: " + get_item_path().toAbsolutePath());
                 Text_frame.show(get_item_path(),logger);
                 return;
             }
-            if ( Guess_file_type.is_this_path_an_audio_playlist(get_item_path(),logger))
+            if ( Guess_file_type.is_this_path_an_audio_playlist(get_item_path(),owner,logger))
             {
                 logger.log("✅ opening audio playlist: " + get_item_path().toAbsolutePath());
                 //UI_instance_holder.play_playlist(get_item_path().toFile(),logger);
@@ -373,7 +373,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                     return;
                 }
             }*/
-            if ( Guess_file_type.is_this_path_a_music(get_item_path(),logger))
+            if ( Guess_file_type.is_this_path_a_music(get_item_path(),owner,logger))
             {
                 if ( Guess_file_type.does_this_file_contain_an_audio_track(get_item_path(),owner,logger))
                 {
@@ -454,7 +454,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             Long how_many_files_deep = folder_file_count_cache.get(path);
             if ( how_many_files_deep == null)
             {
-                how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, logger);
+                how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter,  owner, logger);
                 folder_file_count_cache.put(path,how_many_files_deep);
             }
             count.decrement();
@@ -483,7 +483,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             if ( bytes == null)
             {
                 //logger.log(path+" size not found in cache");
-                Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, logger);
+                Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, owner, logger);
                 bytes = (Long) sizes.bytes();
                 //logger.log(path+" not found in cache, size is "+bytes+ "bytes");
                 folder_total_sizes.put(path,bytes);

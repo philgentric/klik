@@ -121,7 +121,7 @@ public class Audio_player_application extends Application
             else
             {
                 long start = System.currentTimeMillis();
-                UI_instance_holder.play_this(path.toAbsolutePath().toString(), start,true,logger);
+                UI_instance_holder.play_this(path.toAbsolutePath().toString(), start,true,stage, logger);
                 logger.log("✅ Audio_player_application, opening audio file = " + path.toAbsolutePath());
             }
         }
@@ -155,7 +155,7 @@ public class Audio_player_application extends Application
                         long start = System.currentTimeMillis();
                         TCP_util.write_string(Audio_player_access.PLAY_REQUEST_ACCEPTED, dos);
                         dos.flush();
-                        UI_instance_holder.play_this(received, start, false, logger);
+                        UI_instance_holder.play_this(received, start, false, stage,logger);
                     }
                     logger.log("Audio_player_application server accepted file for playing");
                 }

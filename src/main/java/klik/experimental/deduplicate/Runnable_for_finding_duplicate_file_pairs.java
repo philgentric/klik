@@ -3,6 +3,7 @@
 
 package klik.experimental.deduplicate;
 
+import javafx.stage.Window;
 import klik.util.execute.actor.Aborter;
 import klik.util.files_and_paths.Guess_file_type;
 import klik.util.files_and_paths.File_with_a_few_bytes;
@@ -26,6 +27,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	BlockingQueue<File_pair_deduplication> output_queue_of_same_in_pairs;
 	Deduplication_engine deduplication_engine;
 	private final Aborter private_aborter;
+    private final Window owner;
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs(
 			Deduplication_engine deduplication_,
@@ -33,15 +35,17 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 			int i_min_,
 			int i_max_,
 			BlockingQueue<File_pair_deduplication> output_queue,
-			Aborter private_aborter_,
-			Logger logger_)
+			Aborter private_aborter,
+            Window owner,
+			Logger logger)
 	//**********************************************************
 	{
 		all_files = all_files_;
 		i_min = i_min_;
 		i_max = i_max_;
-		logger = logger_;
-		private_aborter = private_aborter_;
+        this.owner = owner;
+		this.logger = logger;
+		this.private_aborter = private_aborter;
 		output_queue_of_same_in_pairs = output_queue;
 		deduplication_engine = deduplication_;
 	}
@@ -112,7 +116,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 	private File_pair_deduplication decide_which_to_delete(int i, int j)
 	//**********************************************************
 	{
-		boolean is_image = Guess_file_type.is_this_path_an_image(all_files.get(i).file.toPath(),logger);
+		boolean is_image = Guess_file_type.is_this_path_an_image(all_files.get(i).file.toPath(),owner,logger);
 
 		// first we check if the one of the file names has been cleaned
 		if(Name_cleaner.clean(all_files.get(i).file.getName(),true,logger).equals(all_files.get(j).file.getName()))

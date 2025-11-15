@@ -348,7 +348,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         if ( files == null) return returned;
         for (File f : files)
         {
-            if ( !Guess_file_type.is_this_file_an_image(f,logger)) continue;
+            if ( !Guess_file_type.is_this_file_an_image(f,owner, logger)) continue;
             File_with_a_few_bytes mf = new File_with_a_few_bytes(f,logger);
             returned.add(mf);
         }
@@ -365,7 +365,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         for (File f : files)
         {
             //if ( !Guess_file_type.is_this_a_song(f.toPath(),owner,logger)) continue; too expensive
-            if ( !Guess_file_type.is_this_path_a_music(f.toPath(),logger)) continue;
+            if ( !Guess_file_type.is_this_path_a_music(f.toPath(),owner, logger)) continue;
             File_with_a_few_bytes mf = new File_with_a_few_bytes(f,logger);
             returned.add(mf);
         }

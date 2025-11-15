@@ -3,6 +3,7 @@
 
 package klik.browser.comparators;
 
+import javafx.stage.Window;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
@@ -14,7 +15,7 @@ import java.util.Comparator;
 //**********************************************************
 public record Image_width_comparator(
         Image_properties_RAM_cache image_properties_ram_cache,
-        Aborter aborter)
+        Aborter aborter, Window owner)
         implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
@@ -31,14 +32,14 @@ public record Image_width_comparator(
     public int compare(Path p1, Path p2)
     //**********************************************************
     {
-        Image_properties ip1 = image_properties_ram_cache.get(p1, aborter,null);
+        Image_properties ip1 = image_properties_ram_cache.get(p1, aborter,null, owner);
         if (ip1 == null) {
             //logger.log(Stack_trace_getter.get_stack_trace("PANIC image_property not found"));
             return 0;
         }
         Double d1 = ip1.get_image_width();
         if (d1 == null) return 0;
-        Image_properties ip2 = image_properties_ram_cache.get(p2, aborter,null);
+        Image_properties ip2 = image_properties_ram_cache.get(p2, aborter,null, owner);
         if (ip2 == null) {
             //logger.log(Stack_trace_getter.get_stack_trace("PANIC image_property not found"));
             return 0;

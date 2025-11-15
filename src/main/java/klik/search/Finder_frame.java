@@ -343,9 +343,11 @@ public class Finder_frame implements Search_receiver
 		settings_vbox.getChildren().add(vertical_spacer());
 		stop = new Button(My_I18n.get_I18n_string("Stop_Search", stage,logger));
 		stop.setDisable(true);
+        start.setDisable(false);
 		stop.setOnAction((ActionEvent e) -> {
             session.stop_search();
             stop.setDisable(true);
+            start.setDisable(false);
         });
 		settings_vbox.getChildren().add(stop);
 		Look_and_feel_manager.set_button_look(stop,true,stage,logger);

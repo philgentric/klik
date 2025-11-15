@@ -746,7 +746,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         if ( need_image_properties)
                         {
                             // ask for image properties fetch in threads
-                            get_image_properties_ram_cache().get(path, aborter, tr);
+                            get_image_properties_ram_cache().get(path, aborter, tr,owner);
                         }
                     }
                 }
@@ -774,7 +774,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 Double cache_aspect_ratio = Double.valueOf(1.0);
                 if ( need_image_properties) {
                     // this is a BLOCKING call
-                    Image_properties ip = get_image_properties_ram_cache().get(path, aborter, null);
+                    Image_properties ip = get_image_properties_ram_cache().get(path, aborter, null,owner);
                     if (ip == null) {
                         if (dbg) logger.log(("✅ Warning: image property cache miss for: " + path));
                     } else {
@@ -870,7 +870,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 if (ultra_dbg) logger.log("✅ Virtual_landscape process_non_iconized_files " + path.toAbsolutePath());
                 String text = path.getFileName().toString();
                 long size = path.toFile().length() / 1000_000L;
-                if (Guess_file_type.is_this_path_a_video(path, logger)) text = size + "MB VIDEO: " + text;
+                if (Guess_file_type.is_this_path_a_video(path, owner,logger)) text = size + "MB VIDEO: " + text;
                 Item item = all_items_map.get(path);
                 if (item == null) {
                     //logger.log("Item_file_no_icon (3) path="+path);
@@ -1005,7 +1005,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         null,
                         get_image_properties_ram_cache(),
                         shutdown_target,
-                        new Path_list_provider_for_file_system(folder_path,logger),
+                        new Path_list_provider_for_file_system(folder_path,owner,logger),
                         this,
                         this,
                         aborter,
@@ -1069,7 +1069,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         null,
                         get_image_properties_ram_cache(),
                         shutdown_target,
-                        new Path_list_provider_for_file_system(folder_path,logger),
+                        new Path_list_provider_for_file_system(folder_path,owner,logger),
                         this,
                         this,
 
@@ -2682,16 +2682,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         switch (Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(),owner))
         {
             case ASPECT_RATIO :
-                local_file_comparator = new Aspect_ratio_comparator(get_image_properties_ram_cache(),aborter);
+                local_file_comparator = new Aspect_ratio_comparator(get_image_properties_ram_cache(),aborter, owner);
                 break;
             case RANDOM_ASPECT_RATIO :
-                local_file_comparator =  new Aspect_ratio_comparator_random(get_image_properties_ram_cache(),aborter);
+                local_file_comparator =  new Aspect_ratio_comparator_random(get_image_properties_ram_cache(),aborter,owner);
                 break;
             case IMAGE_WIDTH :
-                local_file_comparator = new Image_width_comparator(get_image_properties_ram_cache(),aborter);
+                local_file_comparator = new Image_width_comparator(get_image_properties_ram_cache(),aborter,owner);
                 break;
             case IMAGE_HEIGHT :
-                local_file_comparator = new Image_height_comparator(get_image_properties_ram_cache(),aborter,logger);
+                local_file_comparator = new Image_height_comparator(get_image_properties_ram_cache(),aborter,owner,logger);
                 break;
             case RANDOM :
                 local_file_comparator = new Random_comparator();
@@ -2700,7 +2700,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 local_file_comparator = new Date_comparator(logger);
                 break;
             case SIZE :
-                local_file_comparator = new Decreasing_disk_footprint_comparator(aborter);
+                local_file_comparator = new Decreasing_disk_footprint_comparator(aborter,owner);
                 break;
 
             default : local_file_comparator = new Alphabetical_file_name_comparator();

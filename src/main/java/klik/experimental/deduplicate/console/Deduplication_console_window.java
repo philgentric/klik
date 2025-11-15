@@ -247,7 +247,7 @@ public class Deduplication_console_window
             }
             else
             {
-                if (!consider_also_hidden_files) if (Guess_file_type.should_ignore(f.toPath(),logger)) continue;
+                if (!consider_also_hidden_files) if (Guess_file_type.should_ignore(f.toPath(),popup.owner,logger)) continue;
                 if (f.length() == 0) {
                     logger.log("WARNING: empty file found:" + f.getAbsolutePath());
                     continue;

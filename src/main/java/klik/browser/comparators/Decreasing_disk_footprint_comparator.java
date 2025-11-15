@@ -3,6 +3,7 @@
 
 package klik.browser.comparators;
 
+import javafx.stage.Window;
 import klik.util.execute.actor.Aborter;
 import klik.browser.Clearable_RAM_cache;
 import klik.Shared_services;
@@ -20,11 +21,15 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
 //**********************************************************
 {
     private final Aborter aborter;
+    private final Window owner;
     static Map<Path,Long> disk_foot_prints_cache = new HashMap<>();
 
-    public Decreasing_disk_footprint_comparator(Aborter aborter)
+    //**********************************************************
+    public Decreasing_disk_footprint_comparator(Aborter aborter, Window owner)
+    //**********************************************************
     {
         this.aborter = aborter;
+        this.owner = owner;
     }
 
     //**********************************************************
@@ -40,8 +45,8 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
     public int compare(Path p1, Path p2)
     //**********************************************************
     {
-        long s1 = get_disk_footprint_in_bytes(p1, aborter,Shared_services.logger());
-        long s2 = get_disk_footprint_in_bytes(p2, aborter,Shared_services.logger());
+        long s1 = get_disk_footprint_in_bytes(p1, aborter,owner,Shared_services.logger());
+        long s2 = get_disk_footprint_in_bytes(p2, aborter,owner,Shared_services.logger());
 
         int diff = Long.compare(s2,s1);
         if ( diff != 0) return diff;
@@ -49,7 +54,7 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
     }
 
     //**********************************************************
-    private static long get_disk_footprint_in_bytes(Path p, Aborter local_aborter, Logger logger)
+    private static long get_disk_footprint_in_bytes(Path p, Aborter local_aborter, Window owner, Logger logger)
     //**********************************************************
     {
         Long s = disk_foot_prints_cache.get(p);
@@ -59,7 +64,7 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
         }
         if ( p.toFile().isDirectory())
         {
-            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(p,local_aborter, logger);
+            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(p,local_aborter, owner,logger);
             s = sizes.bytes();
             //logger.log("get_disk_footprint_in_bytes folder = "+p+" "+s);
         }

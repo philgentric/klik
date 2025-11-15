@@ -3,6 +3,7 @@
 
 package klik.search;
 
+import javafx.stage.Window;
 import klik.util.execute.actor.Actor;
 import klik.util.execute.actor.Message;
 import klik.util.files_and_paths.Ding;
@@ -25,14 +26,16 @@ public class Finder_actor implements Actor
     private int visited_folders;
     private int visited_files;
     Map<String,Integer> matched_keyword_counts = new HashMap<>();
-    Logger logger;
+    private final Logger logger;
+    private final Window owner;
     long start;
 
     //**********************************************************
-    public Finder_actor(Logger logger_)
+    public Finder_actor(Window owner, Logger logger)
     //**********************************************************
     {
-        logger = logger_;
+        this.owner = owner;
+        this.logger = logger;
     }
 
 
@@ -105,7 +108,7 @@ public class Finder_actor implements Actor
         }
         if ( fm.search_config.ignore_hidden())
         {
-            if( Guess_file_type.should_ignore(dir,logger))
+            if( Guess_file_type.should_ignore(dir,fm.owner,logger))
             {
                 //if ( dbg)
                     logger.log("ignoring hidden folder:"+dir.toAbsolutePath());
@@ -165,7 +168,7 @@ public class Finder_actor implements Actor
                     boolean do_this_file = true;
                     if ( fm.search_config.ignore_hidden())
                     {
-                        if( Guess_file_type.should_ignore(path,logger))
+                        if( Guess_file_type.should_ignore(path,owner,logger))
                         {
                             if ( dbg) logger.log("ignoring hidden file:"+path.toAbsolutePath());
                             do_this_file = false;
@@ -183,7 +186,7 @@ public class Finder_actor implements Actor
                     {
                         if (fm.search_config.look_only_for_images())
                         {
-                            if (Guess_file_type.is_this_path_an_image(path,logger))
+                            if (Guess_file_type.is_this_path_an_image(path,owner,logger))
                             {
                                 check_if_name_matches_keywords(path, fm);
                             }
@@ -236,7 +239,7 @@ public class Finder_actor implements Actor
             // is a file
             if ( fm.search_config.look_only_for_images())
             {
-                if (!Guess_file_type.is_this_path_an_image(target_path,logger))
+                if (!Guess_file_type.is_this_path_an_image(target_path,owner,logger))
                 {
                     return;
                 }

@@ -110,7 +110,7 @@ public class Image_and_path
             //Image folder_icon = Look_and_feel_manager.get_folder_icon(icon_size,owner,logger);
             return make_folder_icon_with_folder_name(folder_icon, path.getFileName().toString(), icon_size, icon_size);
         }
-        if (!Guess_file_type.is_this_path_an_image(path,logger))
+        if (!Guess_file_type.is_this_path_an_image(path,owner, logger))
         {
             logger.log("WARNING, displaying non-image files not implemented in 3D "+path.toAbsolutePath());
             return Jar_utils.get_broken_icon(icon_size,owner,logger);

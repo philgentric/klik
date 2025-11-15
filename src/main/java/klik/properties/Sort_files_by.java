@@ -58,7 +58,7 @@ public enum Sort_files_by {
             case DATE:
                 return new Date_comparator(logger);
             case SIZE:
-                return new Decreasing_disk_footprint_comparator(aborter);
+                return new Decreasing_disk_footprint_comparator(aborter,owner);
         }
         return null;
     }
@@ -84,19 +84,19 @@ public enum Sort_files_by {
             case NAME:
                 return new Alphabetical_file_name_comparator();
             case ASPECT_RATIO:
-                return new Aspect_ratio_comparator(image_properties_cache,aborter);
+                return new Aspect_ratio_comparator(image_properties_cache,aborter,owner);
             case RANDOM_ASPECT_RATIO:
-                return new Aspect_ratio_comparator_random(image_properties_cache,aborter);
+                return new Aspect_ratio_comparator_random(image_properties_cache,aborter,owner);
             case IMAGE_HEIGHT:
-                return new Image_height_comparator(image_properties_cache,aborter,logger);
+                return new Image_height_comparator(image_properties_cache,aborter,owner,logger);
             case IMAGE_WIDTH:
-                return new Image_width_comparator(image_properties_cache,aborter);
+                return new Image_width_comparator(image_properties_cache,aborter,owner);
             case RANDOM:
                 return new Random_comparator();
             case DATE:
                 return new Date_comparator(logger);
             case SIZE:
-                return new Decreasing_disk_footprint_comparator(aborter);
+                return new Decreasing_disk_footprint_comparator(aborter,owner);
             case NAME_GIFS_FIRST:
                 return new Alphabetical_file_name_comparator_gif_first();
             }

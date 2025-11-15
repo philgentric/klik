@@ -3,6 +3,7 @@
 
 package klik.search;
 
+import javafx.stage.Window;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Message;
 
@@ -11,15 +12,16 @@ public class Finder_message implements Message
 //**********************************************************
 {
     public final Callback_for_file_found_publish callback;
-    //public final Browser the_browser;
     public final Aborter aborter;
+    public final Window owner;
     public final String extension;
     Search_config search_config;
 
     //**********************************************************
-    public Finder_message(Search_config search_config, Callback_for_file_found_publish callback_, Aborter aborter_)//, Browser the_browser_)
+    public Finder_message(Search_config search_config, Callback_for_file_found_publish callback, Aborter aborter, Window owner)
     //**********************************************************
     {
+        this.owner = owner;
         this.search_config = search_config;
         if ( search_config.extension() == null)
         {
@@ -36,9 +38,9 @@ public class Finder_message implements Message
                 this.extension = search_config.extension().toLowerCase();
             }
         }
-        callback = callback_;
+        this.callback = callback;
        // the_browser = the_browser_;
-        aborter = aborter_;
+        this.aborter = aborter;
     }
 
     //**********************************************************

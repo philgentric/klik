@@ -48,7 +48,7 @@ public class Image_source_from_files implements Image_source
         this.owner = owner;
         this.logger = logger;
 
-        path_list_provider = new Path_list_provider_for_file_system(folder,logger);
+        path_list_provider = new Path_list_provider_for_file_system(folder,owner,logger);
 
         try ( Perf p = new Perf("Image_source_from_files: sorting"))
         {

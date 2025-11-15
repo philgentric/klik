@@ -35,19 +35,19 @@ public class Search_session implements Callback_for_file_found_publish
 	private final Aborter local_aborter;
 	private final Search_receiver search_receiver;
 	//private final Browser browser;
-	private final Window window;
+	private final Window owner;
 	final Results_frame find_result_frame;
     boolean is_max_at_least_once = false;
 
 
 	//**********************************************************
 	public Search_session(Path_list_provider path_list_provider,
-						  Path_comparator_source path_comparator_source,
-						  Search_config search_config,
-						  Search_receiver search_receiver, Window window, Logger logger)
+                          Path_comparator_source path_comparator_source,
+                          Search_config search_config,
+                          Search_receiver search_receiver, Window owner, Logger logger)
 	//**********************************************************
 	{
-		this.window = window;
+		this.owner = owner;
 		this.logger = logger;
 		local_aborter = new Aborter("Search_session",logger);
 		status = Search_status.ready;
@@ -67,7 +67,7 @@ public class Search_session implements Callback_for_file_found_publish
 		status = Search_status.searching;
 		if ( dbg) logger.log("launching search actor on path:"+search_config.path());
 
-		Actor_engine.run(new Finder_actor(logger),new Finder_message(search_config,this,local_aborter),null,logger);
+		Actor_engine.run(new Finder_actor(owner,logger),new Finder_message(search_config,this,local_aborter, owner),null,logger);
 	}
 
 	//**********************************************************
@@ -184,13 +184,13 @@ public class Search_session implements Callback_for_file_found_publish
                 if ( is_max)
                 {
                     is_max_at_least_once = true;
-                    find_result_frame.inject_search_results(sr,keys, is_max, window);
+                    find_result_frame.inject_search_results(sr,keys, is_max, owner);
                     find_result_frame.erase_all_non_max();
                 }
                 else
                 {
                     // once we have one max, dont display the others
-                    if (!is_max_at_least_once) 	find_result_frame.inject_search_results(sr,keys, is_max, window);
+                    if (!is_max_at_least_once) 	find_result_frame.inject_search_results(sr,keys, is_max, owner);
                 }
 			}
 		}

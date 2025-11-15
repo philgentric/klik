@@ -206,7 +206,7 @@ public class Klik_application extends Application
             path = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
         }
 
-        Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(path,logger),primary_stage_,logger);
+        Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(path,primary_stage_,logger),primary_stage_,logger);
         new Monitor(()->primary_stage, logger).start();
 
         Integer reply_port = extract_started_reply_port(logger);

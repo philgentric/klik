@@ -82,7 +82,7 @@ public class Backup_engine
         start = System.currentTimeMillis();
         logger.log("Backup starts");
         Aborter actor_engine_cleanup_aborter = new Aborter("cleanup",logger);
-        Sizes sizes= Static_files_and_paths_utilities.get_sizes_on_disk_deep(source, dedicated_backup_aborter, logger);
+        Sizes sizes= Static_files_and_paths_utilities.get_sizes_on_disk_deep(source, dedicated_backup_aborter,owner, logger);
 
         Actor_engine_based_on_workers actor_engine_based_on_workers = new Actor_engine_based_on_workers("backup engine",actor_engine_cleanup_aborter, logger);
         Job_termination_reporter tr = new Job_termination_reporter() {

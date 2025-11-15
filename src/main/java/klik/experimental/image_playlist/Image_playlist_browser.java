@@ -30,12 +30,12 @@ public class Image_playlist_browser extends Abstract_browser
     public final Path_list_provider_for_playlist path_list_provider;
 
     //**********************************************************
-    public Image_playlist_browser(Path target_path, Shutdown_target shutdown_target, Rectangle2D rectangle, Logger logger)
+    public Image_playlist_browser(Path target_path, Shutdown_target shutdown_target, Rectangle2D rectangle, Window owner, Logger logger)
     //**********************************************************
     {
         super(logger);
         ID = id_generator.getAndIncrement();
-        path_list_provider = new Path_list_provider_for_playlist(target_path, logger);
+        path_list_provider = new Path_list_provider_for_playlist(target_path, owner,logger);
 
 
         init_abstract_browser(Window_type.Image_playlist_2D,shutdown_target, rectangle,this,"playlist");
