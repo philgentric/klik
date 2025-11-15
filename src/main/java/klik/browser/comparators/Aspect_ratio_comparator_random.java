@@ -6,6 +6,7 @@ package klik.browser.comparators;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.util.execute.actor.Aborter;
 
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -21,11 +22,12 @@ public class Aspect_ratio_comparator_random implements Comparator<Path>, Clearab
     // make sure the comparator is consistent
     private final HashMap<Path,Long> cache_local = new HashMap<>();
     private final Image_properties_RAM_cache image_properties_ram_cache;
-
+    private final Aborter aborter;
     //**********************************************************
-    public Aspect_ratio_comparator_random(Image_properties_RAM_cache image_properties_ram_cache)
+    public Aspect_ratio_comparator_random(Image_properties_RAM_cache image_properties_ram_cache, Aborter aborter)
     //**********************************************************
     {
+        this.aborter = aborter;
         this.image_properties_ram_cache = image_properties_ram_cache;
         Random r = new Random();
         seed = r.nextLong();
@@ -37,21 +39,21 @@ public class Aspect_ratio_comparator_random implements Comparator<Path>, Clearab
     //**********************************************************
     {
         cache_local.clear();
-        image_properties_ram_cache.clear_cache();
+        image_properties_ram_cache.clear_RAM_cache();
     }
     //**********************************************************
     @Override
     public int compare(Path p1, Path p2)
     //**********************************************************
     {
-        Image_properties ip1 = image_properties_ram_cache.get_from_cache(p1,null);
+        Image_properties ip1 = image_properties_ram_cache.get(p1,aborter,null);
         if ( ip1 == null)
         {
             //logger.log(Stack_trace_getter.get_stack_trace("PANIC image_property not found"));
             return 0;
         }
         Double d1 = ip1.get_aspect_ratio();
-        Image_properties ip2 = image_properties_ram_cache.get_from_cache(p2,null);
+        Image_properties ip2 = image_properties_ram_cache.get(p2,aborter,null);
         if ( ip2 == null)
         {
             //logger.log(Stack_trace_getter.get_stack_trace("PANIC image_property not found"));

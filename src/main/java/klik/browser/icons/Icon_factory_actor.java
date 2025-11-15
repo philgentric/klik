@@ -301,7 +301,7 @@ public class Icon_factory_actor implements Actor
                 break;
         }
 
-        Image_properties properties = image_properties_RAM_cache.get_from_cache(destination.get_path_for_display_icon_destination(),null);
+        Image_properties properties = image_properties_RAM_cache.get(destination.get_path_for_display_icon_destination(),aborter,null);
         if (properties == null)
         {
             properties = new Image_properties(image_from_disk.getWidth(), image_from_disk.getHeight(), Rotation.normal);

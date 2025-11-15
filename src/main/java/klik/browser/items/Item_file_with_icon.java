@@ -119,7 +119,7 @@ public class Item_file_with_icon extends Item_file
         button.setStyle("-fx-padding: 0; -fx-background-insets: 0; -fx-border-insets: 0;");
 
         if ( dbg)
-            logger.log("item_image: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
+            logger.log("item_file_with_icon: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
         image_view.setPreserveRatio(true);
         image_view.setSmooth(true);
         image_view.setFitWidth(actual_icon_size);
@@ -393,7 +393,7 @@ public class Item_file_with_icon extends Item_file
         Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setMnemonicParsing(false);
         menu_item.setOnAction(event -> {
-            if (dbg) logger.log("✅ Item_image: Renaming "+path);
+            if (dbg) logger.log("✅ item_file_with_icon: Renaming "+path);
 
             Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,path,logger);
             if ( new_path == null) return;
@@ -636,10 +636,10 @@ public class Item_file_with_icon extends Item_file
     public void you_are_visible_specific()
     //**********************************************************
     {
-        //logger.log("Item_image::you_are_visible_specific "+get_item_path());
+        //logger.log("item_file_with_icon::you_are_visible_specific "+get_item_path());
         if ( default_icon == null)
         {
-            logger.log("❌ BAD WARNING: item_image: default_icon == null");
+            logger.log("❌ BAD WARNING: item_file_with_icon: default_icon == null");
             return;
         }
 
@@ -676,6 +676,6 @@ public class Item_file_with_icon extends Item_file
     public String get_string()
     //**********************************************************
     {
-        return "is Item_image for : " + get_item_path().toAbsolutePath();
+        return "is item_file_with_icon for : " + get_item_path().toAbsolutePath();
     }
 }

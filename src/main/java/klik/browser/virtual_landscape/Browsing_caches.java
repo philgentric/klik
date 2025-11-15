@@ -4,6 +4,8 @@
 package klik.browser.virtual_landscape;
 
 import javafx.stage.Window;
+import klik.images.caching.Image_cache_cafeine;
+import klik.images.caching.Image_cache_interface;
 import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.machine_learning.similarity.Similarity_cache;
@@ -38,25 +40,38 @@ public class Browsing_caches
     // that is : the path of the top-left item when leaving that folder
     private final static Map<String, Path> scroll_position_cache = new HashMap<>();
 
-    public final Image_properties_RAM_cache image_properties_RAM_cache;
+    //public final Image_properties_RAM_cache image_properties_RAM_cache;
 
     public final static Map<String,Image_properties_RAM_cache> image_properties_RAM_cache_of_caches = new HashMap<>();
     public final static Map<String, Similarity_cache> similarity_cache_of_caches = new HashMap<>();
     public final static Map<String, Feature_vector_cache> fv_cache_of_caches = new HashMap<>();
+    public final static Map<String, Image_cache_interface> image_caches = new HashMap<>();
+
 
     //**********************************************************
-    public Browsing_caches(Path_list_provider path_list_provider, Window owner, Aborter aborter, Logger logger)
+    public static void clear_all_caches()
     //**********************************************************
     {
-        Image_properties_RAM_cache tmp = image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
-        if ( tmp == null)
+        scroll_position_cache.clear();
+        for ( Image_cache_interface x : image_caches.values())
         {
-            tmp = new Image_properties_RAM_cache(path_list_provider, "Image properties cache", owner,aborter, logger);
-            image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), tmp);
+            x.clear_RAM_cache();
         }
-        image_properties_RAM_cache = tmp;
-
+        for (Similarity_cache x : similarity_cache_of_caches.values())
+        {
+            x.clear_RAM_cache();
+        }
+        for (Image_properties_RAM_cache x : image_properties_RAM_cache_of_caches.values())
+        {
+            x.clear_RAM_cache();
+        }
+        for (Feature_vector_cache x : fv_cache_of_caches.values())
+        {
+            x.clear_RAM_cache();
+        }
     }
+
+
 
     //**********************************************************
     public static void scroll_position_cache_write(Path folder_path, Path top_left_item_path)

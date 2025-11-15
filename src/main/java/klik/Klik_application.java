@@ -119,6 +119,7 @@ import klik.util.Github_stars;
 import klik.util.cache_auto_clean.Monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
+import klik.util.perf.Perf;
 import klik.util.tcp.TCP_client;
 
 import java.nio.file.Path;
@@ -155,7 +156,8 @@ public class Klik_application extends Application
         application = this;
         Shared_services.init(name,primary_stage_);
         Logger logger = Shared_services.logger();
-        //Perf.monitor(logger);
+
+        Perf.monitor(logger);
         Github_stars.init(getHostServices());
 
         primary_stage = primary_stage_;

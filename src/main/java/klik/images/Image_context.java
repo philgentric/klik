@@ -75,7 +75,7 @@ public class Image_context
     {
        if ( image_window.rescaler == Image_rescaling_filter.Native)
        {
-           logger_.log("default (javafx ImageView) rescaler used for :"+path);
+           //logger_.log("default (javafx ImageView) rescaler used for :"+path);
            // the image returned is full scale, it will be automagically
            // scaled (down typically) by javafx ImageView
            return get_Image_context(path, image_window.stage, aborter, logger_);

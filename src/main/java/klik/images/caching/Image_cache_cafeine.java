@@ -82,7 +82,7 @@ public class Image_cache_cafeine implements Image_cache_interface
         {
             //if (ultra_dbg)
                 logger.log("Clearing image cache as RAM is low");
-            clear_all();
+            clear_RAM_cache();
             return;
         }
 
@@ -150,7 +150,7 @@ public class Image_cache_cafeine implements Image_cache_interface
 
     @Override
     //**********************************************************
-    public void clear_all()
+    public void clear_RAM_cache()
     //**********************************************************
     {
         cache.invalidateAll();

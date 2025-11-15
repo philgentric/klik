@@ -137,7 +137,7 @@ public class Change_image_actor implements Actor
             boolean forward = true;
             if (change_image_message.delta < 0) forward = false;
             if (image_context != null) {
-                change_image_message.logger.log("\nimage FOUND in cache");
+                if (dbg) change_image_message.logger.log("\nimage FOUND in cache");
                 // image was found in cache
                 change_image_message.output_image_context[0] = image_context;
                 if (dbg) change_image_message.logger.log("\nChange_image_actor FOUND in CACHE: " + full_path);

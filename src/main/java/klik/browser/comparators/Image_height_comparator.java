@@ -6,6 +6,7 @@ package klik.browser.comparators;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.icons.image_properties_cache.Image_properties;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.util.execute.actor.Aborter;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -15,16 +16,16 @@ import java.util.Comparator;
 //**********************************************************
 public record Image_height_comparator(
         Image_properties_RAM_cache image_properties_ram_cache,
+        Aborter aborter,
         Logger logger) implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
-
     //**********************************************************
     @Override
     public void clear_RAM_cache()
     //**********************************************************
     {
-        image_properties_ram_cache.clear_cache();
+        image_properties_ram_cache.clear_RAM_cache();
     }
 
     //**********************************************************
@@ -32,7 +33,7 @@ public record Image_height_comparator(
     public int compare(Path p1, Path p2)
     //**********************************************************
     {
-        Image_properties ip1 = image_properties_ram_cache.get_from_cache(p1, null);
+        Image_properties ip1 = image_properties_ram_cache.get(p1, aborter,null);
         if (ip1 == null) {
             logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC image_property not found"));
             return 0;
@@ -42,7 +43,7 @@ public record Image_height_comparator(
             logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC image height not found"));
             return 0;
         }
-        Image_properties ip2 = image_properties_ram_cache.get_from_cache(p2, null);
+        Image_properties ip2 = image_properties_ram_cache.get(p2, aborter,null);
         if (ip2 == null) {
             logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC image_property not found"));
             return 0;

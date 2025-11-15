@@ -111,7 +111,7 @@ public class Paths_holder
         if (Guess_file_type.is_this_extension_an_image(extension))
         {
             // calling this will pre-populate the property cache
-            image_properties_RAM_cache.prefill_cache(path);
+            image_properties_RAM_cache.prefill_cache(path,aborter);
             if (dbg) logger.log("calling image properties cache prefill from path manager do_file()");
 
             iconized_paths.add(path);

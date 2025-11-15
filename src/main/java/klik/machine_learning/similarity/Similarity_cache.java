@@ -6,6 +6,7 @@ package klik.machine_learning.similarity;
 //SOURCES ./Similarity_cache_warmer_message.java
 
 import javafx.stage.Window;
+import klik.browser.Clearable_RAM_cache;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.actor.Job_termination_reporter;
@@ -29,7 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
-public class Similarity_cache
+public class Similarity_cache implements Clearable_RAM_cache
 //**********************************************************
 {
     private final Path_list_provider path_list_provider;
@@ -191,7 +192,8 @@ public class Similarity_cache
     }
 
     //**********************************************************
-    public void clear()
+    @Override
+    public void clear_RAM_cache()
     //**********************************************************
     {
         similarities.clear();

@@ -31,6 +31,8 @@ import klik.look.my_i18n.My_I18n;
 import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Jfx_batch_injector;
 import klik.util.log.Logger;
+import klik.util.ui.progress.Hourglass;
+import klik.util.ui.progress.Progress_window;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -68,6 +70,8 @@ public class Finder_frame implements Search_receiver
 	private boolean new_keyword_textfield_is_red = false;
 	private final Path_list_provider path_list_provider;
 	private final Path_comparator_source path_comparator_source;
+
+    private Hourglass hourglass;
 
 	//**********************************************************
 	public Finder_frame(
@@ -444,6 +448,7 @@ public class Finder_frame implements Search_receiver
 	public void has_ended(Search_status search_status)
 	//**********************************************************
 	{
+        if( hourglass!=null) hourglass.close();
 		//logger.log("has_ended() "+search_status);
 		if ( search_status != Search_status.interrupted)
 		{
@@ -473,6 +478,10 @@ public class Finder_frame implements Search_receiver
 	void start_search()
 	//**********************************************************
 	{
+        double x = stage.getX()+100;
+        double y = stage.getY()+100;
+
+        hourglass = Progress_window.show(false,"Searching",10*60*60,x,y,stage,logger);
 		List<String> keywords = new ArrayList<>(keyword_to_slot.keySet());
         logger.log("Finder_frame::start_search() "+keywords+" in: "+target_path);
 

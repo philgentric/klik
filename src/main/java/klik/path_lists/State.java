@@ -49,7 +49,7 @@ class State
     public synchronized void rescan(String reason)
     //**********************************************************
     {
-        try ( Perf perf = new Perf("State rescan "+reason)) {
+        try ( Perf perf = new Perf("State::rescan "+reason)) {
             //long start = System.currentTimeMillis();
             //logger.log(Stack_trace_getter.get_stack_trace("image file source scan"));
 

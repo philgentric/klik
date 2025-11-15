@@ -6,6 +6,7 @@ package klik.util.image;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Window;
+import klik.browser.virtual_landscape.Browsing_caches;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.experimental.fusk.Fusk_static_core;
@@ -207,6 +208,7 @@ public class Full_image_from_disk
         catch (OutOfMemoryError e)
         {
             logger.log("OutOfMemoryError when loading image from disk: "+original_image_file.toAbsolutePath()+" : "+e);
+            Browsing_caches.clear_all_caches();
             Popups.popup_Exception(null,100,"Your java VM machine is running out of RAM!\nclose some windows and/or try to increase the max in build.gradle.works and restart",owner,logger);
             return Optional.of(Jar_utils.get_broken_icon(300,owner,logger));
         }

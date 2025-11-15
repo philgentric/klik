@@ -8,6 +8,8 @@ package klik.browser.icons.image_properties_cache;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.Shared_services;
+import klik.browser.Clearable_RAM_cache;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.actor.Job_termination_reporter;
@@ -20,12 +22,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 //**********************************************************
-public class Image_properties_RAM_cache
+public class Image_properties_RAM_cache implements Clearable_RAM_cache
 //**********************************************************
 {
     public final static boolean dbg = false;
     protected final Logger logger;
-    private final Aborter aborter;
     protected final String cache_name;
     protected final Path cache_file_path;
     private final Map<String, Image_properties> cache = new ConcurrentHashMap<>();
@@ -37,22 +38,21 @@ public class Image_properties_RAM_cache
 
 
     //**********************************************************
-    public static Image_properties_RAM_cache get(Path_list_provider path_list_provider,Window owner, Aborter aborter, Logger logger)
+    public static Image_properties_RAM_cache get(Path_list_provider path_list_provider,Window owner, Logger logger)
     //**********************************************************
     {
-        return new Image_properties_RAM_cache(path_list_provider,"Image properties cache", owner,aborter, logger);
+        return new Image_properties_RAM_cache(path_list_provider,"Image properties cache", owner, logger);
     }
 
     //**********************************************************
     public Image_properties_RAM_cache(
             Path_list_provider path_list_provider,
             String cache_name_,
-            Window owner, Aborter aborter_, Logger logger_)
+            Window owner, Logger logger_)
     //**********************************************************
     {
         instance_number = instance_number_generator++;
         logger = logger_;
-        aborter = aborter_;
         cache_name = cache_name_;
         String local = cache_name+ path_list_provider.get_name();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
@@ -60,7 +60,7 @@ public class Image_properties_RAM_cache
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(cache_name+" cache file ="+cache_file_path);
 
-        pm = new Properties_manager(cache_file_path,"image properties cache for folder "+path_list_provider.get_name(),owner,aborter,logger);
+        pm = new Properties_manager(cache_file_path,"image properties cache for folder "+path_list_provider.get_name(),owner, Shared_services.aborter(),logger);
         image_properties_actor = new Image_properties_actor();
     }
 
@@ -83,7 +83,7 @@ public class Image_properties_RAM_cache
     // if tr is null then this routine will BLOCK until the Image_properties is in the cache,
     // if tr is not null then this routine will return null and start the cache filling
     // in a separate thread, which will call tr.has_ended when finished
-    public Image_properties get_from_cache(Path p, Job_termination_reporter tr)
+    public Image_properties get(Path p, Aborter aborter, Job_termination_reporter tr)
     //**********************************************************
     {
         Image_properties image_properties =  cache.get(key_from_path(p));
@@ -117,7 +117,7 @@ public class Image_properties_RAM_cache
     }
 
     //**********************************************************
-    public void prefill_cache(Path p)
+    public void prefill_cache(Path p, Aborter aborter)
     //**********************************************************
     {
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
@@ -142,7 +142,8 @@ public class Image_properties_RAM_cache
     }
 
     //**********************************************************
-    public void clear_cache()
+    @Override
+    public void clear_RAM_cache()
     //**********************************************************
     {
         cache.clear();
@@ -229,12 +230,5 @@ public class Image_properties_RAM_cache
     {
         pm.add(key_from_path(path), ip.to_string());
     }
-
-
-
-
-
-
-
 
 }

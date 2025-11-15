@@ -156,13 +156,13 @@ public class Search_session implements Callback_for_file_found_publish
 				// this is a search by extension
 				List<String> ll = new ArrayList<>();
 				ll.add(search_config.extension());
-				String key = list_of_keywords_to_key(sr.matched_keywords(), search_config.check_case());
+				String keys = list_of_keywords_to_key(sr.matched_keywords(), search_config.check_case());
 				if ( search_results != null)
 				{
-					List<Path> list = search_results.get(key);
+					List<Path> list = search_results.get(keys);
 					if ( list == null) list = new ArrayList<>();
 					if (!list.contains(sr.path())) list.add(sr.path());
-					search_results.put(key,list);
+					search_results.put(keys,list);
 				}
 			}
 		}

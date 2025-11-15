@@ -37,6 +37,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.*;
+import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.actor.Job_termination_reporter;
@@ -158,7 +159,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     public static boolean show_progress_window_on_redraw = true;
 
-    public final Browsing_caches browsing_caches;
     private Feature_vector_cache fv_cache;
     private final Background_provider background_provider;
     //**********************************************************
@@ -192,10 +192,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         the_Pane = new Pane();
 
-
-        browsing_caches = new Browsing_caches(path_list_provider,owner,aborter,logger);
-        icon_factory_actor = new Icon_factory_actor(browsing_caches.image_properties_RAM_cache, owner, aborter, logger);
-        paths_holder = new Paths_holder(browsing_caches.image_properties_RAM_cache, aborter, logger);
+        icon_factory_actor = new Icon_factory_actor(get_image_properties_ram_cache(), owner, aborter, logger);
+        paths_holder = new Paths_holder(get_image_properties_ram_cache(), aborter, logger);
         selection_handler = new Selection_handler(the_Pane, this, this, logger);
 
         virtual_landscape_menus = new Virtual_landscape_menus(this, change_receiver, owner);
@@ -723,7 +721,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 {
                     wait_for_end.countDown();
                     // ask for image properties fetch in threads
-                    browsing_caches.image_properties_RAM_cache.get_from_cache(path,tr);
+                    get_image_properties_ram_cache().get(path,aborter,tr);
                 }
             }
             /*else
@@ -779,7 +777,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Double cache_aspect_ratio = Double.valueOf(1.0);
             long local_incr = System.currentTimeMillis();
             // this i a BLOCKING call
-            Image_properties ip = browsing_caches.image_properties_RAM_cache.get_from_cache(path,null);
+            Image_properties ip = get_image_properties_ram_cache().get(path,aborter,null);
             if ( ip == null)
             {
                 if ( dbg) logger.log(("✅ Warning: image property cache miss for: "+path));
@@ -866,6 +864,19 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
+    public Image_properties_RAM_cache get_image_properties_ram_cache()
+    //**********************************************************
+    {
+        Image_properties_RAM_cache returned = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+        if ( returned == null)
+        {
+            returned = new Image_properties_RAM_cache(path_list_provider,"image properties cache",owner,logger);
+            Browsing_caches.image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(),returned);
+        }
+        return returned;
+    }
+
+    //**********************************************************
     private Point2D process_non_iconized_files(boolean single_column, double column_increment, double scene_width, Point2D p)
     //**********************************************************
     {
@@ -889,7 +900,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         icon_factory_actor,
                         null, 
                         text,
-                        browsing_caches.image_properties_RAM_cache,
+                        get_image_properties_ram_cache(),
                         shutdown_target,
                         path,
                         path_list_provider,
@@ -1015,7 +1026,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         100,
                         false,
                         null,
-                        browsing_caches.image_properties_RAM_cache,
+                        get_image_properties_ram_cache(),
                         shutdown_target,
                         new Path_list_provider_for_file_system(folder_path,logger),
                         this,
@@ -1079,7 +1090,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         icon_height,
                         false,
                         null,
-                        browsing_caches.image_properties_RAM_cache,
+                        get_image_properties_ram_cache(),
                         shutdown_target,
                         new Path_list_provider_for_file_system(folder_path,logger),
                         this,
@@ -2367,7 +2378,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         paths_holder.folders.clear();
         iconized_sorted_queue.clear();
 
-        browsing_caches.image_properties_RAM_cache.reload_cache_from_disk();
+        get_image_properties_ram_cache();
         scan_list();
 
         all_image_properties_acquired_4(start, progress_window);
@@ -2386,7 +2397,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         other_file_comparator = Sort_files_by.get_non_image_comparator(path_list_provider, owner,aborter,logger);
 
-        image_file_comparator = Sort_files_by.get_image_comparator(path_list_provider, this,browsing_caches.image_properties_RAM_cache,
+        image_file_comparator = Sort_files_by.get_image_comparator(path_list_provider, this,get_image_properties_ram_cache(),
                 owner,x,y, aborter,logger);;
 
         paths_holder.folders = new ConcurrentSkipListSet<>(alphabetical_file_name_comparator);
@@ -2464,8 +2475,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         if ( dbg) logger.log("✅ Virtual_landscape: looking at path Virtual_landscape::all_image_properties_acquired_4() ");
-        Runnable r = () -> browsing_caches.image_properties_RAM_cache.save_whole_cache_to_disk();
-        Actor_engine.execute(r,"Save whole image property cache",logger);
+        Actor_engine.execute(() -> get_image_properties_ram_cache().save_whole_cache_to_disk(),"Save whole image property cache",logger);
 
         if (System.currentTimeMillis() - start > 5_000) {
             if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name(),owner)) {
@@ -2697,16 +2707,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         switch (Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(),owner))
         {
             case ASPECT_RATIO :
-                local_file_comparator = new Aspect_ratio_comparator(browsing_caches.image_properties_RAM_cache);
+                local_file_comparator = new Aspect_ratio_comparator(get_image_properties_ram_cache(),aborter);
                 break;
             case RANDOM_ASPECT_RATIO :
-                local_file_comparator =  new Aspect_ratio_comparator_random(browsing_caches.image_properties_RAM_cache);
+                local_file_comparator =  new Aspect_ratio_comparator_random(get_image_properties_ram_cache(),aborter);
                 break;
             case IMAGE_WIDTH :
-                local_file_comparator = new Image_width_comparator(browsing_caches.image_properties_RAM_cache);
+                local_file_comparator = new Image_width_comparator(get_image_properties_ram_cache(),aborter);
                 break;
             case IMAGE_HEIGHT :
-                local_file_comparator = new Image_height_comparator(browsing_caches.image_properties_RAM_cache,logger);
+                local_file_comparator = new Image_height_comparator(get_image_properties_ram_cache(),aborter,logger);
                 break;
             case RANDOM :
                 local_file_comparator = new Random_comparator();

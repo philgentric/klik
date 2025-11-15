@@ -39,7 +39,7 @@ public class Properties_manager
     private final Properties the_Properties;
     private final Path the_properties_path;
     private final Logger logger;
-    private final Aborter aborter;
+    //private final Aborter aborter;
     private final String purpose;
 
     // saving to file is done in a separate thread:
@@ -51,7 +51,7 @@ public class Properties_manager
     {
         Objects.requireNonNull(aborter);
         this.purpose = purpose;
-        this.aborter = aborter;
+        //this.aborter = aborter;
         this.logger = logger;
         the_properties_path = f_;
         the_Properties = new Properties();

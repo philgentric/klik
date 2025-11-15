@@ -103,7 +103,7 @@ public class Image_cache_linkedhashmap implements Image_cache_interface
 
     @Override
     //**********************************************************
-    public void clear_all()
+    public void clear_RAM_cache()
     //**********************************************************
     {
         cache.clear();

@@ -93,7 +93,7 @@ public class Image_window
     public Path_comparator_source path_comparator_source;
 
     public Image_rescaling_filter rescaler = Image_rescaling_filter.Native;
-    public final Image_cache_interface image_cache;
+    public Image_cache_interface image_cache;
 
     //**********************************************************
     public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Window owner, Aborter aborter, Logger logger_)
@@ -163,12 +163,19 @@ public class Image_window
                 int forward_size = cache_slots / 2;
                 if (forward_size > 10) forward_size = 10;
                 //logger.log("cache_slots="+cache_slots);
-                if (use_linkedhashmap_for_cache) {
-                    image_cache = new Image_cache_linkedhashmap(forward_size, aborter, logger);
-                } else {
-                    image_cache = new Image_cache_cafeine(forward_size, aborter, logger);
-                }
 
+                image_cache = Browsing_caches.image_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+
+                if ( image_cache == null)
+                {
+                    if (use_linkedhashmap_for_cache)
+                    {
+                        image_cache = new Image_cache_linkedhashmap(forward_size, aborter, logger);
+                    } else {
+                        image_cache = new Image_cache_cafeine(forward_size, aborter, logger);
+                    }
+                    Browsing_caches.image_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), image_cache);
+                }
             }
 
 
@@ -185,7 +192,7 @@ public class Image_window
 
             Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
             if (tmp == null) {
-                tmp = Image_properties_RAM_cache.get(new Path_list_provider_for_file_system(first_image_path.getParent(),logger), owner, aborter, logger);
+                tmp = Image_properties_RAM_cache.get(new Path_list_provider_for_file_system(first_image_path.getParent(),logger), owner, logger);
                 Browsing_caches.image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), tmp);
             }
             image_properties_cache = tmp;

@@ -556,8 +556,8 @@ public class Virtual_landscape_menus
     public void clear_image_properties_RAM_cache()
     //**********************************************************
     {
-        if ( virtual_landscape.browsing_caches.image_properties_RAM_cache == null) return;
-        virtual_landscape.browsing_caches.image_properties_RAM_cache.clear_cache();
+        if ( virtual_landscape.get_image_properties_ram_cache() == null) return;
+        virtual_landscape.get_image_properties_ram_cache().clear_RAM_cache();
 
         Browsing_caches.image_properties_RAM_cache_of_caches.clear();
     }
@@ -717,7 +717,7 @@ public class Virtual_landscape_menus
                             too_far_away_image,
                             owner,
                             virtual_landscape.path_list_provider.get_folder_path().toFile(),
-                            virtual_landscape.browsing_caches.image_properties_RAM_cache,
+                            virtual_landscape.get_image_properties_ram_cache(),
                             get_image_fv_cache,
                             logger)).do_your_job();
                 },menu,owner,logger);
@@ -924,7 +924,7 @@ public class Virtual_landscape_menus
                 height,
                 is_trash_button,
                 is_parent_of,
-                virtual_landscape.browsing_caches.image_properties_RAM_cache,
+                virtual_landscape.get_image_properties_ram_cache(),
                 virtual_landscape.shutdown_target,
                 new Path_list_provider_for_file_system(path,logger),
                 virtual_landscape,

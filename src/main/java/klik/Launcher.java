@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.properties.boolean_features.Preferences_stage;
 import klik.util.execute.Execute_result;
+import klik.util.execute.Guess_OS;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.audio.Audio_player_access;
@@ -84,7 +85,7 @@ public class Launcher extends Application implements UI_change
     public static final int icon_size = 100;
     public static final String STARTED = "STARTED";
     public static final String NOT_STARTED = "NOT_STARTED";
-    private static final boolean use_script_in_tmp = true;
+    private static boolean use_script_in_tmp;
 
     private Stage stage;
     private Aborter aborter;
@@ -114,6 +115,15 @@ public class Launcher extends Application implements UI_change
 
         logger.log("Launcher starting");
         System_info.print(Launcher.class);
+
+        switch(Guess_OS.guess(stage,logger))
+        {
+            case Windows -> {
+                use_script_in_tmp = true;
+            }
+            default -> {use_script_in_tmp = false;}
+
+        }
 
 
         String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,stage,logger);

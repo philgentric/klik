@@ -70,7 +70,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class Item implements Icon_destination
 //**********************************************************
 {
-    protected static final boolean dbg = true;
+    protected static final boolean dbg = false;
     public static final boolean layout_dbg = false;
     public AtomicBoolean icon_fabrication_requested = new AtomicBoolean(false);
     Job icon_job; // this is needed to cancel the icon request when the item has become invisible

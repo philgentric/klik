@@ -4,12 +4,10 @@
 package klik.search;
 
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
@@ -17,6 +15,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Window_type;
@@ -99,30 +98,110 @@ public class Results_frame
 				});
 
 		scroll_pane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
-		scroll_pane.setHbarPolicy(ScrollBarPolicy.ALWAYS);
+		scroll_pane.setHbarPolicy(ScrollBarPolicy.NEVER);
 		scroll_pane.setFitToWidth(true);
 		scroll_pane.setFitToHeight(true);
 		the_result_vbox.getChildren().clear();
 	}
 
 	//**********************************************************
-	private Button make_one_button(String key, boolean is_max, Path path, Window owner)
+	private Button make_one_button(String keys, boolean is_max, Path path, Window owner)
 	//**********************************************************
 	{
 		//Rectangle2D rectangle = new Rectangle2D(window.getX(), window.getY(), window.getWidth(), window.getHeight());
 
-		Button b = new Button(key +" => "+ path);
-		if(is_max)
+        String displayed_text = path.toAbsolutePath().toString();
+        // shorten the string, the left part is unnecessary
+        Path folder = path_list_provider.get_folder_path();
+        int i = folder.toAbsolutePath().toString().length();
+        displayed_text = keys +" => "+ displayed_text.substring(i);
+
+        /*
+        // insert new line every 80 chars
+        int start =0;
+        int end = 80;
+        if ( end >= displayed_text.length()) end = displayed_text.length();
+        StringBuilder final_displayed_text = new StringBuilder();
+        final_displayed_text.append(displayed_text.substring(start ,end));
+        for(;;)
+        {
+            start += 80;
+            if ( start >= displayed_text.length()) break;
+            end += 80;
+            if ( end >= displayed_text.length()) end = displayed_text.length();
+            final_displayed_text.append("...\n").append(displayed_text.substring(start ,end));
+        }
+        logger.log(final_displayed_text.toString());
+        Button b = new Button();
+        b.setText(final_displayed_text.toString());
+        b.wrapTextProperty().setValue(true);
+        b.setStyle("-fx-max-width : 180px");
+        b.setWrapText(true);
+
+        if(is_max)
 		{
 			b.setGraphic(new Circle(10, Color.RED));
 		}
-
 		b.setMnemonicParsing(false); // avoid removal of first underscore
+        */
+
+
+        HBox hbox = new HBox();
+        hbox.setAlignment(Pos.BASELINE_LEFT);
+        //VBox vBox = new VBox();
+        //vBox.setAlignment(Pos.TOP_LEFT);
+
+        if(is_max)
+        {
+            hbox.getChildren().add(new Circle(10, Color.RED));
+        }
+        //hbox.getChildren().add(vBox);
+
+
+        /*
+        int MAX = 100;
+        int start =0;
+        int end = MAX;
+        if ( end >= displayed_text.length()) end = displayed_text.length();
+        Text text = new Text(displayed_text.substring(start ,end));
+        vBox.getChildren().add(text);
+        for(;;)
+        {
+            start += MAX;
+            if ( start >= displayed_text.length()) break;
+            end += MAX;
+            if ( end >= displayed_text.length()) end = displayed_text.length();
+            vBox.getChildren().add(new Text("..."+displayed_text.substring(start ,end)));
+        }
+         */
+        Text text = new Text(displayed_text);
+        //text.setWrappingWidth(stage.getWidth()-30);
+        text.wrappingWidthProperty().bind(stage.widthProperty().subtract(70));
+        hbox.getChildren().add(text);
+
+        Button b = new Button();
+        b.maxWidthProperty().bind(stage.widthProperty().subtract(260));
+        //b.setMaxWidth(Double.MAX_VALUE);
+        if(is_max)
+        {
+            b.setGraphic(new Circle(10, Color.RED));
+        }
+        b.setGraphic(hbox);
+        b.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+
+
 		Look_and_feel_manager.set_button_look(b, true,owner,logger);
-		if (Files.isDirectory(path)) {
-			Border border = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1)));
-			b.setBorder(border);
+		if (Files.isDirectory(path))
+        {
+            Look_and_feel_manager.set_button_look(b, true,owner,logger);
+			//Border border = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1)));
+			//b.setBorder(border);
 		}
+        else
+        {
+            Look_and_feel_manager.set_button_look(b, false,owner,logger);
+        }
 		the_result_vbox.getChildren().add(b);
 		b.setOnAction((ActionEvent e) -> {
 			//logger.log("going to open on menu select: " + key);
@@ -256,25 +335,37 @@ public class Results_frame
 
 	}
 
-	public void sort()
-	{
+    //**********************************************************
+    public void sort()
+    //**********************************************************
+    {
 	}
 
+    //**********************************************************
     public void erase_all_non_max()
+    //**********************************************************
     {
         Jfx_batch_injector.inject(() -> {
             List<Node> to_be_deleted = new ArrayList<>();
             for( Node n : the_result_vbox.getChildren())
             {
-                if ( n instanceof  Button b)
+                if ( n instanceof  Button button)
                 {
-                    Search_result  sr =  search_results_buttons.get(b);
-                    if ( sr == null) logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+                    Search_result  sr =  search_results_buttons.get(button);
+                    if ( sr == null)
+                    {
+                        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+                    }
                     else
                     {
-                        if ( !search_results_is_max.get(sr))
+                        Boolean bool = search_results_is_max.get(sr);
+                        if ( bool == null)
                         {
-                            to_be_deleted.add(b);
+                            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+                        }
+                        else
+                        {
+                            if (!bool)  to_be_deleted.add(button);
                         }
                     }
                 }

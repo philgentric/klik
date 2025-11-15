@@ -84,13 +84,13 @@ public enum Sort_files_by {
             case NAME:
                 return new Alphabetical_file_name_comparator();
             case ASPECT_RATIO:
-                return new Aspect_ratio_comparator(image_properties_cache);
+                return new Aspect_ratio_comparator(image_properties_cache,aborter);
             case RANDOM_ASPECT_RATIO:
-                return new Aspect_ratio_comparator_random(image_properties_cache);
+                return new Aspect_ratio_comparator_random(image_properties_cache,aborter);
             case IMAGE_HEIGHT:
-                return new Image_height_comparator(image_properties_cache,logger);
+                return new Image_height_comparator(image_properties_cache,aborter,logger);
             case IMAGE_WIDTH:
-                return new Image_width_comparator(image_properties_cache);
+                return new Image_width_comparator(image_properties_cache,aborter);
             case RANDOM:
                 return new Random_comparator();
             case DATE:
