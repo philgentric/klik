@@ -312,7 +312,8 @@ public class Static_files_and_paths_utilities
         {
             if (user_cancel(tag, size, owner, logger)) return 0.0;
         }
-        logger.log(tag+", folder cleared: "+folder.toAbsolutePath()+" "+size+" bytes");
+        String text = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(size,owner,logger);
+        logger.log(tag+", folder cleared: "+folder.toAbsolutePath()+" "+text+" bytes");
         delete_for_ever_all_files_in_dir_in_a_thread(folder, true, owner,logger);
         return size;
     }

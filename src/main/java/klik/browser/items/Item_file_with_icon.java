@@ -144,49 +144,6 @@ public class Item_file_with_icon extends Item_file
             event.consume();
         });
 
-
-        /*
-        image_view.setOnMouseClicked(event ->
-            {
-                if (event.getButton() == MouseButton.PRIMARY)
-                {
-                    logger.log("\n\nItem_file_with_icon event=" + event + " PRIMARY is down");
-                    on_mouse_clicked(logger);
-                    event.consume();
-                    return;
-                }
-                if (event.getButton() == MouseButton.SECONDARY)
-                {
-                    logger.log("\n\nItem_file_with_icon event=" + event + " SECONDARY is down");
-                    event.consume();
-                    return;
-                }
-
-                // meta is control on windows and 'command' in macos
-                if (event.isMetaDown())
-                {
-                    logger.log("\n\nItem_file_with_icon event=" + event + " META is down");
-
-                    Optional<Multiple_image_window> option = Multiple_image_window.get_Multiple_image_window("",owner, path, false, path_list_provider, logger);
-                    if (option.isEmpty())
-                    {
-                        // let us a bit of checking about why this failed
-                        Change_gang.report_anomaly(path,owner);
-                    }
-                    event.consume();
-                    return;
-                }
-
-                if (event.isControlDown())
-                {
-                    //if (dbg)
-                        logger.log("\n\nItem_file_with_icon event=" + event + " CTRL is down");
-                    set_is_selected();
-                    event.consume();
-
-                }
-
-            });*/
     }
 
 
@@ -301,17 +258,22 @@ public class Item_file_with_icon extends Item_file
                 aborter,
                 logger));
 
+
         {
             MenuItem menu_item = get_rename_MenuItem(get_item_path(),owner,x, y, aborter,logger);
             context_menu.getItems().add(menu_item);
         }
 
+        create_delete_menu_item(context_menu);
+        create_copy_menu_item(context_menu);
+        create_show_file_size_menu_item(context_menu);
+        /*
         Menu_items.add_menu_item("Delete",
                     event -> {
                 if (dbg) logger.log("Deleting "+get_item_path());
                 path_list_provider.delete(get_item_path(),owner,x,y, aborter,logger);
             },context_menu,owner,logger);
-
+        */
         Menu_items.add_menu_item("Edit",
                     event -> {
                 if (dbg) logger.log("Editing "+get_item_path());

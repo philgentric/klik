@@ -991,6 +991,7 @@ public class Look_and_feel_manager
     public static void set_button_look(Region region, boolean with_border, Window owner, Logger logger) // Button is a Region
     //**********************************************************
     {
+        region.setPickOnBounds(true);
         Look_and_feel laf = get_instance(owner,logger);
         if ( laf.style_sheet_url_string !=null)
         {

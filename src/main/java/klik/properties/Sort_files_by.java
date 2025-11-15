@@ -159,6 +159,38 @@ public enum Sort_files_by {
         return similarity_cache;
     }
 
+    //**********************************************************
+    public static boolean need_image_properties(Path folder_path, Window owner)
+    //**********************************************************
+    {
+        switch(Sort_files_by.get_sort_files_by(folder_path, owner))
+        {
+            case SIMILARITY_BY_PURSUIT:
+                return false;
+            case SIMILARITY_BY_PAIRS:
+                return false;
+            case NAME:
+                return false;
+            case ASPECT_RATIO:
+                return true;
+            case RANDOM_ASPECT_RATIO:
+                return true;
+            case IMAGE_HEIGHT:
+                return true;
+            case IMAGE_WIDTH:
+                return true;
+            case RANDOM:
+                return false;
+            case DATE:
+                return false;
+            case SIZE:
+                return false;
+            case NAME_GIFS_FIRST:
+                return false;
+        }
+        return false;
+    }
+
     private static Map<Path, Sort_files_by> cached = new HashMap<>();
     //**********************************************************
     public static Sort_files_by get_sort_files_by(Path folder_path, Window owner)

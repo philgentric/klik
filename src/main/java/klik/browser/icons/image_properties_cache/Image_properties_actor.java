@@ -13,7 +13,7 @@ import java.util.Optional;
 public class Image_properties_actor implements Actor
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
 
     //**********************************************************
     @Override

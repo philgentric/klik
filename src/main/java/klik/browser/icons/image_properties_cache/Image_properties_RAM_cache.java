@@ -15,7 +15,9 @@ import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.actor.Job_termination_reporter;
 import klik.path_lists.Path_list_provider;
 import klik.properties.*;
+import klik.util.files_and_paths.Guess_file_type;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -108,7 +110,10 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
             Image_properties x = cache.get(key_from_path(p));
             if ( x == null)
             {
-                logger.log("❌ PANIC null Image_properties in cache after blocking call for :"+p);
+                if (Guess_file_type.is_this_path_an_image(p,logger))
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("❗ WARNING null Image_properties in cache after blocking call for :" + p));
+                }
             }
             return x;
         }

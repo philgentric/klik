@@ -191,7 +191,7 @@ public class Full_image_from_disk
         }*/
         if ( Guess_file_type.is_this_extension_a_non_javafx_type(Extensions.get_extension(original_image_file.getFileName().toString())))
         {
-            logger.log("image extension indicates type cannot be loaded by javafx, using GraphicsMagick");
+            logger.log("image extension indicates type cannot be loaded by javafx, using GraphicsMagick for "+original_image_file);
             return use_GraphicsMagick_for_full_image(original_image_file, aborter, owner, logger);
         }
 

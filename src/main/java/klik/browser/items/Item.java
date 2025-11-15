@@ -343,20 +343,7 @@ public abstract class Item implements Icon_destination
 
             create_rename_menu_item(local_button, local_label,context_menu);
 
-            Menu_items.add_menu_item("Copy",
-                    event -> {
-                    if (dbg) logger.log("copying!");
-
-                    Path new_path = Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,get_item_path(),logger);
-                    if ( new_path == null) return;
-                    try
-                    {
-                        Files.copy(get_item_path(), new_path);
-                    } catch (IOException e)
-                    {
-                        logger.log("copy failed: could not create new file for: " + get_item_path().getFileName() + ", Exception:" + e);
-                    }
-                },context_menu,owner,logger);
+            create_copy_menu_item(context_menu);
 
             create_delete_menu_item(context_menu);
 
@@ -370,7 +357,30 @@ public abstract class Item implements Icon_destination
         return context_menu;
     }
 
-    protected void create_show_file_size_menu_item(ContextMenu context_menu) {
+    //**********************************************************
+    public void create_copy_menu_item(ContextMenu context_menu)
+    //**********************************************************
+    {
+        Menu_items.add_menu_item("Copy",
+                event -> {
+                if (dbg) logger.log("copying!");
+
+                Path new_path = Static_files_and_paths_utilities.ask_user_for_new_file_name(owner,get_item_path(),logger);
+                if ( new_path == null) return;
+                try
+                {
+                    Files.copy(get_item_path(), new_path);
+                } catch (IOException e)
+                {
+                    logger.log("copy failed: could not create new file for: " + get_item_path().getFileName() + ", Exception:" + e);
+                }
+            }, context_menu,owner,logger);
+    }
+
+    //**********************************************************
+    protected void create_show_file_size_menu_item(ContextMenu context_menu)
+    //**********************************************************
+    {
         Menu_items.add_menu_item("Show_file_size",
                 event -> {
                 if (dbg) logger.log("File size");
@@ -562,7 +572,7 @@ public abstract class Item implements Icon_destination
     }
 
     //**********************************************************
-    public void give_a_menu_to_the_button(Button local_button, Label local_label)
+    protected void give_a_menu_to_the_button(Button local_button, Label local_label)
     //**********************************************************
     {
         ContextMenu context_menu = make_context_menu(local_button, local_label);
@@ -576,7 +586,7 @@ public abstract class Item implements Icon_destination
 
 
     //**********************************************************
-    private void create_delete_menu_item(ContextMenu context_menu)
+    protected void create_delete_menu_item(ContextMenu context_menu)
     //**********************************************************
     {
         Menu_items.add_menu_item("Delete",
@@ -649,7 +659,7 @@ public abstract class Item implements Icon_destination
     }
 
     //**********************************************************
-    private void create_rename_menu_item(Button local_button, Label local_label, ContextMenu context_menu)
+    protected void create_rename_menu_item(Button local_button, Label local_label, ContextMenu context_menu)
     //**********************************************************
     {
         Menu_items.add_menu_item("Rename",

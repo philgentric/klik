@@ -102,7 +102,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private static final double MARGIN_Y = 50;
 
 
-    Map<LocalDateTime,String> the_whole_history;
+    Map<LocalDateTime,String> the_whole_history = new HashMap<>();
 
 
     public final Aborter aborter;
@@ -555,27 +555,26 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     synchronized private void sort_iconized_items(String from)
     //**********************************************************
     {
-        List<Path> local_iconized_sorted = new ArrayList<>(paths_holder.iconized_paths);
-        for(int tentative =0; tentative<3; tentative++)
+        try(Perf p = new Perf("sort_iconized_items"))
         {
-            try
+            List<Path> local_iconized_sorted = new ArrayList<>(paths_holder.iconized_paths);
+            for (int tentative = 0; tentative < 3; tentative++)
             {
-                if ( dbg)logger.log("sort_iconized_items with "+image_file_comparator.getClass().getName());
-                local_iconized_sorted.sort(image_file_comparator);
-                break;
-            }
-            catch (IllegalArgumentException e)
-            {
-                // let us retry after a reshuffle
-                logger.log("image sorting failed, retrying: "+tentative);
-                if (image_file_comparator instanceof Similarity_comparator)
-                {
-                    Similarity_comparator sc = (Similarity_comparator)image_file_comparator;
-                    sc.shuffle();
+                try {
+                    if (dbg) logger.log("sort_iconized_items with " + image_file_comparator.getClass().getName());
+                    local_iconized_sorted.sort(image_file_comparator);
+                    break;
+                } catch (IllegalArgumentException e) {
+                    // let us retry after a reshuffle
+                    logger.log("image sorting failed, retrying: " + tentative);
+                    if (image_file_comparator instanceof Similarity_comparator) {
+                        Similarity_comparator sc = (Similarity_comparator) image_file_comparator;
+                        sc.shuffle();
+                    }
                 }
             }
+            iconized_sorted_queue.add(local_iconized_sorted);
         }
-        iconized_sorted_queue.add(local_iconized_sorted);
     }
 
 
@@ -675,192 +674,166 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        double file_button_height = 2 * Non_booleans_properties.get_font_size(owner,logger);
+        try(Perf p = new Perf("process_iconized_items")) {
+            double file_button_height = 2 * Non_booleans_properties.get_font_size(owner, logger);
 
-        double max_y_in_row[] = new double[1];
-        max_y_in_row[0] = 0;
-        List<Item> current_row = new ArrayList<>();
+            double max_y_in_row[] = new double[1];
+            max_y_in_row[0] = 0;
+            List<Item> current_row = new ArrayList<>();
 
 
-        // first compute how many images are in flight
-        int image_properties_in_flight = 0;
-        //boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
-        //boolean show_single_column = Feature_cache.get(Feature.Show_single_column);
-        //if ( show_single_column) show_icons_for_files = false;
-        for (Path path : paths_holder.iconized_paths )
-        {
-            Item item;
-            //if (show_icons_for_files)
-            {
-                item = all_items_map.get(path);
-                if (item == null)
+            // first compute how many images are in flight
+            int image_properties_in_flight = 0;
+            //boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
+            //boolean show_single_column = Feature_cache.get(Feature.Show_single_column);
+            //if ( show_single_column) show_icons_for_files = false;
+            for (Path path : paths_holder.iconized_paths) {
+                Item item;
+                //if (show_icons_for_files)
                 {
-                    image_properties_in_flight++;
+                    item = all_items_map.get(path);
+                    if (item == null) {
+                        image_properties_in_flight++;
+                    }
                 }
             }
-        }
 
-        // block until:
-        //  1. all image properties REQUESTS are made
-        // the cache will use actors on threads to fetch the properties
-        //  2. the cache will call the termination reporter when each is finished
-        // so this will effectively block until all image properties are fetched
+            // block until:
+            //  1. all image properties REQUESTS are made
+            // the cache will use actors on threads to fetch the properties
+            //  2. the cache will call the termination reporter when each is finished
+            // so this will effectively block until all image properties are fetched
 
-        if ( dbg) logger.log("process_iconized_items is on javafx thread?"+Platform.isFxApplicationThread());
-        CountDownLatch wait_for_end = new CountDownLatch(image_properties_in_flight);
-        Job_termination_reporter tr = (message, job) -> wait_for_end.countDown();
-        long start = System.currentTimeMillis();
-        for (Path path : paths_holder.iconized_paths )
-        {
-            if (ultra_dbg) logger.log("Virtual_landscape process_iconified_items " + path);
-            Item item;
-            //if (show_icons_for_files)
+            if (dbg) logger.log("process_iconized_items is on javafx thread?" + Platform.isFxApplicationThread());
+            CountDownLatch wait_for_end = new CountDownLatch(image_properties_in_flight);
+            Job_termination_reporter tr = (message, job) -> wait_for_end.countDown();
+            long start = System.currentTimeMillis();
+            for (Path path : paths_holder.iconized_paths)
             {
-                item = all_items_map.get(path);
-                if (item == null)
+                if (ultra_dbg) logger.log("Virtual_landscape process_iconified_items " + path);
+                Item item;
+                //if (show_icons_for_files)
                 {
-                    wait_for_end.countDown();
-                    // ask for image properties fetch in threads
-                    get_image_properties_ram_cache().get(path,aborter,tr);
+                    item = all_items_map.get(path);
+                    if (item == null)
+                    {
+                        // depending on the sort order
+
+                        if ( Sort_files_by.need_image_properties(path_list_provider.get_folder_path(),owner))
+                        {
+                            // ask for image properties fetch in threads
+                            get_image_properties_ram_cache().get(path, aborter, tr);
+                        }
+                        else
+                        {
+                            //logger.log("not prefiling image properties cache");
+                            wait_for_end.countDown();
+                        }
+                    }
                 }
             }
-            /*else
+            if (image_properties_in_flight > 1) {
+                // wait for all properties to become available
+                //logger.log("going to wait");
+                try {
+                    wait_for_end.await();
+                } catch (InterruptedException e) {
+                    logger.log("" + e);
+                }
+                //logger.log("wait terminated");
+            }
+            if (dbg)
+                logger.log("✅ getting image properties took " + (System.currentTimeMillis() - start) + " milliseconds");
+
+
+            start = System.currentTimeMillis();
+            long getting_image_properties_from_cache = 0;
+            for (Path path : paths_holder.iconized_paths)
             {
-                // this is an item that could have an image but the user prefers not
-                String size = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(path.toFile().length(), owner,logger);
-                item = all_items_map.get(path);
+                Double cache_aspect_ratio = Double.valueOf(1.0);
+                long local_incr = System.currentTimeMillis();
+                // this is a BLOCKING call
+                Image_properties ip = get_image_properties_ram_cache().get(path, aborter, null);
+                if (ip == null)
+                {
+                    if (dbg) logger.log(("✅ Warning: image property cache miss for: " + path));
+                }
+                else
+                {
+                    cache_aspect_ratio = ip.get_aspect_ratio();
+                }
+                getting_image_properties_from_cache += System.currentTimeMillis() - local_incr;
+                Supplier<Feature_vector_cache> fv_cache_supplier = () ->
+                {
+                    if (fv_cache != null) return fv_cache;
+                    double x = owner.getX() + 100;
+                    double y = owner.getY() + 230;
+                    Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(aborter);
+                    List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+                    Feature_vector_cache.Paths_and_feature_vectors images_and_feature_vectors =
+                            Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter, logger);
+                    fv_cache = images_and_feature_vectors.fv_cache();
+                    return fv_cache;
+                };
+
+                Item item = new Item_file_with_icon(
+                        the_Scene,
+                        selection_handler,
+                        icon_factory_actor,
+                        null,
+                        cache_aspect_ratio,
+                        //browsing_caches.image_properties_RAM_cache,
+                        fv_cache_supplier,
+                        path,
+                        path_list_provider,
+                        this,
+
+                        owner,
+                        aborter,
+                        logger);
+                all_items_map.put(path, item);
+                //logger.log("item created: "+path);
+            }
+            if (dbg) {
+                logger.log("✅ making iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
+                logger.log("     ,of which getting_image_properties_from_cache= " + getting_image_properties_from_cache + " milliseconds");
+            }
+
+
+            boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
+            boolean show_single_column = Feature_cache.get(Feature.Show_single_column);
+            if (show_single_column) show_icons_for_files = false;
+
+            /// at this stage we MUST have get_iconized_sorted() in the proper order
+            // that will define the x,y layout
+            start = System.currentTimeMillis();
+            List<Path> ll = get_iconized_sorted("process_iconified_items");
+            for (Path path : ll)
+            {
+                Item item = all_items_map.get(path);
                 if (item == null) {
-                    //if ( dbg)
-                        logger.log("Item_file_no_icon (1) path="+path);
-                    item = new Item_file_no_icon(
-                            the_Scene,
-                            selection_handler,
-                            icon_factory_actor,
-                            null,
-                            path.getFileName().toString() + "(" + size + ")",
-                            browsing_caches.image_properties_RAM_cache,
-                            shutdown_target,
-                            path,
-                            path_list_provider,
-                            this,
-                            this,
-                            owner,
-                            aborter,
-                            logger);
-                    //new Item2_button(the_browser, path, null, path.getFileName().toString() + "(" + size + ")",
-                            //icon_size / 2, false, false, image_properties_RAM_cache, logger);
-                    all_items_map.put(path, item);
+                    logger.log(("❌ should not happen: no item in map for: " + path + " map size=" + all_items_map.size()));
+                    continue;
                 }
-            }*/
+                if (dbg)
+                    logger.log("✅  Virtual_landscape process_iconified_items " + path + " ar:" + ((Item_file_with_icon) item).aspect_ratio);
+
+                if (show_icons_for_files) {
+                    //logger.log("recomputing position for "+item.get_item_path());
+                    //logger.log(path+" point ="+point.getX()+"-"+point.getY());
+                    point = compute_next_Point2D_for_icons(point, item,
+                            icon_size, icon_size,
+                            scene_width, single_column, max_y_in_row, current_row);
+                } else {
+                    point = new_Point_for_files_and_dirs(point, item,
+                            column_increment,
+                            file_button_height, scene_width, single_column);
+                    how_many_rows++;
+                }
+            }
+            if (dbg)
+                logger.log("✅  mapping iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
         }
-        if ( image_properties_in_flight > 1) {
-            // wait for all properties to become available
-            //logger.log("going to wait");
-            try {
-                wait_for_end.await();
-            } catch (InterruptedException e) {
-                logger.log("" + e);
-            }
-            //logger.log("wait terminated");
-        }
-        if ( dbg) logger.log("✅ getting image properties took " + (System.currentTimeMillis() - start) + " milliseconds");
-
-
-
-
-
-
-        start = System.currentTimeMillis();
-        long getting_image_properties_from_cache = 0;
-        for ( Path path : paths_holder.iconized_paths)
-        {
-            Double cache_aspect_ratio = Double.valueOf(1.0);
-            long local_incr = System.currentTimeMillis();
-            // this i a BLOCKING call
-            Image_properties ip = get_image_properties_ram_cache().get(path,aborter,null);
-            if ( ip == null)
-            {
-                if ( dbg) logger.log(("✅ Warning: image property cache miss for: "+path));
-            }
-            else
-            {
-                cache_aspect_ratio = (Double) ip.get_aspect_ratio();
-            }
-            getting_image_properties_from_cache += System.currentTimeMillis() - local_incr;
-            Supplier<Feature_vector_cache> fv_cache_supplier = () ->
-            {
-                if ( fv_cache != null) return fv_cache;
-                double x = owner.getX()+100;
-                double y = owner.getY()+230;
-                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(aborter);
-                List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
-                Feature_vector_cache.Paths_and_feature_vectors images_and_feature_vectors =
-                        Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths,path_list_provider,  owner,x,  y,  aborter,  logger);
-                fv_cache= images_and_feature_vectors.fv_cache();
-                return fv_cache;
-            };
-
-            Item item = new Item_file_with_icon(
-                    the_Scene,
-                    selection_handler,
-                    icon_factory_actor,
-                    null,
-                    cache_aspect_ratio,
-                    //browsing_caches.image_properties_RAM_cache,
-                    fv_cache_supplier,
-                    path,
-                    path_list_provider,
-                    this,
-                    
-                    owner,
-                    aborter,
-                    logger);
-            all_items_map.put(path,item);
-            //logger.log("item created: "+path);
-        }
-        if ( dbg)
-        {
-            logger.log("✅ making iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
-            logger.log("     ,of which getting_image_properties_from_cache= " +getting_image_properties_from_cache+ " milliseconds");
-        }
-
-
-        boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
-        boolean show_single_column = Feature_cache.get(Feature.Show_single_column);
-        if ( show_single_column) show_icons_for_files = false;
-
-        /// at this stage we MUST have get_iconized_sorted() in the proper order
-        // that will define the x,y layout
-        start = System.currentTimeMillis();
-        List<Path> ll = get_iconized_sorted("process_iconified_items");
-        for (Path path : ll )
-        {
-            Item item = all_items_map.get(path);
-            if ( item == null)
-            {
-                logger.log(("❌ should not happen: no item in map for: "+path+" map size="+all_items_map.size() ));
-                continue;
-            }
-            if (dbg)  logger.log("✅  Virtual_landscape process_iconified_items " + path+" ar:"+((Item_file_with_icon)item).aspect_ratio);
-
-            if (show_icons_for_files)
-            {
-                //logger.log("recomputing position for "+item.get_item_path());
-                //logger.log(path+" point ="+point.getX()+"-"+point.getY());
-                point = compute_next_Point2D_for_icons(point, item,
-                        icon_size, icon_size,
-                        scene_width, single_column, max_y_in_row, current_row);
-            }
-            else
-            {
-                point = new_Point_for_files_and_dirs(point, item,
-                        column_increment,
-                        file_button_height, scene_width, single_column);
-                how_many_rows++;
-            }
-        }
-        if ( dbg) logger.log("✅  mapping iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
-
     }
 
     //**********************************************************
@@ -877,72 +850,67 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    private Point2D process_non_iconized_files(boolean single_column, double column_increment, double scene_width, Point2D p)
+    private Point2D process_non_iconized_items(boolean single_column, double column_increment, double scene_width, Point2D p)
     //**********************************************************
     {
-        // manage the non-iconifed-files section
-        double row_increment_for_files = 2 * Non_booleans_properties.get_font_size(owner,logger);
+        try ( Perf perf = new Perf("process_non_iconized_files")) {
+            // manage the non-iconifed-files section
+            double row_increment_for_files = 2 * Non_booleans_properties.get_font_size(owner, logger);
 
-        for (Path path : paths_holder.non_iconized)
-        {
-            if (ultra_dbg) logger.log("✅ Virtual_landscape process_non_iconized_files "+path.toAbsolutePath());
-            String text = path.getFileName().toString();
-            long size = path.toFile().length() / 1000_000L;
-            if (Guess_file_type.is_this_path_a_video(path,logger)) text = size + "MB VIDEO: " + text;
-            Item item = all_items_map.get(path);
-            if ( item == null)
-            {
-                //logger.log("Item_file_no_icon (3) path="+path);
+            for (Path path : paths_holder.non_iconized) {
+                if (ultra_dbg) logger.log("✅ Virtual_landscape process_non_iconized_files " + path.toAbsolutePath());
+                String text = path.getFileName().toString();
+                long size = path.toFile().length() / 1000_000L;
+                if (Guess_file_type.is_this_path_a_video(path, logger)) text = size + "MB VIDEO: " + text;
+                Item item = all_items_map.get(path);
+                if (item == null) {
+                    //logger.log("Item_file_no_icon (3) path="+path);
 
-                item = new Item_file_no_icon(
-                        the_Scene,
-                        selection_handler,
-                        icon_factory_actor,
-                        null, 
-                        text,
-                        get_image_properties_ram_cache(),
-                        shutdown_target,
-                        path,
-                        path_list_provider,
-                        this,
-                        this,
-                        
-                        owner,
-                        aborter,
-                        logger);
-                all_items_map.put(path,item);
-            }
-            //item.get_Node().setVisible(false);
-            p = new_Point_for_files_and_dirs(p, item,
-                    column_increment,
-                    row_increment_for_files, scene_width, single_column);
+                    item = new Item_file_no_icon(
+                            the_Scene,
+                            selection_handler,
+                            icon_factory_actor,
+                            null,
+                            text,
+                            get_image_properties_ram_cache(),
+                            shutdown_target,
+                            path,
+                            path_list_provider,
+                            this,
+                            this,
 
-            if (item instanceof Item_file_no_icon ini)
-            {
-                ini.get_button().setPrefWidth(column_increment);
-                ini.get_button().setMinWidth(column_increment);
+                            owner,
+                            aborter,
+                            logger);
+                    all_items_map.put(path, item);
+                }
+                //item.get_Node().setVisible(false);
+                p = new_Point_for_files_and_dirs(p, item,
+                        column_increment,
+                        row_increment_for_files, scene_width, single_column);
+
+                if (item instanceof Item_file_no_icon ini) {
+                    ini.get_button().setPrefWidth(column_increment);
+                    ini.get_button().setMinWidth(column_increment);
+                }
+                if (item instanceof Item_folder ini) {
+                    ini.get_button().setPrefWidth(column_increment);
+                    ini.get_button().setMinWidth(column_increment);
+                }
+                if (item instanceof Item_folder_with_icon ini) {
+                    ini.get_button().setPrefWidth(column_increment);
+                    ini.get_button().setMinWidth(column_increment);
+                }
             }
-            if (item instanceof Item_folder ini)
-            {
-                ini.get_button().setPrefWidth(column_increment);
-                ini.get_button().setMinWidth(column_increment);
+            if (!paths_holder.non_iconized.isEmpty()) {
+                if (p.getX() != 0) {
+                    //logger.log("p.getX() != 0"+p.getX());
+                    p = new Point2D(0, p.getY() + row_increment_for_files);
+                    how_many_rows++;
+                }
             }
-            if (item instanceof Item_folder_with_icon ini)
-            {
-                ini.get_button().setPrefWidth(column_increment);
-                ini.get_button().setMinWidth(column_increment);
-            }
+            return p;
         }
-        if ( ! paths_holder.non_iconized.isEmpty())
-        {
-            if (p.getX() != 0)
-            {
-                //logger.log("p.getX() != 0"+p.getX());
-                p = new Point2D(0, p.getY() + row_increment_for_files);
-                how_many_rows++;
-            }
-        }
-        return p;
     }
 
     //**********************************************************
@@ -950,7 +918,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
         if (dbg) logger.log("✅ Virtual_landscape process_folders (0) ");
-        try (Perf perf = new Perf("4. process_folders")) {
+        try (Perf perf = new Perf("process_folders")) {
 
             double actual_row_increment;
             if (Feature_cache.get(Feature.Show_icons_for_folders)) {
@@ -1846,10 +1814,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    private static void button_undo_and_bookmark_and_history(ActionEvent e, Map<LocalDateTime,String> the_whole_history,
-                                                             Path_list_provider path_list_provider,
-                                                             Path top_left,
-                                                             Shutdown_target shutdown_target, Window_type context_type, Window owner, Logger logger)
+    private static void button_undo_and_bookmark_and_history(
+            ActionEvent e,
+            Map<LocalDateTime,String> the_whole_history,
+            Path_list_provider path_list_provider,
+            Path top_left,
+            Shutdown_target shutdown_target, Window_type context_type, Window owner, Logger logger)
     //**********************************************************
     {
         ContextMenu undo_and_bookmark_and_history = define_contextmenu_undo_bookmark_history(
@@ -2327,7 +2297,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             {
                 try {
                     Boolean b = request_queue.poll(3, TimeUnit.SECONDS);
-                    if (b != null) redraw_all_internal(owner, owner.getX(), owner.getY());
+                    if (b != null) redraw_all_internal(owner, owner.getX()+100, owner.getY()+100);
                     if (aborter.should_abort()) return;
 
                 } catch (InterruptedException e) {
@@ -2409,64 +2379,56 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void scan_list()
     //**********************************************************
     {
-        boolean show_icons = Feature_cache.get(Feature.Show_icons_for_files);
-        if ( Feature_cache.get(Feature.Show_single_column)) show_icons = false;
+        try(Perf p = new Perf("scan_list")) {
+            boolean show_icons = Feature_cache.get(Feature.Show_icons_for_files);
+            if (Feature_cache.get(Feature.Show_single_column)) show_icons = false;
 
-        if ( dbg)
-        {
-            logger.log("✅ Virtual_landscape: scan_list");
-            if (Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN: scanning disk on javafx thread"));
-        }
-
-        try
-        {
-            //File files[] = the_displayed_folder_path.toFile().listFiles();
-
-            //for ( File f : files)
-
-            for ( Path path : path_list_provider.only_folder_paths(Feature_cache.get(Feature.Show_hidden_folders)))
-            {
-                if (dbg) logger.log("✅ Virtual_landscape: looking at path " + path.toAbsolutePath());
-
-                if (aborter.should_abort()) {
-                    logger.log("❗ path manager aborting (1) scan_list "+ path_list_provider.get_folder_path().toAbsolutePath());
-                    aborter.on_abort();
-                    return;
-                }
-
-                paths_holder.add_folder(path);
+            if (dbg) {
+                logger.log("✅ Virtual_landscape: scan_list");
+                if (Platform.isFxApplicationThread())
+                    logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN: scanning disk on javafx thread"));
             }
-            for ( Path path : path_list_provider.only_file_paths(Feature_cache.get(Feature.Show_hidden_files)))
-            {
-                if (dbg) logger.log("✅ Virtual_landscape: looking at path " + path.toAbsolutePath());
 
-                if (aborter.should_abort()) {
-                    logger.log("❗ path manager aborting (2) scan_list "+ path_list_provider.get_folder_path().toAbsolutePath());
-                    aborter.on_abort();
-                    return;
+            try {
+                //File files[] = the_displayed_folder_path.toFile().listFiles();
+
+                //for ( File f : files)
+
+                for (Path path : path_list_provider.only_folder_paths(Feature_cache.get(Feature.Show_hidden_folders))) {
+                    if (dbg) logger.log("✅ Virtual_landscape: looking at path " + path.toAbsolutePath());
+
+                    if (aborter.should_abort()) {
+                        logger.log("❗ path manager aborting (1) scan_list " + path_list_provider.get_folder_path().toAbsolutePath());
+                        aborter.on_abort();
+                        return;
+                    }
+
+                    paths_holder.add_folder(path);
                 }
-                paths_holder.add_file( path, show_icons, owner);
-                // this will start one virtual thread per image to prefill the image property cache
+                for (Path path : path_list_provider.only_file_paths(Feature_cache.get(Feature.Show_hidden_files))) {
+                    if (dbg) logger.log("✅ Virtual_landscape: looking at path " + path.toAbsolutePath());
+
+                    if (aborter.should_abort()) {
+                        logger.log("❗ path manager aborting (2) scan_list " + path_list_provider.get_folder_path().toAbsolutePath());
+                        aborter.on_abort();
+                        return;
+                    }
+                    paths_holder.add_file(path, show_icons, owner);
+                    // this will start one virtual thread per image to prefill the image property cache
+                }
+            } catch (InvalidPathException e) {
+                logger.log("❗ Browsing error: " + e);
+                receive_error(Error_type.NOT_FOUND);
+            } catch (SecurityException e) {
+                logger.log("❗ Browsing error: " + e);
+                receive_error(Error_type.DENIED);
+            } catch (Exception e) {
+                logger.log("❗ Browsing error: " + e);
+                receive_error(Error_type.ERROR);
             }
-        }
-        catch (InvalidPathException e)
-        {
-            logger.log("❗ Browsing error: "+e);
-            receive_error(Error_type.NOT_FOUND);
-        }
-        catch (SecurityException e)
-        {
-            logger.log("❗ Browsing error: "+e);
-            receive_error(Error_type.DENIED);
-        }
-        catch (Exception e)
-        {
-            logger.log("❗ Browsing error: "+e);
-            receive_error(Error_type.ERROR);
-        }
 
-        if ( dbg) logger.log("✅ Virtual_landscape: looking at path Virtual_landscape: scan_list ends");
-
+            if (dbg) logger.log("✅ Virtual_landscape: looking at path Virtual_landscape: scan_list ends");
+        }
     }
 
 
@@ -2510,7 +2472,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     //**********************************************************
     {
 
-        try (Perf p = new Perf("1. refresh_UI_on_fx_thread"))
+        try (Perf p = new Perf("refresh_UI_on_fx_thread"))
         {
             if (dbg) logger.log("✅ refresh_UI_on_fx_thread from: " + from);
 
@@ -2544,7 +2506,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     public void compute_geometry(String reason, Hourglass progress_window)
     //**********************************************************
     {
-        try (Perf p1 = new Perf("2. compute_geometry")) {
+        try (Perf p1 = new Perf("compute_geometry")) {
             if (dbg)
                 logger.log("\n✅ compute_geometry reason=" + reason + " current_vertical_offset=" + current_vertical_offset);
             if (scroll_dbg)
@@ -2604,7 +2566,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             int final_column_increment_for_folders = column_increment_for_folders;
             int final_column_increment_for_icons = column_increment_for_icons;
             Runnable r = () -> {
-                try (Perf p2 = new Perf("3. compute_geometry THREADED part")) {
+                try (Perf p2 = new Perf("compute_geometry THREADED part")) {
 
                     items_are_ready.set(false);
                     future_pane_content.clear();
@@ -2618,7 +2580,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     p = process_folders(Feature_cache.get(Feature.Show_single_column), row_increment_for_dirs, final_column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
                     if (dbg) logger.log("✅ process_folders took " + (System.currentTimeMillis() - start) + " ms");
                     p = new Point2D(p.getX(), p.getY() + MARGIN_Y);
-                    p = process_non_iconized_files(Feature_cache.get(Feature.Show_single_column), final_column_increment_for_folders, scene_width, p);
+                    p = process_non_iconized_items(Feature_cache.get(Feature.Show_single_column), final_column_increment_for_folders, scene_width, p);
                     p = new Point2D(p.getX(), p.getY() + MARGIN_Y);
                     start = System.currentTimeMillis();
                     process_iconized_items(Feature_cache.get(Feature.Show_single_column), icon_size, final_column_increment_for_icons, scene_width, p);
