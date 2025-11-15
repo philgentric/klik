@@ -128,7 +128,7 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
     //**********************************************************
     {
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
-        logger.log(Stack_trace_getter.get_stack_trace("Image_properties_RAM_cache prefill"));
+        //logger.log(Stack_trace_getter.get_stack_trace("Image_properties_RAM_cache prefill"));
         Actor_engine.run(image_properties_actor,imp,null,logger);
     }
 
