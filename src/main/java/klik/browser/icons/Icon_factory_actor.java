@@ -306,12 +306,11 @@ public class Icon_factory_actor implements Actor
         {
             properties = new Image_properties(image_from_disk.getWidth(), image_from_disk.getHeight(), Rotation.normal);
             image_properties_RAM_cache.inject(destination.get_path_for_display_icon_destination(), properties,true);
-            logger.log("properties computed "+properties.to_string()+ "for path :"+destination.get_path_for_display_icon_destination());
+            if ( dbg) logger.log("properties computed "+properties.to_string()+ "for path :"+destination.get_path_for_display_icon_destination());
         }
         else {
-            logger.log("properties from cache "+properties.to_string()+ "for path :"+destination.get_path_for_display_icon_destination());
+            if ( dbg) logger.log("properties from cache "+properties.to_string()+ "for path :"+destination.get_path_for_display_icon_destination());
         }
-        logger.log("image from disk "+image_from_disk.getWidth());
         return Optional.of(new Image_and_properties(image_from_disk,properties));
     }
 

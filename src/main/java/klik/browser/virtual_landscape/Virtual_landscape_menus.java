@@ -511,7 +511,7 @@ public class Virtual_landscape_menus
         Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
         context_menu.getItems().add(menu);
         {
-            Menu ram = new Menu(My_I18n.get_I18n_string("RAM_Caches_Cleaming",owner,logger));
+            Menu ram = new Menu(My_I18n.get_I18n_string("RAM_Caches_Cleaning",owner,logger));
             Look_and_feel_manager.set_menu_item_look(ram,owner,logger);
             menu.getItems().add(ram);
             Menu_items.add_menu_item2("Clear_All_RAM_Caches",
@@ -566,6 +566,8 @@ public class Virtual_landscape_menus
     public void clear_all_RAM_caches()
     //**********************************************************
     {
+        Browsing_caches.clear_all_caches(logger);
+        /*
         clear_image_properties_RAM_cache();
         logger.log("✅ Image properties RAM cache cleared");
         clear_scroll_position_cache();
@@ -574,7 +576,7 @@ public class Virtual_landscape_menus
         logger.log("✅ Image comparators RAM caches cleared");
         clear_image_feature_vector_RAM_cache();
         logger.log("✅ Image feature vector RAM cache cleared");
-
+        */
     }
 
     //**********************************************************

@@ -20,7 +20,7 @@ public record Aspect_ratio_comparator(
     public Aspect_ratio_comparator
     //**********************************************************
     {
-        System.out.println("Aspect_ratio_comparator");
+        //System.out.println("Aspect_ratio_comparator");
     }
 
     //**********************************************************

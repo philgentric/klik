@@ -49,26 +49,32 @@ public class Browsing_caches
 
 
     //**********************************************************
-    public static void clear_all_caches()
+    public static void clear_all_caches(Logger logger)
     //**********************************************************
     {
         scroll_position_cache.clear();
+        logger.log("✅ scroll position RAM cache cleared");
+
         for ( Image_cache_interface x : image_caches.values())
         {
             x.clear_RAM_cache();
         }
+        logger.log("✅ All iage RAM caches cleared");
         for (Similarity_cache x : similarity_cache_of_caches.values())
         {
             x.clear_RAM_cache();
         }
+        logger.log("✅ All similarity RAM caches cleared");
         for (Image_properties_RAM_cache x : image_properties_RAM_cache_of_caches.values())
         {
             x.clear_RAM_cache();
         }
+        logger.log("✅ All image properties RAM caches cleared");
         for (Feature_vector_cache x : fv_cache_of_caches.values())
         {
             x.clear_RAM_cache();
         }
+        logger.log("✅ All feature vector RAM caches cleared");
     }
 
 
