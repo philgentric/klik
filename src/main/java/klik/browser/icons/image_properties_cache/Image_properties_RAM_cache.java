@@ -103,7 +103,7 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
         {
             //logger.log(instance_number+" OK aborter "+aborter.name+" reason="+aborter.reason);
         }
-        logger.log(Stack_trace_getter.get_stack_trace("Image_properties_RAM_cache get"));
+        //logger.log(Stack_trace_getter.get_stack_trace("Image_properties_RAM_cache get"));
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
         if ( tr == null)
         {

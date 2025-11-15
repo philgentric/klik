@@ -8,6 +8,7 @@
 package klik.browser.virtual_landscape;
 
 import javafx.stage.Window;
+import klik.properties.Sort_files_by;
 import klik.util.execute.actor.Aborter;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klik.util.files_and_paths.Extensions;
@@ -56,7 +57,7 @@ public class Paths_holder
 
 
     //**********************************************************
-    void add_file(Path path, boolean show_icons_instead_of_text, Window stage)
+    void add_file(Path path, boolean show_icons_instead_of_text, Window owner)
     //**********************************************************
     {
         if ( !show_icons_instead_of_text )
@@ -77,7 +78,7 @@ public class Paths_holder
                 if ( extension.equalsIgnoreCase("MKV"))
                 {
                     // special dirty case: MKV can be audio OR video ...
-                    if ( Guess_file_type.does_this_file_contain_a_video_track(path,stage,logger))
+                    if ( Guess_file_type.does_this_file_contain_a_video_track(path,owner,logger))
                     {
                         iconized_paths.add(path);
                     }
@@ -110,10 +111,12 @@ public class Paths_holder
 
         if (Guess_file_type.is_this_extension_an_image(extension))
         {
-            // calling this will pre-populate the property cache
-            image_properties_RAM_cache.prefill_cache(path,aborter);
-            if (dbg) logger.log("calling image properties cache prefill from path manager do_file()");
-
+            if ( Sort_files_by.need_image_properties(path.getParent(),owner))
+            {
+                // calling this will pre-populate the property cache
+                image_properties_RAM_cache.prefill_cache(path, aborter);
+                if (dbg) logger.log("calling image properties cache prefill from path manager do_file()");
+            }
             iconized_paths.add(path);
             return;
         }
