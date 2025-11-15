@@ -3,6 +3,7 @@
 
 package klik.properties.boolean_features;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -24,9 +25,9 @@ import java.nio.file.Paths;
 public class Preferences_stage
 //**********************************************************
 {
-    public static final int WIDTH = 1200;
+    //public static final int WIDTH = 1500;
     public static final String EXPLANATION = "_Explanation";
-    public static final int HEIGHT = 1000;
+    public static final int HEIGHT = 900;
     public final VBox vbox_basic;
     public final VBox vbox_advanced;
     public final VBox vbox_experimental;
@@ -110,10 +111,8 @@ public class Preferences_stage
     //**********************************************************
     {
         this.logger = logger;
-        ScrollPane sp = new ScrollPane();
-        sp.setPrefSize(WIDTH, HEIGHT);
+        //sp.setPrefSize(WIDTH, HEIGHT);
         VBox vBox = new VBox();
-        sp.setContent(vBox);
         HBox top = new HBox();
         vBox.getChildren().add(top);
         HBox bottom = new HBox();
@@ -130,22 +129,32 @@ public class Preferences_stage
 
         vbox_debug = new VBox();
         bottom.getChildren().add(vbox_debug);
+        define();
 
 
-        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         stage = new Stage();
-        stage.setHeight(HEIGHT);
-        stage.setWidth(WIDTH);
-        stage.initOwner(owner);
+        //stage.setHeight(HEIGHT);
+        //stage.setWidth(WIDTH);
 
-        Scene scene = new Scene(sp,WIDTH , HEIGHT, Color.WHITE);
+        /*
+        ScrollPane sp = new ScrollPane(vBox);
+        sp.setFitToHeight(true);
+        sp.setFitToWidth(true);
+        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        Scene scene = new Scene(sp, Color.WHITE);
+        */
+
+        Scene scene = new Scene(vBox, Color.WHITE);
+
         stage.setTitle(title);
         stage.setScene(scene);
+        stage.initOwner(owner);
+        stage.setX(owner.getX()+100);
+        stage.setY(owner.getY()+10);
         stage.show();
-
-        define();
+        stage.sizeToScene();
     }
 
     //**********************************************************

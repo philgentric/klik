@@ -6,6 +6,7 @@
 //SOURCES ./Graph_for_meters.java
 package klik.util.execute.ram_and_threads_meter;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.layout.HBox;
@@ -37,12 +38,12 @@ public class RAM_and_threads_meters_stage
     }
 
     //**********************************************************
-    private static Stage create_stage(Window originator,Logger logger)
+    private static Stage create_stage(Window owner,Logger logger)
     //**********************************************************
     {
         Stage stage = new Stage();
         //stage.initOwner(originator);
-        stage.initOwner(null);
+        stage.initOwner(owner);
 
         HBox hbox = new HBox();
         int width = 0;
@@ -84,6 +85,7 @@ public class RAM_and_threads_meters_stage
             x_offset += width;
             Graph_for_meters graph = new Graph_for_meters("MB RAM", the_scale_max, value_getter, real_to_pixel, x_offset,Color.BLUE, stage,logger);
 
+            width += graph.get_width();
             hbox.getChildren().add(graph.vbox);
             Scheduled_thread_pool.execute(graph.runnable, HEARTH_BEAT, TimeUnit.MILLISECONDS);
         }
@@ -94,9 +96,6 @@ public class RAM_and_threads_meters_stage
         Look_and_feel_manager.set_scene_look(scene,stage, logger);
         double context_length = Math.round((double)HEARTH_BEAT*(double)(Graph_for_meters.how_many_rectangles)/100.0)/10.0;
         stage.setTitle("Last "+context_length+" seconds");
-        stage.setMinWidth(width);
-        stage.setMinHeight(DISPLAY_PIXEL_HEIGHT+100);
-        stage.show();
 
         ContextMenu context_menu = new ContextMenu();
         Menu_items.add_menu_item("Call_GC",
@@ -111,6 +110,12 @@ public class RAM_and_threads_meters_stage
         scene.setOnMouseClicked(event -> {
             context_menu.show(stage, event.getScreenX(), event.getScreenY());
         });
+
+        stage.setMinWidth(width+100);
+        stage.setMinHeight(DISPLAY_PIXEL_HEIGHT+100);
+
+        stage.show();
+        //Platform.runLater(()->stage.sizeToScene());
 
         return stage;
     }

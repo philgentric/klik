@@ -772,7 +772,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             {
                 long local_incr = System.currentTimeMillis();
                 Double cache_aspect_ratio = Double.valueOf(1.0);
-                if ( need_image_properties) {
+                if ( need_image_properties)
+                {
                     // this is a BLOCKING call
                     Image_properties ip = get_image_properties_ram_cache().get(path, aborter, null,owner);
                     if (ip == null) {

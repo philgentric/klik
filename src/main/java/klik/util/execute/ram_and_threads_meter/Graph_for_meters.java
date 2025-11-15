@@ -130,6 +130,7 @@ public class Graph_for_meters
         };
     }
 
+
     //**********************************************************
     private void create_scale(Stage stage)
     //**********************************************************
@@ -212,6 +213,6 @@ public class Graph_for_meters
     }
 
     public double get_width() {
-        return WIDTH+2*LEFT;
+        return WIDTH+2*LEFT+ADJUST;
     }
 }
