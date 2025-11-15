@@ -136,6 +136,40 @@ public class Path_list_provider_for_file_system implements Path_list_provider
 
     //**********************************************************
     @Override
+    public Files_and_folders files_and_folders(boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter)
+    //**********************************************************
+    {
+        List<Path> file_paths = new ArrayList<>();
+        List<Path> folder_paths = new ArrayList<>();
+        File dir = folder_path.toFile();
+        File[] files = dir.listFiles();
+        if ( files == null) return new Files_and_folders(file_paths,folder_paths);
+        for (File file : files)
+        {
+            if ( file.isDirectory() )
+            {
+                if ( ! consider_also_hidden_folders)
+                {
+                    if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                }
+                folder_paths.add(file.toPath());
+            }
+            else
+            {
+                if (! consider_also_hidden_files)
+                {
+                    if ( Guess_file_type.should_ignore(file.toPath(),logger)) continue;
+                }
+                file_paths.add(file.toPath());
+
+            }
+            if ( aborter.should_abort()) break;
+        }
+        return new Files_and_folders(file_paths,folder_paths);
+    }
+
+    //**********************************************************
+    @Override
     public List<Path> only_folder_paths(boolean consider_also_hidden_folders)
     //**********************************************************
     {
@@ -186,6 +220,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
     public Change get_Change() {
         return change;
     }
+
 
 
     //**********************************************************

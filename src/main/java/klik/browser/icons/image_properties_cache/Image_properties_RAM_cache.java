@@ -106,7 +106,8 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
         Image_properties_message imp = new Image_properties_message(p,this,aborter,logger);
         if ( tr == null)
         {
-            image_properties_actor.run(imp); // blocking call
+            // blocking call
+            image_properties_actor.run(imp);
             Image_properties x = cache.get(key_from_path(p));
             if ( x == null)
             {

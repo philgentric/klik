@@ -341,4 +341,32 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     public Change get_Change() {
         return change;
     }
+
+    @Override
+    public Files_and_folders files_and_folders(boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter) {
+
+        List<Path> files = new ArrayList<>();
+        List<Path> folders = new ArrayList<>();
+        Files_and_folders returned = new Files_and_folders(files,folders);
+        for ( String s : paths)
+        {
+            if ( (new File(s)).isDirectory())
+            {
+                if (! consider_also_hidden_folders)
+                {
+                    if ( Guess_file_type.should_ignore(Path.of(s),logger)) continue;
+                }
+                folders.add(Path.of(s));
+            }
+            else
+            {
+                if (! consider_also_hidden_files)
+                {
+                    if ( Guess_file_type.should_ignore(Path.of(s),logger)) continue;
+                }
+                files.add(Path.of(s));
+            }
+        }
+        return returned;
+    }
 }

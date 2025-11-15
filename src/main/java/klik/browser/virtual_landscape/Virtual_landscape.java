@@ -38,6 +38,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.path_lists.Files_and_folders;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.actor.Job_termination_reporter;
@@ -607,7 +608,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if ( returned != null) return returned;
 
         // resort
-        if ( dbg) logger.log("RESORTING iconized items");
+        //if ( dbg)
+            logger.log("RESORTING iconized items");
         sort_iconized_items(from);
         return iconized_sorted_queue.poll();
     }
@@ -675,6 +677,23 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
 
         try(Perf p = new Perf("process_iconized_items")) {
+
+
+            Supplier<Feature_vector_cache> fv_cache_supplier = () ->
+            {
+                if (fv_cache != null) return fv_cache;
+                double x = owner.getX() + 100;
+                double y = owner.getY() + 230;
+                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(aborter);
+                List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
+                Feature_vector_cache.Paths_and_feature_vectors images_and_feature_vectors =
+                        Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter, logger);
+                fv_cache = images_and_feature_vectors.fv_cache();
+                return fv_cache;
+            };
+
+            boolean need_image_properties = Sort_files_by.need_image_properties(path_list_provider.get_folder_path(),owner);
+
             double file_button_height = 2 * Non_booleans_properties.get_font_size(owner, logger);
 
             double max_y_in_row[] = new double[1];
@@ -687,13 +706,18 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             //boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
             //boolean show_single_column = Feature_cache.get(Feature.Show_single_column);
             //if ( show_single_column) show_icons_for_files = false;
-            for (Path path : paths_holder.iconized_paths) {
+            for (Path path : paths_holder.iconized_paths)
+            {
                 Item item;
                 //if (show_icons_for_files)
                 {
                     item = all_items_map.get(path);
-                    if (item == null) {
-                        image_properties_in_flight++;
+                    if (item == null)
+                    {
+                        if ( need_image_properties)
+                        {
+                            image_properties_in_flight++;
+                        }
                     }
                 }
             }
@@ -719,28 +743,24 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     {
                         // depending on the sort order
 
-                        if ( Sort_files_by.need_image_properties(path_list_provider.get_folder_path(),owner))
+                        if ( need_image_properties)
                         {
                             // ask for image properties fetch in threads
                             get_image_properties_ram_cache().get(path, aborter, tr);
-                        }
-                        else
-                        {
-                            //logger.log("not prefiling image properties cache");
-                            wait_for_end.countDown();
                         }
                     }
                 }
             }
             if (image_properties_in_flight > 1) {
                 // wait for all properties to become available
-                //logger.log("going to wait");
+                logger.log("going to wait");
+                long start2 = System.nanoTime();
                 try {
                     wait_for_end.await();
                 } catch (InterruptedException e) {
                     logger.log("" + e);
                 }
-                //logger.log("wait terminated");
+                logger.log("wait terminated "+(System.nanoTime()-start2)+" ns");
             }
             if (dbg)
                 logger.log("✅ getting image properties took " + (System.currentTimeMillis() - start) + " milliseconds");
@@ -750,31 +770,19 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             long getting_image_properties_from_cache = 0;
             for (Path path : paths_holder.iconized_paths)
             {
-                Double cache_aspect_ratio = Double.valueOf(1.0);
                 long local_incr = System.currentTimeMillis();
-                // this is a BLOCKING call
-                Image_properties ip = get_image_properties_ram_cache().get(path, aborter, null);
-                if (ip == null)
-                {
-                    if (dbg) logger.log(("✅ Warning: image property cache miss for: " + path));
-                }
-                else
-                {
-                    cache_aspect_ratio = ip.get_aspect_ratio();
+                Double cache_aspect_ratio = Double.valueOf(1.0);
+                if ( need_image_properties) {
+                    // this is a BLOCKING call
+                    Image_properties ip = get_image_properties_ram_cache().get(path, aborter, null);
+                    if (ip == null) {
+                        if (dbg) logger.log(("✅ Warning: image property cache miss for: " + path));
+                    } else {
+                        cache_aspect_ratio = ip.get_aspect_ratio();
+                    }
                 }
                 getting_image_properties_from_cache += System.currentTimeMillis() - local_incr;
-                Supplier<Feature_vector_cache> fv_cache_supplier = () ->
-                {
-                    if (fv_cache != null) return fv_cache;
-                    double x = owner.getX() + 100;
-                    double y = owner.getY() + 230;
-                    Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(aborter);
-                    List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
-                    Feature_vector_cache.Paths_and_feature_vectors images_and_feature_vectors =
-                            Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter, logger);
-                    fv_cache = images_and_feature_vectors.fv_cache();
-                    return fv_cache;
-                };
+
 
                 Item item = new Item_file_with_icon(
                         the_Scene,
@@ -782,12 +790,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         icon_factory_actor,
                         null,
                         cache_aspect_ratio,
-                        //browsing_caches.image_properties_RAM_cache,
                         fv_cache_supplier,
                         path,
                         path_list_provider,
                         this,
-
                         owner,
                         aborter,
                         logger);
@@ -818,13 +824,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 if (dbg)
                     logger.log("✅  Virtual_landscape process_iconified_items " + path + " ar:" + ((Item_file_with_icon) item).aspect_ratio);
 
-                if (show_icons_for_files) {
+                if (show_icons_for_files)
+                {
                     //logger.log("recomputing position for "+item.get_item_path());
                     //logger.log(path+" point ="+point.getX()+"-"+point.getY());
                     point = compute_next_Point2D_for_icons(point, item,
                             icon_size, icon_size,
                             scene_width, single_column, max_y_in_row, current_row);
-                } else {
+                }
+                else
+                {
                     point = new_Point_for_files_and_dirs(point, item,
                             column_increment,
                             file_button_height, scene_width, single_column);
@@ -1019,7 +1028,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                                        Path folder_path)
     //**********************************************************
     {
-        try(Perf perf = new Perf("6. process_one_folder_plain")) {
+        try(Perf perf = new Perf("process_one_folder_plain")) {
             Item folder_item = all_items_map.get(folder_path);
             if (folder_item == null) {
                 Color color = My_colors.load_color_for_path(folder_path, owner, logger);
@@ -2379,7 +2388,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void scan_list()
     //**********************************************************
     {
-        try(Perf p = new Perf("scan_list")) {
+        try(Perf p = new Perf("scan_list"))
+        {
             boolean show_icons = Feature_cache.get(Feature.Show_icons_for_files);
             if (Feature_cache.get(Feature.Show_single_column)) show_icons = false;
 
@@ -2393,8 +2403,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 //File files[] = the_displayed_folder_path.toFile().listFiles();
 
                 //for ( File f : files)
+                Files_and_folders faf = path_list_provider.files_and_folders(Feature_cache.get(Feature.Show_hidden_files),Feature_cache.get(Feature.Show_hidden_folders), aborter);
 
-                for (Path path : path_list_provider.only_folder_paths(Feature_cache.get(Feature.Show_hidden_folders))) {
+                for (Path path : faf.folders())
+                {
                     if (dbg) logger.log("✅ Virtual_landscape: looking at path " + path.toAbsolutePath());
 
                     if (aborter.should_abort()) {
@@ -2405,7 +2417,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
                     paths_holder.add_folder(path);
                 }
-                for (Path path : path_list_provider.only_file_paths(Feature_cache.get(Feature.Show_hidden_files))) {
+                for (Path path : faf.files())
+                {
                     if (dbg) logger.log("✅ Virtual_landscape: looking at path " + path.toAbsolutePath());
 
                     if (aborter.should_abort()) {

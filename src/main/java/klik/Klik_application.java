@@ -219,7 +219,7 @@ public class Klik_application extends Application
         String how_many_times = Shared_services.main_properties().get("HOW_MANY_TIMES");
         if ( how_many_times != null) count = Integer.parseInt(how_many_times);
         count ++;
-        logger.log("count="+count);
+        logger.log("Q: How many times Klik was started ? A: "+count);
         Shared_services.main_properties().set("HOW_MANY_TIMES",""+count);
         if ( count> 10)
         {
