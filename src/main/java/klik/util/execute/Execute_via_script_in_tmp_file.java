@@ -322,7 +322,7 @@ public class Execute_via_script_in_tmp_file
                 }
             };
             Actor_engine.execute(r,"Monitor execution process",logger);
-            
+
 
             try {
                 if (the_command_process.waitFor(10, TimeUnit.MINUTES))
@@ -335,14 +335,7 @@ public class Execute_via_script_in_tmp_file
                     else if ( dbg) logger.log("Process exited with value: " + exitValue);
                     // wait a bit before aborting the tailer or we might miss the output
 
-                    Actor_engine.execute(()->{
-                        try {
-                            Thread.sleep(10000);
-                        } catch (InterruptedException e) {
-                            logger.log(""+e);
-                        }
-                    },"wait a bit before aborting tailer",logger);
-
+                    if ( show_window) Platform.runLater(() ->Popups.info_popup("'"+the_command+"' ➡\uFE0F done",null,owner,logger));
                 }
 
             } catch (InterruptedException e) {
