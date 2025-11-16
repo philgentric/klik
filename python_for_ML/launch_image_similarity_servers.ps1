@@ -1,14 +1,11 @@
 <#  ===================================================================
-    Run‑Servers.ps1
-    PowerShell translation of the Bash snippet you posted.
-
     Usage
-    -----
-    # From a normal PowerShell prompt
-    .\Run‑Servers.ps1 8000 5000 5001 5002
+
+
+    powershell -ExecutionPolicy Bypass -File .\launch_image_similarity_servers.ps1 8000 5000 5001 5002 .. etc
 
     This starts a UDP‑monitoring server on port 8000 and
-    launches a MobileNet‑embedding server on each of the remaining
+    launches a MobileNet‑embedding server on each of the remaining HTTP
     ports (5000, 5001, 5002, …).
 
     ================================================================== #>
