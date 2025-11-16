@@ -1,5 +1,9 @@
 <# ------------------------------------
 
+usage:
+
+powershell -ExecutionPolicy Bypass -File .\setup_windows_env.ps1
+
 prerequisites:
 - have a NVIDIA GPU on your PC
 - install the lattest drivers
