@@ -269,31 +269,16 @@ public class Execute_via_script_in_tmp_file
         String uuid = UUID.randomUUID().toString();
         Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
         String log_file_name = klik_trash.resolve("log_"+uuid+".log").toString();
-        logger.log("Going to execute (Windows)->" + the_command+"<-\nvia script in tmp file, logs in : "+log_file_name);
+        logger.log("Going to execute (Windows)->" + the_command+"<-");
 
-        String script_content = the_command + " > "+log_file_name;
 
-        // Write script to temporary file
-        Path script_path;
-        try {
-            script_path = klik_trash.resolve("cmd_"+ uuid+".bat");
-            //if ( Files.exists(script_path)) Files.delete(script_path);
-            Files.write(script_path, script_content.getBytes());
-        }
-        catch (IOException e) {
-            logger.log("Error with script file: " + e);
-            return;
-        }
-
-        // execute the script
-        // "cmd.exe", "/c", "C:\\Scripts\\install‑ffmpeg.bat"   // full path to your .bat
-        // or
-        // "cmd.exe", "/c", "choco", "install", "ffmpeg", "-y"
-
-        List<String> cmds = new ArrayList<>();
-        cmds.add("cmd.exe");
-        cmds.add("/c");
-        cmds.add(script_path.toAbsolutePath().toString());
+        List<String> cmds = List.of(
+                "powershell.exe",
+                "-Command",
+                "Start-Process", "cmd.exe",
+                "-ArgumentList", "/c \""+the_command+"\"",
+                "-Verb", "RunAs"
+        );
 
         ProcessBuilder pb = new ProcessBuilder(cmds);
         pb.redirectErrorStream(true); // Merge stderr into stdout
@@ -337,78 +322,7 @@ public class Execute_via_script_in_tmp_file
                 }
             };
             Actor_engine.execute(r,"Monitor execution process",logger);
-
-            Aborter aborter_local = new Aborter("Execute_via_script_in_tmp_file tailer", logger);
-
-            // use a Tail-er to read the log file as it is written
-            TailerListener listener = new TailerListener()
-            {
-                Tailer tailer;
-                long last = -1;
-                @Override
-                public void init(Tailer tailer)
-                {
-                    logger.log("TailerListener INIT "+tailer.toString());
-                    this.tailer = tailer;
-                    Runnable suicidor = () ->
-                    {
-                        for(;;)
-                        {
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                logger.log("TailerListener monitor interrupted: " + e);
-                                return;
-                            }
-                            if ( last < 0) continue;
-                            if ( aborter_local.should_abort())
-                            {
-                                if ( dbg) logger.log("TailerListener: abort detected, stopping tailer");
-                                tailer.stop();
-                                if ( output_queue != null) output_queue.add(END);
-                                if ( show_window) Platform.runLater(() ->Popups.info_popup("'"+the_command+"' ➡\uFE0F done",null,owner,logger));
-                                return;
-                            }
-                            if ( System.currentTimeMillis()-last> 600_000)
-                            {
-                                if ( dbg) logger.log("TailerListener: stopping tailer on timeout");
-                                tailer.stop();
-                                if ( output_queue != null) output_queue.add(END);
-                                aborter_local.abort("TailerListener timeout");
-                                return;
-                            }
-                        }
-                    };
-                    Actor_engine.execute(suicidor,"Monitor Tailer for end of script",logger);
-
-                }
-
-                @Override
-                public void fileNotFound() {
-                    logger.log("❗Warning: TailerListener Log file not found: " + log_file_name);
-                }
-
-                @Override
-                public void fileRotated() {
-                    if ( dbg) logger.log("❗Warning: TailerListener Log file ROTATED: " + log_file_name);
-                }
-
-                @Override
-                public void handle(String line) {
-                    logger.log("TailerListener, adding output :"+line);
-                    if ( output_queue != null) output_queue.add(line);
-                    last = System.currentTimeMillis();
-                }
-
-                @Override
-                public void handle(Exception ex) {
-                    logger.log("❌ WARNING: TailerListener, Error tailing log file: " + ex);
-                }
-            };
-
-            Tailer tailer = new Tailer(Path.of(log_file_name).toFile(),listener);
-
-            Actor_engine.execute(tailer,"Run tailer for execution log",logger);
+            
 
             try {
                 if (the_command_process.waitFor(10, TimeUnit.MINUTES))
@@ -427,7 +341,6 @@ public class Execute_via_script_in_tmp_file
                         } catch (InterruptedException e) {
                             logger.log(""+e);
                         }
-                        aborter_local.abort("process ended");
                     },"wait a bit before aborting tailer",logger);
 
                 }
