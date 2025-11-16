@@ -21,6 +21,8 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -74,11 +76,24 @@ public class Execute_via_script_in_tmp_file
     private static void execute_internal(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
     //**********************************************************
     {
+        if ( Guess_OS.guess(owner,logger) == Operating_system.Windows)
+        {
+            execute_internal_windows(the_command,show_window,output_queue,owner,logger);
+            return;
+        }
+        execute_internal_nix(the_command,show_window,output_queue,owner,logger);
+    }
+
+    //**********************************************************
+    private static void execute_internal_nix(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
+    //**********************************************************
+    {
 
         String uuid = UUID.randomUUID().toString();
         Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
         String log_file_name = klik_trash.resolve("log_"+uuid+".log").toString();
-        logger.log("Going to execute ->" + the_command+"<-\nvia script in tmp file, logs in : "+log_file_name);
+        logger.log("Going to execute (Nix) ->" + the_command+"<-\nvia script in tmp file, logs in : "+log_file_name);
+
         String script_content = "#!/bin/bash\n"
                 + the_command + " > "+log_file_name+" 2>&1";
 
@@ -91,7 +106,7 @@ public class Execute_via_script_in_tmp_file
             Files.setPosixFilePermissions(script_path, PosixFilePermissions.fromString("rwxr-xr-x"));
         }
         catch (UnsupportedOperationException e) {
-            logger.log("THIS IS NORMAL ON WINDOWS: " + e);
+            logger.log("FATAL ! don't use NIX command on WINDOWS: " + e);
             return;
         }
         catch (IOException e) {
@@ -244,5 +259,187 @@ public class Execute_via_script_in_tmp_file
             logger.log(""+e);
         }
     }
+
+
+    //**********************************************************
+    private static void execute_internal_windows(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
+    //**********************************************************
+    {
+
+        String uuid = UUID.randomUUID().toString();
+        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        String log_file_name = klik_trash.resolve("log_"+uuid+".log").toString();
+        logger.log("Going to execute (Windows)->" + the_command+"<-\nvia script in tmp file, logs in : "+log_file_name);
+
+        String script_content = the_command + " > "+log_file_name;
+
+        // Write script to temporary file
+        Path script_path;
+        try {
+            script_path = klik_trash.resolve("cmd_"+ uuid+".bat");
+            //if ( Files.exists(script_path)) Files.delete(script_path);
+            Files.write(script_path, script_content.getBytes());
+        }
+        catch (IOException e) {
+            logger.log("Error with script file: " + e);
+            return;
+        }
+
+        // execute the script
+        // "cmd.exe", "/c", "C:\\Scripts\\install‑ffmpeg.bat"   // full path to your .bat
+        // or
+        // "cmd.exe", "/c", "choco", "install", "ffmpeg", "-y"
+
+        List<String> cmds = new ArrayList<>();
+        cmds.add("cmd.exe");
+        cmds.add("/c");
+        cmds.add(script_path.toAbsolutePath().toString());
+
+        ProcessBuilder pb = new ProcessBuilder("/bin/bash", script_path.toString());
+        pb.redirectErrorStream(true); // Merge stderr into stdout
+        pb.redirectErrorStream(true); // Merge stderr into stdout
+
+        if ( dbg)
+        {
+            logger.log("Working directory: " + pb.directory()+"\nCommand: " + String.join(" ", pb.command()));
+
+            // Add environment variables debugging
+            /*Map<String, String> env = pb.environment();
+            logger.log("Environment variables:");
+            env.forEach((k, v) -> logger.log(k + "=" + v));
+            */
+        }
+        pb.inheritIO();
+        try {
+            if ( dbg) logger.log("Executing:->"+the_command+"<-");
+            Process the_command_process = pb.start();
+
+            // Read output in a separate thread to prevent blocking
+            // this is a bit of a too-careful, the output is redirected
+            // so normally nothing will come out of here
+            Runnable r =() -> {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(the_command_process.getInputStream())))
+                {
+                    //logger.log("going to read Process output");
+                    String line;
+                    while ((line = reader.readLine()) != null)
+                    {
+                        logger.log("Process output: " + line);
+                        if ( output_queue != null) output_queue.add(line);
+                    }
+                    //logger.log("End of Process output");
+
+                }
+                catch (IOException e)
+                {
+                    logger.log("Error reading process output: " + e);
+                }
+            };
+            Actor_engine.execute(r,"Monitor execution process",logger);
+
+            Aborter aborter_local = new Aborter("Execute_via_script_in_tmp_file tailer", logger);
+
+            // use a Tail-er to read the log file as it is written
+            TailerListener listener = new TailerListener()
+            {
+                Tailer tailer;
+                long last = -1;
+                @Override
+                public void init(Tailer tailer)
+                {
+                    logger.log("TailerListener INIT "+tailer.toString());
+                    this.tailer = tailer;
+                    Runnable suicidor = () ->
+                    {
+                        for(;;)
+                        {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                logger.log("TailerListener monitor interrupted: " + e);
+                                return;
+                            }
+                            if ( last < 0) continue;
+                            if ( aborter_local.should_abort())
+                            {
+                                if ( dbg) logger.log("TailerListener: abort detected, stopping tailer");
+                                tailer.stop();
+                                if ( output_queue != null) output_queue.add(END);
+                                if ( show_window) Platform.runLater(() ->Popups.info_popup("'"+the_command+"' ➡\uFE0F done",null,owner,logger));
+                                return;
+                            }
+                            if ( System.currentTimeMillis()-last> 600_000)
+                            {
+                                if ( dbg) logger.log("TailerListener: stopping tailer on timeout");
+                                tailer.stop();
+                                if ( output_queue != null) output_queue.add(END);
+                                aborter_local.abort("TailerListener timeout");
+                                return;
+                            }
+                        }
+                    };
+                    Actor_engine.execute(suicidor,"Monitor Tailer for end of script",logger);
+
+                }
+
+                @Override
+                public void fileNotFound() {
+                    logger.log("❗Warning: TailerListener Log file not found: " + log_file_name);
+                }
+
+                @Override
+                public void fileRotated() {
+                    if ( dbg) logger.log("❗Warning: TailerListener Log file ROTATED: " + log_file_name);
+                }
+
+                @Override
+                public void handle(String line) {
+                    logger.log("TailerListener, adding output :"+line);
+                    if ( output_queue != null) output_queue.add(line);
+                    last = System.currentTimeMillis();
+                }
+
+                @Override
+                public void handle(Exception ex) {
+                    logger.log("❌ WARNING: TailerListener, Error tailing log file: " + ex);
+                }
+            };
+
+            Tailer tailer = new Tailer(Path.of(log_file_name).toFile(),listener);
+
+            Actor_engine.execute(tailer,"Run tailer for execution log",logger);
+
+            try {
+                if (the_command_process.waitFor(10, TimeUnit.MINUTES))
+                {
+                    int exitValue = the_command_process.exitValue();
+                    if ( exitValue != 0)
+                    {
+                        logger.log("❗Warning Process ->"+the_command+"<- exited with value: " + exitValue);
+                    }
+                    else if ( dbg) logger.log("Process exited with value: " + exitValue);
+                    // wait a bit before aborting the tailer or we might miss the output
+
+                    Actor_engine.execute(()->{
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            logger.log(""+e);
+                        }
+                        aborter_local.abort("process ended");
+                    },"wait a bit before aborting tailer",logger);
+
+                }
+
+            } catch (InterruptedException e) {
+                logger.log("Process wait interrupted: " + e);
+            }
+        } catch (IOException e) {
+            logger.log(""+e);
+        }
+    }
+
+
 
 }
