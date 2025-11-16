@@ -136,19 +136,19 @@ public enum External_application
         switch (this)
         {
             case Ytdlp:
-                return "choco install yt-dlp";
+                return "choco install yt-dlp -y";
             case AcousticID_chromaprint:
-                return "choco install chromaprint";
+                return "choco install chromaprint -y";
             case ImageMagick:
-                return "choco install imagemagick";
+                return "choco install imagemagick -y";
             case FFmpeg:
-                return "choco install ffmpeg";
+                return "choco install ffmpeg -y";
             case Vips:
-                return "choco install vips";
+                return "choco install vips -y";
             case GraphicsMagick:
-                return "choco install graphicsmagick";
+                return "choco install graphicsmagick -y";
             case MediaInfo:
-                return "choco install mediainfo";
+                return "choco install mediainfo -y";
             default:
                 return null;
         }

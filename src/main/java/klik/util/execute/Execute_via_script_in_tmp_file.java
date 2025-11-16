@@ -18,8 +18,10 @@ import org.apache.commons.io.input.TailerListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +74,7 @@ public class Execute_via_script_in_tmp_file
         }
 
     }
+
     //**********************************************************
     private static void execute_internal(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
     //**********************************************************
@@ -261,91 +264,127 @@ public class Execute_via_script_in_tmp_file
     }
 
 
+
     //**********************************************************
-    private static void execute_internal_windows(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
+    private static void execute_internal_windows(
+            String command,
+            boolean show_window,
+            BlockingQueue<String> output_queue,
+            Window owner,
+            Logger logger)
     //**********************************************************
     {
 
-        String uuid = UUID.randomUUID().toString();
-        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
-        String log_file_name = klik_trash.resolve("log_"+uuid+".log").toString();
-        logger.log("Going to execute (Windows)->" + the_command+"<-");
+        logger.log("Requesting elevated execution: " + command);
 
+        /* ------------------------------------------------------------------ */
+        /* 1️⃣  Build a *PowerShell* one‑liner that starts an elevated CMD   */
+        /* ------------------------------------------------------------------ */
 
-        List<String> cmds = List.of(
+        // The whole string that PowerShell sees:
+        //   Start-Process cmd.exe -Verb RunAs -ArgumentList '/c "choco.exe …"' -Wait
+        // We wrap the whole argument list in single quotes so that inner quotes
+        // survive the PowerShell parser.  Inside the quoted argument list we
+        // double‑quote the *actual* command because cmd.exe expects a single
+        // quoted argument when /c is used.
+        String psCmd = String.format(
+                "Start-Process cmd.exe -Verb RunAs -ArgumentList '/c \"%s\"' -Wait",
+                command);
+
+        List<String> psArgs = List.of(
                 "powershell.exe",
-                "-Command",
-                "Start-Process", "cmd.exe",
-                "-ArgumentList", "/c \""+the_command+"\"",
-                "-Verb", "RunAs"
+                "-NoProfile",
+                "-ExecutionPolicy", "Bypass",
+                "-Command", psCmd
         );
 
-        ProcessBuilder pb = new ProcessBuilder(cmds);
-        pb.redirectErrorStream(true); // Merge stderr into stdout
-        pb.redirectErrorStream(true); // Merge stderr into stdout
+        ProcessBuilder pb = new ProcessBuilder(psArgs);
+        /* ------------------------------------------------------------------ */
+        /* 2️⃣  Merge stdout+stderr so we don’t dead‑lock                      */
+        /* ------------------------------------------------------------------ */
+        pb.redirectErrorStream(true);
 
-        if ( dbg)
-        {
-            logger.log("Working directory: " + pb.directory()+"\nCommand: " + String.join(" ", pb.command()));
-
-            // Add environment variables debugging
-            /*Map<String, String> env = pb.environment();
-            logger.log("Environment variables:");
-            env.forEach((k, v) -> logger.log(k + "=" + v));
-            */
+        /* ------------------------------------------------------------------ */
+        /* 3️⃣  Add a *known* path element so that chocolatey is found       */
+        /* ------------------------------------------------------------------ */
+        Map<String, String> env = pb.environment();
+        String programData = System.getenv("ProgramData");
+        if (programData != null) {
+            // On Win10+ chocolatey is installed in %ProgramData%\chocolatey\bin
+            String chocoBin = Paths.get(programData, "chocolatey", "bin")
+                    .toAbsolutePath()
+                    .toString();
+            // Prepend it – elevated shells inherit a *minimal* PATH
+            String oldPath = env.getOrDefault("PATH", "");
+            env.put("PATH", chocoBin + ";" + oldPath);
         }
-        pb.inheritIO();
+
+        /* ------------------------------------------------------------------ */
+        /* 4️⃣  Start the process                                               */
+        /* ------------------------------------------------------------------ */
+        Process proc;
         try {
-            if ( dbg) logger.log("Executing:->"+the_command+"<-");
-            Process the_command_process = pb.start();
-
-            // Read output in a separate thread to prevent blocking
-            // this is a bit of a too-careful, the output is redirected
-            // so normally nothing will come out of here
-            Runnable r =() -> {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(the_command_process.getInputStream())))
-                {
-                    //logger.log("going to read Process output");
-                    String line;
-                    while ((line = reader.readLine()) != null)
-                    {
-                        logger.log("Process output: " + line);
-                        if ( output_queue != null) output_queue.add(line);
-                    }
-                    //logger.log("End of Process output");
-
-                }
-                catch (IOException e)
-                {
-                    logger.log("Error reading process output: " + e);
-                }
-            };
-            Actor_engine.execute(r,"Monitor execution process",logger);
-
-
-            try {
-                if (the_command_process.waitFor(10, TimeUnit.MINUTES))
-                {
-                    int exitValue = the_command_process.exitValue();
-                    if ( exitValue != 0)
-                    {
-                        logger.log("❗Warning Process ->"+the_command+"<- exited with value: " + exitValue);
-                    }
-                    else if ( dbg) logger.log("Process exited with value: " + exitValue);
-                    // wait a bit before aborting the tailer or we might miss the output
-
-                    if ( show_window) Platform.runLater(() ->Popups.info_popup("'"+the_command+"' ➡\uFE0F done",null,owner,logger));
-                }
-
-            } catch (InterruptedException e) {
-                logger.log("Process wait interrupted: " + e);
-            }
+            proc = pb.start();
         } catch (IOException e) {
-            logger.log(""+e);
+            logger.log("Could not start elevated process: " + e);
+            return;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* 5️⃣  Capture output asynchronously                                 */
+        /* ------------------------------------------------------------------ */
+
+        Runnable r = () -> {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    logger.log("[ELEVATED] " + line);
+                    if ( output_queue != null) output_queue.add(line);
+                }
+            } catch (IOException ex) {
+                logger.log("Error reading elevated process output: " + ex);
+            }
+        };
+        Actor_engine.execute(r,"Windows cooland",logger);
+
+        /* ------------------------------------------------------------------ */
+        /* 6️⃣  Wait for completion (10 min max)                              */
+        /* ------------------------------------------------------------------ */
+        int exitCode;
+        try {
+            boolean finished = proc.waitFor(10, TimeUnit.MINUTES);
+            if (!finished) {
+                logger.log("Elevated command timed out – killing it");
+                proc.destroyForcibly();
+                return;
+            }
+            exitCode = proc.exitValue();
+        } catch (InterruptedException e) {
+            logger.log("Interrupted while waiting for elevated process");
+            Thread.currentThread().interrupt();
+            return;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* 7️⃣  Handle special exit codes                                    */
+        /* ------------------------------------------------------------------ */
+        if (exitCode == 0) {
+            logger.log("Elevated command succeeded (exit 0)");
+        } else if (exitCode == 1223) {   // ERROR_CANCELLED
+            logger.log("User cancelled the UAC prompt (exit 1223)");
+            return;
+        } else {
+            logger.log("Elevated command failed (exit " + exitCode + ")");
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* 8️⃣  Optionally show a “done” popup                               */
+        /* ------------------------------------------------------------------ */
+        if (show_window) {
+            Platform.runLater(() ->
+                    Popups.info_popup("✅  '" + command + "' finished", null, owner, logger));
         }
     }
-
-
 
 }
