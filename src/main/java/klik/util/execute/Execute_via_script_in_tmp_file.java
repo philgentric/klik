@@ -295,7 +295,7 @@ public class Execute_via_script_in_tmp_file
         cmds.add("/c");
         cmds.add(script_path.toAbsolutePath().toString());
 
-        ProcessBuilder pb = new ProcessBuilder("/bin/bash", script_path.toString());
+        ProcessBuilder pb = new ProcessBuilder(cmds);
         pb.redirectErrorStream(true); // Merge stderr into stdout
         pb.redirectErrorStream(true); // Merge stderr into stdout
 
