@@ -33,6 +33,10 @@ public class Image_properties_actor implements Actor
         if (ip.isPresent()) {
             image_properties_message.image_properties_cache.inject(image_properties_message.path, ip.get(), false);
         }
+        else
+        {
+            image_properties_message.logger.log("EXIF failed to return Image properties");
+        }
         return "ok";
     }
 
