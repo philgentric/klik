@@ -4,6 +4,7 @@
 package klik.path_lists;
 //SOURCES ../Move_provider.java
 import javafx.stage.Window;
+import klik.browser.virtual_landscape.Image_found;
 import klik.util.execute.actor.Aborter;
 import klik.browser.Move_provider;
 import klik.util.log.Logger;
@@ -24,7 +25,7 @@ public interface Path_list_provider
 
     Change get_Change();
 
-    Files_and_folders files_and_folders(boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter);
+    Files_and_folders files_and_folders(Image_found imgfnd, boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter);
     void reload();
     List<File> only_files(boolean consider_also_hidden_files); // only files, no folders
     List<Path> only_file_paths(boolean consider_also_hidden_files);

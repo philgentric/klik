@@ -537,13 +537,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     case DENIED:
                         logger.log("\n\naccess denied\n\n");
                         set_status("Access denied for:" + path_list_provider.get_name());
-                        compute_geometry("access denied", null);
+                        on_geometry_changed("access denied", null);
                         break;
                     case NOT_FOUND:
                     case ERROR:
                         logger.log("\n\ndirectory gone\n\n");
                         set_status("Gone:" + path_list_provider.get_name());
-                        compute_geometry("gone", null);
+                        on_geometry_changed("gone", null);
                         break;
                 }
             }
@@ -1261,7 +1261,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 }
                 if (count.doubleValue() == 0)
                 {
-                    Jfx_batch_injector.inject(()-> compute_geometry("sort by number of files", progress_window),logger);
+                    Jfx_batch_injector.inject(()-> on_geometry_changed("sort by number of files", progress_window),logger);
                     if ( System.currentTimeMillis()-start > 3000) {
                         Ding.play("display how many files in each folder", logger);
                     }
@@ -1321,7 +1321,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 }
                 if (count.doubleValue() == 0)
                 {
-                    Jfx_batch_injector.inject(()-> compute_geometry(
+                    Jfx_batch_injector.inject(()-> on_geometry_changed(
                             "sort by folder size on disk", progress_window),logger);
                     if ( System.currentTimeMillis()-start > 3000) {
                         Ding.play("display all folder sizes", logger);
@@ -2361,6 +2361,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         get_image_properties_ram_cache();
         scan_list();
 
+
+
         all_image_properties_acquired_4(start, progress_window);
 
     }
@@ -2404,7 +2406,15 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 //File files[] = the_displayed_folder_path.toFile().listFiles();
 
                 //for ( File f : files)
-                Files_and_folders faf = path_list_provider.files_and_folders(Feature_cache.get(Feature.Show_hidden_files),Feature_cache.get(Feature.Show_hidden_folders), aborter);
+                Image default_icon = Look_and_feel_manager.get_default_icon(256,owner,logger);
+
+                Image_found imgfnd = new Image_found() {
+                    @Override
+                    public void image_found() {
+                        Platform.runLater(()->the_Pane.getChildren().add(new ImageView(default_icon)));
+                    }
+                };
+                Files_and_folders faf = path_list_provider.files_and_folders(imgfnd, Feature_cache.get(Feature.Show_hidden_files),Feature_cache.get(Feature.Show_hidden_folders), aborter);
 
                 for (Path path : faf.folders())
                 {
@@ -2489,7 +2499,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             if (dbg) logger.log("✅ refresh_UI_on_fx_thread from: " + from);
 
-            compute_geometry("scene_geometry_changed from: " + from, progress_window);
+            on_geometry_changed("scene_geometry_changed from: " + from, progress_window);
 
             if (dbg) logger.log("✅ adapt_slider_to_scene");
 
@@ -2516,7 +2526,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    public void compute_geometry(String reason, Hourglass progress_window)
+    public void on_geometry_changed(String reason, Hourglass progress_window)
     //**********************************************************
     {
         try (Perf p1 = new Perf("compute_geometry")) {

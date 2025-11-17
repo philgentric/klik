@@ -4,6 +4,7 @@
 package klik.path_lists;
 
 import javafx.stage.Window;
+import klik.browser.virtual_landscape.Image_found;
 import klik.util.execute.actor.Aborter;
 import klik.browser.Move_provider;
 import klik.util.files_and_paths.Guess_file_type;
@@ -138,7 +139,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
 
     //**********************************************************
     @Override
-    public Files_and_folders files_and_folders(boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter)
+    public Files_and_folders files_and_folders(Image_found imgfnd, boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter)
     //**********************************************************
     {
         List<Path> file_paths = new ArrayList<>();
@@ -161,6 +162,12 @@ public class Path_list_provider_for_file_system implements Path_list_provider
                 if (! consider_also_hidden_files)
                 {
                     if ( Guess_file_type.should_ignore(file.toPath(),owner,logger)) continue;
+
+                    if ( Guess_file_type.is_this_file_an_image(file,owner,logger))
+                    {
+                        logger.log("yop");
+                        imgfnd.image_found();
+                    }
                 }
                 file_paths.add(file.toPath());
 

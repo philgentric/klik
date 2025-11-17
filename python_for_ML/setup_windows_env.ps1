@@ -19,13 +19,13 @@ prerequisites:
    6. Installs the rest of the Python ML deps
  ------------------------------------ #>
 
-# ──────── 0️⃣  Utility helpers ────────
+# ──────── 0 Utility helpers ────────
 function Confirm-Command {
     param([string]$cmd)
     Write-Host "🛠️  $cmd" -ForegroundColor Cyan
 }
 
-# ─────── 1️⃣  Install Python 3.10 ───────
+# ─────── 1 Install Python 3.10 ───────
 # Prefer winget (built‑in on Windows 10+), fall back to Chocolatey
 if (Get-Command winget -ErrorAction SilentlyContinue) {
     Confirm-Command "winget install --id=Python.Python.3.10 --exact
@@ -47,27 +47,27 @@ $python = Get-Command python -ErrorAction Stop
 Confirm-Command "python --version"
 python --version   # Should print 3.10.x
 
-# ─────── 2️⃣  Create the venv ───────
+# ─────── 2 Create the venv ───────
 $venvDir = "$HOME\venv-metal"
 Confirm-Command "python -m venv $venvDir"
 python -m venv $venvDir
 
-# ─────── 3️⃣  Activate it ────────
+# ─────── 3 Activate it ────────
 & "$venvDir\Scripts\Activate.ps1"
 
-# ─────── 4️⃣  Upgrade pip ────────
+# ─────── Upgrade pip ────────
 Confirm-Command "pip install -U pip"
 pip install -U pip
 
-# ─────── 5️⃣  TensorFlow ────────
+# ─────── 5 TensorFlow ────────
 Confirm-Command "pip install tensorflow"
 pip install tensorflow
 #by default this command will install GPU-enabled tensorflow IF THE DRIVERS ARE PRESENT
 
-# ─────── 6️⃣  Install the rest of the ML stack ───────
+# ─────── 6 Install the rest of the ML stack ───────
 Push-Location "$PSScriptRoot" -ErrorAction Stop
 Confirm-Command "pip install -r requirements.txt"
 pip install -r requirements.txt
 Pop-Location
 
-Write-Host "✅  All done!  Your venv is ready at $venvDir"
+Write-Host "All done!  Your venv is ready at $venvDir"

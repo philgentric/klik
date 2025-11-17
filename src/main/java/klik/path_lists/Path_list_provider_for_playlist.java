@@ -4,6 +4,7 @@
 package klik.path_lists;
 
 import javafx.stage.Window;
+import klik.browser.virtual_landscape.Image_found;
 import klik.util.execute.actor.Aborter;
 import klik.browser.Move_provider;
 import klik.change.Change_gang;
@@ -346,7 +347,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     }
 
     @Override
-    public Files_and_folders files_and_folders(boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter) {
+    public Files_and_folders files_and_folders(Image_found imgfnd, boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter) {
 
         List<Path> files = new ArrayList<>();
         List<Path> folders = new ArrayList<>();
