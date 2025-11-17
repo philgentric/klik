@@ -65,7 +65,7 @@ pip install tensorflow
 #by default this command will install GPU-enabled tensorflow IF THE DRIVERS ARE PRESENT
 
 # ─────── 6️⃣  Install the rest of the ML stack ───────
-Push-Location "$PSScriptRoot\python_for_ML" -ErrorAction Stop
+Push-Location "$PSScriptRoot" -ErrorAction Stop
 Confirm-Command "pip install -r requirements.txt"
 pip install -r requirements.txt
 Pop-Location

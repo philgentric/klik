@@ -1106,13 +1106,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         if (scroll_dbg)
             logger.log("✅ move_absolute reason= " + reason + " new_vertical_offset=" + new_vertical_offset);
         current_vertical_offset = new_vertical_offset;
-        set_visibility_on_fx_thread( "move_absolute");
+        on_scroll( "move_absolute");
     }
 
     // this is on the FX thread
-    // and it is called very often for example when scrolling
+    // and it is called very often = when scrolling !!
     //**********************************************************
-    void set_visibility_on_fx_thread(String from)
+    void on_scroll(String from)
     //**********************************************************
     {
         if ( !items_are_ready.get())
@@ -2445,7 +2445,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-
     //**********************************************************
     private void all_image_properties_acquired_4(long start, Hourglass progress_window)
     //**********************************************************
@@ -2626,7 +2625,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         }
                         scroll_to();
 
-                        set_visibility_on_fx_thread(reason + " map_buttons_and_icons ");
+                        on_scroll(reason + " map_buttons_and_icons ");
 
                     }, logger);
                 }
@@ -2668,7 +2667,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         {
             //logger.log("setting file_comp_cache ="+file_comp_cache);
             file_comp_cache =  new File_comp_cache(Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(),owner),local_file_comparator);
-            set_new_iconized_items_comparator(local_file_comparator);
+            image_file_comparator = local_file_comparator;
         }
 
         return local_file_comparator;
@@ -2712,12 +2711,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
 
-    //**********************************************************
-    private void set_new_iconized_items_comparator(Comparator<Path> local_file_comparator)
-    //**********************************************************
-    {
-        image_file_comparator = local_file_comparator;
-    }
 
 
 }
