@@ -2408,9 +2408,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 //for ( File f : files)
                 Image default_icon = Look_and_feel_manager.get_default_icon(256,owner,logger);
 
+                final int[] local_int = {0};
                 Image_found imgfnd = new Image_found() {
                     @Override
                     public void image_found() {
+                        local_int[0]++;
+                        if ( local_int[0] > 100) return;
                         Platform.runLater(()->the_Pane.getChildren().add(new ImageView(default_icon)));
                     }
                 };
