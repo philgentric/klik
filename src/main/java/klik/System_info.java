@@ -32,10 +32,10 @@ public class System_info
 
 
     //**********************************************************
-    public static void print(Class<?> x)
+    public static void print()
     //**********************************************************
     {
-        System.out.println("Is NATIVE?   "+is_native(x));
+        System.out.println("Is NATIVE?   "+is_native());
         print_machine_properties();
 
         print_java_system_properties();
@@ -46,11 +46,11 @@ public class System_info
     }
 
     //**********************************************************
-    public static boolean is_native(Class<?> x)
+    public static boolean is_native()
     //**********************************************************
     {
-        int modifiers =  x.getModifiers();
-        return Modifier.isNative(modifiers);
+        return Boolean.parseBoolean(
+                System.getProperty("org.graalvm.nativeimage.isRuntime", "false"));
     }
     private static final boolean use_JMX_for_RAM = false;
     //**********************************************************

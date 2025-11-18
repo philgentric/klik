@@ -56,6 +56,10 @@ public class Look_and_feel_light extends Look_and_feel
 
 
     @Override
+    public String get_back_icon_path() {return "icons/light/back.png";}
+
+
+    @Override
     public String get_trash_icon_path()
     {
         return "icons/light/trash.png";

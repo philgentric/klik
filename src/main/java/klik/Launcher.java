@@ -114,7 +114,7 @@ public class Launcher extends Application implements UI_change
         aborter = Shared_services.aborter();
 
         logger.log("Launcher starting");
-        System_info.print(Launcher.class);
+        System_info.print();
 
         switch(Guess_OS.guess(stage,logger))
         {

@@ -5,16 +5,11 @@ package klik.change.history;
 
 import klik.properties.IProperties;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static klik.properties.Properties_manager.AGE;
 
@@ -27,6 +22,11 @@ public class Properties_for_history
     private final IProperties ip;
     private final int max;
 
+    // back button management
+    String current;
+    Deque<String> stack = new ArrayDeque<>();
+    List<String> back_trace = new ArrayList<>();
+
     //**********************************************************
     public Properties_for_history(IProperties ip, int max, Logger logger)
     //**********************************************************
@@ -36,10 +36,28 @@ public class Properties_for_history
         this.ip = ip;
     }
 
+
     //**********************************************************
     public void add_and_prune(String tag)
     //**********************************************************
     {
+        if ( current != null)
+        {
+            if ( !current.equals(tag))
+            {
+                logger.log("pushing :"+current);
+                if ( !back_trace.contains(tag))
+                {
+                    stack.push(current);
+                    back_trace.clear();
+                }
+                else
+                {
+                    // this is a back move, dont record
+                }
+            }
+        }
+        current = tag;
         History_item new_item = new History_item(tag, LocalDateTime.now());
         ip.set(tag, tag);
 
@@ -102,4 +120,19 @@ public class Properties_for_history
         ip.clear();
     }
 
+    //**********************************************************
+    public String get_back()
+    //**********************************************************
+    {
+        try {
+            String returned = stack.pop();
+            logger.log("popping :" + returned);
+            back_trace.add(returned);
+            return returned;
+        }
+        catch( NoSuchElementException e)
+        {
+            return null;
+        }
+    }
 }

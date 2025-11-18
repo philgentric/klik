@@ -40,10 +40,10 @@ public class Look_and_feel_dark extends Look_and_feel
     }
 
     @Override
-    public String get_up_icon_path()
-    {
-        return "icons/dark/up.png";
-    }
+    public String get_back_icon_path() {return "icons/dark/back.png";}
+
+    @Override
+    public String get_up_icon_path() {return "icons/dark/up.png";}
 
     @Override
     public String get_klik_icon_path() {return "icons/klik.png";}

@@ -132,6 +132,8 @@ public abstract class Look_and_feel
 
     abstract public String get_up_icon_path();
 
+    abstract public String get_back_icon_path();
+
     abstract public String get_view_icon_path();
 
     abstract public String get_bookmarks_icon_path();

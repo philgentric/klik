@@ -165,7 +165,6 @@ public class Path_list_provider_for_file_system implements Path_list_provider
 
                     if ( Guess_file_type.is_this_file_an_image(file,owner,logger))
                     {
-                        logger.log("yop");
                         imgfnd.image_found();
                     }
                 }

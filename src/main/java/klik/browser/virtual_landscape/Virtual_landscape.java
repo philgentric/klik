@@ -38,6 +38,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.change.history.History_engine;
 import klik.path_lists.Files_and_folders;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
@@ -1795,6 +1796,27 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Image icon = Look_and_feel_manager.get_preferences_icon(height,owner,logger);
             Look_and_feel_manager.set_button_and_image_look(preferences_button, icon, height,null, false,owner,logger);
         }
+        {
+            String back_text = My_I18n.get_I18n_string("Back", owner,logger);
+            Button back_button = new Button(back_text);
+            back_button.setOnAction(e -> back());
+            top_pane.getChildren().add(back_button);
+            top_buttons.add(back_button);
+            Image icon = Look_and_feel_manager.get_back_icon(height,owner,logger);
+            Look_and_feel_manager.set_button_and_image_look(back_button, icon, height,null, false,owner,logger);
+        }
+    }
+
+    //**********************************************************
+    private void back()
+    //**********************************************************
+    {
+        String back_string = History_engine.get(owner).get_back();
+        if ( back_string == null) return;
+        Instructions.replace_same_folder(
+                shutdown_target,
+                Window_type.File_system_2D,
+                new Path_list_provider_for_file_system(Path.of(back_string), owner, logger), top_left, owner, logger);
     }
 
     //**********************************************************
@@ -2362,7 +2384,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         scan_list();
 
 
-
         all_image_properties_acquired_4(start, progress_window);
 
     }
@@ -2403,18 +2424,29 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
 
             try {
-                //File files[] = the_displayed_folder_path.toFile().listFiles();
-
-                //for ( File f : files)
                 Image default_icon = Look_and_feel_manager.get_default_icon(256,owner,logger);
+                final double[] local_x = {0};
+                final double[] local_y = {0};
+                int icon_size = Non_booleans_properties.get_icon_size(owner);
 
-                final int[] local_int = {0};
                 Image_found imgfnd = new Image_found() {
                     @Override
                     public void image_found() {
-                        local_int[0]++;
-                        if ( local_int[0] > 100) return;
-                        Platform.runLater(()->the_Pane.getChildren().add(new ImageView(default_icon)));
+                       Platform.runLater(()->{
+                            ImageView iv = new ImageView(default_icon);
+                            iv.setFitWidth(icon_size);
+                            iv.setPreserveRatio(true);
+                            iv.setSmooth(true);
+                            iv.relocate(local_x[0],local_y[0]);
+                            local_x[0] += icon_size;
+                            if ( local_x[0] > the_Pane.getWidth())
+                            {
+                                local_x[0] = 0;
+                                local_y[0] += icon_size;
+                            }
+                            logger.log(local_x[0]+" "+local_y[0]);
+                            the_Pane.getChildren().add(iv);
+                        });
                     }
                 };
                 Files_and_folders faf = path_list_provider.files_and_folders(imgfnd, Feature_cache.get(Feature.Show_hidden_files),Feature_cache.get(Feature.Show_hidden_folders), aborter);

@@ -261,6 +261,9 @@ my_dialog{
 
 
     @Override
+    public String get_back_icon_path() {return "icons/light/back.png";}
+
+    @Override
     public String get_selected_text_color() {return "-fx-text-fill: #FF4040;";}
 
 

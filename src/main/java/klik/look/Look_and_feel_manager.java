@@ -60,6 +60,7 @@ public class Look_and_feel_manager
     public static Image not_found_icon = null;
     public static Image unknown_error_icon = null;
     public static Image dummy_icon = null;
+    public static Image back_icon = null;
 
     private static Look_and_feel instance;
 
@@ -150,6 +151,7 @@ public class Look_and_feel_manager
         folder_icon = null;
         up_icon = null;
         preferences_icon = null;
+        back_icon = null;
     }
 
     /**********************************************************
@@ -468,6 +470,31 @@ public class Look_and_feel_manager
         up_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, owner,logger);
         return up_icon;
     }
+
+    //**********************************************************
+    public static Image get_back_icon(double icon_size, Window owner, Logger logger)
+    //**********************************************************
+    {
+        if (back_icon != null)
+        {
+            if ( back_icon.getHeight() == icon_size) return back_icon;
+        }
+        Look_and_feel local_instance = get_instance(owner,logger);
+        if (local_instance == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("❌ BAD WARNING: cannot get look and feel instance"));
+            return null;
+        }
+        String path = local_instance.get_back_icon_path();
+        if (path == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("❌ BAD WARNING: cannot get back icon path"));
+            return null;
+        }
+        back_icon = Jar_utils.load_jfx_image_from_jar(path, icon_size, owner,logger);
+        return back_icon;
+    }
+
 
 
     //**********************************************************

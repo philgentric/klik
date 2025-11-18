@@ -72,6 +72,10 @@ public class Look_and_feel_modena extends Look_and_feel
         return "icons/light/up.png";
     }
 
+
+    @Override
+    public String get_back_icon_path() {return "icons/light/back.png";}
+
     @Override
     public String get_klik_icon_path() {
         return "icons/light/camera.png";

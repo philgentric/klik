@@ -19,7 +19,7 @@ import java.util.List;
 public class History_engine
 //**********************************************************
 {
-    private final Properties_for_history ph;
+    private final Properties_for_history properties_for_history;
     private static History_engine instance;
 
     //**********************************************************
@@ -38,21 +38,21 @@ public class History_engine
     //**********************************************************
     {
         IProperties ip = new File_based_IProperties("history","history",owner,aborter,logger);
-        ph = new Properties_for_history(ip,  300, logger);
+        properties_for_history = new Properties_for_history(ip,  300, logger);
     }
 
     //**********************************************************
     public void add(String s)
     //**********************************************************
     {
-        ph.add_and_prune(s);
+        properties_for_history.add_and_prune(s);
     }
 
     //**********************************************************
     public List<History_item> get_all_history_items()
     //**********************************************************
     {
-        return ph.get_all_history_items();
+        return properties_for_history.get_all_history_items();
     }
 
     //**********************************************************
@@ -60,6 +60,13 @@ public class History_engine
     //**********************************************************
     {
         System.out.println("clearing history");
-        ph.clear();
+        properties_for_history.clear();
+    }
+
+    //**********************************************************
+    public String get_back()
+    //**********************************************************
+    {
+        return properties_for_history.get_back();
     }
 }

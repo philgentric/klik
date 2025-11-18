@@ -197,8 +197,6 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
         if ( !try_deep) return null;
 
-        logger.log("YOPOPOPOOOOO");
-
         // for a folder we have 2 ways to provide an icon
         // 1) an image is taken from the folder and used as icon
         // 2) multiple images are taken from the folder to form an animated gif icon

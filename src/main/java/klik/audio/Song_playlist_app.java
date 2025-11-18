@@ -163,7 +163,7 @@ public class Song_playlist_app extends Application
             System.exit(0);
         });
 
-        System_info.print(Song_playlist_app.class);
+        System_info.print();
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
 

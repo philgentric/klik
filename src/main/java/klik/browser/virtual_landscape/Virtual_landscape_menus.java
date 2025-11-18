@@ -1189,6 +1189,7 @@ public class Virtual_landscape_menus
             Window owner, Logger logger)
     //**********************************************************
     {
+
         Menu_items.add_menu_item2("Clear_History",
                     event -> {
                         logger.log("clearing history");
