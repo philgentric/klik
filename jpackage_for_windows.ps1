@@ -9,12 +9,12 @@
 #-----------------------------------------------------------------------
 
 # -------------------------------------------------------
-# 1️⃣  Fail on the first error – makes debugging easier
+# Fail on the first error – makes debugging easier
 # -------------------------------------------------------
 $ErrorActionPreference = 'Stop'          # stop on any error
 
 # -------------------------------------------------------
-# 2️⃣  CONFIG – tweak these values to match your project
+# CONFIG – tweak these values to match your project
 # -------------------------------------------------------
 $ProjectRoot      = Split-Path -Parent $MyInvocation.MyCommand.Path   # the folder that contains this script
 $BuildDir         = Join-Path $ProjectRoot 'build'
@@ -28,7 +28,7 @@ $Vendor          = 'Klik'
 $Description     = 'Klik JavaFX application'
 
 # Main‑class – adjust if your launcher class lives elsewhere
-$MainClass       = 'klik.Launcher'     # fully‑qualified class name
+$MainClass       = 'klik.Klik_application'     # fully‑qualified class name
 
 # The JAR that `shadowJar` produces
 $JarName         = 'klik.jar'          # (adjust if the artifact has a different name)
@@ -54,15 +54,15 @@ $IconPath        = Join-Path $ProjectRoot 'src\main\resources\icons\klik.ico'  #
 $JavaOptions     = '-Xmx2g'            # example; change if you need more memory
 
 # -------------------------------------------------------
-# 3️⃣  Build the fat JAR (Gradle)
+# Build the fat JAR (Gradle)
 # -------------------------------------------------------
-Write-Host "`n> Building the fat JAR with Gradle ..."
+Write-Host " Building the fat JAR with Gradle ..."
 & "$ProjectRoot\gradlew.bat" shadowJar   # the Gradle wrapper will do everything
 
 # -------------------------------------------------------
-# 4️⃣  Run jpackage – create the MSI
+# Run jpackage – create the MSI
 # -------------------------------------------------------
-Write-Host "`n> Packaging with jpackage …"
+Write-Host " Packaging with jpackage …"
 
 $jpackageArgs = @(
     '--type', 'msi',
@@ -88,4 +88,4 @@ Write-Host "`n$cmd`n"
 # Execute it
 & "$env:JAVA_HOME\bin\jpackage.exe" @jpackageArgs
 
-Write-Host "`n✅ MSI created in $OutputDir`n"
+Write-Host "`MSI created in $OutputDir`n"
