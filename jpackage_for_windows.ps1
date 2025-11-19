@@ -5,7 +5,7 @@
 #  2. Creates an MSI installer with jpackage
 #
 #  Run it with:
-#      powershell -ExecutionPolicy Bypass -File .\BuildAndPackage.ps1
+#      powershell -ExecutionPolicy Bypass -File .\jpackage_for_windows.ps1
 #-----------------------------------------------------------------------
 
 # -------------------------------------------------------
