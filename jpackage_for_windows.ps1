@@ -16,8 +16,7 @@ $ErrorActionPreference = 'Stop'          # stop on any error
 # -------------------------------------------------------
 # 2️⃣  CONFIG – tweak these values to match your project
 # -------------------------------------------------------
-$ProjectRoot      = Split-Path -Parent $MyInvocation.MyCommand.Path   # the folder that contains
-this script
+$ProjectRoot      = Split-Path -Parent $MyInvocation.MyCommand.Path   # the folder that contains this script
 $BuildDir         = Join-Path $ProjectRoot 'build'
 $LibsDir          = Join-Path $BuildDir 'libs'                         # Gradle puts the JARs here
 $OutputDir        = Join-Path $BuildDir 'jpackage'                     # jpackage writes there
@@ -49,8 +48,7 @@ $AddModules      = @(
 )
 
 # Windows icon – must be a .ico file
-$IconPath        = Join-Path $ProjectRoot 'src\main\resources\icons\klik.ico'  # <-- provide your
-own
+$IconPath        = Join-Path $ProjectRoot 'src\main\resources\icons\klik.ico'  # <-- provide your own
 
 # Java options you want inside the installer
 $JavaOptions     = '-Xmx2g'            # example; change if you need more memory
@@ -84,6 +82,7 @@ $jpackageArgs = @(
 
 # Show the exact command for debugging
 $cmd = "$env:JAVA_HOME\bin\jpackage.exe " + ($jpackageArgs -join ' ')
+
 Write-Host "`n$cmd`n"
 
 # Execute it
