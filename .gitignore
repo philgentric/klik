@@ -7,6 +7,7 @@ target/*
 out/*
 settings.gradle.old
 *.log
+*.dmg
 out/*
 nohup.out
 .aider*
