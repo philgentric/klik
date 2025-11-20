@@ -63,7 +63,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         this.logger = logger;
         this.aborter = aborter;
         this.paths = paths;
-        show_vector_differences = Booleans.get_boolean(Feature.Display_image_distances.name(),owner);
+        show_vector_differences = Booleans.get_boolean(Feature.Display_image_distances.name());
     }
 
     //**********************************************************
@@ -225,7 +225,7 @@ public class Similarity_engine implements Clearable_RAM_cache
                     xxx += W;
                 }
 
-                if ( Booleans.get_boolean_defaults_to_true(Feature.Show_can_use_ESC_to_close_windows.name(),owner))
+                if ( Booleans.get_boolean_defaults_to_true(Feature.Show_can_use_ESC_to_close_windows.name()))
                 {
                     if (Popups.info_popup("After selecting one, you can use ESC to close these small windows one by one",null,owner,logger))
                     {

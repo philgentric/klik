@@ -18,7 +18,7 @@ import klik.path_lists.Path_list_provider;
 import klik.experimental.deduplicate.Abortable;
 import klik.experimental.deduplicate.console.Deduplication_console_window;
 import klik.experimental.deduplicate.manual.Againor;
-import klik.experimental.deduplicate.manual.Stage_with_2_images;
+import klik.util.ui.Stage_with_2_images;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.machine_learning.similarity.Similarity_file_pair;
 import klik.util.files_and_paths.*;
@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Supplier;
 
@@ -66,10 +65,10 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             double too_far_away,
-            Window owner,
             File target_dir_,
             Image_properties_RAM_cache image_properties_RAM_cache,
             Supplier<Feature_vector_cache> fv_cache_supplier,
+            Window owner,
             Logger logger_)
     //**********************************************************
     {
@@ -77,7 +76,6 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         this.path_list_provider = path_list_provider;
         this.path_comparator_source = path_comparator_source;
         this.too_far_away = too_far_away;
-        //this.same_image_size = same_image_size;
         this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.fv_cache_supplier = fv_cache_supplier;
         this.owner = owner;
@@ -100,7 +98,9 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
                 800,
                 800,
                 false,
-                owner, private_aborter, logger);
+                owner,
+                private_aborter,
+                logger);
 
         Runnable r = this::runnable_deduplication;
         Actor_engine.execute(r,"Deduplicate by similarity",logger);
@@ -275,7 +275,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         Againor local_againor = this;
         Jfx_batch_injector.inject(() -> {
             String similarity = ""+sim_file_pair.similarity();
-            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(similarity,owner, sim_file_pair.file_pair(), local_againor, console_window.count_deleted, path_list_provider, path_comparator_source,private_aborter, logger);
+            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(similarity,sim_file_pair.file_pair(), local_againor, console_window.count_deleted, path_list_provider, path_comparator_source,private_aborter, owner, logger);
             else stage_with_2_images.set_pair(similarity,sim_file_pair.file_pair(),path_list_provider, path_comparator_source, private_aborter);
         },logger);
     }

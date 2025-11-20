@@ -134,7 +134,7 @@ public class Static_files_and_paths_utilities
         }
         Path trash_dir = Non_booleans_properties.get_trash_dir(paths.get(0),owner,logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning( My_I18n.get_I18n_string("❗ Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
+            Popups.popup_warning("❗" + My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -154,7 +154,7 @@ public class Static_files_and_paths_utilities
     {
         Path trash_dir = Non_booleans_properties.get_trash_dir(path,owner,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning( My_I18n.get_I18n_string("❗ Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_explanation", owner,logger), false, owner,logger);
+            Popups.popup_warning("❗ "+ My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_explanation", owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -215,14 +215,10 @@ public class Static_files_and_paths_utilities
     }
 
 
-
-
-
     //**********************************************************
     public static Path get_cache_dir(Cache_folder cache_folder, Window owner,Logger logger)
     //**********************************************************
     {
-
         Path tmp_dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
@@ -763,11 +759,18 @@ public class Static_files_and_paths_utilities
             }
             logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
             return x.toString();
-        } catch (DirectoryNotEmptyException x) {
+        }
+        catch (DirectoryNotEmptyException x) {
             logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
             return x.toString();
         }
-        catch (IOException x) {
+        catch (FileSystemException x)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
+            return x.toString();
+        }
+        catch (IOException x)
+        {
             if ( x.toString().contains("AccessDeniedException"))
             {
                 try {
@@ -798,7 +801,8 @@ public class Static_files_and_paths_utilities
                     logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
                     return e.toString();
                 }
-                try {
+                try
+                {
                     Files.delete(p);
                 }
                 catch (IOException e)
@@ -807,7 +811,8 @@ public class Static_files_and_paths_utilities
                     return e.toString();
                 }
             }
-            else {
+            else
+            {
                 logger.log(Stack_trace_getter.get_stack_trace(x.toString()));
                 return x.toString();
 

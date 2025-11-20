@@ -4,7 +4,7 @@
 //SOURCES ../My_File_and_status.java
 //SOURCES ../../../util/files_and_paths/File_pair.java
 //SOURCES ../../../audio/UI_instance_holder.java
-package klik.experimental.deduplicate.manual;
+package klik.util.ui;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -21,6 +21,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.experimental.deduplicate.manual.Againor;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.audio.Audio_player_access;
@@ -32,7 +33,6 @@ import klik.util.files_and_paths.old_and_new.Command;
 import klik.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klik.util.files_and_paths.old_and_new.Status;
 import klik.util.image.Full_image_from_disk;
-import klik.util.ui.Jfx_batch_injector;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
 import klik.look.Look_and_feel_manager;
@@ -64,21 +64,21 @@ public class Stage_with_2_images
 	//**********************************************************
 	public Stage_with_2_images(
 			String title,
-			Window owner,
 			File_pair pair,
-			Againor againor_,
-			LongAdder count_deleted_,
+			Againor againor,
+			LongAdder count_deleted,
 			Path_list_provider path_list_provider,
 			Path_comparator_source path_comparator_source,
-			Aborter private_aborter_,
-			Logger logger_
+			Aborter private_aborter,
+            Window owner,
+			Logger logger
 			)
 	//**********************************************************
 	{
 		this.owner = owner;
-		logger = logger_;
-		count_deleted = count_deleted_;
-		aborter = private_aborter_;
+        this.logger = logger;
+        this.count_deleted = count_deleted;
+        this.aborter = private_aborter;
 
 		// there was an obscure bug with random order?
 		if ( Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(),owner) == Sort_files_by.RANDOM_ASPECT_RATIO)
@@ -88,11 +88,12 @@ public class Stage_with_2_images
 
 		logger.log("Stage_with_2_images !");
 
-		againor = againor_;
+        this.againor = againor;
 
 
 		Jfx_batch_injector.inject(() ->{
 				stage = new Stage();
+                stage.initOwner(owner);
 				//stage.setAlwaysOnTop(true);
 				the_big_vbox = new VBox();
 				Look_and_feel_manager.set_region_look(the_big_vbox,stage,logger);

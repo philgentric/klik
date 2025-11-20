@@ -125,7 +125,7 @@ public class Fusk_bytes implements Pin_code_client
         File passphrase_file = new File (passphrase_folder, ".passphrase.txt");
         if ( passphrase_file.exists()) {
             try {
-                List<String> lines = Files.readAllLines(passphrase_file.toPath());
+                List<String> lines = Files.readAllLines(passphrase_file.toPath(),StandardCharsets.UTF_8);
                 if ( lines.size() > 0) {
                     actual_signature_text = lines.get(0);
                     logger.log("Fusk: acquired this passphrase from file: ->"+actual_signature_text+"<-");

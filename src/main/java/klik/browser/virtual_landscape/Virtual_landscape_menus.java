@@ -161,7 +161,7 @@ public class Virtual_landscape_menus
 
             files_menu.getItems().add(search);
         }
-        if (Booleans.get_boolean(Feature.Enable_face_recognition.name(),owner))
+        if (Booleans.get_boolean(Feature.Enable_face_recognition.name()))
         {
             Menu face_recognition = new Menu("Face recognition");
             Look_and_feel_manager.set_menu_item_look(face_recognition,owner,logger);
@@ -184,26 +184,26 @@ public class Virtual_landscape_menus
             Menu_items.add_menu_item2("Remove_empty_folders",
                     event -> remove_empty_folders_fx(false),menu,owner,logger);
 
-            if (Booleans.get_boolean(Feature.Enable_recursive_empty_folders_removal.name(),owner))
+            if (Booleans.get_boolean(Feature.Enable_recursive_empty_folders_removal.name()))
             {
                 Menu_items.add_menu_item2("Remove_empty_folders_recursively", event -> remove_empty_folders_fx(true),menu,owner,logger);
             }
-            if (Booleans.get_boolean(Feature.Enable_name_cleaning.name(),owner) )
+            if (Booleans.get_boolean(Feature.Enable_name_cleaning.name()) )
             {
                 Menu_items.add_menu_item2("Clean_up_names", event -> clean_up_names_fx(),menu,owner,logger);
             }
-            if ( Booleans.get_boolean(Feature.Enable_corrupted_images_removal.name(),owner) )
+            if ( Booleans.get_boolean(Feature.Enable_corrupted_images_removal.name()) )
             {
                 Menu_items.add_menu_item2("Remove_corrupted_images", event -> remove_corrupted_images_fx(),menu,owner,logger);
             }
 
 
-            if (Booleans.get_boolean(Feature.Enable_bit_level_deduplication.name(),owner) )
+            if (Booleans.get_boolean(Feature.Enable_bit_level_deduplication.name()) )
             {
                 create_deduplication_menu(menu);
             }
 
-            if (Booleans.get_boolean(Feature.Enable_image_similarity.name(),owner) )
+            if (Booleans.get_boolean(Feature.Enable_image_similarity.name()) )
             {
                 create_image_similarity_deduplication_menu(menu);
                 create_song_similarity_deduplication_menu(menu);
@@ -213,7 +213,7 @@ public class Virtual_landscape_menus
 
         if ( virtual_landscape.context_type == Window_type.File_system_2D)
         {
-            if (Booleans.get_boolean(Feature.Enable_backup.name(), owner)) {
+            if (Booleans.get_boolean(Feature.Enable_backup.name())) {
                 files_menu.getItems().add(make_backup_menu());
             }
             if (Feature_cache.get(Feature.Enable_fusk))
@@ -224,6 +224,7 @@ public class Virtual_landscape_menus
                 }
             }
         }
+
 
         return files_menu;
     }
@@ -650,11 +651,11 @@ public class Virtual_landscape_menus
         //pref.getItems().add(make_ding_menu_item());
         //pref.getItems().add(make_escape_menu_item());
         //pref.getItems().add(make_invert_vertical_scroll_menu_item());
-        if (Booleans.get_boolean(Feature.Enable_face_recognition.name(),owner))
+        if (Booleans.get_boolean(Feature.Enable_face_recognition.name()))
         {
             context_menu.getItems().add(make_start_Enable_face_recognition_menu_item());
         }
-        if (Booleans.get_boolean(Feature.Enable_image_similarity.name(),owner))
+        if (Booleans.get_boolean(Feature.Enable_image_similarity.name()))
         {
             context_menu.getItems().add(make_start_image_similarity_servers_menu_item());
         }
@@ -687,7 +688,7 @@ public class Virtual_landscape_menus
                 },
                 context_menu,owner,logger);
 
-        if (Booleans.get_boolean(Feature.Enable_detailed_cache_cleaning_options.name(),owner))
+        if (Booleans.get_boolean(Feature.Enable_detailed_cache_cleaning_options.name()))
         {
             detailed_cache_cleaning_menu(context_menu);
         }
@@ -717,10 +718,10 @@ public class Virtual_landscape_menus
                             virtual_landscape.path_list_provider,
                             virtual_landscape,
                             too_far_away_image,
-                            owner,
                             virtual_landscape.path_list_provider.get_folder_path().toFile(),
                             virtual_landscape.get_image_properties_ram_cache(),
                             get_image_fv_cache,
+                            owner,
                             logger)).do_your_job();
                 },menu,owner,logger);
 
@@ -732,10 +733,10 @@ public class Virtual_landscape_menus
                             virtual_landscape.path_list_provider,
                             virtual_landscape,
                             too_far_away_image,
-                            owner,
                             virtual_landscape.path_list_provider.get_folder_path().toFile(),
                             null, // does not check image size
                             get_image_fv_cache,
+                            owner,
                             logger)).do_your_job();
                 },menu,owner,logger);
 
@@ -760,10 +761,10 @@ public class Virtual_landscape_menus
                             virtual_landscape.path_list_provider,
                             virtual_landscape,
                             too_far_away_song/10,
-                            owner,
                             virtual_landscape.path_list_provider.get_folder_path().toFile(),
                             null,
                             get_song_fv_cache,
+                            owner,
                             logger)).do_your_job();
                 },menu,owner,logger);
 
@@ -775,10 +776,10 @@ public class Virtual_landscape_menus
                             virtual_landscape.path_list_provider,
                             virtual_landscape,
                             too_far_away_song,
-                            owner,
                             virtual_landscape.path_list_provider.get_folder_path().toFile(),
                             null,
                             get_song_fv_cache,
+                            owner,
                             logger)).do_your_job();
                 },menu,owner,logger);
 
@@ -1697,7 +1698,7 @@ public class Virtual_landscape_menus
         {
             if (( sort_by == Sort_files_by.SIMILARITY_BY_PAIRS)||(sort_by == Sort_files_by.SIMILARITY_BY_PURSUIT))
             {
-                if ( !Booleans.get_boolean(Feature.Enable_image_similarity.name(),owner))
+                if ( !Booleans.get_boolean(Feature.Enable_image_similarity.name()))
                 {
                     continue;
                 }

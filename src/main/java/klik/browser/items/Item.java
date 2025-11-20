@@ -27,6 +27,8 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Window_type;
 import klik.Instructions;
+import klik.properties.boolean_features.Booleans;
+import klik.properties.boolean_features.Feature;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.actor.Job;
@@ -280,12 +282,14 @@ public abstract class Item implements Icon_destination
                                 Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(finalTarget,owner,logger), owner, logger);
                             }, context_menu, owner, logger);
 
-                    Menu_items.add_menu_item(
-                            "Browse_in_new_3D_window",
-                            event -> {
-                                if (dbg) logger.log("Browse in new window!");
-                                Instructions.additional_no_past(Window_type.File_system_3D, new Path_list_provider_for_file_system(finalTarget,owner,logger), owner, logger);
-                            }, context_menu, owner, logger);
+                    if (Booleans.get_boolean(Feature.Enable_3D.name())) {
+                        Menu_items.add_menu_item(
+                                "Browse_in_new_3D_window",
+                                event -> {
+                                    if (dbg) logger.log("Browse in new window!");
+                                    Instructions.additional_no_past(Window_type.File_system_3D, new Path_list_provider_for_file_system(finalTarget, owner, logger), owner, logger);
+                                }, context_menu, owner, logger);
+                    }
                 }
                 create_open_with_system_menu_item(get_item_path(),context_menu);
                 /*if (Feature_cache.get(Feature.Enable_tags))

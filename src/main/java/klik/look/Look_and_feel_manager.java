@@ -769,7 +769,6 @@ public class Look_and_feel_manager
         if (laf.style_sheet_url_string != null) {
             dialog_pane.getStylesheets().clear();
             dialog_pane.getStylesheets().add(laf.style_sheet_url_string);
-            //dialog_pane.getStyleClass().clear();
             dialog_pane.getStyleClass().add("my_dialog");
         }
         //Font_size.set_preferred_font_size(dialog_pane,logger);

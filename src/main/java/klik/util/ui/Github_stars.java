@@ -1,4 +1,4 @@
-package klik.util;
+package klik.util.ui;
 
 import javafx.application.HostServices;
 import javafx.scene.control.Alert;

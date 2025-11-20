@@ -61,16 +61,28 @@ public class Popups
         Jfx_batch_injector.inject(() -> {
             logger.log("Warning Popup: "+header+" "+content);
             Alert alert = new Alert(Alert.AlertType.WARNING);
+            if ( owner != null)
+            {
+                try
+                {
+                    alert.initOwner(owner);
+                }
+                catch(NullPointerException e)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("Typically this error occurs because you are calling popup_warning(), passing a Window owner that has no scene yet "+e));
+                }
+            }
+
             Look_and_feel_manager.set_dialog_look(alert, owner,logger);
             alert.setTitle(My_I18n.get_I18n_string("Warning", owner,logger));
             alert.setHeaderText(header);
             alert.setContentText(content);
             alert.initModality(Modality.WINDOW_MODAL);
-            if ( owner != null) alert.initOwner(owner);
-            if (for_3_seconds_only) {
+
+            if (for_3_seconds_only)
+            {
                 PauseTransition delay = new PauseTransition(Duration.millis(1000));
                 delay.setOnFinished(e -> alert.hide());
-
                 alert.show();
                 delay.play();
             } else {

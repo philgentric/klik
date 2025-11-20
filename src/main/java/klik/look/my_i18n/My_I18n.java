@@ -30,6 +30,7 @@ public class My_I18n
     private static My_I18n instance = null;
 
     //**********************************************************
+    // must return the key if not found in resources
     public static String get_I18n_string(String key, Window owner, Logger logger)
     //**********************************************************
     {
@@ -64,6 +65,15 @@ public class My_I18n
         try
         {
             return the_resource_bundle.getString(key);
+        }
+        catch (NullPointerException e)
+        {
+            // key is null ???
+            return "unknown key";
+        }
+        catch (ClassCastException e)
+        {
+            return key;
         }
         catch (MissingResourceException e)
         {

@@ -43,11 +43,11 @@ public class Feature_cache
         {
             if ( default_to_true.contains(f))
             {
-                boolean_feature_cache.put(f,Booleans.get_boolean_defaults_to_true(f.name(),null));
+                boolean_feature_cache.put(f,Booleans.get_boolean_defaults_to_true(f.name()));
             }
             else
             {
-                boolean_feature_cache.put(f, Booleans.get_boolean(f.name(),null));
+                boolean_feature_cache.put(f, Booleans.get_boolean(f.name()));
             }
         }
     }

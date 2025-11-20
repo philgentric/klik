@@ -89,11 +89,11 @@ public class Disk_usage_monitor
                     Popups.popup_warning("❗"+monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
                             "Consider clearing it...\n" +
                                     "or change this limit Using the dedicated item in the preferences menu",
-                            true,owner,logger);
+                            false,owner,logger);
                     continue;
                 }
                 boolean cleared = false;
-                if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name(),owner))
+                if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name()))
                 {
                     for (Cache_folder cache_folder : Cache_folder.values())
                     {
@@ -110,7 +110,7 @@ public class Disk_usage_monitor
                     Popups.popup_warning("❗ "+monitored_folder.name+" is getting very large: "+tmp+" Mbytes",
                             "Consider clearing it...\n" +
                                     "or change this limit Using the dedicated item in the preferences menu",
-                            true,owner,logger);
+                            false,owner,logger);
                     warning_issued = true;
                 }
             }

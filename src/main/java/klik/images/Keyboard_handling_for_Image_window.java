@@ -41,7 +41,7 @@ public class Keyboard_handling_for_Image_window
             return;
         }
 
-        boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Feature.Use_escape_to_close_windows.name(), image_window.stage);
+        boolean exit_on_escape_preference = Booleans.get_boolean_defaults_to_true(Feature.Use_escape_to_close_windows.name());
 
         Window owner = image_window.stage;
         if (keyboard_dbg) logger.log("Image_stage KeyEvent="+key_event);
@@ -91,7 +91,7 @@ public class Keyboard_handling_for_Image_window
         )
         {
             key_event.consume();
-            if (Booleans.get_boolean(Feature.Shift_d_is_sure_delete.name(), image_window.stage))
+            if (Booleans.get_boolean(Feature.Shift_d_is_sure_delete.name()))
             {
                 // shift d is "sure delete"
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;

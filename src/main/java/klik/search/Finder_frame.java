@@ -456,7 +456,7 @@ public class Finder_frame implements Search_receiver
 		{
 			long now = System.currentTimeMillis();
 			if (now - start_time > 3000) {
-				if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name(),stage)) {
+				if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name())) {
 					Ding.play("File finder took more than 3 seconds", logger);
 				}
 			}

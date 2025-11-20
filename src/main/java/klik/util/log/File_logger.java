@@ -43,9 +43,12 @@ public class File_logger implements Logger
 					fw.close();
 				}
 				catch (InterruptedException e) {
-					System.out.println("File_logger: ERROR writing to file: "+e);
-				}catch (IOException e) {
-					System.out.println("File_logger: ERROR writing to file: "+e);
+					System.out.println("File_logger: InterruptedException "+e);
+                    return;
+				}
+                catch (IOException e) {
+					System.out.println("File_logger: IOException "+e);
+                    return;
 				}
 			}
 		};

@@ -19,6 +19,7 @@ import klik.util.tcp.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 //**********************************************************
@@ -73,7 +74,7 @@ public class Audio_player_application extends Application
         Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
         try {
             if (java.nio.file.Files.exists(p)) {
-                java.util.List<String> lines = java.nio.file.Files.readAllLines(p);
+                java.util.List<String> lines = java.nio.file.Files.readAllLines(p, StandardCharsets.UTF_8);
                 if (lines.size() > 0) {
                     String s = lines.get(0);
                     int port = Integer.parseInt(s);

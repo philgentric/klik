@@ -86,7 +86,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
         path_list_provider = context.path_list_provider;
         init_abstract_browser(Window_type.File_system_2D, context.shutdown_target,context.rectangle,this,"klik");
 
-        //if ( dbg)
+        if ( dbg)
             logger.log("\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());
 
     }
@@ -115,7 +115,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
 
         if (!monitor_this_folder)
         {
-            if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name(), my_Stage.the_Stage))
+            if (Booleans.get_boolean_defaults_to_true(Feature.Monitor_folders.name()))
             {
                 monitor_this_folder = true;
             }

@@ -490,7 +490,7 @@ public class Playlist
         if (result.isEmpty())
         {
             logger.log("❗ playlist not saved");
-            Popups.popup_warning("❗ Not saved ", "playlist not saved", true, owner,logger);
+            Popups.popup_warning("Not saved ", "playlist not saved", true, owner,logger);
             return;
         }
 

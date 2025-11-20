@@ -20,7 +20,7 @@ import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.files_and_paths.*;
-import klik.experimental.deduplicate.manual.Stage_with_2_images;
+import klik.util.ui.Stage_with_2_images;
 import klik.experimental.deduplicate.console.Deduplication_console_window;
 import klik.experimental.deduplicate.manual.Againor;
 import klik.util.files_and_paths.old_and_new.Command;
@@ -337,7 +337,7 @@ public class Deduplication_engine implements Againor, Abortable
         Againor local_againor = this;
         Jfx_batch_injector.inject(() -> {
             File_pair local = new File_pair(file_pair.f1.my_file.file, file_pair.f2.my_file.file);
-            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(title, owner, local, local_againor, console_window.count_deleted,path_list_provider,path_comparator_source,private_aborter, logger);
+            if ( stage_with_2_images == null) stage_with_2_images = new Stage_with_2_images(title, local, local_againor, console_window.count_deleted,path_list_provider,path_comparator_source,private_aborter, owner, logger);
             else stage_with_2_images.set_pair(title,local,path_list_provider,path_comparator_source,private_aborter);
         },logger);
     }

@@ -64,6 +64,7 @@ public class Preferences_stage
 
     public static final Feature[] debugging_features ={
             Feature.Log_to_file,
+            Feature.Log_performances,
             Feature.Enable_detailed_cache_cleaning_options,
             Feature.Fusk_is_on,
             Feature.Show_ffmpeg_install_warning,
@@ -72,6 +73,7 @@ public class Preferences_stage
     };
 
     public static final Feature[] experimental_features ={
+            Feature.Enable_3D,
             Feature.Enable_backup,
             //Feature.Enable_tags,
             Feature.Enable_fusk,
@@ -225,14 +227,7 @@ public class Preferences_stage
         {
             CheckBox cb = new CheckBox(text);
             cb.setMnemonicParsing(false);
-            Boolean value0 = Booleans.get_boolean(bf.name(), stage);
-
-            if (value0 == null) {
-                logger.log("warning, no Boolean found for: " + bf.name());
-                value0 = false;
-                Booleans.set_boolean(bf.name(), value0, stage);
-                Feature_cache.update_cached_boolean(bf, value0, stage);
-            }
+            boolean value0 = Booleans.get_boolean(bf.name());
             cb.setSelected(value0);
             Look_and_feel_manager.set_CheckBox_look(cb, stage, logger);
 

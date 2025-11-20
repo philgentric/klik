@@ -83,7 +83,7 @@ public class Browsing_caches
     public static void scroll_position_cache_write(Path folder_path, Path top_left_item_path)
     //**********************************************************
     {
-        scroll_position_cache.put(folder_path.toAbsolutePath().toString(), top_left_item_path);
+        if ( top_left_item_path != null) scroll_position_cache.put(folder_path.toAbsolutePath().toString(), top_left_item_path);
     }
 
     //**********************************************************

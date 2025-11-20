@@ -63,7 +63,9 @@ public class Static_image_utilities
                 png.writeRow(line, y);
             }
             png.end();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             logger.log("Icon_writer_actor: Error writing icon to cache: " + e.getMessage());
         }
         if (dbg) logger.log("Icon_writer_actor: Icon written to cache: ");

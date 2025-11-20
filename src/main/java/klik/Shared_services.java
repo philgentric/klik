@@ -57,7 +57,7 @@ public class Shared_services
     //**********************************************************
     {
         Logger logger;
-        if (Booleans.get_boolean(Feature.Log_to_file.name(), null))
+        if (Booleans.get_boolean(Feature.Log_to_file.name()))
         {
             logger = new File_logger(tag);
         }

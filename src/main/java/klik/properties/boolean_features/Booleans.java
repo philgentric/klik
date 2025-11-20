@@ -33,17 +33,16 @@ public class Booleans
 
     // this routine default to FALSE for absent values
     //**********************************************************
-    public static boolean get_boolean(String s,  Window owner)
+    public static boolean get_boolean(String s)
     //**********************************************************
     {
         IProperties pm = Shared_services.main_properties();
         String bb = pm.get(s);
-        Boolean b = Boolean.parseBoolean(bb);
-        return b;
+        return Boolean.parseBoolean(bb); // returns false if bb is null
     }
 
     //**********************************************************
-    public static boolean get_boolean_defaults_to_true(String s, Window owner)
+    public static boolean get_boolean_defaults_to_true(String s)
     //**********************************************************
     {
         IProperties pm = Shared_services.main_properties();
@@ -53,8 +52,7 @@ public class Booleans
             pm.set(s, "true");
             return true;
         }
-        Boolean b = Boolean.parseBoolean(bb);
-        return b;
+        return Boolean.parseBoolean(bb);
     }
 
 
@@ -65,7 +63,7 @@ public class Booleans
     public static void manage_show_ffmpeg_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( get_boolean_defaults_to_true(Feature.Show_ffmpeg_install_warning.name(),owner))
+        if ( get_boolean_defaults_to_true(Feature.Show_ffmpeg_install_warning.name()))
         {
             if ( show_ffmpeg_install_warning_done) return;
             show_ffmpeg_install_warning_done = true;
@@ -86,7 +84,7 @@ public class Booleans
     public static void manage_show_graphicsmagick_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( get_boolean_defaults_to_true(Feature.Show_graphicsmagick_install_warning.name(),owner))
+        if ( get_boolean_defaults_to_true(Feature.Show_graphicsmagick_install_warning.name()))
         {
             if ( show_graphicsmagick_install_warning_done) return;
             show_graphicsmagick_install_warning_done = true;
@@ -113,7 +111,7 @@ public class Booleans
     public static void manage_show_fpcalc_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( get_boolean_defaults_to_true(Feature.Show_fpcalc_install_warning.name(),owner))
+        if ( get_boolean_defaults_to_true(Feature.Show_fpcalc_install_warning.name()))
         {
             if ( show_fpcalc_install_warning_done) return;
             show_fpcalc_install_warning_done = true;
@@ -139,7 +137,7 @@ public class Booleans
     public static void manage_show_imagemagick_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( get_boolean_defaults_to_true(Feature.Show_imagemagick_install_warning.name(),owner))
+        if ( get_boolean_defaults_to_true(Feature.Show_imagemagick_install_warning.name()))
         {
             if ( show_imagemagick_install_warning_done) return;
             show_imagemagick_install_warning_done = true;
@@ -166,7 +164,7 @@ public class Booleans
     public static void manage_show_mediainfo_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( get_boolean_defaults_to_true(Feature.Show_mediainfo_install_warning.name(),owner))
+        if ( get_boolean_defaults_to_true(Feature.Show_mediainfo_install_warning.name()))
         {
             if ( show_mediainfo_install_warning_done) return;
             show_mediainfo_install_warning_done = true;
@@ -193,7 +191,7 @@ public class Booleans
     public static void manage_show_ytdlp_install_warning(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( get_boolean_defaults_to_true(Feature.Show_ytdlp_install_warning.name(),owner))
+        if ( get_boolean_defaults_to_true(Feature.Show_ytdlp_install_warning.name()))
         {
             if ( show_ytdlp_install_warning_done) return;
             show_ytdlp_install_warning_done = true;

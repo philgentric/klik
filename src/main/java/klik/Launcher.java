@@ -44,6 +44,7 @@ import klik.util.ui.Popups;
 import klik.util.ui.progress.Progress_window;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -160,7 +161,7 @@ public class Launcher extends Application implements UI_change
             use_default_max_RAM(stage,logger);
             return;
         }
-        if (Booleans.get_boolean(Feature.max_RAM_is_defined_by_user.name(), stage))
+        if (Booleans.get_boolean(Feature.max_RAM_is_defined_by_user.name()))
         {
             logger.log("Using the max RAM defined by the user: "+current+" GBytes");
         }
@@ -631,7 +632,7 @@ public class Launcher extends Application implements UI_change
         Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR,Non_booleans_properties.FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER);
         try
         {
-            try ( BufferedWriter writer = java.nio.file.Files.newBufferedWriter(p))
+            try ( BufferedWriter writer = java.nio.file.Files.newBufferedWriter(p, StandardCharsets.UTF_8))
             {
                 logger.log("ui change port is :"+ui_change_listening_port);
                 writer.write(""+ui_change_listening_port);
@@ -652,7 +653,7 @@ public class Launcher extends Application implements UI_change
         Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR,Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
         try
         {
-            try ( BufferedWriter writer = java.nio.file.Files.newBufferedWriter(p))
+            try ( BufferedWriter writer = java.nio.file.Files.newBufferedWriter(p,StandardCharsets.UTF_8))
             {
                 writer.write(""+port_to_reply_about_start);
                 writer.newLine();

@@ -26,7 +26,7 @@ public class Instructions
     public final Path_list_provider path_list_provider;
     public final Rectangle2D rectangle;
     public final Shutdown_target shutdown_target; // if null, there is no previous guy to shutdown
-    public final Window originator;
+    public final Window owner;
 
     //**********************************************************
     private Instructions(
@@ -34,14 +34,14 @@ public class Instructions
             Path_list_provider path_list_provider,
             Rectangle2D rectangle,
             Shutdown_target shutdown_target,
-            Window originator,
+            Window owner,
             Logger logger)
     //**********************************************************
     {
         this.context_type = context_type;
         this.rectangle = rectangle;
         this.shutdown_target = shutdown_target;
-        this.originator = originator;
+        this.owner = owner;
 
 /*        if ( path_list_provider == null) {
             Path target = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
@@ -69,7 +69,7 @@ public class Instructions
 
 
     //**********************************************************
-    public static void additional_no_past(Window_type context_type, Path_list_provider path_list_provider, Window originator, Logger logger)
+    public static Window_provider additional_no_past(Window_type context_type, Path_list_provider path_list_provider, Window owner, Logger logger)
     //**********************************************************
     {
         Instructions context = new Instructions(
@@ -77,10 +77,10 @@ public class Instructions
                 path_list_provider,
                 null,
                 null,
-                originator,
+                owner,
                 logger);
         if ( dbg) logger.log(("\nadditional_no_past\n"+ context.to_string() ));
-        get_one_new(context,logger);
+        return get_one_new(context,logger);
     }
 
     //**********************************************************
@@ -218,15 +218,26 @@ public class Instructions
 
     }
 
-    private static void get_one_new(Instructions context, Logger logger)
+    //**********************************************************
+    private static Window_provider get_one_new(Instructions context, Logger logger)
+    //**********************************************************
     {
         switch (context.context_type)
         {
-            case File_system_2D -> new Browser(context,logger);
-            case File_system_3D -> new Circle_3D(context,logger);
-            case Song_playlist_1D -> new Song_playlist_browser(context,logger);
+            case File_system_2D -> {
+                return new Browser(context,logger);
+            }
+            case File_system_3D ->
+                    {
+                        return new Circle_3D(context,logger);
+                    }
+            case Song_playlist_1D ->
+                    {
+                        return new Song_playlist_browser(context,logger);
+                    }
 
         }
+        return null;
     }
 
 }

@@ -27,6 +27,7 @@ public enum Feature
     Play_ding_after_long_processes,
     Shift_d_is_sure_delete,
 
+    Enable_3D,
     Enable_backup,
     //Enable_tags,
     Enable_fusk,
@@ -37,6 +38,7 @@ public enum Feature
 
 
     Log_to_file,
+    Log_performances,
     Enable_detailed_cache_cleaning_options,
     Fusk_is_on,
     Show_ffmpeg_install_warning,

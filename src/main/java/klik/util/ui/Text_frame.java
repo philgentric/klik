@@ -133,7 +133,7 @@ public class Text_frame
             }
             catch (InterruptedException e)
             {
-                logger.log("Installer output thread interrupted: " + e.getMessage());
+                logger.log("thread interrupted: " + e.getMessage());
             }
         };
         Actor_engine.execute(r,"Text frame source monitor",logger);
@@ -286,11 +286,11 @@ public class Text_frame
             Stage stage)
     //**********************************************************
     {
-        logger.log("process_key_event in Text_frame:"+key_event);
+        if ( dbg) logger.log("process_key_event in Text_frame:"+key_event);
 
         if (key_event.getCode().equals(KeyCode.ESCAPE))
         {
-            logger.log("process_key_event in Text_frame: ESCAPE");
+            if ( dbg) logger.log("process_key_event in Text_frame: ESCAPE");
 
             stage.close();
             key_event.consume();
@@ -339,7 +339,7 @@ public class Text_frame
             process_down();
 
         }
-        logger.log("process_key_event in Text_frame: DONE");
+        if ( dbg) logger.log("process_key_event in Text_frame: DONE");
 
         return false;
     }
@@ -348,11 +348,11 @@ public class Text_frame
     private void process_down()
     //**********************************************************
     {
-        logger.log("process_key_event in Text_frame: DOWN");
+        if ( dbg) logger.log("process_key_event in Text_frame: DOWN");
         if (marked_item_index>= line_numbers_of_marked_items.size()) return;
 
         int target_id = line_numbers_of_marked_items.get(marked_item_index);
-        logger.log("process_key_event in Text_frame: " + marked_item_index + " => " + target_id);
+        if ( dbg) logger.log("process_key_event in Text_frame: " + marked_item_index + " => " + target_id);
 
         marked_item_index++;
         if (marked_item_index >= line_numbers_of_marked_items.size()) marked_item_index = 0;
@@ -370,11 +370,11 @@ public class Text_frame
     private void process_up()
     //**********************************************************
     {
-        logger.log("process_key_event in Text_frame: UP");
+        if ( dbg) logger.log("process_key_event in Text_frame: UP");
         if (marked_item_index>= line_numbers_of_marked_items.size()) return;
 
         int target_id = line_numbers_of_marked_items.get(marked_item_index);
-        logger.log("process_key_event in Text_frame: "+ marked_item_index +" => "+target_id);
+        if ( dbg) logger.log("process_key_event in Text_frame: "+ marked_item_index +" => "+target_id);
 
         marked_item_index--;
         if ( marked_item_index < 0) marked_item_index = line_numbers_of_marked_items.size()-1;
@@ -392,11 +392,11 @@ public class Text_frame
     private boolean search_and_mark()
     //**********************************************************
     {
-        logger.log("process_key_event in Text_frame: ");
+        if ( dbg) logger.log("process_key_event in Text_frame: ");
         marked = (String) web_view.getEngine().executeScript("window.getSelection().toString()");
         if( marked.isEmpty())
         {
-            logger.log("process_key_event in Text_frame: marked is empty");
+            if ( dbg) logger.log("process_key_event in Text_frame: marked is empty");
             TextInputDialog dialog = new TextInputDialog("Enter text");
             Look_and_feel_manager.set_dialog_look(dialog,stage,logger);
             dialog.initOwner(stage);
@@ -404,7 +404,7 @@ public class Text_frame
             dialog.setHeaderText("Enter text to search, then use 'd' or 'n' to jump down and 'u' or 'p' to jump up");
             dialog.setContentText("Text:");
 
-            logger.log("dialog !");
+            if ( dbg) logger.log("dialog !");
             Optional<String> result = dialog.showAndWait();
             if (result.isPresent())
             {
@@ -466,10 +466,10 @@ public class Text_frame
     private void load_lines(List<String> lines)
     //**********************************************************
     {
-        logger.log("Text_frame, got " + lines.size() + " lines");
+        if ( dbg) logger.log("Text_frame, got " + lines.size() + " lines");
 
         scroll = (int) web_view.getEngine().executeScript("window.scrollY");
-        logger.log("scroll=" + scroll);
+        if ( dbg) logger.log("scroll=" + scroll);
 
         web_view.getEngine().load("about:blank");
         line_numbers_of_marked_items.clear();
@@ -507,7 +507,7 @@ public class Text_frame
     private List<String> try_binary(Path the_path)
     //**********************************************************
     {
-        logger.log("file is binary? ");
+        if ( dbg) logger.log("file is binary? ");
         List<String> returned = new ArrayList<>();
         try
         {

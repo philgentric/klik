@@ -17,6 +17,7 @@ import klik.util.log.Stack_trace_getter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -223,7 +224,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
         try {
             Files.delete(the_playlist_file_path);
             Files.write(the_playlist_file_path,paths,java.nio.charset.StandardCharsets.UTF_8, StandardOpenOption.CREATE);
-            List<String> lines = Files.readAllLines(the_playlist_file_path);
+            List<String> lines = Files.readAllLines(the_playlist_file_path, StandardCharsets.UTF_8);
             for ( String s : lines)
             {
                 logger.log("AFTER SAVE FILE IS: Path_list_provider_for_playlist.save(): " +s);
@@ -321,7 +322,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
             return;
         }
         try {
-            List<String> ss = Files.readAllLines(the_playlist_file_path);
+            List<String> ss = Files.readAllLines(the_playlist_file_path,StandardCharsets.UTF_8);
             for ( String s : ss)
             {
                 if ( !paths.contains(s))

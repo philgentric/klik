@@ -114,8 +114,9 @@ public class Results_frame
         // shorten the string, the left part is unnecessary
         Path folder = path_list_provider.get_folder_path();
         int i = folder.toAbsolutePath().toString().length();
-        displayed_text = keys +" => "+ displayed_text.substring(i);
-
+        if ( i < displayed_text.length()) {
+            displayed_text = keys + " => " + displayed_text.substring(i);
+        }
         /*
         // insert new line every 80 chars
         int start =0;

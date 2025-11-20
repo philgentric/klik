@@ -111,11 +111,12 @@ import javafx.stage.Stage;
 import klik.*;
 import klik.path_lists.Path_list_provider_for_playlist;
 import klik.properties.Non_booleans_properties;
-import klik.util.cache_auto_clean.Monitor;
+import klik.util.cache_auto_clean.Disk_usage_and_caches_monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -188,7 +189,7 @@ public class Image_playlist_app extends Application
         }
         logger.log("Starting playlist browser on path ->" + path+"<-");
         Instructions.additional_no_past(Window_type.Image_playlist_2D,new Path_list_provider_for_playlist(path,primary_stage_,logger),primary_stage_,logger);
-        new Monitor(()->primary_stage, logger).start();
+        new Disk_usage_and_caches_monitor(()->primary_stage, logger).start();
 
         Integer reply_port = extract_started_reply_port(logger);
         if ( reply_port != null) // is null when launched from the audio player
@@ -205,7 +206,7 @@ public class Image_playlist_app extends Application
         Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
         try {
             if (java.nio.file.Files.exists(p)) {
-                List<String> lines = java.nio.file.Files.readAllLines(p);
+                List<String> lines = java.nio.file.Files.readAllLines(p, StandardCharsets.UTF_8);
                 if (lines.size() > 0) {
                     String s = lines.get(0).trim();
                     return Integer.parseInt(s);
@@ -226,7 +227,7 @@ public class Image_playlist_app extends Application
         Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER);
         try {
             if (java.nio.file.Files.exists(p)) {
-                List<String> lines = java.nio.file.Files.readAllLines(p);
+                List<String> lines = java.nio.file.Files.readAllLines(p,StandardCharsets.UTF_8);
                 if (lines.size() > 0) {
                     String s = lines.get(0).trim();
                     return Integer.parseInt(s);

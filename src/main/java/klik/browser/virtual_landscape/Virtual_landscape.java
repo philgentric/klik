@@ -1084,6 +1084,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width, single_column);
             if (folder_item instanceof Item_folder ini) {
+                if ( ini.get_button() == null)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("PANIC "));
+                }
                 ini.get_button().setPrefWidth(column_increment);
                 ini.get_button().setMinWidth(column_increment);
             }
@@ -2427,25 +2431,28 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 Image default_icon = Look_and_feel_manager.get_default_icon(256,owner,logger);
                 final double[] local_x = {0};
                 final double[] local_y = {0};
+                final int[] count = {0};
                 int icon_size = Non_booleans_properties.get_icon_size(owner);
 
                 Image_found imgfnd = new Image_found() {
                     @Override
                     public void image_found() {
                        Platform.runLater(()->{
-                            ImageView iv = new ImageView(default_icon);
-                            iv.setFitWidth(icon_size);
-                            iv.setPreserveRatio(true);
-                            iv.setSmooth(true);
-                            iv.relocate(local_x[0],local_y[0]);
-                            local_x[0] += icon_size;
-                            if ( local_x[0] > the_Pane.getWidth())
-                            {
-                                local_x[0] = 0;
-                                local_y[0] += icon_size;
-                            }
-                            logger.log(local_x[0]+" "+local_y[0]);
-                            the_Pane.getChildren().add(iv);
+                           count[0] += 1;
+                           if ( count[0] > 100) return;
+                           ImageView iv = new ImageView(default_icon);
+                           iv.setFitWidth(0.5*icon_size);
+                           iv.setPreserveRatio(true);
+                           iv.setSmooth(true);
+                           iv.relocate(local_x[0],local_y[0]);
+                           local_x[0] += icon_size;
+                           if ( local_x[0] > the_Pane.getWidth())
+                           {
+                               local_x[0] = 0;
+                               local_y[0] += icon_size;
+                           }
+                           //logger.log(local_x[0]+" "+local_y[0]);
+                           the_Pane.getChildren().add(iv);
                         });
                     }
                 };
@@ -2498,7 +2505,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Actor_engine.execute(() -> get_image_properties_ram_cache().save_whole_cache_to_disk(),"Save whole image property cache",logger);
 
         if (System.currentTimeMillis() - start > 5_000) {
-            if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name(),owner)) {
+            if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name())) {
                 Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
             }
         }

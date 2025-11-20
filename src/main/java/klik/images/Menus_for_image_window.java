@@ -517,7 +517,7 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
 
-        if (Booleans.get_boolean(Feature.Enable_alternate_image_scaling.name(),image_window.stage))
+        if (Booleans.get_boolean(Feature.Enable_alternate_image_scaling.name()))
         {
             Path p = image_window.image_display_handler.get_image_context().get().path;
             if(!Guess_file_type.is_this_path_a_gif(p, image_window.stage, logger))
@@ -527,7 +527,7 @@ public class Menus_for_image_window
             }
         }
 
-        if ( Booleans.get_boolean(Feature.Enable_image_similarity.name(), image_window.stage))
+        if ( Booleans.get_boolean(Feature.Enable_image_similarity.name()))
         {
             context_menu.getItems().add(Item_file_with_icon.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
@@ -539,7 +539,7 @@ public class Menus_for_image_window
                     image_window.logger));
         }
 
-        if ( Booleans.get_boolean(Feature.Enable_face_recognition.name(), image_window.stage))
+        if ( Booleans.get_boolean(Feature.Enable_face_recognition.name()))
         {
             String s = My_I18n.get_I18n_string("Face_recognition_service", image_window.stage,logger);
             Menu fr_context_menu = new Menu(s);
@@ -564,7 +564,10 @@ public class Menus_for_image_window
         }
         context_menu.getItems().add(get_open_menu_item(image_window));
         context_menu.getItems().add(get_browse_menu_item(image_window));
-        context_menu.getItems().add(get_browse_3D_menu_item(image_window));
+        if (Booleans.get_boolean(Feature.Enable_3D.name()))
+        {
+            context_menu.getItems().add(get_browse_3D_menu_item(image_window));
+        }
         context_menu.getItems().add(get_rename_menu_item(image_window));
         context_menu.getItems().add(get_delete_menu_item(image_window));
         context_menu.getItems().add(get_copy_menu_item(image_window));

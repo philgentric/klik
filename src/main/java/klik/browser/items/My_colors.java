@@ -12,6 +12,7 @@ import klik.util.log.Stack_trace_getter;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -121,7 +122,7 @@ public class My_colors
     {
         Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
         try {
-            List<String> lines = Files.readAllLines(color_file);
+            List<String> lines = Files.readAllLines(color_file, StandardCharsets.UTF_8);
             Collection<My_color> all_colors = My_colors.get_all_colors(owner,logger);
             for ( My_color my_color: all_colors)
             {
@@ -164,7 +165,7 @@ public class My_colors
         }
 
         try {
-            FileWriter writer = new FileWriter(color_file.toFile(), false);
+            FileWriter writer = new FileWriter(color_file.toFile(),StandardCharsets.UTF_8,false);
             writer.write(color_java_name);
             writer.close();
             //logger.log("saved "+color_file+" "+color_java_name);

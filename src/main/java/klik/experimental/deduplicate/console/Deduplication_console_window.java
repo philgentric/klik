@@ -78,6 +78,7 @@ public class Deduplication_console_window
         this.logger = logger;
         //the_console = new Deduplication_console_interface(this, logger);
         Stage stage = new Stage();
+        stage.initOwner(owner);
         stage.setHeight(h);
         stage.setWidth(w);
 

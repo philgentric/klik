@@ -112,16 +112,16 @@ import klik.change.history.History_engine;
 import klik.change.history.History_item;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.properties.Non_booleans_properties;
-import klik.properties.Properties_manager;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
-import klik.util.Github_stars;
-import klik.util.cache_auto_clean.Monitor;
+import klik.util.ui.Github_stars;
+import klik.util.cache_auto_clean.Disk_usage_and_caches_monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
 import klik.util.log.Logger;
 import klik.util.perf.Perf;
 import klik.util.tcp.TCP_client;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -157,7 +157,11 @@ public class Klik_application extends Application
         Shared_services.init(name,primary_stage_);
         Logger logger = Shared_services.logger();
 
-        Perf.monitor(logger);
+        if (Booleans.get_boolean(Feature.Log_performances.name()))
+        {
+            Perf.monitor(logger);
+        }
+
         Github_stars.init(getHostServices());
 
         primary_stage = primary_stage_;
@@ -189,12 +193,16 @@ public class Klik_application extends Application
         {
             logger.log("Starting browser on path ->" + path+"<-");
         }
-        else {
-            if (Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), primary_stage)) {
+        else
+        {
+            if (Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name()))
+            {
                 List<History_item> l = History_engine.get(primary_stage).get_all_history_items();
-                if (!l.isEmpty()) {
+                if (!l.isEmpty())
+                {
                     History_item h = History_engine.get(primary_stage).get_all_history_items().get(0);
-                    if (h != null) {
+                    if (h != null)
+                    {
                         path = Path.of(h.value);
                         logger.log("reloading last folder from history:" + path);
                     }
@@ -206,8 +214,9 @@ public class Klik_application extends Application
             path = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
         }
 
-        Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(path,primary_stage_,logger),primary_stage_,logger);
-        new Monitor(()->primary_stage, logger).start();
+        Window_provider window_provider = Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(path,primary_stage_,logger),primary_stage_,logger);
+
+        new Disk_usage_and_caches_monitor(window_provider, logger).start();
 
         Integer reply_port = extract_started_reply_port(logger);
         if ( reply_port != null) // is null when launched from the audio player
@@ -243,7 +252,7 @@ public class Klik_application extends Application
         Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
         try {
             if (java.nio.file.Files.exists(p)) {
-                List<String> lines = java.nio.file.Files.readAllLines(p);
+                List<String> lines = java.nio.file.Files.readAllLines(p, StandardCharsets.UTF_8);
                 if (lines.size() > 0) {
                     String s = lines.get(0).trim();
                     return Integer.parseInt(s);
@@ -264,7 +273,7 @@ public class Klik_application extends Application
         Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER);
         try {
             if (java.nio.file.Files.exists(p)) {
-                List<String> lines = java.nio.file.Files.readAllLines(p);
+                List<String> lines = java.nio.file.Files.readAllLines(p,StandardCharsets.UTF_8);
                 if (lines.size() > 0) {
                     String s = lines.get(0).trim();
                     return Integer.parseInt(s);
