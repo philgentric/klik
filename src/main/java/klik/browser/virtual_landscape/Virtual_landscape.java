@@ -1884,6 +1884,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         ContextMenu files = virtual_landscape_menus.define_files_ContextMenu();
         Button b = (Button) e.getSource();
         files.show(b, Side.TOP, 0, 0);
+
+        /*
+        List<MenuItem> mis = files.getItems();
+        Visually_impaired_menus vim = new Visually_impaired_menus(mis,1400, logger);
+        vim.show_under(b);
+        */
     }
 
     //**********************************************************

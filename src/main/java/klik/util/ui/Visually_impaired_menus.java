@@ -9,25 +9,28 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+import klik.look.Look_and_feel_manager;
+import klik.util.log.Logger;
 
 import java.util.List;
 
 public class Visually_impaired_menus extends PopupControl
 {
-    public Visually_impaired_menus(List<MenuItem> items, double maxHeight)
+    public Visually_impaired_menus(List<MenuItem> items, double maxHeight, Logger logger)
     {
-        VBox itemBox = new VBox(4);
+        VBox itemBox = new VBox();
         items.forEach(item -> {
             Button b = new Button(item.getText());
+            Look_and_feel_manager.set_button_look(b,false,this,logger);
             b.setMaxWidth(Double.MAX_VALUE);
             b.setOnAction(e -> { hide(); item.fire(); });
             itemBox.getChildren().add(b);
         });
 
         ScrollPane scrollPane = new ScrollPane(itemBox);
-        scrollPane.setPrefHeight(Math.min(maxHeight, itemBox.getLayoutBounds().getHeight()));
+        //scrollPane.setPrefHeight(Math.min(maxHeight, itemBox.getLayoutBounds().getHeight()));
         scrollPane.setFitToWidth(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        //scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         BorderPane root = new BorderPane(scrollPane);
 
