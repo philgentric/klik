@@ -139,7 +139,7 @@ public class Item_folder extends Item implements Icon_destination
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
         if (Feature_cache.get(Feature.Show_file_names_as_tooltips))
         {
-            Tooltip.install(button, new Tooltip(get_item_path().toString()));
+            Tooltip.install(button, new Tooltip(get_item_path().getFileName().toString()));
         }
         Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,get_item_path(),logger);
 

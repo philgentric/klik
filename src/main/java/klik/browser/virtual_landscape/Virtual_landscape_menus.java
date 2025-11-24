@@ -1832,7 +1832,7 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(text);
         Look_and_feel_manager.set_menu_item_look(menu,virtual_landscape.owner, logger);
 
-        double[] candidate_sizes = {10,12,14,16,18,20,22,24,26};
+        double[] candidate_sizes = {8,10,12,14,16,18,20,22,24,26,28};
         List<Double> possible_sizes = new ArrayList<>();
         possible_sizes.add(Double.valueOf(Non_booleans_properties.get_font_size(owner,logger)));
         for (double candidateSize : candidate_sizes) {

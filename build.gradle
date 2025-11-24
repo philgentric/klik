@@ -112,6 +112,14 @@ tasks.register('klik', JavaExec) {
     }
 }
 
+tasks.register('vim', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klik.util.ui.Vim_test'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
 tasks.register('audio_player', JavaExec) {
     dependsOn 'classes'
     mainClass = 'klik.audio.Audio_player_application'
