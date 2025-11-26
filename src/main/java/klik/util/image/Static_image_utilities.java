@@ -43,10 +43,9 @@ public class Static_image_utilities
 
         ImageInfo image_info = new ImageInfo(w, h, 8, true); // 8-bit RGBA
 
-        try {
-            OutputStream os = Files.newOutputStream(out_path);
-            PngWriter png = new PngWriter(os, image_info);
+        try (OutputStream os = Files.newOutputStream(out_path)){
 
+            PngWriter png = new PngWriter(os, image_info);
             ImageLineByte line = new ImageLineByte(image_info);
             byte[] scan = line.getScanlineByte();
 
