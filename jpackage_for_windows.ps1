@@ -4,8 +4,8 @@
 #  1. Builds the fat JAR with Gradle (shadowJar)
 #  2. Creates an MSI installer with jpackage
 #
-#  Run it with:
-#      powershell -ExecutionPolicy Bypass -File .\jpackage_for_windows.ps1
+#  Run it IN THE GIT BASH shell (MINGw64) so as to get the right paths for java:
+#      powershell -ExecutionPolicy Bypass -File jpackage_for_windows.ps1
 #-----------------------------------------------------------------------
 
 # -------------------------------------------------------
@@ -62,7 +62,7 @@ Write-Host " Building the fat JAR with Gradle ..."
 # -------------------------------------------------------
 # Run jpackage – create the MSI
 # -------------------------------------------------------
-Write-Host " Packaging with jpackage …"
+Write-Host " Packaging with jpackage ..."
 
 $jpackageArgs = @(
     '--type', 'msi',

@@ -1,5 +1,5 @@
 
-# Klik: a file system explorer/manager with a strong focus on images
+# Klik: a file system explorer/manager with a strong focus on images and readability
 
 
 [En Français](LISEZ_MOI.md)
@@ -8,8 +8,7 @@
 ![Alt text](klik.png?raw=true "Klik screen shot")
 
 
-
-Sort files by displaying pictures and documents as icons, into folders, intuitive and fast, drag-and-drop anything.
+Sort files by displaying pictures and documents as icons, into folders, intuitive and fast, drag-and-drop anything, hyperlegible font available in large size.
 
 # Try klik now!
 
@@ -324,5 +323,93 @@ b) then classification uses KNN with cosine similarity on feature vectors extrac
 
 
 Recommended after training: visit the folder in .klik that has the name of your config and browse the "prototypes" i.e. the "faces" that were stored during training: you may find weird ones that are caused by face detection false positives (sometimes things that are detected as faces are not faces). Simply delete these bogus images and the next time you load the config, the vgg19 vector file will be erased too.
+
+
+# For developers
+
+How to build klik and klik installers.
+
+You need git to get the source code.
+
+Ideally you should use sdkman for gradle and java.
+
+
+## MacOS and linux
+
+### Install homebrew
+
+**/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"**
+
+### install sdkman
+
+**brew install sdkman**
+
+### install gradle
+
+**sdk install gradle 9.2.0**
+
+### install java24 (with fx)
+
+**sdk install java 25.fx-zulu**
+
+### Run Klik
+
+gradle klik
+
+### Run the launcher
+
+gradle run
+
+### Run the audio player
+
+gradle audio_player
+
+or just:
+
+gradle audio
+
+### Make a MacOS installer (.dmg)
+
+You need a mac.
+
+./jpackage_for_macos.sh
+
+the produced file is named ./Klik-1.0.dmg
+
+
+## Windows11
+
+You need a PC under Windows11. (maybe windows10 works too, not tested; earlier windows versions used to work with earlier klik+java version, but this is now hard to test as klik now requires a pretty recent java)
+
+### Install git-for-windows
+
+https://gitforwindows.org/
+
+This will give you a major asset (on top of git): the git bash shell MINGw64
+
+MINGw64 gives you a 'nix like' behavior
+
+### Clone this repo
+
+**git clone https://github.com/philgentric/klik.git**
+
+### Install sdkman, gradle, java with fx
+
+**https://sdkman.io/install/#windows-installation**
+
+**sdk install gradle 9.2.0**
+
+**sdk install java 25.fx-zulu**
+
+### Make a Windows11 installer (.msi)
+
+In the git bash shell MINGw64 type:
+
+powershell -ExecutionPolicy Bypass -File jpackage_for_windows.ps1
+
+This will create a msi file in ./build/jpackage
+
+
+
 
 

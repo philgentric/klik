@@ -9,7 +9,6 @@ import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
-import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Popups;
 import klik.util.ui.Text_frame;
 import org.apache.commons.io.input.Tailer;
@@ -23,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -171,7 +169,7 @@ public class Execute_via_script_in_tmp_file
                 @Override
                 public void init(Tailer tailer)
                 {
-                    logger.log("TailerListener INIT "+tailer.toString());
+                    if (dbg) logger.log("TailerListener INIT "+tailer.toString());
                     this.tailer = tailer;
                     Runnable suicidor = () ->
                     {
@@ -180,7 +178,7 @@ public class Execute_via_script_in_tmp_file
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {
-                                logger.log("TailerListener monitor interrupted: " + e);
+                                if (dbg) logger.log("TailerListener monitor interrupted: " + e);
                                 return;
                             }
                             if ( last < 0) continue;
@@ -218,7 +216,7 @@ public class Execute_via_script_in_tmp_file
 
                 @Override
                 public void handle(String line) {
-                    logger.log("TailerListener, adding output :"+line);
+                    if (dbg) logger.log("TailerListener, adding output :"+line);
                     if ( output_queue != null) output_queue.add(line);
                     last = System.currentTimeMillis();
                 }
