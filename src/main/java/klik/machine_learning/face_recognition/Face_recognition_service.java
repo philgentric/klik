@@ -32,6 +32,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Window_type;
 import klik.Instructions;
+import klik.look.Look_and_feel_manager;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
@@ -142,6 +143,7 @@ public class Face_recognition_service
         File[] files = p.toFile().listFiles();
 
         ChoiceDialog<String> cd = new ChoiceDialog<>("Select face recognition model");
+        Look_and_feel_manager.set_dialog_look(cd,owner,logger);
         ObservableList<String> list = cd.getItems();
         for ( File f : files)
         {
@@ -154,6 +156,8 @@ public class Face_recognition_service
         if ( x.get().equals(new_model))
         {
             TextInputDialog dialog = new TextInputDialog();
+            Look_and_feel_manager.set_dialog_look(dialog,owner,logger);
+
             dialog.setTitle("Give recognition system tag");
             dialog.setHeaderText("Give recognition system tag");
             return dialog.showAndWait();
@@ -399,11 +403,10 @@ public class Face_recognition_service
             Window owner)
     //**********************************************************
     {
-
-
         Stage stage = new Stage();
         stage.initOwner(owner);
         Label status_label = new Label();
+        Look_and_feel_manager.set_label_look(status_label,stage,logger);
 
         stage.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>()
         {
@@ -431,12 +434,15 @@ public class Face_recognition_service
         {
             if ( face_image != null)
             {
-                vBox.getChildren().add(new Label("Extracted face looks like this:"));
+                Label l= new Label("Extracted face looks like this:");
+                Look_and_feel_manager.set_label_look(l,stage,logger);
+                vBox.getChildren().add(l);
                 ImageView iv = new ImageView();
                 iv.setImage(face_image);
                 iv.setPreserveRatio(true);
                 iv.setFitWidth(size);
                 Pane image_pane = new StackPane(iv);
+                Look_and_feel_manager.set_region_look(image_pane,stage,logger);
                 vBox.getChildren().add(image_pane);
             }
             else
@@ -453,8 +459,9 @@ public class Face_recognition_service
                 logger.log("eval results SIZE="+eval_result.list().size());
                 if (!eval_result.list().isEmpty())
                 {
-                    vBox.getChildren().add(new Label("Closests prototypes found: "));
-
+                    Label l = new Label("Closests prototypes found: ");
+                    Look_and_feel_manager.set_label_look(l,stage,logger);
+                    vBox.getChildren().add(l);
                     HBox hBox = new HBox();
                     Border border = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID,new CornerRadii(1),new BorderWidths(0.5)));
 
@@ -465,6 +472,7 @@ public class Face_recognition_service
 
                         {
                             Label lab = new Label("At: "+String.format("%.3f",res.distance()));
+                            Look_and_feel_manager.set_label_look(lab,stage,logger);
                             lab.setMaxWidth(size);
                             lab.setWrapText(true);
                             vb.getChildren().add(lab);
@@ -475,10 +483,13 @@ public class Face_recognition_service
                             iv.setPreserveRatio(true);
                             iv.setFitWidth(size);
                             Pane image_pane = new StackPane(iv);
+                            Look_and_feel_manager.set_region_look(image_pane,stage,logger);
+
                             vb.getChildren().add(image_pane);
                         }
                         {
                             Label lab = new Label(res.embeddings_prototype().label());
+                            Look_and_feel_manager.set_label_look(lab,stage,logger);
                             lab.setMaxWidth(size);
                             lab.setWrapText(true);
                             vb.getChildren().add(lab);
@@ -491,17 +502,21 @@ public class Face_recognition_service
                 }
             }
             TextField textField = new TextField();
+            Look_and_feel_manager.set_TextField_look(textField,stage,logger);
+
             if (eval_result != null) textField.setDisable(!eval_result.adding());
 
             {
                 HBox hBox = new HBox();
                 Label label5 = new Label("Enter the recognition label from list:");
+                Look_and_feel_manager.set_label_look(label5,stage,logger);
                 hBox.getChildren().add(label5);
                 vBox.getChildren().add(hBox);
             }
             {
                 HBox hBox = new HBox();
                 ComboBox<String> comboBox = new ComboBox<>();
+                Look_and_feel_manager.set_region_look(comboBox,stage,logger);
                 if (eval_result != null) comboBox.setDisable(!eval_result.adding());
 
                 comboBox.getItems().addAll(Face_recognition_service.get_instance(stage,logger).get_prototype_labels());
@@ -518,6 +533,8 @@ public class Face_recognition_service
                 hBox.getChildren().add(comboBox);
 
                 Label label2 = new Label("Or introduce a new label:");
+                Look_and_feel_manager.set_label_look(label2,stage,logger);
+
                 hBox.getChildren().add(label2);
 
                 hBox.getChildren().add(textField);
@@ -545,9 +562,12 @@ public class Face_recognition_service
             {
                 HBox hBox = new HBox();
                 Button add = new Button("Add to training set");
+                Look_and_feel_manager.set_button_look(add,true,stage,logger);
+
                 if (eval_result != null) add.setDisable(!eval_result.adding());
                 add.setOnAction(e -> {
                     String image_label = textField.getText();
+
                     if (image_label.trim().isEmpty()) {
                         status_label.setText("Error: no label!");
                         return;
@@ -572,6 +592,7 @@ public class Face_recognition_service
             {
                 HBox hBox = new HBox();
                 Button skip = new Button("Skip this face, do not add it to the training set");
+                Look_and_feel_manager.set_button_look(skip,true,stage,logger);
                 skip.setOnAction(e -> {
                     stage.close();
                 });
@@ -581,6 +602,7 @@ public class Face_recognition_service
             if (eval_result != null) {
                 HBox hBox = new HBox();
                 Button remove = new Button("REMOVE this face from the training set (bad face or wrong label)");
+                Look_and_feel_manager.set_button_look(remove,true,stage,logger);
                 remove.setDisable(!eval_result.adding());
                 remove.setOnAction(e -> {
 
@@ -613,7 +635,10 @@ public class Face_recognition_service
             hBox.getChildren().add(status_label);
             vBox.getChildren().add(hBox);
         }
-        stage.setScene(new Scene(vBox));
+        Scene scene = new Scene(vBox);
+        Look_and_feel_manager.set_scene_look(scene,stage,logger);
+
+        stage.setScene(scene);
         stage.show();
     }
 

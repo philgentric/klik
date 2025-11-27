@@ -139,16 +139,16 @@ public class Preferences_stage
         //stage.setHeight(HEIGHT);
         //stage.setWidth(WIDTH);
 
-        /*
+
         ScrollPane sp = new ScrollPane(vBox);
         sp.setFitToHeight(true);
         sp.setFitToWidth(true);
-        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         Scene scene = new Scene(sp, Color.WHITE);
-        */
 
-        Scene scene = new Scene(vBox, Color.WHITE);
+
+        //Scene scene = new Scene(vBox, Color.WHITE);
 
         stage.setTitle(title);
         stage.setScene(scene);

@@ -19,6 +19,8 @@
 package klik.browser.virtual_landscape;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.Window;
@@ -26,6 +28,7 @@ import klik.Window_type;
 import klik.Instructions;
 import klik.path_lists.Path_list_provider;
 import klik.util.execute.Execute_result;
+import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.execute.actor.Actor_engine;
 import klik.browser.Clearable_RAM_cache;
 import klik.browser.Icon_size;
@@ -653,7 +656,7 @@ public class Virtual_landscape_menus
         //pref.getItems().add(make_invert_vertical_scroll_menu_item());
         if (Booleans.get_boolean(Feature.Enable_face_recognition.name()))
         {
-            context_menu.getItems().add(make_start_Enable_face_recognition_menu_item());
+            context_menu.getItems().add(make_start_face_recognition_servers_menu_item());
         }
         if (Booleans.get_boolean(Feature.Enable_image_similarity.name()))
         {
@@ -878,33 +881,6 @@ public class Virtual_landscape_menus
             item.setGraphic(explanation_button);
         }
     }
-
-    //**********************************************************
-    public MenuItem make_start_Enable_face_recognition_menu_item()
-    //**********************************************************
-    {
-        String key = "Show_manual_about_face_reco";
-        MenuItem item = Menu_items.make_menu_item(
-                key,
-                event -> ML_servers_util.show_face_recognition_manual(virtual_landscape.owner, logger),
-                owner,logger);
-        add_question_mark_button(key, item);
-        return item;
-    }
-
-
-
-    //**********************************************************
-    public MenuItem make_start_image_similarity_servers_menu_item()
-    //**********************************************************
-    {
-        String key = "Show_manual_about_image_similarity";
-        MenuItem item = Menu_items.make_menu_item(key,
-                event -> ML_servers_util.show_image_similarity_manual(virtual_landscape.owner, logger), owner,logger);
-        add_question_mark_button(key, item);
-        return item;
-    }
-
 
     //**********************************************************
     public Button make_button_that_behaves_like_a_folder(
@@ -1816,8 +1792,8 @@ public class Virtual_landscape_menus
         Look_and_feel_manager.set_menu_item_look(menu,virtual_landscape.owner, logger);
 
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_sizes ={Non_booleans_properties.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
-        for ( int size : possible_sizes)
+        int[] possible_folder_icon_sizes ={Non_booleans_properties.DEFAULT_FOLDER_ICON_SIZE,64,128,256, 300,400,512};
+        for ( int size : possible_folder_icon_sizes)
         {
             create_menu_item_for_one_folder_icon_size(menu, size, all_check_menu_items);
         }
@@ -1832,10 +1808,11 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(text);
         Look_and_feel_manager.set_menu_item_look(menu,virtual_landscape.owner, logger);
 
-        double[] candidate_sizes = {8,10,12,14,16,18,20,22,24,26,28};
         List<Double> possible_sizes = new ArrayList<>();
         possible_sizes.add(Double.valueOf(Non_booleans_properties.get_font_size(owner,logger)));
-        for (double candidateSize : candidate_sizes) {
+
+        double[] possible_font_sizes = {8,10,12,14,16,18,20,22,24,26,28,30};
+        for (double candidateSize : possible_font_sizes) {
             if (possible_sizes.contains((Double)candidateSize)) continue;
             possible_sizes.add((Double)candidateSize);
         }
@@ -2006,4 +1983,33 @@ public class Virtual_landscape_menus
     {
         return Menu_items.make_menu_item("Advanced_And_Experimental_Features",event -> Preferences_stage.show_Preferences_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
     }
+
+
+
+
+    //**********************************************************
+    public MenuItem make_start_face_recognition_servers_menu_item()
+    //**********************************************************
+    {
+        String key = "Start_Face_Recognition_Servers";
+        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), false, true, owner, logger);
+        MenuItem item = Menu_items.make_menu_item(key,handler, owner,logger);
+        add_question_mark_button(key, item);
+        return item;
+    }
+
+
+
+    //**********************************************************
+    public MenuItem make_start_image_similarity_servers_menu_item()
+    //**********************************************************
+    {
+        String key = "Start_Image_Similarity_Servers";
+        EventHandler< ActionEvent > handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false, true, owner, logger);
+        MenuItem item = Menu_items.make_menu_item(key,handler, owner,logger);
+        add_question_mark_button(key, item);
+        return item;
+    }
+
+
 }

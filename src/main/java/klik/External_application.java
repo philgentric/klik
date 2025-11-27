@@ -55,7 +55,7 @@ public enum External_application
 
 
     //**********************************************************
-    String get_command_string_to_install(Window owner, Logger logger)
+    public String get_command_string_to_install(Window owner, Logger logger)
     //**********************************************************
     {
         switch(Guess_OS.guess(owner, logger))

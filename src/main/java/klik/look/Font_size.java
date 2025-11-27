@@ -34,7 +34,8 @@ public class Font_size
     //**********************************************************
     {
         double size = Non_booleans_properties.get_font_size(owner,logger);
-        if (dbg) logger.log("applying font size " + size);
+        //if (dbg)
+            logger.log("applying font size " + size);
         apply_this_font_size_to_Node(node, size, logger);
     }
 
@@ -46,18 +47,19 @@ public class Font_size
         String style = node.getStyle();
         if ( style.isEmpty())
         {
-            node.setStyle(get_new_style(style,size,font_family,logger));
+            node.setStyle(append_to_old_style(style,size,font_family,logger));
             return;
         }
         if ( dbg) logger.log("\nfound node style->" + style + "<-");
 
         if ( style.contains(FX_FONT_SIZE))
         {
-            if ( dbg) logger.log("NOP: style has font size already:"+style);
+            String new_style = style.replaceAll("-fx-font-style:\\s*[^;]+",FX_FONT_SIZE+size+PX);
+            node.setStyle(new_style);
             return;
         }
 
-        node.setStyle(get_new_style(style,size,font_family,logger));
+        node.setStyle(append_to_old_style(style,size,font_family,logger));
     }
 
     private static boolean font_loaded = false;
@@ -87,7 +89,7 @@ public class Font_size
     }
 
     //**********************************************************
-    private static String get_new_style(String old_style, double size,String font_family, Logger logger)
+    private static String append_to_old_style(String old_style, double size, String font_family, Logger logger)
     //**********************************************************
     {
         StringBuilder sb = new StringBuilder();
@@ -97,60 +99,5 @@ public class Font_size
 
         return sb.toString();
     }
-    //**********************************************************
-    public static void apply_global_font_size_to_MenuItem(MenuItem mi, Window owner, Logger logger)
-    //**********************************************************
-    {
-        double size = Non_booleans_properties.get_font_size(owner,logger);
 
-        init(logger);
-        String style = mi.getStyle();
-        if ( style == null)
-        {
-            // happens quite a lot actually :
-            // logger.log("WEIRD style is null for MenuItem ?"+mi.getText());
-
-            mi.setStyle(get_new_style("",size,font_family,logger));
-            return;
-        }
-        if ( style.isEmpty())
-        {
-            mi.setStyle(get_new_style(style,size,font_family,logger));
-            return;
-        }
-        if ( dbg)  logger.log("\nfound node style->" + style + "<-");
-
-        if ( style.contains(FX_FONT_SIZE))
-        {
-            if ( dbg) logger.log("NOP: style has font size already:"+style);
-            return;
-        }
-
-        mi.setStyle(get_new_style(style,size,font_family,logger));
-    }
-
-
-    //**********************************************************
-    public static void apply_global_font_size_to_PopupControl(PopupControl popup_control, Window owner, Logger logger)
-    //**********************************************************
-    {
-        double size = Non_booleans_properties.get_font_size(owner,logger);
-
-        init(logger);
-        String style = popup_control.getStyle();
-        if ( style.isEmpty())
-        {
-            popup_control.setStyle(get_new_style(style,size,font_family,logger));
-            return;
-        }
-        if ( dbg) logger.log("\nfound node style->" + style + "<-");
-
-        if ( style.contains(FX_FONT_SIZE))
-        {
-            if ( dbg) logger.log("NOP: style has font size already:"+style);
-            return;
-        }
-
-        popup_control.setStyle(get_new_style(style,size,font_family,logger));
-    }
 }
