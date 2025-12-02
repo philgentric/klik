@@ -48,7 +48,7 @@ Confirm-Command "python --version"
 python --version   # Should print 3.10.x
 
 # ─────── 2 Create the venv ───────
-$venvDir = "$HOME\venv-metal"
+$venvDir = "$HOME\.klik\venv-metal"
 Confirm-Command "python -m venv $venvDir"
 python -m venv $venvDir
 

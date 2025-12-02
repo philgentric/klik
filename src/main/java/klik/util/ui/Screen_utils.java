@@ -11,9 +11,14 @@ import javafx.stage.Stage;
 import klik.util.log.Stack_trace_getter;
 
 
-public class Screen_utils {
+//**********************************************************
+public class Screen_utils
+//**********************************************************
+{
 
+    //**********************************************************
     public static Point2D verify(double x, double y, double w, double h)
+    //**********************************************************
     {
         ObservableList<Screen> sss = Screen.getScreensForRectangle(x, y, w, h);
         if ( sss.isEmpty())

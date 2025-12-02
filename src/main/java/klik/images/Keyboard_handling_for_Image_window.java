@@ -189,7 +189,8 @@ public class Keyboard_handling_for_Image_window
                 image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
                         image_window.path_list_provider,
                         image_window.path_comparator_source,
-                        image_window.aborter);
+                        image_window.aborter,
+                        image_window.stage);
                 key_event.consume();
                 return;
             }

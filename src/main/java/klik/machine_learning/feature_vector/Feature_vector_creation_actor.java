@@ -8,6 +8,8 @@ package klik.machine_learning.feature_vector;
 import klik.util.execute.actor.Actor;
 import klik.util.execute.actor.Message;
 
+import java.util.Optional;
+
 //**********************************************************
 public class Feature_vector_creation_actor implements Actor
 //**********************************************************
@@ -44,15 +46,15 @@ public class Feature_vector_creation_actor implements Actor
             return "aborted";
         }
 
-        Feature_vector fv = fvs.get_feature_vector(image_feature_vector_message.path, image_feature_vector_message.owner, image_feature_vector_message.logger);
+        Optional<Feature_vector> fv = fvs.get_feature_vector(image_feature_vector_message.path, image_feature_vector_message.owner, image_feature_vector_message.aborter, image_feature_vector_message.logger);
 
-        if ( fv == null)
+        if ( fv.isEmpty())
         {
             image_feature_vector_message.logger.log("Warning: fv source failed");
             return "Warning: embeddings server failed";
         }
         //image_feature_vector_message.logger.log("OK: fv made by source");
-        image_feature_vector_message.feature_vector_cache.inject(image_feature_vector_message.path,fv);
+        image_feature_vector_message.feature_vector_cache.inject(image_feature_vector_message.path,fv.get());
         return "ok";
     }
 

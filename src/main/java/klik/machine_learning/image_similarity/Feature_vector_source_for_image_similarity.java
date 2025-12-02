@@ -3,14 +3,25 @@
 
 package klik.machine_learning.image_similarity;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.stage.Window;
+import klik.machine_learning.ML_servers_util;
+import klik.util.execute.Execute_command;
+import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector;
 import klik.machine_learning.feature_vector.Feature_vector_source_server;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
+import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
 public class Feature_vector_source_for_image_similarity extends Feature_vector_source_server
@@ -26,13 +37,47 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
 
 
     static Random random = new Random();
+    static AtomicBoolean server_started = new AtomicBoolean(false);
 
     //**********************************************************
-    public Feature_vector_source_for_image_similarity(Aborter aborter)
+    public Feature_vector_source_for_image_similarity(Window owner,Logger logger)
     //**********************************************************
     {
-        super(aborter);
+        super(owner, logger);
     }
+
+    //**********************************************************
+    public String get_server_python_name()
+    //**********************************************************
+    {
+        return "MobileNet_embeddings_server";
+    }
+
+    //**********************************************************
+    @Override
+    protected boolean get_server_started()
+    //**********************************************************
+    {
+        return server_started.get();
+    }
+
+    //**********************************************************
+    @Override
+    protected boolean start_servers(Window owner, Logger logger)
+    //**********************************************************
+    {
+        Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(owner,logger), false, false, owner, logger);
+        return true;
+    }
+
+    //**********************************************************
+    @Override
+    protected void set_server_started(boolean b)
+    //**********************************************************
+    {
+        server_started.set(b);
+    }
+
 
     //**********************************************************
     public int get_random_port()
@@ -43,10 +88,10 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
     }
 
     //**********************************************************
-    public Feature_vector get_feature_vector(Path path, Window owner, Logger logger)
+    public Optional<Feature_vector> get_feature_vector(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        return get_feature_vector_from_server(path, owner, logger);
+        return get_feature_vector_from_server(path, owner, aborter, logger);
     }
 
 }

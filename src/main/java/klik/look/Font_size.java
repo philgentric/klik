@@ -34,8 +34,7 @@ public class Font_size
     //**********************************************************
     {
         double size = Non_booleans_properties.get_font_size(owner,logger);
-        //if (dbg)
-            logger.log("applying font size " + size);
+        if (dbg) logger.log("applying font size " + size);
         apply_this_font_size_to_Node(node, size, logger);
     }
 

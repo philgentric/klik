@@ -1,9 +1,8 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klik.properties.boolean_features;
+package klik.properties;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -16,24 +15,28 @@ import javafx.stage.Window;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.properties.boolean_features.Booleans;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
+import klik.util.Installers;
 import klik.util.log.Logger;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 //**********************************************************
-public class Preferences_stage
+public class More_settings_stage
 //**********************************************************
 {
-    //public static final int WIDTH = 1500;
     public static final String EXPLANATION = "_Explanation";
-    public static final int HEIGHT = 900;
-    public final VBox vbox_basic;
-    public final VBox vbox_advanced;
-    public final VBox vbox_experimental;
-    public final VBox vbox_debug;
+    /*public final VBox left;
+    public final VBox left;
+    public final VBox right;
+    public final VBox right;
+    */
+    public final VBox left;
+    public final VBox right;
+
     public final Logger logger;
-    private static Preferences_stage instance;
+    private static More_settings_stage instance;
     private final Stage stage;
 
     public static final Feature[] advanced_features ={
@@ -91,7 +94,7 @@ public class Preferences_stage
             instance.show();
             return;
         }
-        instance = new Preferences_stage(title,owner,logger);
+        instance = new More_settings_stage(title,owner,logger);
     }
 
     //**********************************************************
@@ -109,28 +112,31 @@ public class Preferences_stage
     }
 
     //**********************************************************
-    private Preferences_stage(String title, Window owner, Logger logger)
+    private More_settings_stage(String title, Window owner, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
         //sp.setPrefSize(WIDTH, HEIGHT);
-        VBox vBox = new VBox();
-        HBox top = new HBox();
-        vBox.getChildren().add(top);
-        HBox bottom = new HBox();
-        vBox.getChildren().add(bottom);
+        HBox hbox = new HBox();
+        //HBox top = new HBox();
+        //vBox.getChildren().add(top);
+        //HBox bottom = new HBox();
+        //vBox.getChildren().add(bottom);
+        left = new VBox();
+        hbox.getChildren().add(left);
+        right = new VBox();
+        hbox.getChildren().add(right);
 
-        vbox_basic = new VBox();
-        top.getChildren().add(vbox_basic);
-
-        vbox_experimental = new VBox();
-        top.getChildren().add(vbox_experimental);
-
-        vbox_advanced = new VBox();
-        bottom.getChildren().add(vbox_advanced);
-
-        vbox_debug = new VBox();
-        bottom.getChildren().add(vbox_debug);
+        /*left = new VBox();
+        top.getChildren().add(left);
+        right = new VBox();
+        top.getChildren().add(right);
+        left = new VBox();
+        bottom.getChildren().add(left);
+        right = new VBox();
+        bottom.getChildren().add(right);
+        
+         */
         define();
 
 
@@ -140,7 +146,7 @@ public class Preferences_stage
         //stage.setWidth(WIDTH);
 
 
-        ScrollPane sp = new ScrollPane(vBox);
+        ScrollPane sp = new ScrollPane(hbox);
         sp.setFitToHeight(true);
         sp.setFitToWidth(true);
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -164,31 +170,31 @@ public class Preferences_stage
     //**********************************************************
     {
         //logger.log(Stack_trace_getter.get_stack_trace("define!!!"));
-        vbox_basic.getChildren().clear();
-        vbox_experimental.getChildren().clear();
-        vbox_advanced.getChildren().clear();
-        vbox_debug.getChildren().clear();
+        left.getChildren().clear();
+        right.getChildren().clear();
+        left.getChildren().clear();
+        right.getChildren().clear();
 
 
         {
             Label lab = new Label("Basic features");
             Look_and_feel_manager.set_region_look(lab,stage,logger);
-            vbox_basic.getChildren().add(lab);
+            left.getChildren().add(lab);
         }
         for(Feature f : basic_features)
         {
-            add_one_line(f,vbox_basic);
+            add_one_line(f,left);
         }
-        //vbox_basic.getChildren().add(new Separator());
+        //left.getChildren().add(new Separator());
 
         {
             Label lab = new Label("Advanced features");
             Look_and_feel_manager.set_region_look(lab,stage,logger);
-            vbox_advanced.getChildren().add(lab);
+            left.getChildren().add(lab);
         }
         for(Feature f : advanced_features)
         {
-            add_one_line(f,vbox_advanced);
+            add_one_line(f,left);
         }
 
 
@@ -198,22 +204,39 @@ public class Preferences_stage
         {
             Label lab = new Label("Experimental features");
             Look_and_feel_manager.set_region_look(lab,stage,logger);
-            vbox_experimental.getChildren().add(lab);
+            right.getChildren().add(lab);
         }
         for(Feature f : experimental_features)
         {
-            add_one_line(f,vbox_experimental);
+            add_one_line(f,right);
         }
         //vbox_right.getChildren().add(new Separator());
 
         {
             Label lab = new Label("Debug");
             Look_and_feel_manager.set_region_look(lab,stage,logger);
-            vbox_debug.getChildren().add(lab);
+            right.getChildren().add(lab);
         }
         for(Feature f : debugging_features)
         {
-            add_one_line(f,vbox_debug);
+            add_one_line(f,right);
+        }
+
+        {
+            Look_and_feel look_and_feel = Look_and_feel_manager.get_instance(stage,logger);
+            double w = 600;
+            double icon_size = 128;
+            if (Booleans.get_boolean(Feature.Enable_image_similarity.name()))
+            {
+                Installers.make_ui_to_start_image_similarity_servers(w, icon_size, look_and_feel, right, stage, logger);
+                Installers.make_ui_to_stop_image_similarity_servers(w, icon_size, look_and_feel, right, stage, logger);
+            }
+            if (Booleans.get_boolean(Feature.Enable_face_recognition.name()))
+            {
+                Installers.make_ui_to_start_face_recognition_servers(w,icon_size,look_and_feel, right, stage, logger);
+                Installers.make_ui_to_stop_face_recognition_servers(w,icon_size,look_and_feel, right, stage, logger);
+            }
+
         }
 
     }
@@ -260,7 +283,7 @@ public class Preferences_stage
         hb.getChildren().add(b);
         if ( !Feature_cache.get(Feature.Hide_question_mark_buttons_on_mysterious_menus))
         {
-            Button explain = Preferences_stage.make_explanation_button(key, owner, logger);
+            Button explain = More_settings_stage.make_explanation_button(key, owner, logger);
             hb.getChildren().add(explain);
             b.setPrefWidth(width-70);
         }
@@ -271,11 +294,11 @@ public class Preferences_stage
         return hb;
     }
     //**********************************************************
-    public static Button make_explanation_button(String key,Window stage, Logger logger)
+    public static Button make_explanation_button(String key,Window owner, Logger logger)
     //**********************************************************
     {
         Button button = new Button("?");
-        String explanation = My_I18n.get_I18n_string(key + EXPLANATION, stage, logger);
+        String explanation = My_I18n.get_I18n_string(key + EXPLANATION, owner, logger);
         if (explanation == null || explanation.isBlank())
         {
             logger.log("No explanation found for: " + key);
@@ -283,12 +306,14 @@ public class Preferences_stage
         }
         if ( explanation.equals(key+ EXPLANATION))
         {
-            explanation = My_I18n.get_I18n_string(key, stage, logger).replaceAll("_", " ");
+            // means that no explanation was found in the resources
+            // a 'not too bad' default is to copy the key removing underscore ...
+            explanation = My_I18n.get_I18n_string(key, owner, logger).replaceAll("_", " ");
         }
         button.setTooltip(new Tooltip(explanation));
-        Look_and_feel_manager.set_button_look(button, true,stage, logger);
+        Look_and_feel_manager.set_button_look(button, true,owner, logger);
         String finalExplanation = explanation;
-        button.setOnAction(event -> show_explanation(finalExplanation, stage, logger));
+        button.setOnAction(event -> show_explanation(finalExplanation, owner, logger));
         return button;
     }
 
@@ -298,7 +323,6 @@ public class Preferences_stage
     {
 
         Stage explanation_stage = new Stage();
-        explanation_stage.initOwner(owner);
         VBox vb = new VBox();
 
         TextArea tf = new TextArea(explanation);
@@ -311,8 +335,9 @@ public class Preferences_stage
         explanation_stage.setScene(scene);
         explanation_stage.setWidth(500);
         explanation_stage.setHeight(300);
-        explanation_stage.show();
+        explanation_stage.initOwner(owner);
         explanation_stage.setAlwaysOnTop(true);
+        explanation_stage.show();
     }
 
 

@@ -22,7 +22,7 @@ param(
 # 1.  Activate the Python virtual‑environment that lives in
 #     ~/venv-metal (on Windows ~ means %USERPROFILE%)
 # ------------------------------------------------------------------
-$VenvDir = Join-Path $HOME "venv-metal"
+$VenvDir = Join-Path $HOME ".klik\venv-metal"
 
 # Two ways to activate a venv – choose whichever is installed:
 #   * activate.bat  – works in cmd.exe

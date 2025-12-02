@@ -9,9 +9,9 @@ EMBEDDINGS_PORTS=(8200 8201 8202 8203 8204 8205 8206 8207 8208 8209
 for PORT in "${EMBEDDINGS_PORTS[@]}"; do
     pids=$(pgrep -f "Python.*run_server.*${PORT}" | xargs)
     if [ -n "$pids" ]; then
-        echo "Killing process(es) ${pids} for port ${PORT}"
+        echo "Image similarity, killing process(es) ${pids} for port ${PORT}"
         kill $pids
     else
-        echo "No process(es) found for port ${PORT}"
+        echo "Image similarity, No process(es) found for port ${PORT}"
     fi
 done

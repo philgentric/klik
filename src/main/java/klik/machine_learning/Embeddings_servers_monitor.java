@@ -3,6 +3,8 @@
 
 package klik.machine_learning;
 
+import javafx.application.Platform;
+import javafx.stage.Window;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.log.Logger;
 
@@ -25,22 +27,22 @@ public class Embeddings_servers_monitor implements AutoCloseable
     private volatile boolean running = true;
     private final Logger logger;
     public final int port;
-    private final Embeddings_servers_monitoring_stage monitoring_frame;
+    private Embeddings_servers_monitoring_stage monitoring_frame;
 
     //**********************************************************
-    public static int get_servers_monitor_udp_port(Logger logger)
+    public static int get_servers_monitor_udp_port(Window owner, Logger logger)
     //**********************************************************
     {
         if ( instance == null)
         {
-            instance = new Embeddings_servers_monitor(logger);
+            instance = new Embeddings_servers_monitor(owner,logger);
         }
         logger.log("Embeddings servers monitor listening on UDP port: "+instance.port);
         return instance.port;
     }
 
     //**********************************************************
-    private Embeddings_servers_monitor(Logger logger)
+    private Embeddings_servers_monitor(Window owner, Logger logger)
     //**********************************************************
     {
         int port_tmp;
@@ -54,7 +56,7 @@ public class Embeddings_servers_monitor implements AutoCloseable
             logger.log(""+e);
         }
         port = port_tmp;
-        monitoring_frame = new Embeddings_servers_monitoring_stage(logger);
+        Platform.runLater(()->{monitoring_frame = new Embeddings_servers_monitoring_stage(owner,logger);});
 
         Actor_engine.execute(() -> receive_messages(),"Receive embedding server UDP monitoring packets",logger);
     }

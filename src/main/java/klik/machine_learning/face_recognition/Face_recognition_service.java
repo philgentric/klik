@@ -143,6 +143,7 @@ public class Face_recognition_service
         File[] files = p.toFile().listFiles();
 
         ChoiceDialog<String> cd = new ChoiceDialog<>("Select face recognition model");
+        cd.initOwner(owner);
         Look_and_feel_manager.set_dialog_look(cd,owner,logger);
         ObservableList<String> list = cd.getItems();
         for ( File f : files)
@@ -502,7 +503,7 @@ public class Face_recognition_service
                 }
             }
             TextField textField = new TextField();
-            Look_and_feel_manager.set_TextField_look(textField,stage,logger);
+            Look_and_feel_manager.set_TextField_look(textField,false,stage,logger);
 
             if (eval_result != null) textField.setDisable(!eval_result.adding());
 

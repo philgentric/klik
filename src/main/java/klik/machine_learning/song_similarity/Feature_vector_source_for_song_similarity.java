@@ -18,6 +18,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //**********************************************************
 public class Feature_vector_source_for_song_similarity implements Feature_vector_source
@@ -33,7 +34,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
     }
 
     //**********************************************************
-    public Feature_vector get_feature_vector(Path path, Window owner, Logger logger)
+    public Optional<Feature_vector> get_feature_vector(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         //logger.log("Feature_vector_source_for_song_similarity get_feature_vector");
@@ -41,7 +42,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
         if (wav_path == null)
         {
             logger.log("call_ffmpeg_to_convert_to_wav failed");
-            return null;
+            return Optional.empty();
         }
 
         String result = call_fpcalc_to_get_embedding(wav_path, owner, logger);
@@ -49,23 +50,23 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
         {
             new File(wav_path).delete();
             logger.log("call_fpcalc_to_get_embedding failed");
-            return null;
+            return Optional.empty();
         }
         if (result.isBlank())
         {
             new File(wav_path).delete();
             logger.log("call_fpcalc_to_get_embedding failed");
-            return null;
+            return Optional.empty();
         }
         if (!result.contains(Feature_vector_for_song.FINGERPRINT))
         {
             new File(wav_path).delete();
             logger.log("call_fpcalc_to_get_embedding failed");
-            return null;
+            return Optional.empty();
         }
 
         new File(wav_path).delete();
-        return new Feature_vector_for_song(result,logger);
+        return Optional.of(new Feature_vector_for_song(result,logger));
     }
 
     //**********************************************************

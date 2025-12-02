@@ -44,7 +44,7 @@ public class Keyword_slot
         {
             finder_frame.top_keyword_vbox.getChildren().add(hbox1);
             the_keyword_textfield = new TextField(keyword_holder[0]);
-            Look_and_feel_manager.set_TextField_look(the_keyword_textfield,finder_frame.stage,logger);
+            Look_and_feel_manager.set_TextField_look(the_keyword_textfield,false,finder_frame.stage,logger);
             the_keyword_textfield.setStyle("-fx-text-inner-color: blue;");
 
             hbox1.getChildren().add(the_keyword_textfield);

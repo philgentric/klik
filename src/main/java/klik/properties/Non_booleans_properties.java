@@ -90,6 +90,7 @@ public class Non_booleans_properties
     public static final String DEFAULT_CUSTOM_COLOR = "#b8d4fe";
     public static final String PURPOSE = "Java VM max ram";
     public static final String FILENAME = "max_ram";
+    private static final String PRIVACY_SCREEN = ".klik_privacy_screen";
 
     // cached values
 
@@ -479,7 +480,8 @@ public class Non_booleans_properties
 
         // do it deeper, this way icons don't show up in $home/.klik to avoid privacy violation when browsing $home
 
-        Path conf_dir2 = Paths.get(conf_dir1.toString(), CONF_DIR + "_privacy_screen");
+        //Path conf_dir2 = Paths.get(conf_dir1.toString(), CONF_DIR + "_privacy_screen");
+        Path conf_dir2 = Paths.get(conf_dir1.toString(), PRIVACY_SCREEN );
         if (!conf_dir2.toFile().exists()) {
             try {
                 Files.createDirectory(conf_dir2);

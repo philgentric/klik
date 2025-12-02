@@ -9,7 +9,7 @@ import javafx.stage.Window;
 import klik.External_application;
 import klik.look.Look_and_feel;
 import klik.machine_learning.ML_servers_util;
-import klik.properties.boolean_features.Preferences_stage;
+import klik.properties.More_settings_stage;
 import klik.util.execute.Execute_command;
 import klik.util.execute.Execute_result;
 import klik.util.execute.Execute_via_script_in_tmp_file;
@@ -29,18 +29,18 @@ public class Installers
 {
 
     //**********************************************************
-    public static void make_ui_to_start_image_similarity_servers(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window stage, Logger logger)
+    public static void make_ui_to_start_image_similarity_servers(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window owner, Logger logger)
     //**********************************************************
     {
         String key = "Start_Image_Similarity_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false, true, stage, logger);
-        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(owner,logger), false, true, owner, logger);
+        HBox hb = More_settings_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
                 icon_size,
                 look_and_feel,
-                stage,
+                owner,
                 logger);
         vbox.getChildren().add(hb);
     }
@@ -51,7 +51,7 @@ public class Installers
     {
         String key = "Stop_Image_Similarity_Servers";
         EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false, true, stage, logger);
-        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+        HBox hb = More_settings_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
@@ -67,8 +67,8 @@ public class Installers
     //**********************************************************
     {
         String key = "Start_Face_Recognition_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), false, true, stage, logger);
-        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(stage, logger), false, true, stage, logger);
+        HBox hb = More_settings_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
@@ -85,7 +85,7 @@ public class Installers
     {
         String key = "Stop_Face_Recognition_Servers";
         EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false, true, stage, logger);
-        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+        HBox hb = More_settings_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
@@ -102,7 +102,7 @@ public class Installers
     {
         String key = "Install_Python_Libs_For_ML";
         EventHandler<ActionEvent> handler = e -> ML_servers_util.install_python_libs_for_ML(stage, logger);
-        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+        HBox hb = More_settings_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
@@ -132,7 +132,7 @@ public class Installers
     {
         String key = "Install_All_Tools";
         EventHandler<ActionEvent> handler = e -> Installers.install_everything(stage, logger);
-        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+        HBox hb = More_settings_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
@@ -170,7 +170,7 @@ public class Installers
     {
         String key = "Show_Version";
         EventHandler<ActionEvent> handler =e -> show_version(stage, logger);
-        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+        HBox hb = More_settings_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
@@ -187,7 +187,7 @@ public class Installers
     {
         String key = "Get_Most_Recent_Version";
         EventHandler<ActionEvent> handler =e -> get_most_recent_version(stage, logger);
-        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+        HBox hb = More_settings_stage.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,

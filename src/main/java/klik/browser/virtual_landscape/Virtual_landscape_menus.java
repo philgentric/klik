@@ -63,7 +63,7 @@ import klik.properties.*;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
-import klik.properties.boolean_features.Preferences_stage;
+import klik.properties.More_settings_stage;
 import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
@@ -625,8 +625,8 @@ public class Virtual_landscape_menus
                 virtual_landscape,
                 given,
                 false,
-                owner,
                 virtual_landscape.aborter,
+                owner,
                 logger
         );
 
@@ -651,17 +651,7 @@ public class Virtual_landscape_menus
         context_menu.getItems().add(make_style_menu_item());
         context_menu.getItems().add(make_language_menu());
         context_menu.getItems().add(make_video_length_menu());
-        //pref.getItems().add(make_ding_menu_item());
-        //pref.getItems().add(make_escape_menu_item());
-        //pref.getItems().add(make_invert_vertical_scroll_menu_item());
-        if (Booleans.get_boolean(Feature.Enable_face_recognition.name()))
-        {
-            context_menu.getItems().add(make_start_face_recognition_servers_menu_item());
-        }
-        if (Booleans.get_boolean(Feature.Enable_image_similarity.name()))
-        {
-            context_menu.getItems().add(make_start_image_similarity_servers_menu_item());
-        }
+        
 
         if (Feature_cache.get(Feature.Enable_fusk))
         {
@@ -696,8 +686,8 @@ public class Virtual_landscape_menus
             detailed_cache_cleaning_menu(context_menu);
         }
         Menu_items.add_menu_item(
-                "Advanced_And_Experimental_Features",
-                event -> Preferences_stage.show_Preferences_stage("Preferences", owner,logger),
+                "More_Settings",
+                event -> More_settings_stage.show_Preferences_stage("Preferences", owner,logger),
                 context_menu,owner,logger);
 
         return context_menu;
@@ -795,7 +785,7 @@ public class Virtual_landscape_menus
     {
         public Feature_vector_cache get() {
 
-            Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(virtual_landscape.aborter);
+            Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner, logger);
 
             List<Path> paths = virtual_landscape.path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
             Feature_vector_cache.Paths_and_feature_vectors local =
@@ -877,7 +867,7 @@ public class Virtual_landscape_menus
     {
         if ( !Feature_cache.get(Feature.Hide_question_mark_buttons_on_mysterious_menus))
         {
-            Button explanation_button = Preferences_stage.make_explanation_button(key, virtual_landscape.owner, logger);
+            Button explanation_button = More_settings_stage.make_explanation_button(key, virtual_landscape.owner, logger);
             item.setGraphic(explanation_button);
         }
     }
@@ -1981,35 +1971,35 @@ public class Virtual_landscape_menus
     public MenuItem get_advanced_preferences()
     //**********************************************************
     {
-        return Menu_items.make_menu_item("Advanced_And_Experimental_Features",event -> Preferences_stage.show_Preferences_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
+        return Menu_items.make_menu_item("More_Settings",event -> More_settings_stage.show_Preferences_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
     }
 
 
 
+
+
+/*
 
     //**********************************************************
     public MenuItem make_start_face_recognition_servers_menu_item()
     //**********************************************************
     {
         String key = "Start_Face_Recognition_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(logger), false, true, owner, logger);
+        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(owner,logger), false, true, owner, logger);
         MenuItem item = Menu_items.make_menu_item(key,handler, owner,logger);
         add_question_mark_button(key, item);
         return item;
     }
-
-
-
     //**********************************************************
     public MenuItem make_start_image_similarity_servers_menu_item()
     //**********************************************************
     {
         String key = "Start_Image_Similarity_Servers";
-        EventHandler< ActionEvent > handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(logger), false, true, owner, logger);
+        EventHandler< ActionEvent > handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(owner,logger), false, true, owner, logger);
         MenuItem item = Menu_items.make_menu_item(key,handler, owner,logger);
         add_question_mark_button(key, item);
         return item;
     }
-
+*/
 
 }

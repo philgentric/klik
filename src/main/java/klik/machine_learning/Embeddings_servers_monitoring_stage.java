@@ -12,6 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 
@@ -36,11 +37,12 @@ public class Embeddings_servers_monitoring_stage
     private Label duration_label;
     //private double LAST_X = 3;
     //**********************************************************
-    public Embeddings_servers_monitoring_stage(Logger logger)
+    public Embeddings_servers_monitoring_stage(Window owner, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
         stage = new Stage();
+        stage.initOwner(owner);
         stage.setTitle("Embeddings servers monitoring");
         stage.setMinWidth(1000);
         stage.setHeight(DISPLAY_PIXEL_HEIGHT);

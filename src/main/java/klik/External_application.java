@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.boolean_features.Preferences_stage;
+import klik.properties.More_settings_stage;
 import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.execute.Guess_OS;
 import klik.util.log.Logger;
@@ -40,7 +40,7 @@ public enum External_application
             if ( cmd == null) return;
             Execute_via_script_in_tmp_file.execute(cmd, true,false,owner,logger);
         };
-        HBox hb = Preferences_stage.make_hbox_with_button_and_explanation(
+        HBox hb = More_settings_stage.make_hbox_with_button_and_explanation(
                 get_I18n_key(),
                 handler,
                 width,

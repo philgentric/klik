@@ -79,7 +79,7 @@ public class Folder_chooser
         top.getChildren().add(top1);
 
         TextField path_textfield = new TextField();
-        Look_and_feel_manager.set_TextField_look(path_textfield,dialog,logger);
+        Look_and_feel_manager.set_TextField_look(path_textfield,false,dialog,logger);
         path_textfield.setPromptText("Path");
         path_textfield.setMinWidth(1000);
         top.getChildren().add(path_textfield);

@@ -354,7 +354,7 @@ public class Image_context
     }
 
     //**********************************************************
-    void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source, Aborter aborter)
+    void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source, Aborter aborter, Window owner)
     //**********************************************************
     {
         logger.log("Image_context search_using_keywords_from_the_name");
@@ -382,7 +382,7 @@ public class Image_context
         Finder.find(
                 path_list_provider,
                 path_comparator_source,
-                keywords,true,aborter,logger);
+                keywords,true,aborter,owner,logger);
     }
 
 
@@ -390,15 +390,15 @@ public class Image_context
     List<String> given_keywords = new ArrayList<>();
     //**********************************************************
     void search_using_keywords_given_by_the_user(
-            Window owner,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             boolean search_only_for_images,
-            Aborter aborter)
+            Aborter aborter,
+            Window owner)
     //**********************************************************
     {
         logger.log("find()");
-        ask_user_and_find( path_list_provider, path_comparator_source,given_keywords, search_only_for_images,owner,aborter,logger);
+        ask_user_and_find( path_list_provider, path_comparator_source,given_keywords, search_only_for_images,aborter,owner,logger);
     }
 
 
@@ -408,8 +408,8 @@ public class Image_context
             Path_comparator_source path_comparator_source,
             List<String> keywords,
             boolean search_only_for_images,
-            Window owner,
             Aborter aborter,
+            Window owner,
             Logger logger
     )
     //**********************************************************
@@ -444,7 +444,7 @@ public class Image_context
                     Finder.find(
                             path_list_provider,
                             path_comparator_source,
-                            keywords,search_only_for_images,aborter,logger);
+                            keywords,search_only_for_images,aborter,owner,logger);
                 }
             }
 

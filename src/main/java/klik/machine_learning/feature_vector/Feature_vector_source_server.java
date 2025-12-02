@@ -6,6 +6,8 @@ package klik.machine_learning.feature_vector;
 import javafx.application.Platform;
 import javafx.stage.Window;
 import klik.Shared_services;
+import klik.util.execute.Guess_OS;
+import klik.util.execute.Operating_system;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.Execute_command;
@@ -22,6 +24,8 @@ import java.net.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -31,12 +35,12 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
 {
     private static final boolean dbg = false;
     private static final boolean ultra_dbg = false;
-    static AtomicBoolean server_started = new AtomicBoolean(false);
-    static AtomicBoolean popup_done = new AtomicBoolean(false);
-
-    protected final Aborter aborter;
 
     protected abstract int get_random_port();
+    protected abstract String get_server_python_name();
+    protected abstract boolean get_server_started();
+    protected abstract boolean start_servers(Window owner, Logger logger);
+    protected abstract void set_server_started(boolean b);
     public static long start = System.nanoTime();
     static LongAdder tx_count = new LongAdder();
     static LongAdder SUM_dur_us = new LongAdder(); // microseconds
@@ -44,16 +48,32 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
     static final boolean monitoring_on = false;
 
     //**********************************************************
-    public Feature_vector_source_server(Aborter aborter)
+    public Feature_vector_source_server(Window owner,  Logger logger)
     //**********************************************************
     {
-        this.aborter = aborter;
         if ( monitoring_on)
         {
             start_monitoring();
         }
-    }
+        // start servers if needed
+        if (get_server_started()) return ;
 
+        if ( check(owner,logger))
+        {
+            set_server_started(true);
+        }
+        else
+        {
+            if ( start_servers(owner,logger))
+            {
+                set_server_started(true);
+            }
+            else
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source::get_feature_vector_from_server_generic SERVER NOT STARTED.."));
+            }
+        }
+    }
     //**********************************************************
     private void start_monitoring()
     //**********************************************************
@@ -75,34 +95,34 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         Actor_engine.execute(r, "Monitor embeddings stats",l);
     }
 
-    private static AtomicBoolean user_has_been_asked_if_servers_are_started = new AtomicBoolean(false);
     //**********************************************************
-    public Feature_vector get_feature_vector_from_server(Path path, Window owner, Logger logger)
+    public Optional<Feature_vector> get_feature_vector_from_server(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( aborter.should_abort())
         {
             logger.log("aborting Feature_vector_source::get_feature_vector_from_server, reason: "+aborter.reason());
-            return null;
+            return Optional.empty();
         }
+        if ( !get_server_started())
+        {
+            return Optional.empty();
+        }
+
+
         long local_start = System.nanoTime();
         if ( path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD!"));
-            return null;
+            return Optional.empty();
         }
         int random_port = get_random_port();
-        Feature_vector x = Feature_vector_source_server.get_feature_vector_from_server_generic(path, random_port, owner, aborter,logger);
+        Optional<Feature_vector> op = Feature_vector_source_server.get_feature_vector_from_server_generic(path, random_port, owner, aborter,logger);
 
-        if ( x==null)
+        if ( op.isEmpty())
         {
             if ( path.toFile().exists())
             {
-                if ( !user_has_been_asked_if_servers_are_started.get())
-                {
-                    user_has_been_asked_if_servers_are_started.set(true);
-                    Platform.runLater(()->Popups.popup_warning("Image similarity error","Did you start the servers ?",false,owner,logger));
-                }
                 logger.log("get_feature_vector_from_server_generic: FAILED but file exists, "+path.toFile().length()+" but feature vector is null");
             }
             else
@@ -114,7 +134,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         long local_dur_us = (local_end - local_start)/1000;
         SUM_dur_us.add(local_dur_us);
         tx_count.add(1);
-        return x;
+        return op;
     }
 
     //**********************************************************
@@ -191,37 +211,20 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
     }
 
     //**********************************************************
-    static Feature_vector get_feature_vector_from_server_generic(Path path, int random_port, Window owner, Aborter aborter, Logger logger)
+    static Optional<Feature_vector> get_feature_vector_from_server_generic(Path path, int random_port, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( aborter.should_abort())
         {
             logger.log("aborting(1) Feature_vector_source::get_feature_vector_from_server_generic reason: "+aborter.reason());
-            return null;
+            return Optional.empty();
         }
-        if (!server_started.get())
-        {
 
-            if ( check(logger))
-            {
-                server_started.set(true);
-            }
-            else
-            {
-                if ( !popup_done.get())
-                {
-                    popup_done.set(true);
-                    popup(owner,logger);
-                }
-                logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source::get_feature_vector_from_server_generic SERVER NOT STARTED.."));
-                //return null;
-            }
-        }
 
         if ( path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("BAD!"));
-            return null;
+            return Optional.empty();
         }
 
         String url_string = null;
@@ -230,41 +233,41 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
             url_string = "http://localhost:" + random_port + "/" + encodedPath;
         } catch (UnsupportedEncodingException e) {
             logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (1): "+e));
-            return null;
+            return Optional.empty();
         }
         URL url = null;
         try {
             url = new URL(url_string);
         } catch (MalformedURLException e) {
             logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (2): "+e));
-            return null;
+            return Optional.empty();
         }
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) url.openConnection();
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (3)"+e));
-            return null;
+            return Optional.empty();
         }
         try {
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(0); // infinite
         } catch (ProtocolException e) {
             logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (4): "+e));
-            return null;
+            return Optional.empty();
         }
         if (aborter.should_abort())
         {
             logger.log("aborting(2) Feature_vector_source::get_feature_vector_from_server_generic reason: "+aborter.reason());
-            return null;
+            return Optional.empty();
         }
         try {
             connection.connect();
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
             logger.log(("get_feature_vector_from_server_generic (5): "+e));
-            server_started.set(false);
-            return null;
+            //server_started.set(false);
+            return Optional.empty();
         }
         try {
             int response_code = connection.getResponseCode();
@@ -272,14 +275,14 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
             logger.log(("get_feature_vector_from_server_generic (6):"+e));
-            return null;
+            return Optional.empty();
         }
         try {
             String response_message = connection.getResponseMessage();
             //logger.log("response message="+response_message);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (7): "+e));
-            return null;
+            return Optional.empty();
         }
 
         // Read the JSON response one character at a time
@@ -297,7 +300,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         } catch (IOException e)
         {
             logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (8): "+e));
-            return null;
+            return Optional.empty();
         }
 
         String json = sb.toString();
@@ -305,14 +308,65 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         Feature_vector fv = Feature_vector_source_server.parse_json(json,logger);
         if ( fv == null) {
             logger.log("json parsing failed: feature vector is null");
+            return Optional.empty();
         }
         else {
             //logger.log("GOT a feature vector of size:"+fv.features.length);
         }
 
-        return fv;
+        return Optional.of(fv);
+    }
+    Semaphore limit = new Semaphore(1);
+    //**********************************************************
+    public boolean check(Window owner,Logger logger)
+    //**********************************************************
+    {
+        if ( !get_server_started()) return false;
+        try {
+            limit.acquire();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        List<String> list = new ArrayList<>();
+        if (Guess_OS.guess(owner,logger)== Operating_system.Windows)
+        {
+            list.add("powershell.exe");
+            list.add("-Command");
+            list.add("Get-Process | Where-Object {$_.ProcessName -like '*"+get_server_python_name()+"*'}");
+        }
+        else
+        {
+            // ps aux | grep MobileNet_embeddings_server
+            list.add("sh");
+            list.add("-c");
+            list.add("pgrep -af "+get_server_python_name());
+        }
+        StringBuilder sb = new StringBuilder();
+        File wd = new File (".");
+        if (! Execute_command.execute_command_list(list, wd, 2000, sb, logger).status())
+        {
+            logger.log("WARNING, checking if servers are running => failed(1)" );
+            set_server_started(false);
+            limit.release();
+            return false;
+        }
+        String result = sb.toString();
+        logger.log("check():->" + result+"<-");
+        String[] parts = result.split("\\r?\\n"); // Split on new lines
+        if ( parts.length > 2)
+        {
+            logger.log(get_server_python_name()+" server name keyword found");
+            set_server_started(true);
+            limit.release();
+            return true;
+        }
+        logger.log("WARNING, checking if "+get_server_python_name()+" are running => failed(2)" );
+        set_server_started(false);
+        limit.release();
+        return false;
     }
 
+/*
     //**********************************************************
     private static boolean check(Logger logger)
     //**********************************************************
@@ -360,4 +414,6 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
                 false,owner,logger), logger);
 
     }
+
+ */
 }

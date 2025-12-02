@@ -221,13 +221,6 @@ public abstract class Look_and_feel
         return "icons/running_film.gif";
     }
 
-    /*
-    //**********************************************************
-    public void set_hovered_directory_style(Node node, Window owner)
-    //**********************************************************
-    {
-            }
-*/
 
     //**********************************************************
     private static void set_text_color(Node node, String color)

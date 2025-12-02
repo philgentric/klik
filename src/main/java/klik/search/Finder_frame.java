@@ -80,6 +80,7 @@ public class Finder_frame implements Search_receiver
 			Path_list_provider path_list_provider,
 			Path_comparator_source path_comparator_source,
 			Aborter aborter,
+            Window owner,
 			Logger logger)
 	//**********************************************************
 	{
@@ -93,6 +94,7 @@ public class Finder_frame implements Search_receiver
 			logger.log(Stack_trace_getter.get_stack_trace("Not a directory: "+ path_list_provider.get_name()));
 		}
 		stage = new Stage();
+        stage.initOwner(owner);
 
 		logger.log("Finder_frame created");
 
@@ -286,7 +288,7 @@ public class Finder_frame implements Search_receiver
 				logger.log("extension_tf  old_val:"+old_val+" new_val:"+new_val);
 			});
 
-			Look_and_feel_manager.set_TextField_look(extension_tf,stage,logger);
+			Look_and_feel_manager.set_TextField_look(extension_tf,false,stage,logger);
 			hb.getChildren().add(extension_tf);
 			hb.getChildren().add(horizontal_spacer(stage,logger));
 			settings_vbox.getChildren().add(hb);
@@ -315,7 +317,7 @@ public class Finder_frame implements Search_receiver
 			});
 
 			new_keyword_textfield.setMinWidth(300);
-			Look_and_feel_manager.set_TextField_look(new_keyword_textfield,stage,logger);
+			Look_and_feel_manager.set_TextField_look(new_keyword_textfield,false,stage,logger);
 			new_keyword_textfield.setStyle(new_keyword_textfield.getStyle()+"-fx-text-inner-color: darkgrey;");
 			new_keyword_textfield.setOnAction((ActionEvent e) ->new_keyword_action(new_keyword_textfield));
 			hbox.getChildren().add(new_keyword_textfield);

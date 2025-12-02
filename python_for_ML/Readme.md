@@ -52,7 +52,7 @@ method2: ask klik to provide the command line in the preferences menu
 method3: "manually" start the python servers like this:
 
 AFTER a reboot: activate the virtual environment
-source ~/venv-metal/bin/activate
+source ~/.klik/venv-metal/bin/activate
 
 Image embeddings python service : to start the image similarity embeddings servers, use the launch command:
 
@@ -64,7 +64,7 @@ Image embeddings python service : to start the image similarity embeddings serve
 Face recognition servers : to start the face detection and face embeddings servers:
 open a shell/terminal, cd to this folder, type:
 
-source ~/venv-metal/bin/activate
+source ~/.klik/venv-metal/bin/activate
 ./launch_face_recognition_servers
 
 this will start several servers for respectively face detection (multiple flavors) and face embeddings 

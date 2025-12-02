@@ -21,6 +21,7 @@ import javafx.stage.Window;
 import klik.Window_type;
 import klik.Instructions;
 import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Scrollable_text_field;
 import klik.util.ui.progress.Progress;
 import klik.util.execute.actor.Aborter;
 import klik.audio.Audio_player_access;
@@ -59,12 +60,14 @@ public class Results_frame
 	final Aborter aborter;
 	private final Path_list_provider path_list_provider;
 	private final Path_comparator_source path_comparator_source;
+    private final static boolean use_scrollable_textfield = true;
 
-	//**********************************************************
+    //**********************************************************
 	public Results_frame(
 			Path_list_provider path_list_provider,
 			Path_comparator_source path_comparator_source,
 			Aborter aborter,
+            Window owner,
 			Logger logger)
 	//**********************************************************
 	{
@@ -72,6 +75,8 @@ public class Results_frame
 		this.path_comparator_source = path_comparator_source;
 		this.aborter = aborter;
 		this.logger = logger;
+
+        stage.initOwner(owner);
 
 		vbox = new VBox();
 		Look_and_feel_manager.set_region_look(vbox,stage,logger);
@@ -108,96 +113,45 @@ public class Results_frame
 	private Button make_one_button(String keys, boolean is_max, Path path, Window owner)
 	//**********************************************************
 	{
-		//Rectangle2D rectangle = new Rectangle2D(window.getX(), window.getY(), window.getWidth(), window.getHeight());
 
         String displayed_text = path.toAbsolutePath().toString();
-        // shorten the string, the left part is unnecessary
-        Path folder = path_list_provider.get_folder_path();
+        /*Path folder = path_list_provider.get_folder_path();
         int i = folder.toAbsolutePath().toString().length();
-        if ( i < displayed_text.length()) {
+        if ( i < displayed_text.length())
+        {
             displayed_text = keys + " => " + displayed_text.substring(i);
-        }
-        /*
-        // insert new line every 80 chars
-        int start =0;
-        int end = 80;
-        if ( end >= displayed_text.length()) end = displayed_text.length();
-        StringBuilder final_displayed_text = new StringBuilder();
-        final_displayed_text.append(displayed_text.substring(start ,end));
-        for(;;)
-        {
-            start += 80;
-            if ( start >= displayed_text.length()) break;
-            end += 80;
-            if ( end >= displayed_text.length()) end = displayed_text.length();
-            final_displayed_text.append("...\n").append(displayed_text.substring(start ,end));
-        }
-        logger.log(final_displayed_text.toString());
-        Button b = new Button();
-        b.setText(final_displayed_text.toString());
-        b.wrapTextProperty().setValue(true);
-        b.setStyle("-fx-max-width : 180px");
-        b.setWrapText(true);
-
-        if(is_max)
-		{
-			b.setGraphic(new Circle(10, Color.RED));
-		}
-		b.setMnemonicParsing(false); // avoid removal of first underscore
-        */
-
-
-        HBox hbox = new HBox();
-        hbox.setAlignment(Pos.BASELINE_LEFT);
-        //VBox vBox = new VBox();
-        //vBox.setAlignment(Pos.TOP_LEFT);
-
-        if(is_max)
-        {
-            hbox.getChildren().add(new Circle(10, Color.RED));
-        }
-        //hbox.getChildren().add(vBox);
-
-
-        /*
-        int MAX = 100;
-        int start =0;
-        int end = MAX;
-        if ( end >= displayed_text.length()) end = displayed_text.length();
-        Text text = new Text(displayed_text.substring(start ,end));
-        vBox.getChildren().add(text);
-        for(;;)
-        {
-            start += MAX;
-            if ( start >= displayed_text.length()) break;
-            end += MAX;
-            if ( end >= displayed_text.length()) end = displayed_text.length();
-            vBox.getChildren().add(new Text("..."+displayed_text.substring(start ,end)));
-        }
-         */
-        Text text = new Text(displayed_text);
-        //text.setWrappingWidth(stage.getWidth()-30);
-        text.wrappingWidthProperty().bind(stage.widthProperty().subtract(70));
-        hbox.getChildren().add(text);
+        }*/
 
         Button b = new Button();
-        b.maxWidthProperty().bind(stage.widthProperty().subtract(260));
-        //b.setMaxWidth(Double.MAX_VALUE);
+        b.maxWidthProperty().bind(stage.widthProperty().subtract(1));
+
+        Node graphic = null;
+        if ( use_scrollable_textfield)
+        {
+            graphic = new Scrollable_text_field(displayed_text,b,owner,logger);
+        }
+        else {
+            HBox hbox = new HBox();
+            hbox.setAlignment(Pos.BASELINE_LEFT);
+            if (is_max) {
+                hbox.getChildren().add(new Circle(10, Color.RED));
+            }
+            Text text = new Text(displayed_text);
+            text.wrappingWidthProperty().bind(stage.widthProperty().subtract(70));
+            hbox.getChildren().add(text);
+            graphic = hbox;
+        }
         if(is_max)
         {
             b.setGraphic(new Circle(10, Color.RED));
         }
-        b.setGraphic(hbox);
+        b.setGraphic(graphic);
         b.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
-
-
-		Look_and_feel_manager.set_button_look(b, true,owner,logger);
+		//Look_and_feel_manager.set_button_look(b, true,owner,logger);
 		if (Files.isDirectory(path))
         {
             Look_and_feel_manager.set_button_look(b, true,owner,logger);
-			//Border border = new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1)));
-			//b.setBorder(border);
 		}
         else
         {

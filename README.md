@@ -1,6 +1,7 @@
 
-# Klik: a file system explorer/manager with a strong focus on images and readability
+# Klik: a file system explorer/manager with a strong focus readability
 
+Klik has been designed for people who, while not 'visually impaired', do not have 10/10 on both eyes.
 [En Français](LISEZ_MOI.md)
 (klik is available in Breton, Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Spanish)
 
@@ -11,26 +12,11 @@ Sort files by displaying pictures and documents as icons, into folders, intuitiv
 
 # Try klik now!
 
-[Installation for MacOS](MacOS_en.md)
+[Installation for macOS](MacOS_en.md)
 
 [Installation for Windows](Windows_en.md)
 
 [Installation for Linux](Linux.md)
-
-### Get klik updates
-
-To get the latest version of klik, just click the button in the Launcher!
-
-... Or go in the klik folder and type:
-
-**git pull**
-
-this will fetch the last master source code.
-
-If you prefer an application instead of a command line tool, install github desktop:
-
-https://desktop.github.com
-
 
 # Intuitive
 
@@ -55,18 +41,18 @@ Klik never deletes a file without asking you for confirmation. In Klik, "delete"
 There are 3 ways to recover a deleted or accidentally moved (moved,but you did not know where) file or folder: (1) use the undo menu item (2) Use klik search! (3) visit the "trash" folder using klik (press the top right button) (4) visit the trash folder using your favorite file manager... 
 Only clearing the "trash" folder is final, and you will be asked for confirmation.
 If you move a file into a folder where there is already a file with the same name, it is renamed with a postfix.
-When you have duplicates and you merge by moving files, Klik will detect identical files with the same name and move the redundant copy into the trash folder.
+When you have duplicates, and you merge by moving files, Klik will detect identical files with the same name and move the redundant copy into the trash folder.
 
 
 # Numerous formats supported
 
-Klik supports all major image & video file formats, as well as PDF (for icons). (also broad format support for the music player)
+Klik supports all major image & video file formats, as well as PDF (makes icons). (also broad format support for the music player)
 
 Klik browser window displays icons for still images, animated gifs are displayed animated, PDF documents are displayed as a icon-size image of the first page, movies are displayed as a few second of animated gif (this feature requires to have ffmpeg installed, the length of the animated gif can be changed in 'preferences').
 
 Klik image windows support natively jpeg, png, gif, animated gif, bmp. Then if you install additional tools (GraphicMagick and ImageMagick) you get support for all the most common image formats (with a slight performance degradation).
 
-Klik comes with an audio players (can load music from whole folders and import youtube URls in drag-and-drop)
+Klik comes with an audio players (can load music from whole folders and import YouTube URls in drag-and-drop)
 
 Klik relies on your default system applications for:
 - video play
@@ -83,7 +69,7 @@ You can open as many windows (Browser or Image) as you want, the limit is your m
 
 Uses icons for images, PDFs and movies, and buttons for everything else. Has a slide show mode.
 
-Icons size can be changed in the 'preferences' menu or using keyboard accelerators: 'meta +' or '-', just like zooming in web browsers
+Icons size can be changed in the 'preferences' menu or using keyboard accelerators: 'meta +' or '-'
 
 ### License
 
@@ -92,7 +78,7 @@ Klik license is MIT
 ## Customizable look-and-feel
 
 Klik comes with a few look-and-feels, and they are customisable using CSS (Cascaded Style Sheets) like web pages.
-(The CSS files and the icons are in src/main/resources, feel free to create your own L&F... and to submit it on Discord or as a pull-request)
+(The CSS files and the icons are in src/main/resources, feel free to create your own L&F... and to submit it as a pull-request)
 
 ## Drag & drop
 
@@ -113,8 +99,6 @@ Drag&Drop enables to move the image, for example, dropping an image from a Image
 Type "y" to move an image into the same folder as the previous move.
 
 ### Top Buttons
-
-Klik "Browser window" has top buttons/menus that are always present (even if the folder is empty).
 
 Up/Parent button: will open the parent directory.
 
@@ -392,6 +376,21 @@ powershell -ExecutionPolicy Bypass -File jpackage_for_windows.ps1
 This will create a msi file in ./build/jpackage
 
 
+
+
+### Get klik updates
+
+To get the latest version of klik, just click the button in the Launcher!
+
+... Or go in the klik folder and type:
+
+**git pull**
+
+this will fetch the last master source code.
+
+If you prefer an application instead of a command line tool, install github desktop:
+
+https://desktop.github.com
 
 
 

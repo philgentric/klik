@@ -35,23 +35,14 @@ public class System_info
     public static void print()
     //**********************************************************
     {
-        System.out.println("Is NATIVE?   "+is_native());
         print_machine_properties();
 
         print_java_system_properties();
-
         //show_environement_variables();
         //print_all_font_families();
-
     }
 
-    //**********************************************************
-    public static boolean is_native()
-    //**********************************************************
-    {
-        return Boolean.parseBoolean(
-                System.getProperty("org.graalvm.nativeimage.isRuntime", "false"));
-    }
+
     private static final boolean use_JMX_for_RAM = false;
     //**********************************************************
     public static long get_total_machine_RAM_in_GBytes()

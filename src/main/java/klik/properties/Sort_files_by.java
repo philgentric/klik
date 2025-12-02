@@ -73,7 +73,7 @@ public enum Sort_files_by {
         double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(Shared_services.aborter());
+        Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner, logger);
 
         switch(Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
         {

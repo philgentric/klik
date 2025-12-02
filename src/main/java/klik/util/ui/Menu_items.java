@@ -10,12 +10,11 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
-import klik.images.Image_window;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
-import klik.properties.boolean_features.Preferences_stage;
+import klik.properties.More_settings_stage;
 import klik.util.log.Logger;
 
 public class Menu_items
@@ -72,7 +71,7 @@ public class Menu_items
         menu_item.setOnAction(ev);
         if ( !Feature_cache.get(Feature.Hide_question_mark_buttons_on_mysterious_menus))
         {
-            Button explanation = Preferences_stage.make_explanation_button(text, owner, logger);
+            Button explanation = More_settings_stage.make_explanation_button(text, owner, logger);
             menu_item.setGraphic(explanation);
         }
         return menu_item;

@@ -200,7 +200,11 @@ public class Feature_vector_cache implements Clearable_RAM_cache
         }
         catch (FileNotFoundException e)
         {
-            logger.log("first time in this folder: "+e);
+            if (dbg) logger.log("first time in this folder: "+e);
+        }
+        catch (EOFException e)
+        {
+            if (dbg) logger.log("empty feature cache: "+e);
         }
         catch (IOException e)
         {

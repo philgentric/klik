@@ -151,12 +151,11 @@ public class Menus_for_image_window
 
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.image_display_handler.get_image_context().get().search_using_keywords_given_by_the_user(
-                    image_window.stage,
                     image_window.path_list_provider,
                     image_window.path_comparator_source,
                     false,
-                    
-                    image_window.aborter);
+                    image_window.aborter,
+                    image_window.stage);
         });
         return search_y;
     }
@@ -171,8 +170,8 @@ public class Menus_for_image_window
             image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
                     image_window.path_list_provider,
                     image_window.path_comparator_source,
-                    
-                    image_window.aborter);
+                    image_window.aborter,
+                    image_window.stage);
         }, image_window.stage, image_window.logger);
     }
 

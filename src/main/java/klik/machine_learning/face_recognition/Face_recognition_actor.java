@@ -35,12 +35,13 @@ public class Face_recognition_actor implements Actor
     public static final int K_of_KNN = 3;
     public static final int LIMIT_PER_LABEL = 3;
     private final Face_recognition_service service;
-
+    private static Feature_vector_source feature_vector_source;
     //**********************************************************
     public Face_recognition_actor(Face_recognition_service service_)
     //**********************************************************
     {
         service = service_;
+        feature_vector_source = new Feature_vector_source_for_face_recognition(service.owner,service.logger);
     }
 
 
@@ -314,13 +315,13 @@ public class Face_recognition_actor implements Actor
         service.logger.log("eval_a_face "+face);
 
         start = System.nanoTime();
-        Feature_vector_source feature_vector_source = new Feature_vector_source_for_face_recognition(aborter);
-        Feature_vector the_feature_vector_to_be_identified = feature_vector_source.get_feature_vector(face, service.owner, service.logger);
-        if ( the_feature_vector_to_be_identified == null)
+        Optional<Feature_vector> op = feature_vector_source.get_feature_vector(face, service.owner, aborter,service.logger);
+        if ( op.isEmpty())
         {
             service.logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC: embeddings failed ! are the servers started ?"));
             return new Eval_results("error",null,Eval_situation.nothing_found,false,"error",new ArrayList<>());
         }
+        Feature_vector the_feature_vector_to_be_identified = op.get();
         long fv_time = System.nanoTime()-start;
         feature_vector_total_ns += fv_time;
 

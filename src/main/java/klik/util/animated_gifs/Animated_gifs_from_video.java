@@ -195,7 +195,7 @@ public class Animated_gifs_from_video
                     VBox vbb = new VBox();
                     vbb.getChildren().add(new Label("GIF height (pixel)"));
                     TextField icon_height_tf = new TextField(""+icon_height[0]);
-                    Look_and_feel_manager.set_TextField_look(icon_height_tf,the_stage,logger);
+                    Look_and_feel_manager.set_TextField_look(icon_height_tf,false,the_stage,logger);
                     vbb.getChildren().add(icon_height_tf);
                     icon_height_tf.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
@@ -207,7 +207,7 @@ public class Animated_gifs_from_video
                     });
                     vbb.getChildren().add(new Label("Frame rate (per second)"));
                     TextField fps_tf = new TextField(""+fps[0]);
-                    Look_and_feel_manager.set_TextField_look(fps_tf,the_stage,logger);
+                    Look_and_feel_manager.set_TextField_look(fps_tf,false,the_stage,logger);
                     vbb.getChildren().add(fps_tf);
                     fps_tf.setOnAction(new EventHandler<ActionEvent>() {
                         @Override

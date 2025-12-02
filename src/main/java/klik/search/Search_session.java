@@ -57,7 +57,7 @@ public class Search_session implements Callback_for_file_found_publish
 		this.find_result_frame = new Results_frame(
 				path_list_provider,
 				path_comparator_source,
-				local_aborter, logger);
+				local_aborter, owner, logger);
 	}
 
 	//**********************************************************

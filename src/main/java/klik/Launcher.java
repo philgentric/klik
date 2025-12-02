@@ -11,8 +11,6 @@ package klik;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
@@ -20,9 +18,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klik.properties.boolean_features.Preferences_stage;
 import klik.util.Installers;
-import klik.util.execute.Execute_result;
 import klik.util.execute.Guess_OS;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;

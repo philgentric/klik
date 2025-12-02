@@ -7,7 +7,7 @@ import javafx.stage.Window;
 import klik.Klik_application;
 import klik.Launcher;
 import klik.Shared_services;
-import klik.properties.Non_booleans_properties;
+import klik.properties.More_settings_stage;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
 
@@ -138,7 +138,7 @@ public class Feature_cache
     public static void update_string(String key, String new_value, Window owner,Logger logger)
     //**********************************************************
     {
-        Preferences_stage.reset();
+        More_settings_stage.reset();
         System.out.println("Feature_cache: "+key+"=>"+new_value);
         Shared_services.main_properties().set(key, new_value);
         send_UI_changed(Launcher.UI_CHANGED,new_value, logger);

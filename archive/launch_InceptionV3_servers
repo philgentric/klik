@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ~/venv-metal/bin/activate
+source ~/.klik/venv-metal/bin/activate
 
 python3 --version
 
@@ -10,8 +10,8 @@ EMBEDDINGS_PORTS=(8200 8201 8202 8203 8204 8205 8206 8207 8208 8209
                         8230 8231 8232 8233)
 
 for PORT in "${EMBEDDINGS_PORTS[@]}"; do
-    python3 -c "import VGG19_embeddings_server;
-VGG19_embeddings_server.run_server(${PORT})" &
+    python3 -c "import InceptionV3_embeddings_server;
+InceptionV3_embeddings_server.run_server(${PORT})" &
 done
 
 

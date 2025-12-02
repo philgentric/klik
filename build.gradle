@@ -38,6 +38,11 @@ plugins {
 
 }
 
+java {
+    sourceCompatibility = '25'
+    targetCompatibility = '25'
+}
+
 
 
 version = "1.0" // application_version
@@ -112,9 +117,10 @@ tasks.register('klik', JavaExec) {
     }
 }
 
-tasks.register('vim', JavaExec) {
+
+tasks.register('stf', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.util.ui.Vim_test'
+    mainClass = 'klik.util.ui.Stf'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
     return

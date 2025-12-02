@@ -3,14 +3,20 @@
 
 package klik.machine_learning.face_recognition;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.stage.Window;
+import klik.machine_learning.ML_servers_util;
+import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector;
 import klik.machine_learning.feature_vector.Feature_vector_source_server;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
 public class Feature_vector_source_for_face_recognition extends Feature_vector_source_server
@@ -20,12 +26,13 @@ public class Feature_vector_source_for_face_recognition extends Feature_vector_s
     // TODO: this is a not-shared config with the shell script "launch_servers"
     static int[] port = {8020, 8021};
     static Random random = new Random();
+    static AtomicBoolean server_started = new AtomicBoolean(false);
 
     //**********************************************************
-    public Feature_vector_source_for_face_recognition(Aborter aborter)
+    public Feature_vector_source_for_face_recognition(Window owner, Logger logger)
     //**********************************************************
     {
-        super(aborter);
+        super(owner,logger);
     }
 
     //**********************************************************
@@ -37,11 +44,42 @@ public class Feature_vector_source_for_face_recognition extends Feature_vector_s
         return returned;
     }
 
+    @Override
+    protected String get_server_python_name() {
+        return "FaceNet_embeddings_server";
+    }
+
     //**********************************************************
-    public Feature_vector get_feature_vector(Path path, Window owner, Logger logger)
+    @Override
+    protected boolean get_server_started()
     //**********************************************************
     {
-        return get_feature_vector_from_server(path, owner, logger);
+        return server_started.get();
+    }
+
+    //**********************************************************
+    @Override
+    protected void set_server_started(boolean b)
+    //**********************************************************
+    {
+        server_started.set(b);
+    }
+
+    //**********************************************************
+    @Override
+    protected boolean start_servers(Window owner, Logger logger)
+    //**********************************************************
+    {
+        Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(owner,logger), false, true, owner, logger);
+        return true;
+    }
+
+
+    //**********************************************************
+    public Optional<Feature_vector> get_feature_vector(Path path, Window owner, Aborter aborter,Logger logger)
+    //**********************************************************
+    {
+        return get_feature_vector_from_server(path, owner, aborter, logger);
     }
 
 }

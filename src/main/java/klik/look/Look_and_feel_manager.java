@@ -933,7 +933,7 @@ public class Look_and_feel_manager
 
 
     //**********************************************************
-    public static void set_TextField_look(TextField text_field, Window owner, Logger logger)
+    public static void set_TextField_look(TextField text_field, boolean button_look, Window owner, Logger logger)
     //**********************************************************
     {
         Font_size.apply_global_font_size_to_Node(text_field,owner,logger);
@@ -941,6 +941,8 @@ public class Look_and_feel_manager
         Look_and_feel laf = get_instance(owner,logger);
         if (laf.style_sheet_url_string != null)
         {
+            if ( button_look ) text_field.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON);
+
             text_field.setBorder(new Border(new BorderStroke(laf.get_foreground_color(), BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1))));
         }
 
@@ -983,22 +985,6 @@ public class Look_and_feel_manager
                 hbox.getChildren().add(dot);
                 hbox.getChildren().add(image_view);
                 button.setGraphic(hbox);
-
-                /*StackPane stack = new StackPane();
-                stack.setMaxWidth(height);
-                stack.setMaxHeight(height);
-
-                ImageView imageView = new ImageView(image);
-                imageView.setFitHeight(height);
-                imageView.setPreserveRatio(true);
-
-                Circle dot = new Circle(height / 3, color); // smaller badge
-                StackPane.setAlignment(dot, Pos.BOTTOM_RIGHT);
-                stack.getChildren().addAll(imageView, dot);
-
-                button.setGraphic(stack);
-                */
-
             }
         }
 

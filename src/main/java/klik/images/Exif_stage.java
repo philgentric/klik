@@ -74,7 +74,7 @@ public class Exif_stage
         if (exif_dbg) logger.log("$$$$$$ EXIF $$$$$$$$$$$");
 
         TextField text_field = new TextField(path.toAbsolutePath().toString());
-        Look_and_feel_manager.set_TextField_look(text_field, owner, logger);
+        Look_and_feel_manager.set_TextField_look(text_field, false, owner, logger);
         text_field.setMinWidth(VERY_WIDE);
         text_field.setEditable(false);
         text_field.setFocusTraversable(false);
@@ -191,7 +191,7 @@ public class Exif_stage
         text_field.setEditable(false);
         text_field.setFocusTraversable(false);
         text_field.setMinWidth(VERY_WIDE);
-        Look_and_feel_manager.set_TextField_look(text_field,owner,logger);
+        Look_and_feel_manager.set_TextField_look(text_field,false,owner,logger);
         return text_field;
     }
 
