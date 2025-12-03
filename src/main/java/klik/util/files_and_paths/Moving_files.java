@@ -624,7 +624,7 @@ public class Moving_files
 
                 if ( System.currentTimeMillis()-start > 5_000)
                 {
-                    if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name()))
+                    if (Booleans.get_boolean_defaults_to_false(Feature.Play_ding_after_long_processes.name()))
                     {
                         Ding.play("file moving takes more than 5s", logger);
                     }

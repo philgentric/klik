@@ -3,7 +3,9 @@
 
 package klik.properties.boolean_features;
 
+//**********************************************************
 public enum Feature
+//**********************************************************
 {
     Show_icons_for_files,
     Show_icons_for_folders,
@@ -48,7 +50,8 @@ public enum Feature
     Show_fpcalc_install_warning,
     Show_mediainfo_install_warning,
     Show_ytdlp_install_warning,
-    max_RAM_is_defined_by_user
+    Enable_feature_vector_monitoring,
+    Max_RAM_is_defined_by_user
 
 
 }

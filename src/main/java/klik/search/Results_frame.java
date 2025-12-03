@@ -191,7 +191,7 @@ public class Results_frame
 		Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
 
 
-        Menu_items.add_menu_item("Browse_in_new_window",
+        Menu_items.add_menu_item_for_context_menu("Browse_in_new_window",
                 e -> {
 			//logger.log("Browse_in_new_window");
 			Path local = path;
@@ -201,13 +201,13 @@ public class Results_frame
 
 		if (! path.toFile().isDirectory())
 		{
-			Menu_items.add_menu_item("Open_With_Registered_Application",
+			Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",
                     e-> {
 					logger.log("Open_With_Registered_Application");
 					System_open_actor.open_special(path,owner, aborter,logger);
 				},context_menu,owner,logger);
 
-            Menu_items.add_menu_item("Delete",
+            Menu_items.add_menu_item_for_context_menu("Delete",
                     e -> {
                 logger.log("Delete");
                 double x = stage.getX()+100;

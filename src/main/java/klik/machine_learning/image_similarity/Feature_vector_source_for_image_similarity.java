@@ -44,6 +44,7 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
     //**********************************************************
     {
         super(owner, logger);
+        logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source_for_image_similarity"));
     }
 
     //**********************************************************

@@ -249,14 +249,14 @@ public abstract class Item implements Icon_destination
         Path local_path = get_item_path();
         if (Files.isDirectory(local_path))
         {
-            Menu_items.add_menu_item(
+            Menu_items.add_menu_item_for_context_menu(
                     "Get_folder_size",
                     event -> Folder_size_stage.get_folder_size(get_item_path(),owner, logger),
                     context_menu,owner,logger);
 
             if (is_trash())
             {
-                Menu_items.add_menu_item(
+                Menu_items.add_menu_item_for_context_menu(
                     "Clear_Trash_Folder",
                 event -> {
                         if (dbg) logger.log("clearing trash!");
@@ -275,15 +275,15 @@ public abstract class Item implements Icon_destination
                         target  = get_item_path();
                     }
                     Path finalTarget = target;
-                    Menu_items.add_menu_item(
+                    Menu_items.add_menu_item_for_context_menu(
                             "Browse_in_new_window",
                             event -> {
                                 if (dbg) logger.log("Browse in new window!");
                                 Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(finalTarget,owner,logger), owner, logger);
                             }, context_menu, owner, logger);
 
-                    if (Booleans.get_boolean(Feature.Enable_3D.name())) {
-                        Menu_items.add_menu_item(
+                    if (Booleans.get_boolean_defaults_to_false(Feature.Enable_3D.name())) {
+                        Menu_items.add_menu_item_for_context_menu(
                                 "Browse_in_new_3D_window",
                                 event -> {
                                     if (dbg) logger.log("Browse in new window!");
@@ -298,7 +298,7 @@ public abstract class Item implements Icon_destination
                 }*/
                 create_rename_menu_item(local_button, local_label,context_menu);
                 create_delete_menu_item(context_menu);
-                Menu_items.add_menu_item("Copy",
+                Menu_items.add_menu_item_for_context_menu("Copy",
                         event -> {
                         if (dbg) logger.log("Copying the directory");
                         Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(owner,get_item_path(),logger);
@@ -330,7 +330,7 @@ public abstract class Item implements Icon_destination
             // is a "plain" file
             create_open_with_system_menu_item(get_item_path(),context_menu);
 
-            Menu_items.add_menu_item(
+            Menu_items.add_menu_item_for_context_menu(
                     "Open_With_Registered_Application",
                     actionEvent -> {
                     if (dbg) logger.log("button in item: Open_With_Registered_Application");
@@ -338,7 +338,7 @@ public abstract class Item implements Icon_destination
                 },context_menu,owner,logger);
 
 
-            Menu_items.add_menu_item("Open_With_Klik_Text_Frame",
+            Menu_items.add_menu_item_for_context_menu("Open_With_Klik_Text_Frame",
                     actionEvent -> {
                     if (dbg) logger.log("button in item: Open_With_Klik_Text_Frame");
 
@@ -365,7 +365,7 @@ public abstract class Item implements Icon_destination
     public void create_copy_menu_item(ContextMenu context_menu)
     //**********************************************************
     {
-        Menu_items.add_menu_item("Copy",
+        Menu_items.add_menu_item_for_context_menu("Copy",
                 event -> {
                 if (dbg) logger.log("copying!");
 
@@ -385,7 +385,7 @@ public abstract class Item implements Icon_destination
     protected void create_show_file_size_menu_item(ContextMenu context_menu)
     //**********************************************************
     {
-        Menu_items.add_menu_item("Show_file_size",
+        Menu_items.add_menu_item_for_context_menu("Show_file_size",
                 event -> {
                 if (dbg) logger.log("File size");
                 String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_with_size(get_item_path(),owner,logger);
@@ -420,7 +420,7 @@ public abstract class Item implements Icon_destination
     public void create_open_mediainfo_frame_menu_item(Path path, ContextMenu context_menu)
     //**********************************************************
     {
-        Menu_items.add_menu_item("Info_about",
+        Menu_items.add_menu_item_for_context_menu("Info_about",
                 actionEvent -> {
             if (dbg) logger.log("info");
             Audio_info_frame.show(path,owner,logger);
@@ -430,7 +430,7 @@ public abstract class Item implements Icon_destination
     public void create_edit_metadata_frame_menu_item(Path path, ContextMenu context_menu)
     //**********************************************************
     {
-        Menu_items.add_menu_item(
+        Menu_items.add_menu_item_for_context_menu(
                 "Edit_Song_Metadata",
                 (ActionEvent e) -> Ffmpeg_metadata_editor.edit_metadata_of_a_file_in_a_thread(path, owner, logger),
                 context_menu, owner, logger);
@@ -442,7 +442,7 @@ public abstract class Item implements Icon_destination
     public void create_open_exif_frame_menu_item(Path path, ContextMenu context_menu)
     //**********************************************************
     {
-        Menu_items.add_menu_item("Info_about",
+        Menu_items.add_menu_item_for_context_menu("Info_about",
                 actionEvent -> {
                     if (dbg) logger.log("info");
                     Actor_engine.execute(()-> {
@@ -460,7 +460,7 @@ public abstract class Item implements Icon_destination
     public static void create_edit_tag_menu_item(Path path, ContextMenu context_menu,boolean dbg, Window owner, Aborter aborter,Logger logger)
     //**********************************************************
     {
-        Menu_items.add_menu_item("Show_tag",
+        Menu_items.add_menu_item_for_context_menu("Show_tag",
                 event -> {
             if (dbg) logger.log("File tag");
             Tag_stage.open_tag_stage(path,true,owner,aborter,logger);
@@ -471,7 +471,7 @@ public abstract class Item implements Icon_destination
     public void create_open_with_system_menu_item(Path path, ContextMenu context_menu)
     //**********************************************************
     {
-        Menu_items.add_menu_item("Open_with_system",
+        Menu_items.add_menu_item_for_context_menu("Open_with_system",
                 actionEvent -> {
             if (dbg) logger.log("button in item: System Open");
             System_open_actor.open_with_system(path, owner,aborter,logger);
@@ -593,7 +593,7 @@ public abstract class Item implements Icon_destination
     protected void create_delete_menu_item(ContextMenu context_menu)
     //**********************************************************
     {
-        Menu_items.add_menu_item("Delete",
+        Menu_items.add_menu_item_for_context_menu("Delete",
                 event -> {
             if (dbg) logger.log("Deleting!");
             double x = owner.getX()+100;
@@ -666,7 +666,7 @@ public abstract class Item implements Icon_destination
     protected void create_rename_menu_item(Button local_button, Label local_label, ContextMenu context_menu)
     //**********************************************************
     {
-        Menu_items.add_menu_item("Rename",
+        Menu_items.add_menu_item_for_context_menu("Rename",
                 event -> {
             if (dbg) logger.log("Item2_button: Renaming");
             String original_name = get_item_path().getFileName().toString();

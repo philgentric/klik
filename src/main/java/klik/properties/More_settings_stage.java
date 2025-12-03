@@ -5,6 +5,7 @@ package klik.properties;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -12,21 +13,31 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.Shared_services;
+import klik.System_info;
+import klik.browser.comparators.Similarity_comparator;
+import klik.browser.virtual_landscape.Browsing_caches;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
+import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
+import klik.properties.boolean_features.Feature_change_target;
 import klik.util.Installers;
+import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
+import klik.util.ui.Items_with_explanation;
+import klik.util.ui.Popups;
+
+import java.util.Optional;
 
 
 //**********************************************************
-public class More_settings_stage
+public class More_settings_stage implements Feature_change_target
 //**********************************************************
 {
-    public static final String EXPLANATION = "_Explanation";
     /*public final VBox left;
     public final VBox left;
     public final VBox right;
@@ -36,8 +47,7 @@ public class More_settings_stage
     public final VBox right;
 
     public final Logger logger;
-    private static More_settings_stage instance;
-    private final Stage stage;
+    private final Stage owner;
 
     public static final Feature[] advanced_features ={
             Feature.Monitor_folders,
@@ -48,7 +58,7 @@ public class More_settings_stage
             Feature.Enable_auto_purge_disk_caches,
             Feature.Display_image_distances,
             Feature.Play_ding_after_long_processes,
-            Feature.max_RAM_is_defined_by_user,
+            Feature.Max_RAM_is_defined_by_user,
             Feature.Shift_d_is_sure_delete};
 
     public static final Feature[] basic_features ={
@@ -65,16 +75,6 @@ public class More_settings_stage
             Feature.Hide_question_mark_buttons_on_mysterious_menus
     };
 
-    public static final Feature[] debugging_features ={
-            Feature.Log_to_file,
-            Feature.Log_performances,
-            Feature.Enable_detailed_cache_cleaning_options,
-            Feature.Fusk_is_on,
-            Feature.Show_ffmpeg_install_warning,
-            Feature.Show_graphicsmagick_install_warning,
-            Feature.Show_can_use_ESC_to_close_windows,
-    };
-
     public static final Feature[] experimental_features ={
             Feature.Enable_3D,
             Feature.Enable_backup,
@@ -85,36 +85,31 @@ public class More_settings_stage
             Feature.Enable_alternate_image_scaling
             //Feature.Enable_image_playlists,
     };
+
+    public static final Feature[] debugging_features ={
+            Feature.Log_to_file,
+            Feature.Log_performances,
+            Feature.Enable_detailed_cache_cleaning_options,
+            Feature.Fusk_is_on,
+            Feature.Show_ffmpeg_install_warning,
+            Feature.Show_graphicsmagick_install_warning,
+            Feature.Show_can_use_ESC_to_close_windows,
+            Feature.Enable_feature_vector_monitoring
+    };
+
+
     //**********************************************************
     public static void show_Preferences_stage(String title, Window owner, Logger logger)
     //**********************************************************
     {
-        if ( instance != null)
-        {
-            instance.show();
-            return;
-        }
-        instance = new More_settings_stage(title,owner,logger);
-    }
-
-    //**********************************************************
-    public static void reset()
-    //**********************************************************
-    {
-        instance = null;
-    }
-
-    //**********************************************************
-    private void show()
-    //**********************************************************
-    {
-        stage.show();
+        new More_settings_stage(title,owner,logger);
     }
 
     //**********************************************************
     private More_settings_stage(String title, Window owner, Logger logger)
     //**********************************************************
     {
+        Feature_cache.register_for_all(this);
         this.logger = logger;
         //sp.setPrefSize(WIDTH, HEIGHT);
         HBox hbox = new HBox();
@@ -137,11 +132,11 @@ public class More_settings_stage
         bottom.getChildren().add(right);
         
          */
-        define();
+        update(null,true);
 
 
 
-        stage = new Stage();
+        this.owner = new Stage();
         //stage.setHeight(HEIGHT);
         //stage.setWidth(WIDTH);
 
@@ -156,20 +151,21 @@ public class More_settings_stage
 
         //Scene scene = new Scene(vBox, Color.WHITE);
 
-        stage.setTitle(title);
-        stage.setScene(scene);
-        stage.initOwner(owner);
-        stage.setX(owner.getX()+100);
-        stage.setY(owner.getY()+10);
-        stage.show();
-        stage.sizeToScene();
+        this.owner.setTitle(title);
+        this.owner.setScene(scene);
+        this.owner.initOwner(owner);
+        this.owner.setX(owner.getX()+100);
+        this.owner.setY(owner.getY()+10);
+        this.owner.show();
+        this.owner.sizeToScene();
     }
 
     //**********************************************************
-    public void define()
+    @Override // Feature_change_target
+    public void update(Feature feature, boolean new_val)
     //**********************************************************
     {
-        //logger.log(Stack_trace_getter.get_stack_trace("define!!!"));
+        logger.log("More_settings_stage UPDATE");
         left.getChildren().clear();
         right.getChildren().clear();
         left.getChildren().clear();
@@ -178,7 +174,7 @@ public class More_settings_stage
 
         {
             Label lab = new Label("Basic features");
-            Look_and_feel_manager.set_region_look(lab,stage,logger);
+            Look_and_feel_manager.set_region_look(lab, owner,logger);
             left.getChildren().add(lab);
         }
         for(Feature f : basic_features)
@@ -189,7 +185,7 @@ public class More_settings_stage
 
         {
             Label lab = new Label("Advanced features");
-            Look_and_feel_manager.set_region_look(lab,stage,logger);
+            Look_and_feel_manager.set_region_look(lab, owner,logger);
             left.getChildren().add(lab);
         }
         for(Feature f : advanced_features)
@@ -203,7 +199,7 @@ public class More_settings_stage
 
         {
             Label lab = new Label("Experimental features");
-            Look_and_feel_manager.set_region_look(lab,stage,logger);
+            Look_and_feel_manager.set_region_look(lab, owner,logger);
             right.getChildren().add(lab);
         }
         for(Feature f : experimental_features)
@@ -214,7 +210,7 @@ public class More_settings_stage
 
         {
             Label lab = new Label("Debug");
-            Look_and_feel_manager.set_region_look(lab,stage,logger);
+            Look_and_feel_manager.set_region_look(lab, owner,logger);
             right.getChildren().add(lab);
         }
         for(Feature f : debugging_features)
@@ -223,47 +219,128 @@ public class More_settings_stage
         }
 
         {
-            Look_and_feel look_and_feel = Look_and_feel_manager.get_instance(stage,logger);
             double w = 600;
             double icon_size = 128;
-            if (Booleans.get_boolean(Feature.Enable_image_similarity.name()))
+            Look_and_feel look_and_feel = Look_and_feel_manager.get_instance(owner,logger);
+
             {
-                Installers.make_ui_to_start_image_similarity_servers(w, icon_size, look_and_feel, right, stage, logger);
-                Installers.make_ui_to_stop_image_similarity_servers(w, icon_size, look_and_feel, right, stage, logger);
+                String key = "Set_The_Cache_Size_Warning_Limit";
+                EventHandler<ActionEvent> handler = e -> show_cache_size_limit_input_dialog();
+                HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
+                        key,
+                        handler,
+                        w,
+                        icon_size,
+                        look_and_feel,
+                        owner,
+                        logger);
+                right.getChildren().add(hb);
             }
-            if (Booleans.get_boolean(Feature.Enable_face_recognition.name()))
+
+            if ( Feature_cache.get(Feature.Enable_detailed_cache_cleaning_options))
             {
-                Installers.make_ui_to_start_face_recognition_servers(w,icon_size,look_and_feel, right, stage, logger);
-                Installers.make_ui_to_stop_face_recognition_servers(w,icon_size,look_and_feel, right, stage, logger);
+                detailed_cache_cleaning_buttons(
+                        Booleans.get_boolean_defaults_to_false(Feature.Enable_detailed_cache_cleaning_options.name()),
+                                w,
+                                icon_size,
+                                look_and_feel,
+                                right
+                );
             }
+            {
+                HBox hb = Installers.make_ui_to_start_image_similarity_servers(w, icon_size, look_and_feel, right, owner, logger);
+                if (! Feature_cache.get(Feature.Enable_image_similarity))
+                {
+                    disable_button(hb);
+                }
+            }
+            {
+                HBox hb = Installers.make_ui_to_stop_image_similarity_servers(w, icon_size, look_and_feel, right, owner, logger);
+                if (! Feature_cache.get(Feature.Enable_image_similarity))
+                {
+                    disable_button(hb);
+                }
+            }
+            {
+                HBox hb = Installers.make_ui_to_start_face_recognition_servers(w, icon_size, look_and_feel, right, owner, logger);
+                if (! Feature_cache.get(Feature.Enable_face_recognition))
+                {
+                    disable_button(hb);
+                }
+            }
+            {
+                HBox hb = Installers.make_ui_to_stop_face_recognition_servers(w, icon_size, look_and_feel, right, owner, logger);
+                if (! Feature_cache.get(Feature.Enable_face_recognition))
+                {
+                    disable_button(hb);
+                }
+            }
+
+            {
+
+
+                if ( Feature_cache.get(Feature.Max_RAM_is_defined_by_user))
+                {
+                    String key = "Set_The_VM_Max_RAM";
+                    EventHandler<ActionEvent> handler = e -> show_max_ram_dialog();
+                    HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
+                            key,
+                            handler,
+                            w,
+                            icon_size,
+                            look_and_feel,
+                            owner,
+                            logger);
+                    right.getChildren().add(hb);
+                }
+
+            }
+
 
         }
 
     }
 
     //**********************************************************
+    private void disable_button(HBox hb)
+    //**********************************************************
+    {
+        for(Node n : hb.getChildren())
+        {
+            if ( n instanceof Button b)
+            {
+                if (! b.getText().equals("?"))
+                {
+                    logger.log("button: " + b.getText());
+                    b.setDisable(true);
+                }
+            }
+        }
+    }
+
+    //**********************************************************
     private void add_one_line(Feature bf, VBox vbox)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(bf.name(),stage,logger);
+        String text = My_I18n.get_I18n_string(bf.name(), owner,logger);
         HBox hbox = new HBox();
         {
             CheckBox cb = new CheckBox(text);
             cb.setMnemonicParsing(false);
-            boolean value0 = Booleans.get_boolean(bf.name());
+            boolean value0 = Feature_cache.get(bf);
             cb.setSelected(value0);
-            Look_and_feel_manager.set_CheckBox_look(cb, stage, logger);
+            Look_and_feel_manager.set_CheckBox_look(cb, owner, logger);
 
             cb.setOnAction((ActionEvent e) ->
             {
-                Boolean value = (Boolean) cb.isSelected();
-                logger.log("Preference changing for: " + bf.name() + "new value:" + value);
-                Booleans.set_boolean(bf.name(), value, stage); // this will trigger a file save
-                Feature_cache.update_cached_boolean(bf, value, stage);
+                boolean value = cb.isSelected();
+                logger.log("Preference changing for: " + bf + "new value:" + value);
+                Booleans.set_boolean(bf.name(), value, owner); // this will trigger a file save
+                Feature_cache.update_cached_boolean(bf, value, owner);
             });
             hbox.getChildren().add(cb);
 
-            Button button =make_explanation_button(bf.name(), stage,logger);
+            Button button = Items_with_explanation.make_explanation_button(bf.name(), owner,logger);
             if (button == null) return;
             hbox.getChildren().add(button);
 
@@ -271,73 +348,162 @@ public class More_settings_stage
         vbox.getChildren().add(hbox);
     }
 
-    //**********************************************************
-    public static HBox make_hbox_with_button_and_explanation(String key, EventHandler<ActionEvent> handler, double width, double icon_size, Look_and_feel look_and_feel, Window owner, Logger logger)
-    //**********************************************************
-    {
-        HBox hb = new HBox();
-        Button b = new Button(My_I18n.get_I18n_string(key, owner, logger));
-        Look_and_feel_manager.set_button_look(b,true,owner,logger);
-        //look_and_feel.set_Button_look(b, width, icon_size, null, owner, logger);
-        b.setOnAction(handler);
-        hb.getChildren().add(b);
-        if ( !Feature_cache.get(Feature.Hide_question_mark_buttons_on_mysterious_menus))
-        {
-            Button explain = More_settings_stage.make_explanation_button(key, owner, logger);
-            hb.getChildren().add(explain);
-            b.setPrefWidth(width-70);
-        }
-        else
-        {
-            b.setPrefWidth(width);
-        }
-        return hb;
-    }
-    //**********************************************************
-    public static Button make_explanation_button(String key,Window owner, Logger logger)
-    //**********************************************************
-    {
-        Button button = new Button("?");
-        String explanation = My_I18n.get_I18n_string(key + EXPLANATION, owner, logger);
-        if (explanation == null || explanation.isBlank())
-        {
-            logger.log("No explanation found for: " + key);
-            return null;
-        }
-        if ( explanation.equals(key+ EXPLANATION))
-        {
-            // means that no explanation was found in the resources
-            // a 'not too bad' default is to copy the key removing underscore ...
-            explanation = My_I18n.get_I18n_string(key, owner, logger).replaceAll("_", " ");
-        }
-        button.setTooltip(new Tooltip(explanation));
-        Look_and_feel_manager.set_button_look(button, true,owner, logger);
-        String finalExplanation = explanation;
-        button.setOnAction(event -> show_explanation(finalExplanation, owner, logger));
-        return button;
-    }
+
+
 
     //**********************************************************
-    private static void show_explanation(String explanation, Window owner, Logger logger)
+    private void show_max_ram_dialog()
     //**********************************************************
     {
-
-        Stage explanation_stage = new Stage();
+        TextInputDialog dialog = new TextInputDialog(""+ Non_booleans_properties.get_java_VM_max_RAM(owner, logger));
+        Look_and_feel_manager.set_dialog_look(dialog, owner,logger);
+        dialog.initOwner(owner);
+        dialog.setWidth(1200);
+        dialog.setHeight(800);
+        dialog.setTitle("Java VM max RAM size");
+        dialog.setHeaderText("This is the max RAM that the java VM will be allowed to reserve THE NEXT TIME you run klik.");
+        long max = System_info.get_total_machine_RAM_in_GBytes();
+        dialog.setContentText("This machine RAM size is: "+max+ "GB.\nEnter JVM max RAM in GB: ");
+        Node old = dialog.getDialogPane().getContent();
+        Label lab = new Label(
+                "If you are not sure what this means," +
+                        "\nbetter not change this value!" +
+                        "\nthe Java VM max RAM will not be set larger than your physical machine RAM, " +
+                        "\nbecause this would for sure cause system-wide problems ..." +
+                        "\nbut you are warned that getting too close to this limit can also cause trouble.");
         VBox vb = new VBox();
+        vb.getChildren().add(old);
+        vb.getChildren().add(lab);
+        dialog.getDialogPane().setContent(vb);
 
-        TextArea tf = new TextArea(explanation);
-        Look_and_feel_manager.set_region_look(tf,owner,logger);
-        tf.setEditable(false);
-        tf.setWrapText(true);
-        vb.getChildren().add(tf);
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            String new_val = result.get();
+            try
+            {
+                int val = Integer.parseInt(new_val);
+                if ( val > max ) val = (int)max;
+                Non_booleans_properties.save_java_VM_max_RAM(val,owner, logger);
 
-        Scene scene = new Scene(vb);
-        explanation_stage.setScene(scene);
-        explanation_stage.setWidth(500);
-        explanation_stage.setHeight(300);
-        explanation_stage.initOwner(owner);
-        explanation_stage.setAlwaysOnTop(true);
-        explanation_stage.show();
+            }
+            catch (NumberFormatException e)
+            {
+                Popups.popup_warning("❗ Integer only!","Please retry with an integer value!",false,owner,logger);
+            }
+        }
+    }
+
+    //**********************************************************
+    private void show_cache_size_limit_input_dialog()
+    //**********************************************************
+    {
+        TextInputDialog dialog = new TextInputDialog(""+ Non_booleans_properties.get_folder_warning_size(owner));
+        Look_and_feel_manager.set_dialog_look(dialog, owner,logger);
+        dialog.initOwner(owner);
+        dialog.setWidth(1200);
+        dialog.setTitle(My_I18n.get_I18n_string("Cache_Size_Warning_Limit",owner,logger));
+        dialog.setHeaderText("If the cache on disk gets larger than this, you will receive a warning. Entering zero means no limit.");
+        dialog.setContentText(My_I18n.get_I18n_string("Set_The_Cache_Size_Warning_Limit",owner,logger)+" (MB)");
+
+
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            String new_val = result.get();
+            try
+            {
+                int val = Integer.parseInt(new_val);
+                Non_booleans_properties.set_cache_size_limit_warning_megabytes_fx(val,owner);
+
+            }
+            catch (NumberFormatException e)
+            {
+                Popups.popup_warning("❗ Integer only!","Please retry with an integer value!",false,owner,logger);
+            }
+        }
+    }
+
+
+    //**********************************************************
+    private void detailed_cache_cleaning_buttons(boolean active,
+                                              double w,
+                                                 double icon_size,
+                                              Look_and_feel look_and_feel,
+                                              VBox vbox)
+    //**********************************************************
+    {
+        {
+            add_one_button("Clear_All_RAM_Caches",
+                    event -> Browsing_caches.clear_all_RAM_caches(logger),w,icon_size,look_and_feel,vbox);
+            add_one_button("Clear_Image_Properties_RAM_Cache",
+                    event -> Browsing_caches.image_properties_RAM_cache_of_caches.clear(),w,icon_size,look_and_feel,vbox);
+            add_one_button("Clear_Image_Comparators_Caches",
+                    event -> clear_image_comparators_caches(),w,icon_size,look_and_feel,vbox);
+            add_one_button("Clear_Scroll_Position_Cache",
+                    event -> Browsing_caches.scroll_position_cache_clear(),w,icon_size,look_and_feel,vbox);
+
+        }
+        {
+            add_one_button("Clear_All_Disk_Caches",
+                    event -> Static_files_and_paths_utilities.clear_all_DISK_caches(owner, Shared_services.aborter(),logger),w,icon_size,look_and_feel,vbox);
+            add_one_button("Clear_Icon_Cache_On_Disk",
+                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_icon_cache,true,owner,Shared_services.aborter(),logger),w,icon_size,look_and_feel,vbox);
+            add_one_button("Clear_Folders_Icon_Cache_Folder",
+                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_folder_icon_cache,false,owner, Shared_services.aborter(), logger),w,icon_size,look_and_feel,vbox);
+            add_one_button("Clear_Image_Properties_DISK_Cache",
+                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_properties_cache,false,owner,Shared_services.aborter(), logger),w,icon_size,look_and_feel,vbox);
+            add_one_button("Clear_Image_Feature_Vector_DISK_Cache",
+                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_feature_vectors_cache,true,owner, Shared_services.aborter(), logger),w,icon_size,look_and_feel,vbox);
+            add_one_button("Clear_Image_Similarity_DISK_Cache",
+                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_similarity_cache,true,owner, Shared_services.aborter(), logger),w,icon_size,look_and_feel,vbox);
+
+
+
+        }
+    }
+
+    private void add_one_button(String key, EventHandler<ActionEvent> handler,
+                                double w,
+                                double icon_size,
+                                Look_and_feel look_and_feel,
+                                VBox vbox)
+    {
+        HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
+                key,
+                handler,
+                w,
+                icon_size,
+                look_and_feel,
+                owner,
+                logger);
+        vbox.getChildren().add(hb);
+    }
+    //**********************************************************
+    public void clear_image_properties_RAM_cache()
+    //**********************************************************
+    {
+    }
+
+
+
+    //**********************************************************
+    public void clear_image_comparators_caches()
+    //**********************************************************
+    {
+        for ( Similarity_comparator x : Browsing_caches.similarity_comparator_cache.values())
+        {
+            x.clear_RAM_cache();
+        }
+    }
+
+    //**********************************************************
+    public void clear_image_feature_vector_RAM_cache()
+    //**********************************************************
+    {
+        for( Feature_vector_cache x : Browsing_caches.fv_cache_of_caches.values())
+        {
+            x.clear_RAM_cache();
+        }
+        Browsing_caches.fv_cache_of_caches.clear();
     }
 
 

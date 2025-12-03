@@ -6,7 +6,6 @@
 //SOURCES ./Graph_for_meters.java
 package klik.util.execute.ram_and_threads_meter;
 
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.layout.HBox;
@@ -98,12 +97,12 @@ public class RAM_and_threads_meters_stage
         stage.setTitle("Last "+context_length+" seconds");
 
         ContextMenu context_menu = new ContextMenu();
-        Menu_items.add_menu_item("Call_GC",
+        Menu_items.add_menu_item_for_context_menu("Call_GC",
                     event -> {
                 System.gc();
                 logger.log("Garbage collector was called");
             },context_menu,stage,logger);
-        Menu_items.add_menu_item("List_threads",
+        Menu_items.add_menu_item_for_context_menu("List_threads",
                 event -> {
                     Actor_engine.list_jobs(logger);
                 },context_menu,stage,logger);

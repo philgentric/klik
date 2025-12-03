@@ -157,7 +157,7 @@ public class Klik_application extends Application
         Shared_services.init(name,primary_stage_);
         Logger logger = Shared_services.logger();
 
-        if (Booleans.get_boolean(Feature.Log_performances.name()))
+        if (Booleans.get_boolean_defaults_to_false(Feature.Log_performances.name()))
         {
             Perf.monitor(logger);
         }

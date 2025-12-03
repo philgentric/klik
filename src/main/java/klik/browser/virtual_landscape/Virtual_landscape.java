@@ -675,6 +675,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     return fv_cache;
                 double x = owner.getX() + 100;
                 double y = owner.getY() + 230;
+
                 Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner,logger);
                 List<Path> paths = path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
                 Feature_vector_cache.Paths_and_feature_vectors images_and_feature_vectors = Feature_vector_cache
@@ -1283,7 +1284,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 ||
                 (Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(),
                         owner) == Sort_files_by.SIMILARITY_BY_PURSUIT)) {
-            Sort_files_by.set_sort_files_by(path_list_provider.get_folder_path(), Sort_files_by.NAME, owner, logger);
+            Sort_files_by.set_sort_files_by(path_list_provider.get_folder_path(), Sort_files_by.FILE_NAME, owner, logger);
         }
         show_how_many_files_deep_in_each_folder_done = false;
         folder_total_sizes_cache = new HashMap<>();
@@ -1949,11 +1950,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         // Rectangle2D rectangle = new
         // Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
-        Menu_items.add_menu_item("New_Window", event -> Instructions.additional_same_folder(context_type,
+        Menu_items.add_menu_item_for_context_menu("New_Window", event -> Instructions.additional_same_folder(context_type,
                 path_list_provider, get_top_left(), owner, logger), context_menu, owner, logger);
-        Menu_items.add_menu_item("New_Twin_Window", event -> Instructions.additional_same_folder_twin(context_type,
+        Menu_items.add_menu_item_for_context_menu("New_Twin_Window", event -> Instructions.additional_same_folder_twin(context_type,
                 path_list_provider, get_top_left(), owner, logger), context_menu, owner, logger);
-        Menu_items.add_menu_item("New_Double_Window", event -> Instructions
+        Menu_items.add_menu_item_for_context_menu("New_Double_Window", event -> Instructions
                 .additional_same_folder_fat_tall(context_type, path_list_provider, get_top_left(), owner, logger),
                 context_menu, owner, logger);
 
@@ -1980,21 +1981,21 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             scan.getItems().add(Menu_items.make_menu_item("Speed_up_scan", event -> speed_up_scan(), owner, logger));
             context_menu.getItems().add(scan);
         }
-        Menu_items.add_menu_item("Show_How_Many_Files_Are_In_Each_Folder",
+        Menu_items.add_menu_item_for_context_menu("Show_How_Many_Files_Are_In_Each_Folder",
                 event -> show_how_many_files_deep_in_each_folder(), context_menu, owner, logger);
-        Menu_items.add_menu_item("Show_Each_Folder_Total_Size", event -> show_total_size_deep_in_each_folder(),
+        Menu_items.add_menu_item_for_context_menu("Show_Each_Folder_Total_Size", event -> show_total_size_deep_in_each_folder(),
                 context_menu, owner, logger);
-        Menu_items.add_menu_item("About_klik", event -> About_klik_stage.show_about_klik_stage(owner, logger),
+        Menu_items.add_menu_item_for_context_menu("About_klik", event -> About_klik_stage.show_about_klik_stage(owner, logger),
                 context_menu, owner, logger);
-        Menu_items.add_menu_item("Refresh", event -> redraw_fx("refresh"), context_menu, owner, logger);
+        Menu_items.add_menu_item_for_context_menu("Refresh", event -> redraw_fx("refresh"), context_menu, owner, logger);
         if (!change_events_off)
-            Menu_items.add_menu_item("Disable_change_events", event -> change_events_off = true, context_menu, owner,
+            Menu_items.add_menu_item_for_context_menu("Disable_change_events", event -> change_events_off = true, context_menu, owner,
                     logger);
         if (change_events_off)
-            Menu_items.add_menu_item("Enable_change_events", event -> change_events_off = false, context_menu, owner,
+            Menu_items.add_menu_item_for_context_menu("Enable_change_events", event -> change_events_off = false, context_menu, owner,
                     logger);
 
-        Menu_items.add_menu_item(
+        Menu_items.add_menu_item_for_context_menu(
                 "Show_Meters",
                 event -> RAM_and_threads_meters_stage.show_stage(owner, logger),
                 context_menu, owner, logger);
@@ -2376,12 +2377,32 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         Alphabetical_file_name_comparator alphabetical_file_name_comparator = new Alphabetical_file_name_comparator();
 
-        other_file_comparator = Sort_files_by.get_non_image_comparator(path_list_provider, owner, aborter, logger);
+        {
+            String cache_key = "other_"+path_list_provider.get_name();
+            other_file_comparator = Browsing_caches.similarity_comparator_cache.get(cache_key);
+            if ( other_file_comparator==null)
+            {
+                other_file_comparator = Sort_files_by.get_non_image_comparator(path_list_provider, owner, aborter, logger);
+                if ( other_file_comparator instanceof Similarity_comparator local) {
+                    Browsing_caches.similarity_comparator_cache.put(path_list_provider.get_name(), local);
+                }
+            }
+        }
+        {
+            String cache_key = "image_"+path_list_provider.get_name();
+            image_file_comparator = Browsing_caches.similarity_comparator_cache.get(cache_key);
+            if ( image_file_comparator==null)
+            {
+                image_file_comparator = Sort_files_by.get_image_comparator(path_list_provider, this,
+                        get_image_properties_ram_cache(),
+                        owner, x, y, aborter, logger);
+                if ( image_file_comparator instanceof Similarity_comparator local) {
+                    Browsing_caches.similarity_comparator_cache.put(path_list_provider.get_name(), local);
+                }
+            }
+        }
 
-        image_file_comparator = Sort_files_by.get_image_comparator(path_list_provider, this,
-                get_image_properties_ram_cache(),
-                owner, x, y, aborter, logger);
-        ;
+
 
         paths_holder.folders = new ConcurrentSkipListSet<>(alphabetical_file_name_comparator);
         paths_holder.non_iconized = new ConcurrentSkipListSet<>(other_file_comparator);
@@ -2489,7 +2510,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 "Save whole image property cache", logger);
 
         if (System.currentTimeMillis() - start > 5_000) {
-            if (Booleans.get_boolean(Feature.Play_ding_after_long_processes.name())) {
+            if (Booleans.get_boolean_defaults_to_false(Feature.Play_ding_after_long_processes.name())) {
                 Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
             }
         }
@@ -2745,10 +2766,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             case RANDOM:
                 local_file_comparator = new Random_comparator();
                 break;
-            case DATE:
+            case FILE_DATE:
                 local_file_comparator = new Date_comparator(logger);
                 break;
-            case SIZE:
+            case FILE_SIZE:
                 local_file_comparator = new Decreasing_disk_footprint_comparator(aborter, owner);
                 break;
 

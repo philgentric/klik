@@ -8,7 +8,6 @@ import javafx.application.Platform;
 import javafx.stage.Window;
 import klik.Shared_services;
 import klik.properties.IProperties;
-import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 
@@ -33,7 +32,7 @@ public class Booleans
 
     // this routine default to FALSE for absent values
     //**********************************************************
-    public static boolean get_boolean(String s)
+    public static boolean get_boolean_defaults_to_false(String s)
     //**********************************************************
     {
         IProperties pm = Shared_services.main_properties();

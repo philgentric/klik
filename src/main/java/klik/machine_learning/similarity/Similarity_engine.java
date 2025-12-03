@@ -63,7 +63,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         this.logger = logger;
         this.aborter = aborter;
         this.paths = paths;
-        show_vector_differences = Booleans.get_boolean(Feature.Display_image_distances.name());
+        show_vector_differences = Booleans.get_boolean_defaults_to_false(Feature.Display_image_distances.name());
     }
 
     //**********************************************************

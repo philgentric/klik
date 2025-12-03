@@ -29,6 +29,7 @@ import klik.look.Look_and_feel_manager;
 import klik.util.image.rescaling.Image_rescaling_filter;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
+import klik.util.ui.Items_with_explanation;
 import klik.util.ui.Menu_items;
 
 import java.nio.file.Path;
@@ -516,7 +517,7 @@ public class Menus_for_image_window
         context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
 
 
-        if (Booleans.get_boolean(Feature.Enable_alternate_image_scaling.name()))
+        if (Booleans.get_boolean_defaults_to_false(Feature.Enable_alternate_image_scaling.name()))
         {
             Path p = image_window.image_display_handler.get_image_context().get().path;
             if(!Guess_file_type.is_this_path_a_gif(p, image_window.stage, logger))
@@ -526,7 +527,7 @@ public class Menus_for_image_window
             }
         }
 
-        if ( Booleans.get_boolean(Feature.Enable_image_similarity.name()))
+        if ( Booleans.get_boolean_defaults_to_false(Feature.Enable_image_similarity.name()))
         {
             context_menu.getItems().add(Item_file_with_icon.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
@@ -538,7 +539,7 @@ public class Menus_for_image_window
                     image_window.logger));
         }
 
-        if ( Booleans.get_boolean(Feature.Enable_face_recognition.name()))
+        if ( Booleans.get_boolean_defaults_to_false(Feature.Enable_face_recognition.name()))
         {
             String s = My_I18n.get_I18n_string("Face_recognition_service", image_window.stage,logger);
             Menu fr_context_menu = new Menu(s);
@@ -547,23 +548,23 @@ public class Menus_for_image_window
             context_menu.getItems().add(fr_context_menu);
             fr_context_menu.getItems().add(get_perform_face_recognition_service_no_face_detection_menu_item(image_window));
 
-            fr_context_menu.getItems().add(Menu_items.make_menu_item_with_explanation(
+            fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                     "Perform_face_recognition_service_with_high_precision_face_detector",
                     event -> face_rec(Face_detection_type.MTCNN, image_window),image_window.stage,logger));
-            fr_context_menu.getItems().add(Menu_items.make_menu_item_with_explanation(
+            fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                     "Perform_face_recognition_service_with_optimistic_face_detector",
                     event -> face_rec(Face_detection_type.haars_false_positioves, image_window),image_window.stage,logger));
-            fr_context_menu.getItems().add(Menu_items.make_menu_item_with_explanation(
+            fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                     "Perform_face_recognition_service_with_ALT1_face_detector",
                     event -> face_rec(Face_detection_type.haars_alt1, image_window),image_window.stage,logger));
-            fr_context_menu.getItems().add(Menu_items.make_menu_item_with_explanation(
+            fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                     "Perform_face_recognition_service_with_ALT2_face_detector",
                     event -> face_rec(Face_detection_type.haars_alt2, image_window),image_window.stage,logger));
 
         }
         context_menu.getItems().add(get_open_menu_item(image_window));
         context_menu.getItems().add(get_browse_menu_item(image_window));
-        if (Booleans.get_boolean(Feature.Enable_3D.name()))
+        if (Booleans.get_boolean_defaults_to_false(Feature.Enable_3D.name()))
         {
             context_menu.getItems().add(get_browse_3D_menu_item(image_window));
         }
@@ -574,15 +575,15 @@ public class Menus_for_image_window
         context_menu.getItems().add(get_search_by_autoextracted_keyword_menu_item(image_window));
         context_menu.getItems().add(get_search_by_user_given_keywords_menu_item(image_window));
 
-        context_menu.getItems().add(Menu_items.make_menu_item_with_explanation(
+        context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                 "Click_to_zoom",
                 event -> image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.click_to_zoom),image_window.stage,logger));
 
-        context_menu.getItems().add(Menu_items.make_menu_item_with_explanation(
+        context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                 "Drag_and_drop",
                 event -> image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.drag_and_drop),image_window.stage,logger));
 
-        context_menu.getItems().add(Menu_items.make_menu_item_with_explanation(
+        context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                 "Pix_for_pix",
                 event -> image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.pix_for_pix), image_window.stage,logger));
 

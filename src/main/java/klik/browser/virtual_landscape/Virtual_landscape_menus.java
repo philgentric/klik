@@ -20,7 +20,6 @@ package klik.browser.virtual_landscape;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.Window;
@@ -28,9 +27,7 @@ import klik.Window_type;
 import klik.Instructions;
 import klik.path_lists.Path_list_provider;
 import klik.util.execute.Execute_result;
-import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.execute.actor.Actor_engine;
-import klik.browser.Clearable_RAM_cache;
 import klik.browser.Icon_size;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.items.Item_folder;
@@ -46,7 +43,6 @@ import klik.change.history.History_item;
 import klik.change.undo.Undo_for_moves;
 import klik.change.undo.Undo_item;
 import klik.experimental.deduplicate.Deduplication_engine;
-import klik.machine_learning.ML_servers_util;
 import klik.machine_learning.face_recognition.Face_recognition_service;
 import klik.machine_learning.deduplication.Deduplication_by_similarity_engine;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
@@ -133,18 +129,18 @@ public class Virtual_landscape_menus
             Menu create = new Menu(create_string);
             Look_and_feel_manager.set_menu_item_look(create,owner,logger);
 
-            if ( virtual_landscape.context_type == Window_type.File_system_2D) Menu_items.add_menu_item2("Create_new_empty_directory", event -> create_new_directory(),create,owner,logger);
+            if ( virtual_landscape.context_type == Window_type.File_system_2D) Menu_items.add_menu_item_for_menu("Create_new_empty_directory", event -> create_new_directory(),create,owner,logger);
             /*if (Feature_cache.get(Feature.Enable_image_playlists))
             {
                 logger.log(Stack_trace_getter.get_stack_trace("not implemented"));
                 //Menu_items.add_menu_item2("Create_new_empty_image_playlist",event -> Instructions.create_new_image_playlist(owner, logger)));
             }*/
-            Menu_items.add_menu_item2("Create_PDF_contact_sheet",event -> create_PDF_contact_sheet(),create,owner,logger);
+            Menu_items.add_menu_item_for_menu("Create_PDF_contact_sheet", event -> create_PDF_contact_sheet(),create,owner,logger);
             if ( virtual_landscape.context_type == Window_type.File_system_2D)
             {
-                Menu_items.add_menu_item2("Stash_Files_In_Folders_By_Year",event -> sort_by_time(Virtual_landscape.Sort_by_time.year),create,owner,logger);
-                Menu_items.add_menu_item2("Stash_Files_In_Folders_By_Month",event -> sort_by_time(Virtual_landscape.Sort_by_time.month),create,owner,logger);
-                Menu_items.add_menu_item2("Stash_Files_In_Folders_By_Day",event -> sort_by_time(Virtual_landscape.Sort_by_time.day),create,owner,logger);
+                Menu_items.add_menu_item_for_menu("Stash_Files_In_Folders_By_Year", event -> sort_by_time(Virtual_landscape.Sort_by_time.year),create,owner,logger);
+                Menu_items.add_menu_item_for_menu("Stash_Files_In_Folders_By_Month", event -> sort_by_time(Virtual_landscape.Sort_by_time.month),create,owner,logger);
+                Menu_items.add_menu_item_for_menu("Stash_Files_In_Folders_By_Day", event -> sort_by_time(Virtual_landscape.Sort_by_time.day),create,owner,logger);
                 create.getItems().add(make_import_menu());
             }
             files_menu.getItems().add(create);
@@ -154,17 +150,17 @@ public class Virtual_landscape_menus
             Menu search = new Menu(search_string);
             Look_and_feel_manager.set_menu_item_look(search,owner,logger);
 
-            Menu_items.add_menu_item2("Search_by_keywords",event -> search_files_by_keyworks_fx(),search,owner,logger);
+            Menu_items.add_menu_item_for_menu("Search_by_keywords", event -> search_files_by_keyworks_fx(),search,owner,logger);
             if ( virtual_landscape.context_type == Window_type.File_system_2D)
             {
-                Menu_items.add_menu_item2("Show_Where_Are_Images",event -> show_where_are_images(),search,owner,logger);
+                Menu_items.add_menu_item_for_menu("Show_Where_Are_Images", event -> show_where_are_images(),search,owner,logger);
             }
             search.getItems().add(make_add_to_Enable_face_recognition_training_set_menu_item());
 
 
             files_menu.getItems().add(search);
         }
-        if (Booleans.get_boolean(Feature.Enable_face_recognition.name()))
+        if (Booleans.get_boolean_defaults_to_false(Feature.Enable_face_recognition.name()))
         {
             Menu face_recognition = new Menu("Face recognition");
             Look_and_feel_manager.set_menu_item_look(face_recognition,owner,logger);
@@ -184,29 +180,29 @@ public class Virtual_landscape_menus
             Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
 
 
-            Menu_items.add_menu_item2("Remove_empty_folders",
+            Menu_items.add_menu_item_for_menu("Remove_empty_folders",
                     event -> remove_empty_folders_fx(false),menu,owner,logger);
 
-            if (Booleans.get_boolean(Feature.Enable_recursive_empty_folders_removal.name()))
+            if (Booleans.get_boolean_defaults_to_false(Feature.Enable_recursive_empty_folders_removal.name()))
             {
-                Menu_items.add_menu_item2("Remove_empty_folders_recursively", event -> remove_empty_folders_fx(true),menu,owner,logger);
+                Menu_items.add_menu_item_for_menu("Remove_empty_folders_recursively", event -> remove_empty_folders_fx(true),menu,owner,logger);
             }
-            if (Booleans.get_boolean(Feature.Enable_name_cleaning.name()) )
+            if (Booleans.get_boolean_defaults_to_false(Feature.Enable_name_cleaning.name()) )
             {
-                Menu_items.add_menu_item2("Clean_up_names", event -> clean_up_names_fx(),menu,owner,logger);
+                Menu_items.add_menu_item_for_menu("Clean_up_names", event -> clean_up_names_fx(),menu,owner,logger);
             }
-            if ( Booleans.get_boolean(Feature.Enable_corrupted_images_removal.name()) )
+            if ( Booleans.get_boolean_defaults_to_false(Feature.Enable_corrupted_images_removal.name()) )
             {
-                Menu_items.add_menu_item2("Remove_corrupted_images", event -> remove_corrupted_images_fx(),menu,owner,logger);
+                Menu_items.add_menu_item_for_menu("Remove_corrupted_images", event -> remove_corrupted_images_fx(),menu,owner,logger);
             }
 
 
-            if (Booleans.get_boolean(Feature.Enable_bit_level_deduplication.name()) )
+            if (Booleans.get_boolean_defaults_to_false(Feature.Enable_bit_level_deduplication.name()) )
             {
                 create_deduplication_menu(menu);
             }
 
-            if (Booleans.get_boolean(Feature.Enable_image_similarity.name()) )
+            if (Booleans.get_boolean_defaults_to_false(Feature.Enable_image_similarity.name()) )
             {
                 create_image_similarity_deduplication_menu(menu);
                 create_song_similarity_deduplication_menu(menu);
@@ -216,7 +212,7 @@ public class Virtual_landscape_menus
 
         if ( virtual_landscape.context_type == Window_type.File_system_2D)
         {
-            if (Booleans.get_boolean(Feature.Enable_backup.name())) {
+            if (Booleans.get_boolean_defaults_to_false(Feature.Enable_backup.name())) {
                 files_menu.getItems().add(make_backup_menu());
             }
             if (Feature_cache.get(Feature.Enable_fusk))
@@ -448,160 +444,6 @@ public class Virtual_landscape_menus
 
 
 
-    //**********************************************************
-    private void show_max_ram_dialog()
-    //**********************************************************
-    {
-        TextInputDialog dialog = new TextInputDialog(""+ Non_booleans_properties.get_java_VM_max_RAM(owner, logger));
-        Look_and_feel_manager.set_dialog_look(dialog, owner,logger);
-        dialog.initOwner(owner);
-        dialog.setWidth(800);
-        dialog.setTitle("Java VM max RAM size");
-        dialog.setHeaderText("This is the max RAM that the java VM will be allowed to allocated THE NEXT TIME you run klik.");
-        dialog.setContentText("If you do not know what this means,\ndont change this value");
-
-
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            String new_val = result.get();
-            try
-            {
-                int val = Integer.parseInt(new_val);
-                Non_booleans_properties.save_java_VM_max_RAM(val,owner, logger);
-
-            }
-            catch (NumberFormatException e)
-            {
-                Popups.popup_warning("❗ Integer only!","Please retry with an integer value!",false,owner,logger);
-            }
-        }
-    }
-
-    //**********************************************************
-    private void show_cache_size_limit_input_dialog()
-    //**********************************************************
-    {
-        TextInputDialog dialog = new TextInputDialog(""+ Non_booleans_properties.get_folder_warning_size(owner));
-        Look_and_feel_manager.set_dialog_look(dialog, owner,logger);
-        dialog.initOwner(owner);
-        dialog.setWidth(800);
-        dialog.setTitle(My_I18n.get_I18n_string("Cache_Size_Warning_Limit",owner,logger));
-        dialog.setHeaderText("If the cache on disk gets larger than this, you will receive a warning. Entering zero means no limit.");
-        dialog.setContentText(My_I18n.get_I18n_string("Set_The_Cache_Size_Warning_Limit",owner,logger));
-
-
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            String new_val = result.get();
-            try
-            {
-                int val = Integer.parseInt(new_val);
-                Non_booleans_properties.set_cache_size_limit_warning_megabytes_fx(val,owner);
-
-            }
-            catch (NumberFormatException e)
-            {
-                Popups.popup_warning("❗ Integer only!","Please retry with an integer value!",false,owner,logger);
-            }
-        }
-    }
-
-
-    //**********************************************************
-    private void detailed_cache_cleaning_menu(ContextMenu context_menu)
-    //**********************************************************
-    {
-        Menu menu = new Menu(My_I18n.get_I18n_string("Cache_cleaning",owner,logger));
-        Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
-        context_menu.getItems().add(menu);
-        {
-            Menu ram = new Menu(My_I18n.get_I18n_string("RAM_Caches_Cleaning",owner,logger));
-            Look_and_feel_manager.set_menu_item_look(ram,owner,logger);
-            menu.getItems().add(ram);
-            Menu_items.add_menu_item2("Clear_All_RAM_Caches",
-                    event -> clear_all_RAM_caches(),ram,owner,logger);
-            Menu_items.add_menu_item2("Clear_Image_Properties_RAM_Cache",
-                    event -> clear_image_properties_RAM_cache(),ram,owner,logger);
-            Menu_items.add_menu_item2("Clear_Image_Comparators_Caches",
-                    event -> clear_image_comparators_caches(),ram,owner,logger);
-            Menu_items.add_menu_item2("Clear_Scroll_Position_Cache",
-                    event ->         Browsing_caches.scroll_position_cache_clear(),ram,owner,logger);
-
-        }
-        {
-            Menu disk = new Menu(My_I18n.get_I18n_string("DISK_Caches_Cleaning",owner,logger));
-            Look_and_feel_manager.set_menu_item_look(disk,owner,logger);
-            menu.getItems().add(disk);
-
-            Menu_items.add_menu_item2(
-                    "Clear_All_Disk_Caches",
-                    event -> Static_files_and_paths_utilities.clear_all_DISK_caches(owner,virtual_landscape.aborter,logger),disk,owner,logger);
-            Menu_items.add_menu_item2(
-                    "Clear_Icon_Cache_On_Disk",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_icon_cache,true,owner,virtual_landscape.aborter,logger),disk,owner,logger);
-
-            Menu_items.add_menu_item2(
-                    "Clear_Folders_Icon_Cache_Folder",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_folder_icon_cache,false,owner, virtual_landscape.aborter, logger),disk,owner,logger);
-            Menu_items.add_menu_item2(
-                    "Clear_Image_Properties_DISK_Cache",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_image_properties_cache,false,owner,virtual_landscape.aborter, logger),disk,owner,logger);
-
-            Menu_items.add_menu_item2("Clear_Image_Feature_Vector_DISK_Cache",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_feature_vectors_cache,true,owner, virtual_landscape.aborter, logger),disk,owner,logger);
-
-            Menu_items.add_menu_item2("Clear_Image_Similarity_DISK_Cache",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.klik_similarity_cache,true,owner, virtual_landscape.aborter, logger),disk,owner,logger);
-
-        }
-    }
-
-    //**********************************************************
-    public void clear_image_properties_RAM_cache()
-    //**********************************************************
-    {
-        if ( virtual_landscape.get_image_properties_ram_cache() == null) return;
-        virtual_landscape.get_image_properties_ram_cache().clear_RAM_cache();
-
-        Browsing_caches.image_properties_RAM_cache_of_caches.clear();
-    }
-
-    //**********************************************************
-    public void clear_all_RAM_caches()
-    //**********************************************************
-    {
-        Browsing_caches.clear_all_caches(logger);
-        /*
-        clear_image_properties_RAM_cache();
-        logger.log("✅ Image properties RAM cache cleared");
-        clear_scroll_position_cache();
-        logger.log("✅ Return-to scroll positions RAM cache cleared");
-        clear_image_comparators_caches();
-        logger.log("✅ Image comparators RAM caches cleared");
-        clear_image_feature_vector_RAM_cache();
-        logger.log("✅ Image feature vector RAM cache cleared");
-        */
-    }
-
-    //**********************************************************
-    public void clear_image_comparators_caches()
-    //**********************************************************
-    {
-        ((Clearable_RAM_cache) (virtual_landscape.image_file_comparator)).clear_RAM_cache();
-        ((Clearable_RAM_cache) (virtual_landscape.other_file_comparator)).clear_RAM_cache();
-    }
-
-    //**********************************************************
-    public void clear_image_feature_vector_RAM_cache()
-    //**********************************************************
-    {
-        for( Feature_vector_cache x : Browsing_caches.fv_cache_of_caches.values())
-        {
-            x.clear_RAM_cache();
-        }
-        Browsing_caches.fv_cache_of_caches.clear();
-    }
-
 
     //**********************************************************
     public void remove_empty_folders(boolean recursively)
@@ -651,41 +493,29 @@ public class Virtual_landscape_menus
         context_menu.getItems().add(make_style_menu_item());
         context_menu.getItems().add(make_language_menu());
         context_menu.getItems().add(make_video_length_menu());
-        
+
 
         if (Feature_cache.get(Feature.Enable_fusk))
         {
             context_menu.getItems().add(make_fusk_check_menu_item());
         }
-        Menu_items.add_menu_item("Set_The_Cache_Size_Warning_Limit",
-                actionEvent -> show_cache_size_limit_input_dialog(),
-                context_menu,owner,logger);
-
-
-        if ( Feature_cache.get(Feature.max_RAM_is_defined_by_user)) {
-            Menu_items.add_menu_item("Set_The_VM_Max_RAM",
-                    actionEvent -> show_max_ram_dialog(),context_menu,owner,logger);
-        }
 
 
 
-        Menu_items.add_menu_item(
+        Menu_items.add_menu_item_for_context_menu(
                 "Clear_Trash_Folder",
                 event -> Static_files_and_paths_utilities.clear_trash(true,owner, virtual_landscape.aborter, logger),
                 context_menu,owner,logger);
 
-        Menu_items.add_menu_item("Clear_All_Caches",
+        Menu_items.add_menu_item_for_context_menu("Clear_All_Caches",
                 event -> {
-                    clear_all_RAM_caches();
+                    Browsing_caches.clear_all_RAM_caches(logger);
                     Static_files_and_paths_utilities.clear_all_DISK_caches(owner,virtual_landscape.aborter,logger);
                 },
                 context_menu,owner,logger);
 
-        if (Booleans.get_boolean(Feature.Enable_detailed_cache_cleaning_options.name()))
-        {
-            detailed_cache_cleaning_menu(context_menu);
-        }
-        Menu_items.add_menu_item(
+
+        Menu_items.add_menu_item_for_context_menu(
                 "More_Settings",
                 event -> More_settings_stage.show_Preferences_stage("Preferences", owner,logger),
                 context_menu,owner,logger);
@@ -703,7 +533,7 @@ public class Virtual_landscape_menus
         clean.getItems().add(menu);
 
         // quasi similar means same image size
-        Menu_items.add_menu_item2("Deduplicate_with_confirmation_quasi_similar_images",
+        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_quasi_similar_images",
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(
@@ -718,7 +548,7 @@ public class Virtual_landscape_menus
                             logger)).do_your_job();
                 },menu,owner,logger);
 
-        Menu_items.add_menu_item2("Deduplicate_with_confirmation_images_looking_a_bit_the_same",
+        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_images_looking_a_bit_the_same",
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(
@@ -746,7 +576,7 @@ public class Virtual_landscape_menus
         Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
         clean.getItems().add(menu);
 
-        Menu_items.add_menu_item2("Deduplicate_with_confirmation_quasi_similar_songs",
+        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_quasi_similar_songs",
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(
@@ -761,7 +591,7 @@ public class Virtual_landscape_menus
                             logger)).do_your_job();
                 },menu,owner,logger);
 
-        Menu_items.add_menu_item2("Deduplicate_with_confirmation_songs_sounding_a_bit_the_same",
+        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_songs_sounding_a_bit_the_same",
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(
@@ -816,7 +646,7 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(txt);
         Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
 
-        Menu_items.add_menu_item2("Deduplicate_help",
+        Menu_items.add_menu_item_for_menu("Deduplicate_help",
                 event -> Popups.popup_warning(
                         "Help on deduplication",
                         "The deduplication tool will look recursively down the path starting at:" + virtual_landscape.path_list_provider.get_name() +
@@ -832,17 +662,17 @@ public class Virtual_landscape_menus
                         false,
                         owner,logger), menu,owner,logger);
 
-        Menu_items.add_menu_item2("Deduplicate_count",
+        Menu_items.add_menu_item_for_menu("Deduplicate_count",
                 event -> {
                     (new Deduplication_engine(owner, virtual_landscape.path_list_provider.get_folder_path().toFile(), virtual_landscape.path_list_provider,virtual_landscape,logger)).count(false);
                 },menu,owner,logger);
-        Menu_items.add_menu_item2("Deduplicate_manual",event -> {
+        Menu_items.add_menu_item_for_menu("Deduplicate_manual", event -> {
             //logger.log("Deduplicate manually");
             (new Deduplication_engine(owner, virtual_landscape.path_list_provider.get_folder_path().toFile(), virtual_landscape.path_list_provider,virtual_landscape,logger)).do_your_job(false);
         },menu,owner,logger);
 
 
-        Menu_items.add_menu_item2("Deduplicate_auto",
+        Menu_items.add_menu_item_for_menu("Deduplicate_auto",
                 event -> {
                     //logger.log("Deduplicate auto");
 
@@ -857,20 +687,6 @@ public class Virtual_landscape_menus
     }
 
 
-
-
-
-
-    //**********************************************************
-    private void add_question_mark_button(String key, MenuItem item)
-    //**********************************************************
-    {
-        if ( !Feature_cache.get(Feature.Hide_question_mark_buttons_on_mysterious_menus))
-        {
-            Button explanation_button = More_settings_stage.make_explanation_button(key, virtual_landscape.owner, logger);
-            item.setGraphic(explanation_button);
-        }
-    }
 
     //**********************************************************
     public Button make_button_that_behaves_like_a_folder(
@@ -932,7 +748,7 @@ public class Virtual_landscape_menus
             Feature_cache.update_cached_boolean(Feature.Fusk_is_on,val,owner);
 
         });
-        add_question_mark_button(key, item);
+        Items_with_explanation.add_question_mark_button(key, item, virtual_landscape.owner ,logger);
         return item;
     }
 
@@ -948,7 +764,7 @@ public class Virtual_landscape_menus
             logger.log("❌ NOT IMPLEMENTED add_all_pictures_to_training_set for "+virtual_landscape.path_list_provider.get_name());
 
         },owner,logger);
-        add_question_mark_button(key, item);
+        Items_with_explanation.add_question_mark_button(key, item, virtual_landscape.owner, logger);
         return item;
     }
 
@@ -1157,7 +973,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
 
-        Menu_items.add_menu_item2("Clear_History",
+        Menu_items.add_menu_item_for_menu("Clear_History",
                     event -> {
                         logger.log("clearing history");
                         History_engine.get(owner).clear();
@@ -1273,10 +1089,10 @@ public class Virtual_landscape_menus
             Window owner, Logger logger)
     //**********************************************************
     {
-        Menu_items.add_menu_item2("Bookmark_this",
+        Menu_items.add_menu_item_for_menu("Bookmark_this",
                 event -> Bookmarks.get(owner).add(path.toAbsolutePath().toString()),
                 bookmarks_menu,owner,logger);
-        Menu_items.add_menu_item2("Clear_Bookmarks",
+        Menu_items.add_menu_item_for_menu("Clear_Bookmarks",
                 event -> Bookmarks.get(owner).clear(),
                 bookmarks_menu,owner,logger);
 
@@ -1664,7 +1480,7 @@ public class Virtual_landscape_menus
         {
             if (( sort_by == Sort_files_by.SIMILARITY_BY_PAIRS)||(sort_by == Sort_files_by.SIMILARITY_BY_PURSUIT))
             {
-                if ( !Booleans.get_boolean(Feature.Enable_image_similarity.name()))
+                if ( !Booleans.get_boolean_defaults_to_false(Feature.Enable_image_similarity.name()))
                 {
                     continue;
                 }
@@ -1678,7 +1494,8 @@ public class Virtual_landscape_menus
     public void create_menu_item_for_one_file_sort_method(Menu menu, Sort_files_by sort_by, List<CheckMenuItem> all_check_menu_items)
     //**********************************************************
     {
-        CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string(sort_by.name(),virtual_landscape.owner,logger));
+        String key = sort_by.name();
+        CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string(key,virtual_landscape.owner,logger));
         Look_and_feel_manager.set_menu_item_look(item, virtual_landscape.owner, logger);
         Sort_files_by actual = Sort_files_by.get_sort_files_by(virtual_landscape.path_list_provider.get_folder_path(),owner);
         item.setSelected(actual == sort_by);
@@ -1700,6 +1517,8 @@ public class Virtual_landscape_menus
                 }
             }
         });
+        Button explanation = Items_with_explanation.make_explanation_button(key, owner, logger);
+        item.setGraphic(explanation);
         menu.getItems().add(item);
         all_check_menu_items.add(item);
 

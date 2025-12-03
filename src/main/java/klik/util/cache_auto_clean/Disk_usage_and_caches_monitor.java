@@ -26,7 +26,7 @@ public class Disk_usage_and_caches_monitor
     {
         this.logger = logger;
         disk_usage_monitor = new Disk_usage_monitor(window_provider.get_owner(), logger);
-        if (Booleans.get_boolean(Feature.Enable_auto_purge_disk_caches.name())) cache_auto_clean = new Cache_auto_clean(window_provider.get_owner(), logger);
+        if (Booleans.get_boolean_defaults_to_false(Feature.Enable_auto_purge_disk_caches.name())) cache_auto_clean = new Cache_auto_clean(window_provider.get_owner(), logger);
         else cache_auto_clean = null;
         //history_auto_clean = new History_auto_clean(logger);
     }

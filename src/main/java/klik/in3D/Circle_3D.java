@@ -115,9 +115,9 @@ public class Circle_3D implements Window_provider, Shutdown_target
         this.item_source = new Image_source_from_files( the_path,small_icon_size,large_icon_size,stage,logger);
 
         String s = Shared_services.main_properties().get(Sort_files_by.SORT_FILES_BY);
-        if ( !s.equals(Sort_files_by.NAME.name()))
+        if ( !s.equals(Sort_files_by.FILE_NAME.name()))
         {
-            Shared_services.main_properties().set(Sort_files_by.SORT_FILES_BY, Sort_files_by.NAME.name());
+            Shared_services.main_properties().set(Sort_files_by.SORT_FILES_BY, Sort_files_by.FILE_NAME.name());
         }
         Hourglass hourglass = Circle_3D.get_hourglass(stage,logger);
 

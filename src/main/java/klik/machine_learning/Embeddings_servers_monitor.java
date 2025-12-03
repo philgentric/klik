@@ -5,6 +5,8 @@ package klik.machine_learning;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.log.Logger;
 
@@ -49,6 +51,7 @@ public class Embeddings_servers_monitor implements AutoCloseable
         this.logger = logger;
         port_tmp = -1;
         try {
+            // find FREE UDP port
             socket = new DatagramSocket(0);
             port_tmp = socket.getLocalPort();
             logger.log("Servers monitor started on UDP port: "+port_tmp);
@@ -56,8 +59,11 @@ public class Embeddings_servers_monitor implements AutoCloseable
             logger.log(""+e);
         }
         port = port_tmp;
-        Platform.runLater(()->{monitoring_frame = new Embeddings_servers_monitoring_stage(owner,logger);});
-
+        if (Feature_cache.get(Feature.Enable_feature_vector_monitoring)) {
+            Platform.runLater(() -> {
+                monitoring_frame = new Embeddings_servers_monitoring_stage(owner, logger);
+            });
+        }
         Actor_engine.execute(() -> receive_messages(),"Receive embedding server UDP monitoring packets",logger);
     }
 
@@ -68,9 +74,9 @@ public class Embeddings_servers_monitor implements AutoCloseable
         while (running) {
             try {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                logger.log("Waiting for UDP packet...");
+                //logger.log("Waiting for UDP packet...");
                 socket.receive(packet);
-                logger.log("UDP packet received");
+                //logger.log("UDP packet received");
                 String message = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8);
                 process_message(message);
             } catch (Exception e) {
@@ -85,7 +91,7 @@ public class Embeddings_servers_monitor implements AutoCloseable
     private void process_message(String message)
     //**********************************************************
     {
-        logger.log("Embeddings servers monitor UDP-received->"+message+"<-");
+        //logger.log("Embeddings servers monitor received->"+message+"<-");
         String[] parts = message.split(",");
         if (parts.length == 4)
         {

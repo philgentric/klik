@@ -28,17 +28,17 @@ import java.util.Map;
 
 // warning: these names are used as-is in the resource bundles !!!
 public enum Sort_files_by {
-  NAME,
-  DATE,
-  SIZE,
-  SIMILARITY_BY_PAIRS,
-  SIMILARITY_BY_PURSUIT,
-  IMAGE_WIDTH,
-  IMAGE_HEIGHT,
-  ASPECT_RATIO,
-  RANDOM,
-  RANDOM_ASPECT_RATIO,
-  NAME_GIFS_FIRST;
+    FILE_NAME,
+    ASPECT_RATIO,
+    FILE_DATE,
+    FILE_SIZE,
+    IMAGE_WIDTH,
+    IMAGE_HEIGHT,
+    RANDOM,
+    RANDOM_ASPECT_RATIO,
+    NAME_GIFS_FIRST,
+    SIMILARITY_BY_PAIRS,
+    SIMILARITY_BY_PURSUIT,;
 
   public static final String SORT_FILES_BY = "sort_files_by";
 
@@ -51,13 +51,14 @@ public enum Sort_files_by {
     {
         switch(Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
         {
-            case NAME_GIFS_FIRST, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT , IMAGE_WIDTH,SIMILARITY_BY_PURSUIT, SIMILARITY_BY_PAIRS, NAME:
+            case NAME_GIFS_FIRST, ASPECT_RATIO, RANDOM_ASPECT_RATIO, IMAGE_HEIGHT , IMAGE_WIDTH, SIMILARITY_BY_PURSUIT, SIMILARITY_BY_PAIRS,
+                 FILE_NAME:
                 return new Alphabetical_file_name_comparator();
             case RANDOM:
                 return new Random_comparator();
-            case DATE:
+            case FILE_DATE:
                 return new Date_comparator(logger);
-            case SIZE:
+            case FILE_SIZE:
                 return new Decreasing_disk_footprint_comparator(aborter,owner);
         }
         return null;
@@ -73,15 +74,18 @@ public enum Sort_files_by {
         double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner, logger);
 
         switch(Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(), owner))
         {
-            case SIMILARITY_BY_PURSUIT:
-                return get_similarity_comparator_by_pursuit(fvs,path_list_provider, path_comparator_source, image_properties_cache, owner, x, y, aborter, logger);
-            case SIMILARITY_BY_PAIRS:
-                return get_similarity_comparator_pairs_of_closests(fvs,path_list_provider, owner, x, y, aborter, logger);
-            case NAME:
+            case SIMILARITY_BY_PURSUIT: {
+                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner, logger);
+                return get_similarity_comparator_by_pursuit(fvs, path_list_provider, path_comparator_source, image_properties_cache, owner, x, y, aborter, logger);
+            }
+            case SIMILARITY_BY_PAIRS: {
+                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner, logger);
+                return get_similarity_comparator_pairs_of_closests(fvs, path_list_provider, owner, x, y, aborter, logger);
+            }
+            case FILE_NAME:
                 return new Alphabetical_file_name_comparator();
             case ASPECT_RATIO:
                 return new Aspect_ratio_comparator(image_properties_cache,aborter,owner);
@@ -93,9 +97,9 @@ public enum Sort_files_by {
                 return new Image_width_comparator(image_properties_cache,aborter,owner);
             case RANDOM:
                 return new Random_comparator();
-            case DATE:
+            case FILE_DATE:
                 return new Date_comparator(logger);
-            case SIZE:
+            case FILE_SIZE:
                 return new Decreasing_disk_footprint_comparator(aborter,owner);
             case NAME_GIFS_FIRST:
                 return new Alphabetical_file_name_comparator_gif_first();
@@ -169,7 +173,7 @@ public enum Sort_files_by {
                 return false;
             case SIMILARITY_BY_PAIRS:
                 return false;
-            case NAME:
+            case FILE_NAME:
                 return false;
             case ASPECT_RATIO:
                 return true;
@@ -181,9 +185,9 @@ public enum Sort_files_by {
                 return true;
             case RANDOM:
                 return false;
-            case DATE:
+            case FILE_DATE:
                 return false;
-            case SIZE:
+            case FILE_SIZE:
                 return false;
             case NAME_GIFS_FIRST:
                 return false;
@@ -199,17 +203,17 @@ public enum Sort_files_by {
         Sort_files_by from_cache = cached.get(folder_path);
         if ( from_cache != null)
         {
-            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (1): "+ Sort_files_by.NAME));
+            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (1): "+ Sort_files_by.FILE_NAME));
             return from_cache;
         }
 
         String s = Shared_services.main_properties().get(SORT_FILES_BY);
         if (s == null)
         {
-            Shared_services.main_properties().set(SORT_FILES_BY, Sort_files_by.NAME.name());
-            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (2): "+ Sort_files_by.NAME));
-            cached.put(folder_path, Sort_files_by.NAME);
-            return Sort_files_by.NAME;
+            Shared_services.main_properties().set(SORT_FILES_BY, Sort_files_by.FILE_NAME.name());
+            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (2): "+ Sort_files_by.FILE_NAME));
+            cached.put(folder_path, Sort_files_by.FILE_NAME);
+            return Sort_files_by.FILE_NAME;
         }
 
         try
@@ -222,9 +226,9 @@ public enum Sort_files_by {
         }
         catch ( IllegalArgumentException e)
         {
-            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (4): "+ Sort_files_by.NAME));
+            if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (4): "+ Sort_files_by.FILE_NAME));
 
-            return Sort_files_by.NAME;
+            return Sort_files_by.FILE_NAME;
         }
 
     }

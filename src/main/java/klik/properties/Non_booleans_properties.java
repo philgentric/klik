@@ -87,9 +87,8 @@ public class Non_booleans_properties
     private static final String AUDIO_PLAYER_EQUALIZER_BAND_ = "AUDIO_PLAYER_EQUALIZER_BAND_";
     private static final String AUDIO_PLAYER_VOLUME = "AUDIO_PLAYER_VOLUME";
     public static final String JAVA_VM_MAX_RAM = "max_RAM_in_GBytes"; // this is the maximum RAM that the Java VM can use, in GBytes
-    public static final String DEFAULT_CUSTOM_COLOR = "#b8d4fe";
     public static final String PURPOSE = "Java VM max ram";
-    public static final String FILENAME = "max_ram";
+    public static final String RAM_FILENAME = "ram";
     private static final String PRIVACY_SCREEN = ".klik_privacy_screen";
 
     // cached values
@@ -729,14 +728,14 @@ public class Non_booleans_properties
     public static void save_java_VM_max_RAM(int value, Window owner, Logger logger)
     //**********************************************************
     {
-        File_based_IProperties f = new File_based_IProperties(PURPOSE, FILENAME,owner,new Aborter("ram", logger), logger);
+        File_based_IProperties f = new File_based_IProperties(PURPOSE, RAM_FILENAME,owner,new Aborter("ram", logger), logger);
         f.set(JAVA_VM_MAX_RAM, "" + value);
     }
     //**********************************************************
     public static int get_java_VM_max_RAM(Window owner, Logger logger)
     //**********************************************************
     {
-        File_based_IProperties f = new File_based_IProperties(PURPOSE,FILENAME, owner,new Aborter("ram", logger), logger);
+        File_based_IProperties f = new File_based_IProperties(PURPOSE, RAM_FILENAME, owner,new Aborter("ram", logger), logger);
         String s = f.get(JAVA_VM_MAX_RAM);
         if (s == null)
         {

@@ -3,14 +3,11 @@
 
 package klik.browser.virtual_landscape;
 
-import javafx.stage.Window;
-import klik.images.caching.Image_cache_cafeine;
+import klik.browser.comparators.Similarity_comparator;
 import klik.images.caching.Image_cache_interface;
-import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector_cache;
 import klik.machine_learning.similarity.Similarity_cache;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
-import klik.path_lists.Path_list_provider;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -42,14 +39,15 @@ public class Browsing_caches
 
     //public final Image_properties_RAM_cache image_properties_RAM_cache;
 
-    public final static Map<String,Image_properties_RAM_cache> image_properties_RAM_cache_of_caches = new HashMap<>();
+    public final static Map<String, Image_properties_RAM_cache> image_properties_RAM_cache_of_caches = new HashMap<>();
     public final static Map<String, Similarity_cache> similarity_cache_of_caches = new HashMap<>();
     public final static Map<String, Feature_vector_cache> fv_cache_of_caches = new HashMap<>();
     public final static Map<String, Image_cache_interface> image_caches = new HashMap<>();
+    public final static Map<String, Similarity_comparator> similarity_comparator_cache = new HashMap<>();
 
 
     //**********************************************************
-    public static void clear_all_caches(Logger logger)
+    public static void clear_all_RAM_caches(Logger logger)
     //**********************************************************
     {
         scroll_position_cache.clear();

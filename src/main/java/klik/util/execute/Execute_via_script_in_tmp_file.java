@@ -42,6 +42,7 @@ public class Execute_via_script_in_tmp_file
     // Logs are also created in the klik trash directory.
 
     private static final boolean dbg = true;
+    private static final boolean ultra_dbg = false;
     public static final String END = "__END_OF_PROCESS_OUTPUT__";
 
     //**********************************************************
@@ -169,7 +170,7 @@ public class Execute_via_script_in_tmp_file
                 @Override
                 public void init(Tailer tailer)
                 {
-                    if (dbg) logger.log("TailerListener INIT "+tailer.toString());
+                    if (ultra_dbg) logger.log("TailerListener INIT "+tailer.toString());
                     this.tailer = tailer;
                     Runnable suicidor = () ->
                     {
@@ -216,7 +217,7 @@ public class Execute_via_script_in_tmp_file
 
                 @Override
                 public void handle(String line) {
-                    if (dbg) logger.log("TailerListener, adding output :"+line);
+                    if (ultra_dbg) logger.log("TailerListener, adding output :"+line);
                     if ( output_queue != null) output_queue.add(line);
                     last = System.currentTimeMillis();
                 }
@@ -239,7 +240,7 @@ public class Execute_via_script_in_tmp_file
                     {
                         logger.log("❗Warning Process ->"+the_command+"<- exited with value: " + exitValue);
                     }
-                    else if ( dbg) logger.log("Process exited with value: " + exitValue);
+                    else if ( ultra_dbg) logger.log("Process exited with value: " + exitValue);
                     // wait a bit before aborting the tailer or we might miss the output
 
                     Actor_engine.execute(()->{

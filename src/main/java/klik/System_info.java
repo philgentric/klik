@@ -45,7 +45,7 @@ public class System_info
 
     private static final boolean use_JMX_for_RAM = false;
     //**********************************************************
-    public static long get_total_machine_RAM_in_GBytes()
+    public static int get_total_machine_RAM_in_GBytes()
     //**********************************************************
     {
         //if ( use_JMX_for_RAM) {
@@ -67,7 +67,7 @@ public class System_info
                     if (line != null && line.startsWith("hw.memsize: ")) {
                         String s = line.substring(12).trim();
                         long bytes = Long.parseLong(s);
-                        return bytes / (1024L * 1024L * 1024L);
+                        return (int)(bytes / (1024L * 1024L * 1024L));
                     }
                 } catch (Exception e) {
                     System.out.println("Error when executing command: " + cmd);
@@ -82,7 +82,7 @@ public class System_info
                         String line = s.next();
                         if (!line.isEmpty() && line.matches("\\d+")) {
                             long totalMemoryBytes = Long.parseLong(line);
-                            long totalMemoryGB = totalMemoryBytes / (1024L * 1024L * 1024L);
+                            int totalMemoryGB = (int)(totalMemoryBytes / (1024L * 1024L * 1024L));
                             System.out.println("Total Physical Memory: " + totalMemoryGB + " GB");
                             return totalMemoryGB;
                         }

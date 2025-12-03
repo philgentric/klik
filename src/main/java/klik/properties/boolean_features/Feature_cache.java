@@ -22,14 +22,14 @@ public class Feature_cache
 {
     //public static Map<String,String> string_feature_cache = new HashMap<>();
 
-    private static Map<String, List<String_change_target>> string_registered_for = new HashMap<>();
+    private static final Map<String, List<String_change_target>> string_registered_for = new HashMap<>();
 
 
-    private static Map<Feature,List<Feature_change_target>> registered_for = new HashMap<>();
-    private static List<Feature_change_target> registered_for_any_boolean_change = new ArrayList<>();
-    public static Map<Feature,Boolean> boolean_feature_cache = new HashMap<>();
+    private static final Map<Feature,List<Feature_change_target>> registered_for = new HashMap<>();
+    private static final List<Feature_change_target> registered_for_any_boolean_change = new ArrayList<>();
+    public static final Map<Feature,Boolean> boolean_feature_cache = new HashMap<>();
 
-    private static List<Feature> default_to_true = List.of(
+    private static final List<Feature> default_to_true = List.of(
             Feature.Show_icons_for_files,
             Feature.Reload_last_folder_on_startup,
             Feature.Monitor_folders,
@@ -39,6 +39,9 @@ public class Feature_cache
 
     static {
         //System.out.println("Feature_cache init");
+        // read from disk, the first time klik is run
+        // there is nothing on disk, values are defaulted
+        // so to true, some to false
         for (Feature f : Feature.values())
         {
             if ( default_to_true.contains(f))
@@ -47,7 +50,7 @@ public class Feature_cache
             }
             else
             {
-                boolean_feature_cache.put(f, Booleans.get_boolean(f.name()));
+                boolean_feature_cache.put(f, Booleans.get_boolean_defaults_to_false(f.name()));
             }
         }
     }
@@ -138,7 +141,6 @@ public class Feature_cache
     public static void update_string(String key, String new_value, Window owner,Logger logger)
     //**********************************************************
     {
-        More_settings_stage.reset();
         System.out.println("Feature_cache: "+key+"=>"+new_value);
         Shared_services.main_properties().set(key, new_value);
         send_UI_changed(Launcher.UI_CHANGED,new_value, logger);

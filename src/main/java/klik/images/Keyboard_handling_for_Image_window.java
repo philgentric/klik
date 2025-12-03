@@ -91,7 +91,7 @@ public class Keyboard_handling_for_Image_window
         )
         {
             key_event.consume();
-            if (Booleans.get_boolean(Feature.Shift_d_is_sure_delete.name()))
+            if (Booleans.get_boolean_defaults_to_false(Feature.Shift_d_is_sure_delete.name()))
             {
                 // shift d is "sure delete"
                 if ( image_window.image_display_handler.get_image_context().isEmpty()) return;

@@ -83,7 +83,7 @@ public class Stage_with_2_images
 		// there was an obscure bug with random order?
 		if ( Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(),owner) == Sort_files_by.RANDOM_ASPECT_RATIO)
 		{
-			Sort_files_by.set_sort_files_by(path_list_provider.get_folder_path(), Sort_files_by.NAME,owner,logger);
+			Sort_files_by.set_sort_files_by(path_list_provider.get_folder_path(), Sort_files_by.FILE_NAME,owner,logger);
 		}
 
 		logger.log("Stage_with_2_images !");

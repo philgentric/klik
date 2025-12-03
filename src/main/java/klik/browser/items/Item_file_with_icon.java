@@ -274,13 +274,13 @@ public class Item_file_with_icon extends Item_file
                 path_list_provider.delete(get_item_path(),owner,x,y, aborter,logger);
             },context_menu,owner,logger);
         */
-        Menu_items.add_menu_item("Edit",
+        Menu_items.add_menu_item_for_context_menu("Edit",
                     event -> {
                 if (dbg) logger.log("Editing "+get_item_path());
                 System_open_actor.open_with_system(get_item_path(), owner,aborter,logger);
             },context_menu,owner,logger);
 
-        Menu_items.add_menu_item("Open_With_Registered_Application",
+        Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",
                     event -> {
                 if (dbg) logger.log("Opening with registered app: "+get_item_path());
                 System_open_actor.open_special(get_item_path(), owner,aborter,logger);
@@ -376,19 +376,19 @@ public class Item_file_with_icon extends Item_file
             ContextMenu context_menu, boolean dbg, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Menu_items.add_menu_item("Convert_To_Mp4",
+        Menu_items.add_menu_item_for_context_menu("Convert_To_Mp4",
     event -> {
             if (dbg) logger.log("✅ convert to mp4");
             AtomicBoolean abort_reported = new AtomicBoolean(false);
             Ffmpeg_utils.video_to_mp4_in_a_thread(path,aborter, abort_reported, owner,logger);
             },
             context_menu,owner,logger);
-        Menu_items.add_menu_item("Generate_many_animated_GIFs",
+        Menu_items.add_menu_item_for_context_menu("Generate_many_animated_GIFs",
                     event -> {
                 if (dbg) logger.log("✅ Generating animated gifs !");
                 Animated_gifs_from_video.generate_many_gifs(path,5,5,owner,logger);
             }, context_menu,owner,logger);
-        Menu_items.add_menu_item("Generate_Animated_GIF_interactively",
+        Menu_items.add_menu_item_for_context_menu("Generate_Animated_GIF_interactively",
                 event -> {
                 if (dbg) logger.log("✅ Generating animated gifs interactively!");
                 Animated_gifs_from_video.interactive(path,logger);
