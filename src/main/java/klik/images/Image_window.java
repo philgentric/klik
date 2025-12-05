@@ -16,6 +16,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.browser.comparators.Last_access_comparator;
 import klik.properties.Sort_files_by;
 import klik.util.execute.actor.Aborter;
 import klik.images.caching.Image_cache_cafeine;
@@ -100,6 +101,7 @@ public class Image_window
     //**********************************************************
     {
         try ( Perf p = new Perf("get_Image_window")) {
+            Last_access_comparator.set_last_access(path,logger_);
             Image_window returned = on_same_screen(path, path_list_provider, image_comparator, owner, aborter, logger_);
 
             return returned;

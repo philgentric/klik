@@ -30,7 +30,8 @@ import java.util.Map;
 public enum Sort_files_by {
     FILE_NAME,
     ASPECT_RATIO,
-    FILE_DATE,
+    FILE_CREATION_DATE,
+    FILE_LAST_ACCESS_DATE,
     FILE_SIZE,
     IMAGE_WIDTH,
     IMAGE_HEIGHT,
@@ -56,8 +57,10 @@ public enum Sort_files_by {
                 return new Alphabetical_file_name_comparator();
             case RANDOM:
                 return new Random_comparator();
-            case FILE_DATE:
+            case FILE_CREATION_DATE:
                 return new Date_comparator(logger);
+            case FILE_LAST_ACCESS_DATE:
+                return new Last_access_comparator(logger);
             case FILE_SIZE:
                 return new Decreasing_disk_footprint_comparator(aborter,owner);
         }
@@ -97,8 +100,10 @@ public enum Sort_files_by {
                 return new Image_width_comparator(image_properties_cache,aborter,owner);
             case RANDOM:
                 return new Random_comparator();
-            case FILE_DATE:
+            case FILE_CREATION_DATE:
                 return new Date_comparator(logger);
+            case FILE_LAST_ACCESS_DATE:
+                return new Last_access_comparator(logger);
             case FILE_SIZE:
                 return new Decreasing_disk_footprint_comparator(aborter,owner);
             case NAME_GIFS_FIRST:
@@ -185,7 +190,7 @@ public enum Sort_files_by {
                 return true;
             case RANDOM:
                 return false;
-            case FILE_DATE:
+            case FILE_CREATION_DATE:
                 return false;
             case FILE_SIZE:
                 return false;

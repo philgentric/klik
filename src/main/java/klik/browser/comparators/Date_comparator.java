@@ -25,7 +25,7 @@ public record Date_comparator(Logger logger) implements Comparator<Path>, Cleara
     {
         FileTime ldt1 = Fast_date_from_filesystem.get_date(p1, logger);
         FileTime ldt2 = Fast_date_from_filesystem.get_date(p2, logger);
-        int diff = ldt1.compareTo(ldt2); // oldest first
+        int diff = ldt2.compareTo(ldt1);
         if (diff != 0) return diff;
         return (p1.toString().compareTo(p2.toString()));
     }

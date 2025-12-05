@@ -9,6 +9,7 @@ import javafx.stage.Screen;
 import javafx.stage.Window;
 import klik.audio.Song_playlist_browser;
 import klik.browser.classic.Browser;
+import klik.browser.comparators.Last_access_comparator;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.browser.virtual_landscape.Shutdown_target;
 import klik.in3D.Circle_3D;
@@ -72,6 +73,7 @@ public class Instructions
     public static Window_provider additional_no_past(Window_type context_type, Path_list_provider path_list_provider, Window owner, Logger logger)
     //**********************************************************
     {
+        Last_access_comparator.set_last_access(path_list_provider.get_folder_path(),logger);
         Instructions context = new Instructions(
                 context_type,
                 path_list_provider,
@@ -204,6 +206,8 @@ public class Instructions
             Logger logger)
     //**********************************************************
     {
+        Last_access_comparator.set_last_access(path_list_provider.get_folder_path(),logger);
+
         if ( dbg) logger.log("replace_different_folder new path: " + path_list_provider.get_folder_path().toAbsolutePath());
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         Instructions context =  new Instructions(

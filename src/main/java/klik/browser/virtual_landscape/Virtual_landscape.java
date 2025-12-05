@@ -582,6 +582,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
+
+
     // **********************************************************
     public void set_text_background(String text)
     // **********************************************************
@@ -663,7 +665,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     // **********************************************************
-    private synchronized void process_iconized_items(boolean single_column, double icon_size, double column_increment,
+    private synchronized void process_iconized_items(
+            boolean single_column, double icon_size,
+            double column_increment,
             double scene_width, Point2D point)
     // **********************************************************
     {
@@ -923,7 +927,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         try (Perf perf = new Perf("process_folders")) {
 
             double actual_row_increment;
-            if (Feature_cache.get(Feature.Show_icons_for_folders)) {
+            if (Feature_cache.get(Feature.Show_icons_for_folders))
+            {
                 actual_row_increment = row_increment_for_dirs_with_picture;
 
                 for (Path folder_path : paths_holder.folders) {
@@ -932,10 +937,13 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     p = process_one_folder_with_picture(single_column, column_increment, actual_row_increment,
                             scene_width, p, folder_path, Color.BEIGE);
                 }
-            } else {
+            }
+            else
+            {
                 actual_row_increment = row_increment_for_dirs;
                 List<Path> paths = new ArrayList<>(paths_holder.folders);
-                if (show_total_size_deep_in_each_folder_done) {
+                if (show_total_size_deep_in_each_folder_done)
+                {
                     Comparator<Path> comp = (p1, p2) -> {
                         Long l1 = folder_total_sizes_cache.get(p1);
                         Long l2 = folder_total_sizes_cache.get(p2);
@@ -948,7 +956,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         return l2.compareTo(l1);
                     };
                     Collections.sort(paths, comp);
-                } else if (show_how_many_files_deep_in_each_folder_done) {
+                }
+                else if (show_how_many_files_deep_in_each_folder_done)
+                {
                     Comparator<Path> comp = (p1, p2) -> {
                         Long l1 = folder_file_count_cache.get(p1);
                         Long l2 = folder_file_count_cache.get(p2);
@@ -961,6 +971,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         return l2.compareTo(l1);
                     };
                     Collections.sort(paths, comp);
+                }
+                else
+                {
+                    paths.sort(other_file_comparator);
                 }
                 if (dbg)
                     logger.log("✅ Virtual_landscape folder_path size " + paths.size());
@@ -2766,8 +2780,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             case RANDOM:
                 local_file_comparator = new Random_comparator();
                 break;
-            case FILE_DATE:
+            case FILE_CREATION_DATE:
                 local_file_comparator = new Date_comparator(logger);
+                break;
+            case FILE_LAST_ACCESS_DATE:
+                local_file_comparator = new Last_access_comparator(logger);
                 break;
             case FILE_SIZE:
                 local_file_comparator = new Decreasing_disk_footprint_comparator(aborter, owner);
