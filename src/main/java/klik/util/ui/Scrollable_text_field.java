@@ -1,8 +1,18 @@
 package klik.util.ui;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.stage.Window;
+import klik.Instructions;
+import klik.Shared_services;
+import klik.Window_type;
 import klik.look.Look_and_feel_manager;
+import klik.path_lists.Path_list_provider_for_file_system;
+import klik.properties.boolean_features.Booleans;
+import klik.properties.boolean_features.Feature;
+import klik.util.execute.System_open_actor;
+import klik.util.execute.actor.Aborter;
 import klik.util.log.Logger;
 
 import javafx.animation.Animation;
@@ -14,6 +24,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 //**********************************************************
 public class Scrollable_text_field extends Region
 //**********************************************************
@@ -24,12 +37,21 @@ public class Scrollable_text_field extends Region
     private double delta_width; // most‑left translateX
     private boolean scroll_direction_to_left = true; // Direction flag for the running timeline
     private final Logger logger;
-
+    private final Path path;
+    private final Aborter aborter;
     //**********************************************************
-    public Scrollable_text_field(String text, Button button, Window owner, Logger logger)
+    public Scrollable_text_field(
+            String text,
+            Path path, // maybe null
+            Button button,
+            Window owner,
+            Aborter aborter,
+            Logger logger)
     //**********************************************************
     {
         this.logger = logger;
+        this.path = path;
+        this.aborter = aborter;
         text_field.setText(text);
         text_field.setStyle("-fx-caret-width: 8px;-fx-caret-color: blue;");
         getChildren().add(text_field);
@@ -38,7 +60,7 @@ public class Scrollable_text_field extends Region
 
         text_field.setBorder(Border.EMPTY);
         //textField.setMouseTransparent(true);
-        text_field.setFocusTraversable(true); // we don’t need focus
+        //text_field.setFocusTraversable(true); // we don’t need focus
         text_field.setEditable(false); // change to false if you only want a label
         text_field.setOnMouseMoved(e -> onHover(e.getX()));
         text_field.setOnMouseExited(e -> stopScroll());
@@ -47,9 +69,54 @@ public class Scrollable_text_field extends Region
             {
                 if ( button != null) button.fire();
             }
+            e.consume();
         });
+        text_field.setOnContextMenuRequested(e->context_menu(e, owner));
 
         Look_and_feel_manager.set_TextField_look(text_field,false,owner,logger);
+    }
+
+    private void context_menu(ContextMenuEvent e, Window owner)
+    {
+        ContextMenu context_menu = new ContextMenu();
+        if ( path != null) {
+            Menu_items.add_menu_item_for_context_menu("Open_With_System",
+                    actionEvent -> {
+                        System_open_actor.open_with_system(path, owner,Shared_services.aborter(),logger);
+                    },context_menu,owner,logger);
+            Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",
+                    actionEvent -> {
+                        System_open_actor.open_with_click_registered_application(path, owner,Shared_services.aborter(),logger);
+                    },context_menu,owner,logger);
+            Menu_items.create_delete_menu_item(context_menu,path,owner,aborter,logger);
+            if (Files.isDirectory(path))
+            {
+                Menu_items.add_menu_item_for_context_menu(
+                        "Get_folder_size",
+                        event -> Folder_size_stage.get_folder_size(path,owner, logger),
+                        context_menu,owner,logger);
+
+                Menu_items.add_menu_item_for_context_menu(
+                        "Browse_in_new_window",
+                        event -> {
+                            if (dbg) logger.log("Browse in new window!");
+                            Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(path,owner,logger), owner, logger);
+                        }, context_menu, owner, logger);
+
+                if (Booleans.get_boolean_defaults_to_false(Feature.Enable_3D.name())) {
+                    Menu_items.add_menu_item_for_context_menu(
+                            "Browse_in_new_3D_window",
+                            event -> {
+                                if (dbg) logger.log("Browse in new window!");
+                                Instructions.additional_no_past(Window_type.File_system_3D, new Path_list_provider_for_file_system(path, owner, logger), owner, logger);
+                            }, context_menu, owner, logger);
+                }
+            }
+            else {
+
+            }
+
+        }
     }
 
     //**********************************************************

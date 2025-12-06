@@ -7,7 +7,6 @@ import javafx.stage.Window;
 import klik.Klik_application;
 import klik.Launcher;
 import klik.Shared_services;
-import klik.properties.More_settings_stage;
 import klik.util.log.Logger;
 import klik.util.tcp.TCP_client;
 

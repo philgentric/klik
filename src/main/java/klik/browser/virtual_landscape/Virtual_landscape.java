@@ -1721,7 +1721,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
              * returned.setBottom(the_status_bar);
              */
 
-            Scrollable_text_field scrollable_text_field = new Scrollable_text_field(get_status(), null,owner, logger);
+            Scrollable_text_field scrollable_text_field = new Scrollable_text_field(get_status(), null,null,owner, aborter,logger);
             the_status_bar.getChildren().add(scrollable_text_field);
             returned.setBottom(the_status_bar);
 

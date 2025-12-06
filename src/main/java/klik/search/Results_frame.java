@@ -128,7 +128,7 @@ public class Results_frame
         Node graphic = null;
         if ( use_scrollable_textfield)
         {
-            graphic = new Scrollable_text_field(displayed_text,b,owner,logger);
+            graphic = new Scrollable_text_field(displayed_text,path, b,owner,aborter,logger);
         }
         else {
             HBox hbox = new HBox();
@@ -191,21 +191,11 @@ public class Results_frame
 		Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
 
 
-        Menu_items.add_menu_item_for_context_menu("Browse_in_new_window",
-                e -> {
-			//logger.log("Browse_in_new_window");
-			Path local = path;
-			if (! local.toFile().isDirectory()) local = local.getParent();
-			Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(local,owner,logger),owner,logger);
-		},context_menu,owner,logger);
+        Menu_items.create_browse_in_new_window_menu_item(context_menu,path,owner,logger);
 
 		if (! path.toFile().isDirectory())
 		{
-			Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",
-                    e-> {
-					logger.log("Open_With_Registered_Application");
-					System_open_actor.open_special(path,owner, aborter,logger);
-				},context_menu,owner,logger);
+			Menu_items.create_open_with_klik_registered_application_menu_item(context_menu,path,owner,aborter,logger);
 
             Menu_items.add_menu_item_for_context_menu("Delete",
                     e -> {

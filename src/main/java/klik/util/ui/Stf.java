@@ -27,8 +27,10 @@ public class Stf extends Application
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
                         + "Proin in felis sit amet libero tempor semper. "
                         + "Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
+                null,
                 button,
                 stage,
+                null,
                 logger);
 
         // stf.setPrefSize(1000, 30); // Let layout manage width

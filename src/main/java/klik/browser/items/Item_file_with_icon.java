@@ -283,7 +283,7 @@ public class Item_file_with_icon extends Item_file
         Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",
                     event -> {
                 if (dbg) logger.log("Opening with registered app: "+get_item_path());
-                System_open_actor.open_special(get_item_path(), owner,aborter,logger);
+                System_open_actor.open_with_click_registered_application(get_item_path(), owner,aborter,logger);
             },context_menu,owner,logger);
 
         {

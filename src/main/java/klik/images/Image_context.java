@@ -252,10 +252,10 @@ public class Image_context
     }
 
     //**********************************************************
-    void edit2(Stage the_stage, Window owner, Aborter aborter)
+    void edit_with_click_registered_application(Stage the_stage, Window owner, Aborter aborter)
     //**********************************************************
     {
-        System_open_actor.open_special(path,the_stage,aborter,logger);
+        System_open_actor.open_with_click_registered_application(path,the_stage,aborter,logger);
 
             // we want the UI to refresh if the file is modified
             // we do not know when the edition will end so we need to start a watcher

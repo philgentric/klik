@@ -9,7 +9,6 @@ import javafx.stage.Window;
 import klik.External_application;
 import klik.look.Look_and_feel;
 import klik.machine_learning.ML_servers_util;
-import klik.properties.More_settings_stage;
 import klik.util.execute.Execute_command;
 import klik.util.execute.Execute_result;
 import klik.util.execute.Execute_via_script_in_tmp_file;

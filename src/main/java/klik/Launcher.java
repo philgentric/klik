@@ -156,6 +156,7 @@ public class Launcher extends Application implements UI_change
             use_default_max_RAM(stage,logger);
             return;
         }
+        /*
         if (Booleans.get_boolean_defaults_to_false(Feature.Max_RAM_is_defined_by_user.name()))
         {
             logger.log("Using the max RAM defined by the user: "+current+" GBytes");
@@ -164,7 +165,7 @@ public class Launcher extends Application implements UI_change
         {
             use_default_max_RAM(stage,logger);
         }
-
+        */
 
     }
 

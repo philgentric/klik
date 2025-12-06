@@ -362,7 +362,7 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
-    private static MenuItem make_edit2_menu_item(Image_window image_window, Logger logger)
+    private static MenuItem make_edit_with_klik_registered_application_menu_item(Image_window image_window, Logger logger)
     //**********************************************************
     {
         return Menu_items.make_menu_item("Open_With_Registered_Application",
@@ -373,7 +373,7 @@ public class Menus_for_image_window
                 logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL no context"));
                 return;
             }
-            image_window.image_display_handler.get_image_context().get().edit2(image_window.stage, image_window.stage, image_window.aborter);
+            image_window.image_display_handler.get_image_context().get().edit_with_click_registered_application(image_window.stage, image_window.stage, image_window.aborter);
         }, image_window.stage, image_window.logger);
     }
 
@@ -514,7 +514,7 @@ public class Menus_for_image_window
 
         context_menu.getItems().add(make_info_menu_item(image_window));
         context_menu.getItems().add(make_edit_menu_item(image_window));
-        context_menu.getItems().add(make_edit2_menu_item(image_window,logger));
+        context_menu.getItems().add(make_edit_with_klik_registered_application_menu_item(image_window,logger));
 
 
         if (Booleans.get_boolean_defaults_to_false(Feature.Enable_alternate_image_scaling.name()))

@@ -106,7 +106,11 @@ public class RAM_and_threads_meters_stage
                 event -> {
                     Actor_engine.list_jobs(logger);
                 },context_menu,stage,logger);
-        scene.setOnMouseClicked(event -> {
+        //scene.setOnMouseClicked(event -> {
+        //    context_menu.show(stage, event.getScreenX(), event.getScreenY());
+        //});
+
+        scene.setOnContextMenuRequested(event -> {
             context_menu.show(stage, event.getScreenX(), event.getScreenY());
         });
 

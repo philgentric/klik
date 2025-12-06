@@ -14,7 +14,6 @@ import javafx.stage.Window;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.my_i18n.My_I18n;
-import klik.properties.More_settings_stage;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.log.Logger;

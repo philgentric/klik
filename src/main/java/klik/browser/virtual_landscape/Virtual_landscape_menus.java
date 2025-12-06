@@ -19,7 +19,6 @@
 package klik.browser.virtual_landscape;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.Window;
@@ -59,7 +58,7 @@ import klik.properties.*;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
-import klik.properties.More_settings_stage;
+import klik.properties.More_settings_stage_old;
 import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
@@ -517,7 +516,7 @@ public class Virtual_landscape_menus
 
         Menu_items.add_menu_item_for_context_menu(
                 "More_Settings",
-                event -> More_settings_stage.show_Preferences_stage("Preferences", owner,logger),
+                event -> More_settings_stage_old.show_Preferences_stage("Preferences", owner,logger),
                 context_menu,owner,logger);
 
         return context_menu;
@@ -1790,7 +1789,7 @@ public class Virtual_landscape_menus
     public MenuItem get_advanced_preferences()
     //**********************************************************
     {
-        return Menu_items.make_menu_item("More_Settings",event -> More_settings_stage.show_Preferences_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
+        return Menu_items.make_menu_item("More_Settings",event -> More_settings_stage_old.show_Preferences_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
     }
 
 

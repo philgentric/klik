@@ -41,7 +41,7 @@ public enum Feature
 
     Log_to_file,
     Log_performances,
-    Enable_detailed_cache_cleaning_options,
+    //Enable_detailed_cache_cleaning_options,
     Fusk_is_on,
     Show_ffmpeg_install_warning,
     Show_can_use_ESC_to_close_windows,
@@ -51,7 +51,7 @@ public enum Feature
     Show_mediainfo_install_warning,
     Show_ytdlp_install_warning,
     Enable_feature_vector_monitoring,
-    Max_RAM_is_defined_by_user
+    //Max_RAM_is_defined_by_user
 
 
 }

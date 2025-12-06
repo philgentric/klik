@@ -61,11 +61,11 @@ public class System_open_actor implements Actor
 
 
     //**********************************************************
-    public static void open_special(
+    public static void open_with_click_registered_application(
             Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        logger.log("open_special " + path);
+        logger.log("open_with_click_registered_application " + path);
         Actor_engine.run(
                 System_open_actor.get(),
                 new System_open_message(true,Klik_application.application, owner, path, aborter,logger),null,logger);
@@ -78,7 +78,7 @@ public class System_open_actor implements Actor
     //**********************************************************
     {
         System_open_message som = (System_open_message) m;
-        if (som.special) return special(som);
+        if (som.with_click_registered_application) return with_click_registered_application(som);
         try
         {
             ((System_open_message) m).logger.log("going to call showDocument for "+som.path);
@@ -103,7 +103,7 @@ public class System_open_actor implements Actor
 
 
     //**********************************************************
-    private String special(System_open_message som)
+    private String with_click_registered_application(System_open_message som)
     //**********************************************************
     {
         String extension = Extensions.get_extension(som.path.toFile().getName());
@@ -111,19 +111,19 @@ public class System_open_actor implements Actor
 
         if ( app == null)
         {
-            som.logger.log("❌ open special aborted, no registered operation for this extension ");
-            return null;
+            som.logger.log("❌ open with_click_registered_application aborted, no registered operation for this extension ");
+            return "error";
         }
-        som.logger.log("❗ special open for " + som.path + " with " + app);
+        som.logger.log("❗ open with click registered application for " + som.path + " with " + app);
 
-        call_MACOS_open(som, app);
+        call_macOS_open(som, app);
         //call_exec(som, app));
 
-        return null;
+        return "ok";
     }
 
     //**********************************************************
-    private boolean call_MACOS_open(System_open_message som, String app)
+    private boolean call_macOS_open(System_open_message som, String app)
     //**********************************************************
     {
         Jfx_batch_injector.inject(() -> Popups.popup_warning( "❗ Calling macOS to open: "+som.path, "Please wait ",true,som.owner,som.logger), som.logger);
@@ -136,7 +136,7 @@ public class System_open_actor implements Actor
 
         if (som.aborter.should_abort())
         {
-            som.logger.log("open special aborted");
+            som.logger.log("open with macOS aborted");
             return false;
         }
         // Output file is empty
@@ -145,10 +145,10 @@ public class System_open_actor implements Actor
         Execute_result res = Execute_command.execute_command_list(list, wd, 2000, sb, som.logger);
         if ( !res.status())
         {
-            som.logger.log("open special failed:\n"+ sb +"\n\n\n");
+            som.logger.log("open with macOS failed:\n"+ sb +"\n\n\n");
             return false;
         }
-        som.logger.log("\n\n\n open special output :\n"+ sb +"\n\n\n");
+        som.logger.log("\n\n\n open with macOS output :\n"+ sb +"\n\n\n");
         return true;
     }
 

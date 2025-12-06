@@ -334,7 +334,7 @@ public abstract class Item implements Icon_destination
                     "Open_With_Registered_Application",
                     actionEvent -> {
                     if (dbg) logger.log("button in item: Open_With_Registered_Application");
-                    System_open_actor.open_special(get_item_path(), owner,aborter,logger);
+                    System_open_actor.open_with_click_registered_application(get_item_path(), owner,aborter,logger);
                 },context_menu,owner,logger);
 
 
@@ -351,7 +351,7 @@ public abstract class Item implements Icon_destination
 
             create_delete_menu_item(context_menu);
 
-            create_show_file_size_menu_item(context_menu);
+            Menu_items.create_show_file_size_menu_item(context_menu, get_item_path(),owner,logger);
 
 
             /*if (Feature_cache.get(Feature.Enable_tags)) {
@@ -361,6 +361,19 @@ public abstract class Item implements Icon_destination
         return context_menu;
     }
 
+    //**********************************************************
+    protected void create_delete_menu_item(ContextMenu context_menu)
+    //**********************************************************
+    {
+        Menu_items.add_menu_item_for_context_menu("Delete",
+                event -> {
+                    if (dbg) logger.log("Deleting!");
+                    double x = owner.getX()+100;
+                    double y = owner.getY()+100;
+                    path_list_provider.delete(get_item_path(), owner, x, y, aborter, logger);
+                    //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter,logger);
+                },context_menu,owner,logger);
+    }
     //**********************************************************
     public void create_copy_menu_item(ContextMenu context_menu)
     //**********************************************************
@@ -387,33 +400,38 @@ public abstract class Item implements Icon_destination
     {
         Menu_items.add_menu_item_for_context_menu("Show_file_size",
                 event -> {
-                if (dbg) logger.log("File size");
-                String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_with_size(get_item_path(),owner,logger);
-                String message = My_I18n.get_I18n_string("File_size_for", owner,logger) +"\n"+ get_item_path().getFileName().toString();
-                //Popups.popup_warning(error_message, file_size, false,logger);
-                Stage local_stage = new Stage();
-                local_stage.setHeight(200);
-                local_stage.setWidth(600);
-                local_stage.setX(xxx);
-                local_stage.setY(yyy);
-                yyy+= 200;
-                if ( yyy > 600)
-                {
-                    yyy = 200;
-                    xxx += 600;
-                    if ( xxx > 1000) xxx = 200;
-                }
-                TextArea textarea1 = new TextArea(message+"\n"+size_in_bytes);
-                Font_size.apply_this_font_size_to_Node(textarea1,24,logger);
-                VBox vbox = new VBox(textarea1);
-                Scene scene = new Scene(vbox, Color.WHITE);
-                local_stage.setTitle(get_item_path().toAbsolutePath().toString());
-                local_stage.setScene(scene);
-                local_stage.show();
+                    show_file_size(get_item_path(), owner, logger);
+                }, context_menu,owner,logger);
+    }
 
-                logger.log("size_in_bytes->"+size_in_bytes+"<-");
-                //b_.set_status(size_in_bytes);
-            }, context_menu,owner,logger);
+    public static void show_file_size(Path path,Window owner, Logger logger)
+    {
+        if (dbg) logger.log("File size");
+        String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_with_size(path,owner,logger);
+        String message = My_I18n.get_I18n_string("File_size_for", owner,logger) +"\n"+ path.getFileName().toString();
+        //Popups.popup_warning(error_message, file_size, false,logger);
+        Stage local_stage = new Stage();
+        local_stage.setHeight(200);
+        local_stage.setWidth(600);
+        local_stage.setX(xxx);
+        local_stage.setY(yyy);
+        yyy+= 200;
+        if ( yyy > 600)
+        {
+            yyy = 200;
+            xxx += 600;
+            if ( xxx > 1000) xxx = 200;
+        }
+        TextArea textarea1 = new TextArea(message+"\n"+size_in_bytes);
+        Font_size.apply_this_font_size_to_Node(textarea1,24,logger);
+        VBox vbox = new VBox(textarea1);
+        Scene scene = new Scene(vbox, Color.WHITE);
+        local_stage.setTitle(path.toAbsolutePath().toString());
+        local_stage.setScene(scene);
+        local_stage.show();
+
+        logger.log("size_in_bytes->"+size_in_bytes+"<-");
+        //b_.set_status(size_in_bytes);
     }
 
     //**********************************************************
@@ -471,7 +489,7 @@ public abstract class Item implements Icon_destination
     public void create_open_with_system_menu_item(Path path, ContextMenu context_menu)
     //**********************************************************
     {
-        Menu_items.add_menu_item_for_context_menu("Open_with_system",
+        Menu_items.add_menu_item_for_context_menu("Open_With_System",
                 actionEvent -> {
             if (dbg) logger.log("button in item: System Open");
             System_open_actor.open_with_system(path, owner,aborter,logger);
@@ -588,20 +606,6 @@ public abstract class Item implements Icon_destination
     }
 
 
-
-    //**********************************************************
-    protected void create_delete_menu_item(ContextMenu context_menu)
-    //**********************************************************
-    {
-        Menu_items.add_menu_item_for_context_menu("Delete",
-                event -> {
-            if (dbg) logger.log("Deleting!");
-            double x = owner.getX()+100;
-            double y = owner.getY()+100;
-            path_list_provider.delete(get_item_path(), owner, x, y, aborter, logger);
-            //Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, browser_aborter,logger);
-        },context_menu,owner,logger);
-    }
     //**********************************************************
     public void you_are_invisible()
     //**********************************************************

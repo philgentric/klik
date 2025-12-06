@@ -12,7 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.properties.More_settings_stage;
 import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.execute.Guess_OS;
 import klik.util.log.Logger;
