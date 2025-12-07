@@ -26,8 +26,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -37,7 +36,9 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.*;
 import klik.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klik.change.bookmarks.Bookmarks;
 import klik.change.history.History_engine;
+import klik.change.undo.Undo_for_moves;
 import klik.path_lists.Files_and_folders;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
@@ -88,7 +89,7 @@ import java.util.function.Supplier;
 //**********************************************************
 public class Virtual_landscape implements Scan_show_slave, Selection_reporter, Top_left_provider,
         Path_comparator_source, Feature_change_target, String_change_target
-// **********************************************************
+//**********************************************************
 {
     public static final boolean dbg = false;
     public static final boolean ultra_dbg = false;
@@ -148,7 +149,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     MenuItem start_full_screen_menu_item;
     public List<Button> top_buttons = new ArrayList<>();
 
-    TextField status;
+    Scrollable_text_field scrollable_text_field;
     public final Shutdown_target shutdown_target;
     private final Title_target title_target;
     private final Full_screen_handler full_screen_handler;
@@ -158,7 +159,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private Feature_vector_cache fv_cache;
     private final Background_provider background_provider;
 
-    // **********************************************************
+    //**********************************************************
     public Virtual_landscape(
             Window_type context_type,
             Path_list_provider path_list_provider,
@@ -170,7 +171,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Background_provider background_provider,
             Aborter aborter,
             Logger logger)
-    // **********************************************************
+    //**********************************************************
     {
         this.context_type = context_type;
         this.background_provider = background_provider;
@@ -221,10 +222,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         start_redraw_engine(owner, aborter, logger);
     }
 
-    // **********************************************************
+    //**********************************************************
     @Override // String_change_target
     public void update_config_string(String key, String new_value)
-    // **********************************************************
+    //**********************************************************
     {
         logger.log("virtual_landscape receiving update_config_string key=" + key + " val=" + new_value);
         if (key.equals(Non_booleans_properties.LANGUAGE_KEY)) {
@@ -236,26 +237,245 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     @Override // Selection_reporter
     public void report(String s)
-    // **********************************************************
+    //**********************************************************
     {
         set_status(s);
     }
 
-    // **********************************************************
+    //**********************************************************
     public void set_status(String s)
-    // **********************************************************
+    //**********************************************************
     {
-        status.setText(s);
+        if ( s == null)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("Should not happen"));
+            return;
+        }
+        scrollable_text_field.setText(s);
         logger.log("Status = " + s);
     }
 
-    // **********************************************************
-    private void set_all_event_handlers()
-    // **********************************************************
+    private KeyCodeCombination go_full_screen;
+    private KeyCodeCombination start_stop_folder_scan_show;
+    private KeyCodeCombination slow_down_folder_scan_show;
+    private KeyCodeCombination speedup_folder_scan_show;
+    KeyCodeCombination find;
+    KeyCodeCombination bookmark_this;
+    KeyCodeCombination new_twin_window;
+    KeyCodeCombination refresh;
+    KeyCodeCombination undo;
+    KeyCodeCombination select_all_files;
+    KeyCodeCombination select_all_folders;
+
+
+
+    //**********************************************************
+    private void register_shortcuts(Scene scene)
+    //**********************************************************
     {
+        /*
+        scene.addEventFilter(KeyEvent.KEY_PRESSED,e->
+                {
+                    logger.log("key pressed:"+e);
+                    if(e.getCode() == KeyCode.SPACE)
+                    {
+                        if (Browser.kbd_dbg) logger.log("character is SPACE = start/stop scan");
+                        handle_scan_switch();
+                    }
+                });*/
+        double x = owner.getX()+100;
+        double y = owner.getY()+100;
+
+        // note that  KeyCombination.SHORTCUT_DOWN is ⌘ on macOS, Ctrl elsewhere
+        {
+            // Shortcut show details: ⌘/Ctrl + 2
+            KeyCombination kc = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (!Feature_cache.get(Feature.Show_single_column))
+                    Feature_cache.update_cached_boolean(Feature.Show_single_column, true, owner);
+            });
+        }
+
+        {
+            // Shortcut normal view: ⌘/Ctrl + 1
+            KeyCombination kc = new KeyCodeCombination(KeyCode.DIGIT1, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Feature_cache.get(Feature.Show_single_column))
+                    Feature_cache.update_cached_boolean(Feature.Show_single_column,false,owner);
+            });
+        }
+
+
+        {
+            // zoom +,  CTRL + +, meta + + (only macOS)
+            KeyCombination kc = new KeyCodeCombination(KeyCode.PLUS, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Browser.kbd_dbg)
+                    logger.log("character is ctrl + +  = increase_icon_size");
+                increase_icon_size();
+            });
+        }
+        {
+            // zoom +,  CTRL + =, meta + = (only macOS)
+            // reason is for AZERTY, the '+' requires a shift on an '='
+            KeyCombination kc = new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Browser.kbd_dbg)
+                    logger.log("character is ctrl + +  = increase_icon_size");
+                increase_icon_size();
+            });
+        }
+        {
+            // zoom -,  CTRL + -, meta + - (only macOS)
+            KeyCombination kc = new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Browser.kbd_dbg)
+                    logger.log("character is ctrl + +  = increase_icon_size");
+                decrease_icon_size();
+            });
+        }
+
+
+
+
+        {
+            // zoom -,  CTRL + -
+            KeyCombination kc = new KeyCodeCombination(KeyCode.MINUS, KeyCombination.CONTROL_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Browser.kbd_dbg)
+                    logger.log("character is ctrl + +  = decrease_icon_size");
+                decrease_icon_size();
+            });
+        }
+        {
+            // zoom -,  meta + -(only macOS)
+            KeyCombination kc = new KeyCodeCombination(KeyCode.MINUS, KeyCombination.META_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Browser.kbd_dbg)
+                    logger.log("character is meta + +  = decrease_icon_size");
+                decrease_icon_size();
+            });
+        }
+
+
+        {
+            // select all files,  CTRL +a
+            select_all_files = new KeyCodeCombination(KeyCode.A, KeyCombination.CONTROL_DOWN);
+            scene.getAccelerators().put(select_all_files, () -> {
+                if (Browser.kbd_dbg)
+                    logger.log("character is ctrl +a  = select all");
+                selection_handler.select_all_files_in_folder(path_list_provider);
+            });
+        }
+        {
+            // select all folders,  ctrl + shift +a (only macOS)
+            select_all_folders = new KeyCodeCombination(KeyCode.A, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+            scene.getAccelerators().put(select_all_folders, () -> {
+                if (Browser.kbd_dbg)
+                    logger.log("character is ctrl +a  = select all");
+                selection_handler.select_all_files_in_folder(path_list_provider);
+            });
+        }
+
+        {
+            // UNDO
+            undo = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(undo, () -> Undo_for_moves.perform_last_undo_fx(owner, x, y, logger));
+        }
+
+        {
+            // FIND
+            find = new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(find, () -> {
+                if (Browser.kbd_dbg) logger.log("character is ctrl or meta f = keyword search");
+                virtual_landscape_menus.search_files_by_keyworks_fx();
+            });
+        }
+
+        {
+            // bookmark this
+            bookmark_this = new KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(bookmark_this, () -> {
+                if (Browser.kbd_dbg) logger.log("character is ctrl or meta d = bookmark this");
+                Bookmarks.get(owner).add(path_list_provider.get_folder_path().toAbsolutePath().toString());
+            });
+        }
+        {
+            // refresh
+            refresh = new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(refresh, () -> {
+                if (Browser.kbd_dbg) logger.log("character is ctrl or meta r = refresh");
+                redraw_fx("refresh");
+            });
+        }
+        {
+            // new window clone
+            new_twin_window = new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(new_twin_window, () -> {
+                if (Browser.kbd_dbg) logger.log("character is ctrl or meta N = clone");
+                Instructions.additional_same_folder_twin(context_type, path_list_provider, get_top_left(), owner, logger);
+            });
+        }
+
+        {
+            // slide show start/stop
+            start_stop_folder_scan_show = new KeyCodeCombination(KeyCode.S);
+            scene.getAccelerators().put(start_stop_folder_scan_show, () -> {
+                if (Browser.kbd_dbg) logger.log("character is ctrl enter = start/stop scan");
+                handle_scan_switch();
+            });
+        }
+        {
+            // slide show slow down
+            slow_down_folder_scan_show = new KeyCodeCombination(KeyCode.LEFT,KeyCombination.CONTROL_DOWN);
+            scene.getAccelerators().put(slow_down_folder_scan_show, () -> {
+                if (Browser.kbd_dbg) logger.log("character is ctrl + <- = slowdown scan");
+                slow_down_scan();
+            });
+        }
+        {
+            // slide show slow down
+            KeyCodeCombination kc = new KeyCodeCombination(KeyCode.LEFT,KeyCombination.META_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Browser.kbd_dbg) logger.log("character is metq + <- = slowdown scan");
+                slow_down_scan();
+            });
+        }
+        {
+            // slide show speed up
+            speedup_folder_scan_show = new KeyCodeCombination(KeyCode.RIGHT,KeyCombination.CONTROL_DOWN);
+            scene.getAccelerators().put(speedup_folder_scan_show, () -> {
+                if (Browser.kbd_dbg) logger.log("character is ctrl + -> = speed up scan");
+                speed_up_scan();
+            });
+        }
+        {
+            // slide show speed up
+            KeyCombination kc = new KeyCodeCombination(KeyCode.RIGHT,KeyCombination.META_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Browser.kbd_dbg) logger.log("character is metq + -> = speed up scan");
+                speed_up_scan();
+            });
+        }
+        {
+            // FULLSCREEN
+            go_full_screen = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.ALT_DOWN);
+            scene.getAccelerators().put(go_full_screen, () -> {
+                if (Browser.kbd_dbg) logger.log("character is alt+enter = fullscreen");
+                full_screen_handler.go_full_screen();
+            });
+        }
+
+    }
+    //**********************************************************
+    private void set_all_event_handlers()
+    //**********************************************************
+    {
+
+        register_shortcuts(the_Scene);
 
         ((Stage) owner).fullScreenProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -278,70 +498,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         // External_close_event_handler(this);
         owner.setOnCloseRequest(event -> shutdown_target.shutdown());
 
-        // Browser local = this;
-        the_Scene.setOnKeyTyped(keyEvent -> {
-
-            if (Browser.keyboard_dbg) {
-                logger.log(keyEvent + "getCharacter->" + keyEvent.getCharacter() + "<- getCode:" + keyEvent.getCode());
-                if (keyEvent.isShiftDown())
-                    logger.log("isShiftDown: true");
-                if (keyEvent.isAltDown())
-                    logger.log("isAltDown: true");
-                if (keyEvent.isMetaDown())
-                    logger.log("isMetaDown: true");
-            }
-
-            if (keyEvent.getCharacter().equals("k")) {
-                // if (Browser.keyboard_dbg)
-                logger.log("character is k = keyword search");
-                logger.log("character is k = keyword search");
-                virtual_landscape_menus.search_files_by_keyworks_fx();
-            }
-            if (keyEvent.getCharacter().equals("s")) {
-                if (Browser.keyboard_dbg)
-                    logger.log("character is s = start/stop scan");
-                handle_scan_switch();
-            }
-            if (keyEvent.getCharacter().equals("w")) {
-                if (Browser.keyboard_dbg)
-                    logger.log("character is w = slow down scan");
-                slow_down_scan();
-            }
-            if (keyEvent.getCharacter().equals("x")) {
-                if (Browser.keyboard_dbg)
-                    logger.log("character is x = speed up scan");
-                speed_up_scan();
-            }
-
-            if (keyEvent.isMetaDown()) {
-                if (keyEvent.getCharacter().equals("a")) {
-                    if (Browser.keyboard_dbg)
-                        logger.log("character is a + meta = select all");
-                    selection_handler.select_all_files_in_folder(path_list_provider);
-                }
-
-                if (keyEvent.getCharacter().equals("+")) {
-                    if (Browser.keyboard_dbg)
-                        logger.log("character is +meta = zoom +");
-                    increase_icon_size();
-                }
-                if (keyEvent.getCharacter().equals("=")) {
-                    if (Browser.keyboard_dbg)
-                        logger.log("character is  (meta & equal) +meta = zoom +");
-                    increase_icon_size();
-                }
-                if (keyEvent.getCharacter().equals("-")) {
-                    if (Browser.keyboard_dbg)
-                        logger.log("character is -meta = zoom -");
-                    reduce_icon_size();
-                }
-            }
-            if (keyEvent.getCharacter().equals("n")) {
-                if (Browser.keyboard_dbg)
-                    logger.log("character is n = new browser (clone)");
-                // Instructions.additional_same_folder(local, logger);
-            }
-        });
 
         {
             // force pin classes so native image does not strip them
@@ -426,111 +582,57 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             double dy = event.getDeltaY();
             // logger.log("\n\n setOnScroll event: "+dy);
             scroll_a_bit(dy);
-            /*
-             * long now = System.currentTimeMillis();
-             * if ( last_scroll_event < 0)
-             * {
-             * logger.log("start "+dy);
-             * scroll_a_bit(dy);
-             * last_scroll_event = now;
-             * return;
-             * }
-             * long delta_t = now-last_scroll_event;
-             * last_scroll_event = now;
-             * last_dy = dy;
-             * if (( delta_t > 200) ||(delta_t <=0))
-             * {
-             * logger.log("slow or too fast delta_t="+delta_t+" dy="+dy);
-             * scroll_a_bit(dy);
-             * return;
-             * }
-             * {
-             * double scroll_speed = Math.abs(50.0*(dy)/(double)(delta_t));
-             * int id = threadid_gen.incrementAndGet();
-             * life.clear();
-             * life.add(id);
-             * double[] dyy = {dy * scroll_speed};
-             * logger.log(id+" ##### dy="+dy+" #  scroll_speed: "+String.format("%.2f",
-             * scroll_speed));
-             * Runnable r = () -> {
-             * for ( int ii = 0; ii < 100; ii++)
-             * {
-             * if( aborter.should_abort()) return;
-             * if ( !life.contains(id))
-             * {
-             * logger.log(id+ " BREAK ");
-             * return;
-             * }
-             * logger.log(id+" "+ii+" dyy[0]: "+String.format("%.3f",dyy[0]));
-             * Jfx_batch_injector.now(()->scroll_a_bit(dyy[0]));
-             * try
-             * {
-             * Thread.sleep(30);
-             * }
-             * catch (InterruptedException e)
-             * {
-             * throw new RuntimeException(e);
-             * }
-             * dyy[0] = dyy[0]/3.0;
-             * if ( Math.abs(dyy[0]) < 1) return;
-             * }
-             * };
-             * Actor_engine.execute(r,logger);
-             * last_scroll_speed = scroll_speed;
-             * 
-             * }
-             */
         });
     }
 
-    // **********************************************************
+    //**********************************************************
     public void increase_icon_size()
-    // **********************************************************
+    //**********************************************************
     {
         change_icon_size(1.1);
     }
 
-    // **********************************************************
-    public void reduce_icon_size()
-    // **********************************************************
+    //**********************************************************
+    public void decrease_icon_size()
+    //**********************************************************
     {
         change_icon_size(0.9);
     }
 
-    // **********************************************************
+    //**********************************************************
     private void change_icon_size(double fac)
-    // **********************************************************
+    //**********************************************************
     {
         int new_icon_size = (int) (Non_booleans_properties.get_icon_size(owner) * fac);
         if (new_icon_size < 20)
             new_icon_size = 20;
-        if (Browser.keyboard_dbg)
+        if (Browser.kbd_dbg)
             logger.log("new icon size = " + new_icon_size);
         Non_booleans_properties.set_icon_size(new_icon_size, owner);
         // icon_manager.modify_button_fonts(fac);
         redraw_fx("new icon size " + new_icon_size);
     }
 
-    // **********************************************************
+    //**********************************************************
     @Override // Scan_show_slave
     public int how_many_rows()
-    // **********************************************************
+    //**********************************************************
     {
         return how_many_rows;
     }
 
-    // **********************************************************
+    //**********************************************************
     @Override // Scan_show_slave
     public boolean scroll_a_bit(double dy)
-    // **********************************************************
+    //**********************************************************
     {
         Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(), get_top_left());
         return vertical_slider.request_scroll_relative(dy);
     }
 
-    // **********************************************************
+    //**********************************************************
     public void receive_error(Error_type error_type)
-    // **********************************************************
+    //**********************************************************
     {
         logger.log("receive_error");
         Error_type finalError_type = error_type;
@@ -557,9 +659,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Jfx_batch_injector.inject(r, logger);
     }
 
-    // **********************************************************
+    //**********************************************************
     synchronized private void sort_iconized_items(String from)
-    // **********************************************************
+    //**********************************************************
     {
         try (Perf p = new Perf("sort_iconized_items")) {
             List<Path> local_iconized_sorted = new ArrayList<>(paths_holder.iconized_paths);
@@ -584,9 +686,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
 
 
-    // **********************************************************
+    //**********************************************************
     public void set_text_background(String text)
-    // **********************************************************
+    //**********************************************************
     {
 
         Text t = new Text(text);
@@ -598,9 +700,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     private List<Path> get_iconized_sorted(String from)
-    // **********************************************************
+    //**********************************************************
     {
         List<Path> returned = iconized_sorted_queue.poll();
         if (returned != null)
@@ -613,16 +715,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return iconized_sorted_queue.poll();
     }
 
-    // **********************************************************
+    //**********************************************************
     public void set_Landscape_height_listener(Landscape_height_listener landscape_height_listener_)
-    // **********************************************************
+    //**********************************************************
     {
         landscape_height_listener = landscape_height_listener_;
     }
 
-    // **********************************************************
+    //**********************************************************
     public void clear_all_selected_images()
-    // **********************************************************
+    //**********************************************************
     {
         for (Item i : all_items_map.values()) {
             i.unset_image_is_selected();
@@ -633,9 +735,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     // cannot use "synchronized" because part of the job is performed
     // on another thread
 
-    // **********************************************************
+    //**********************************************************
     void scroll_to()
-    // **********************************************************
+    //**********************************************************
     {
         Path scroll_to = Browsing_caches.scroll_position_cache_read(path_list_provider.get_folder_path());
         // logger.log("scroll_to folder=\n"+" "+path_list_provider.get_name()+"\n
@@ -649,9 +751,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         scroll_to_listener.perform_scroll_to(current_vertical_offset, this);
     }
 
-    // **********************************************************
+    //**********************************************************
     private void show_error_icon(ImageView iv_denied, double top_delta_y)
-    // **********************************************************
+    //**********************************************************
     {
         iv_denied.setPreserveRatio(true);
         iv_denied.setSmooth(true);
@@ -664,12 +766,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         compute_bounding_rectangle(error_type.toString());
     }
 
-    // **********************************************************
+    //**********************************************************
     private synchronized void process_iconized_items(
             boolean single_column, double icon_size,
             double column_increment,
             double scene_width, Point2D point)
-    // **********************************************************
+    //**********************************************************
     {
 
         try (Perf p = new Perf("process_iconized_items")) {
@@ -836,9 +938,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     public Image_properties_RAM_cache get_image_properties_ram_cache()
-    // **********************************************************
+    //**********************************************************
     {
         Image_properties_RAM_cache returned = Browsing_caches.image_properties_RAM_cache_of_caches
                 .get(path_list_provider.get_folder_path().toAbsolutePath().toString());
@@ -850,10 +952,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return returned;
     }
 
-    // **********************************************************
+    //**********************************************************
     private Point2D process_non_iconized_items(boolean single_column, double column_increment, double scene_width,
             Point2D p)
-    // **********************************************************
+    //**********************************************************
     {
         try (Perf perf = new Perf("process_non_iconized_files")) {
             // manage the non-iconifed-files section
@@ -917,10 +1019,10 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     private Point2D process_folders(boolean single_column, double row_increment_for_dirs, double column_increment,
             double row_increment_for_dirs_with_picture, double scene_width, Point2D p)
-    // **********************************************************
+    //**********************************************************
     {
         if (dbg)
             logger.log("✅ Virtual_landscape process_folders (0) ");
@@ -994,7 +1096,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     private Point2D process_one_folder_with_picture(
             boolean single_column,
             double column_increment,
@@ -1003,7 +1105,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Point2D p,
             Path folder_path,
             Color color)
-    // **********************************************************
+    //**********************************************************
     {
         try (Perf perf = new Perf("5. process_one_folder_with_picture")) {
             Item folder_item = all_items_map.get(folder_path);
@@ -1037,7 +1139,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     private Point2D process_one_folder_plain(
             boolean single_column,
             double column_increment,
@@ -1045,7 +1147,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             double scene_width,
             Point2D p,
             Path folder_path)
-    // **********************************************************
+    //**********************************************************
     {
         try (Perf perf = new Perf("process_one_folder_plain")) {
             Item folder_item = all_items_map.get(folder_path);
@@ -1118,11 +1220,11 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     // this is the other entry point: SCROLLING
     // when the slider is moved
 
-    // **********************************************************
+    //**********************************************************
     public void move_absolute(
             double new_vertical_offset,
             String reason)
-    // **********************************************************
+    //**********************************************************
     {
         if (scroll_dbg)
             logger.log("✅ move_absolute reason= " + reason + " new_vertical_offset=" + new_vertical_offset);
@@ -1132,9 +1234,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     // this is on the FX thread
     // and it is called very often = when scrolling !!
-    // **********************************************************
+    //**********************************************************
     void on_scroll(String from)
-    // **********************************************************
+    //**********************************************************
     {
         if (!items_are_ready.get()) {
             logger.log("✅ check_visibility: items are not ready yet ! " + from);
@@ -1195,9 +1297,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private static final double margin = 20;
     private static final double dmargin = 2 * margin;
 
-    // **********************************************************
+    //**********************************************************
     public List<Item> get_items_in(Pane pane, double x, double y, double w, double h)
-    // **********************************************************
+    //**********************************************************
     {
         Bounds selection_bounds = new BoundingBox(x, y, w, h);
         // logger.log("selection X= " + bounds.getMinX() + " " + bounds.getMaxX() + " Y=
@@ -1224,16 +1326,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return returned;
     }
 
-    // **********************************************************
+    //**********************************************************
     public double get_virtual_landscape_height()
-    // **********************************************************
+    //**********************************************************
     {
         return virtual_landscape_height;
     }
 
-    // **********************************************************
+    //**********************************************************
     public void show_how_many_files_deep_in_each_folder()
-    // **********************************************************
+    //**********************************************************
     {
         show_total_size_deep_in_each_folder_done = false;
 
@@ -1289,9 +1391,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Actor_engine.execute(monitor, "compute_geometry after computing the number of files", logger);
     }
 
-    // **********************************************************
+    //**********************************************************
     public void show_total_size_deep_in_each_folder()
-    // **********************************************************
+    //**********************************************************
     {
         if ((Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(),
                 owner) == Sort_files_by.SIMILARITY_BY_PAIRS)
@@ -1349,16 +1451,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     @Override // Top_left_provider
-    // **********************************************************
+    //**********************************************************
     public Path get_top_left()
-    // **********************************************************
+    //**********************************************************
     {
         return top_left;
     }
 
-    // **********************************************************
+    //**********************************************************
     public double get_y_offset_of(Path target)
-    // **********************************************************
+    //**********************************************************
     {
         if (target == null)
             return 0.0;
@@ -1382,7 +1484,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return 0;
     }
 
-    // **********************************************************
+    //**********************************************************
     private Point2D compute_next_Point2D_for_icons(Point2D p,
             Item item,
             double column_increment,
@@ -1391,7 +1493,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             boolean single_column,
             double[] max_screen_y_in_row,
             List<Item> current_row)
-    // **********************************************************
+    //**********************************************************
     {
         double width_of_this = column_increment;
         double height_of_this = row_increment;
@@ -1491,14 +1593,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return new Point2D(future_x, current_screen_y);
     }
 
-    // **********************************************************
+    //**********************************************************
     private Point2D new_Point_for_files_and_dirs(Point2D point,
             Item item,
             double column_increment,
             double row_increment,
             double scene_width,
             boolean single_column)
-    // **********************************************************
+    //**********************************************************
     {
         // logger.log("column_increment: "+column_increment+", row_increment:
         // "+row_increment);
@@ -1533,9 +1635,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return new Point2D(future_x, old_y);
     }
 
-    // **********************************************************
+    //**********************************************************
     private void compute_bounding_rectangle(String reason)
-    // **********************************************************
+    //**********************************************************
     {
         if (scroll_dbg)
             logger.log("✅ compute_bounding_rectangle() " + reason);
@@ -1576,30 +1678,30 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     public void set_scroll_to_listener(Scroll_to_listener vertical_slider)
-    // **********************************************************
+    //**********************************************************
     {
         scroll_to_listener = vertical_slider;
     }
 
-    // **********************************************************
+    //**********************************************************
     public List<File> get_file_list()
-    // **********************************************************
+    //**********************************************************
     {
         return paths_holder.get_file_list();
     }
 
-    // **********************************************************
+    //**********************************************************
     public List<File> get_folder_list()
-    // **********************************************************
+    //**********************************************************
     {
         return paths_holder.get_folder_list();
     }
 
-    // **********************************************************
+    //**********************************************************
     Scene define_UI()
-    // **********************************************************
+    //**********************************************************
     {
 
         double font_size = Non_booleans_properties.get_font_size(owner, logger);
@@ -1669,9 +1771,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return returned;
     }
 
-    // **********************************************************
+    //**********************************************************
     public void apply_font()
-    // **********************************************************
+    //**********************************************************
     {
         if (dbg)
             logger.log("✅ applying font size " + Non_booleans_properties.get_font_size(owner, logger));
@@ -1680,9 +1782,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     String get_status()
-    // **********************************************************
+    //**********************************************************
     {
         Sort_files_by file_sort_by = Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(), owner);
         if (file_sort_by == null) {
@@ -1694,9 +1796,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     private BorderPane define_border_pane(Pane top_pane)
-    // **********************************************************
+    //**********************************************************
     {
         BorderPane returned = new BorderPane();
         {
@@ -1721,7 +1823,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
              * returned.setBottom(the_status_bar);
              */
 
-            Scrollable_text_field scrollable_text_field = new Scrollable_text_field(get_status(), null,null,owner, aborter,logger);
+            scrollable_text_field = new Scrollable_text_field(get_status(), null,null,owner, aborter,logger);
             the_status_bar.getChildren().add(scrollable_text_field);
             returned.setBottom(the_status_bar);
 
@@ -1730,9 +1832,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return returned;
     }
 
-    // **********************************************************
+    //**********************************************************
     private Pane define_top_bar_using_buttons_deep(double height, Button go_up, Button trash)
-    // **********************************************************
+    //**********************************************************
     {
         Pane top_pane;
         top_pane = new VBox();
@@ -1760,9 +1862,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return top_pane;
     }
 
-    // **********************************************************
+    //**********************************************************
     private void define_top_bar_using_buttons_deep2(Pane top_pane, double height)
-    // **********************************************************
+    //**********************************************************
     {
         {
             Button undo_bookmark_history_button = make_button_undo_and_bookmark_and_history(
@@ -1814,20 +1916,20 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     private void back()
-    // **********************************************************
+    //**********************************************************
     {
         String back_string = History_engine.get(owner).get_back();
-        if (back_string == null)
-            return;
+        if (back_string == null) return;
+        logger.log("BACK");
         Instructions.replace_same_folder(
                 shutdown_target,
                 Window_type.File_system_2D,
                 new Path_list_provider_for_file_system(Path.of(back_string), owner, logger), top_left, owner, logger);
     }
 
-    // **********************************************************
+    //**********************************************************
     public static Button make_button_undo_and_bookmark_and_history(
             Map<LocalDateTime, String> the_whole_history,
             Path_list_provider path_list_provider,
@@ -1836,7 +1938,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Window_type context_type,
             double height,
             Window owner, Logger logger)
-    // **********************************************************
+    //**********************************************************
     {
         String undo_bookmark_history = My_I18n.get_I18n_string("Bookmarks", owner, logger);
         undo_bookmark_history += " & " + My_I18n.get_I18n_string("History", owner, logger);
@@ -1854,14 +1956,14 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return undo_bookmark_history_button;
     }
 
-    // **********************************************************
+    //**********************************************************
     private static void button_undo_and_bookmark_and_history(
             ActionEvent e,
             Map<LocalDateTime, String> the_whole_history,
             Path_list_provider path_list_provider,
             Path top_left,
             Shutdown_target shutdown_target, Window_type context_type, Window owner, Logger logger)
-    // **********************************************************
+    //**********************************************************
     {
         ContextMenu undo_and_bookmark_and_history = define_contextmenu_undo_bookmark_history(
                 the_whole_history,
@@ -1873,18 +1975,18 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         undo_and_bookmark_and_history.show(b, Side.TOP, 0, 0);
     }
 
-    // **********************************************************
+    //**********************************************************
     private void button_preferences(ActionEvent e)
-    // **********************************************************
+    //**********************************************************
     {
         ContextMenu pref = virtual_landscape_menus.define_contextmenu_preferences();
         Button b = (Button) e.getSource();
         pref.show(b, Side.TOP, 0, 0);
     }
 
-    // **********************************************************
+    //**********************************************************
     private void button_files(ActionEvent e)
-    // **********************************************************
+    //**********************************************************
     {
         ContextMenu files = virtual_landscape_menus.define_files_ContextMenu();
         Button b = (Button) e.getSource();
@@ -1897,33 +1999,33 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
          */
     }
 
-    // **********************************************************
+    //**********************************************************
     private void button_view(ActionEvent e)
-    // **********************************************************
+    //**********************************************************
     {
         ContextMenu view = define_contextmenu_view();
         Button b = (Button) e.getSource();
         view.show(b, Side.TOP, 0, 0);
     }
 
-    // **********************************************************
+    //**********************************************************
     void on_fullscreen_end()
-    // **********************************************************
+    //**********************************************************
     {
         // this is called either after the menu above OR if user pressed ESCAPE
         start_full_screen_menu_item.setDisable(false);
         stop_full_screen_menu_item.setDisable(true);
     }
 
-    // **********************************************************
+    //**********************************************************
     void on_fullscreen_start()
-    // **********************************************************
+    //**********************************************************
     {
         start_full_screen_menu_item.setDisable(true);
         stop_full_screen_menu_item.setDisable(false);
     }
 
-    // **********************************************************
+    //**********************************************************
     private static ContextMenu define_contextmenu_undo_bookmark_history(
             Map<LocalDateTime, String> the_whole_history,
             Path_list_provider path_list_provider,
@@ -1931,7 +2033,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Shutdown_target shutdown_target,
             Window_type window_type,
             Window owner, Logger logger)
-    // **********************************************************
+    //**********************************************************
     {
         ContextMenu undo_bookmark_history_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(undo_bookmark_history_menu, owner, logger);
@@ -1955,31 +2057,32 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return undo_bookmark_history_menu;
     }
 
-    // **********************************************************
+    //**********************************************************
     private ContextMenu define_contextmenu_view()
-    // **********************************************************
+    //**********************************************************
     {
         ContextMenu context_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(context_menu, owner, logger);
 
         // Rectangle2D rectangle = new
         // Rectangle2D(owner.getX(),owner.getY(),owner.getWidth(),owner.getHeight());
-        Menu_items.add_menu_item_for_context_menu("New_Window", event -> Instructions.additional_same_folder(context_type,
+        Menu_items.add_menu_item_for_context_menu("New_Window", null,event -> Instructions.additional_same_folder(context_type,
                 path_list_provider, get_top_left(), owner, logger), context_menu, owner, logger);
-        Menu_items.add_menu_item_for_context_menu("New_Twin_Window", event -> Instructions.additional_same_folder_twin(context_type,
+        Menu_items.add_menu_item_for_context_menu("New_Twin_Window", new_twin_window.getDisplayText(),event -> Instructions.additional_same_folder_twin(context_type,
                 path_list_provider, get_top_left(), owner, logger), context_menu, owner, logger);
-        Menu_items.add_menu_item_for_context_menu("New_Double_Window", event -> Instructions
+        Menu_items.add_menu_item_for_context_menu("New_Double_Window", null,event -> Instructions
                 .additional_same_folder_fat_tall(context_type, path_list_provider, get_top_left(), owner, logger),
                 context_menu, owner, logger);
 
         {
             start_full_screen_menu_item = Menu_items.make_menu_item("Go_full_screen",
+                    go_full_screen.getDisplayText(),
                     event -> full_screen_handler.go_full_screen(), owner, logger);
             start_full_screen_menu_item.setDisable(false);
             context_menu.getItems().add(start_full_screen_menu_item);
         }
         {
-            stop_full_screen_menu_item = Menu_items.make_menu_item("Stop_full_screen",
+            stop_full_screen_menu_item = Menu_items.make_menu_item("Stop_full_screen","(ESC)",
                     event -> full_screen_handler.stop_full_screen(), owner, logger);
             stop_full_screen_menu_item.setDisable(true);
             context_menu.getItems().add(stop_full_screen_menu_item);
@@ -1989,28 +2092,27 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             Menu scan = new Menu(text);
             Look_and_feel_manager.set_menu_item_look(scan, owner, logger);
 
-            scan.getItems().add(
-                    Menu_items.make_menu_item("Start_stop_slow_scan", event -> handle_scan_switch(), owner, logger));
-            scan.getItems().add(Menu_items.make_menu_item("Slow_down_scan", event -> slow_down_scan(), owner, logger));
-            scan.getItems().add(Menu_items.make_menu_item("Speed_up_scan", event -> speed_up_scan(), owner, logger));
+            scan.getItems().add(Menu_items.make_menu_item("Start_stop_folder_scan_show", start_stop_folder_scan_show.getDisplayText(), event -> handle_scan_switch(), owner, logger));
+            scan.getItems().add(Menu_items.make_menu_item("Slow_down_scan", slow_down_folder_scan_show.getDisplayText(), event -> slow_down_scan(), owner, logger));
+            scan.getItems().add(Menu_items.make_menu_item("Speed_up_scan", speedup_folder_scan_show.getDisplayText(), event -> speed_up_scan(), owner, logger));
             context_menu.getItems().add(scan);
         }
-        Menu_items.add_menu_item_for_context_menu("Show_How_Many_Files_Are_In_Each_Folder",
+        Menu_items.add_menu_item_for_context_menu("Show_How_Many_Files_Are_In_Each_Folder",null,
                 event -> show_how_many_files_deep_in_each_folder(), context_menu, owner, logger);
-        Menu_items.add_menu_item_for_context_menu("Show_Each_Folder_Total_Size", event -> show_total_size_deep_in_each_folder(),
+        Menu_items.add_menu_item_for_context_menu("Show_Each_Folder_Total_Size", null,event -> show_total_size_deep_in_each_folder(),
                 context_menu, owner, logger);
-        Menu_items.add_menu_item_for_context_menu("About_klik", event -> About_klik_stage.show_about_klik_stage(owner, logger),
+        Menu_items.add_menu_item_for_context_menu("About_klik", null,event -> About_klik_stage.show_about_klik_stage(owner, logger),
                 context_menu, owner, logger);
-        Menu_items.add_menu_item_for_context_menu("Refresh", event -> redraw_fx("refresh"), context_menu, owner, logger);
+        Menu_items.add_menu_item_for_context_menu("Refresh", refresh.getDisplayText(),event -> redraw_fx("refresh"), context_menu, owner, logger);
         if (!change_events_off)
-            Menu_items.add_menu_item_for_context_menu("Disable_change_events", event -> change_events_off = true, context_menu, owner,
+            Menu_items.add_menu_item_for_context_menu("Disable_change_events", null,event -> change_events_off = true, context_menu, owner,
                     logger);
         if (change_events_off)
-            Menu_items.add_menu_item_for_context_menu("Enable_change_events", event -> change_events_off = false, context_menu, owner,
+            Menu_items.add_menu_item_for_context_menu("Enable_change_events", null,event -> change_events_off = false, context_menu, owner,
                     logger);
 
         Menu_items.add_menu_item_for_context_menu(
-                "Show_Meters",
+                "Show_Meters",null,
                 event -> RAM_and_threads_meters_stage.show_stage(owner, logger),
                 context_menu, owner, logger);
 
@@ -2027,9 +2129,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     public boolean change_events_off = false;
 
-    // **********************************************************
+    //**********************************************************
     public void import_apple_Photos()
-    // **********************************************************
+    //**********************************************************
     {
         if (!Popups.popup_ask_for_confirmation("❗ Importing photos will create COPIES",
                 "Please select a destination drive with enough space", owner, logger))
@@ -2038,16 +2140,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Importer.perform_import(owner, aborter, logger);
     }
 
-    // **********************************************************
+    //**********************************************************
     public void estimate_size_of_importing_apple_Photos()
-    // **********************************************************
+    //**********************************************************
     {
         Importer.estimate_size(owner, aborter, logger);
     }
 
-    // **********************************************************
+    //**********************************************************
     enum Sort_by_time
-    // **********************************************************
+    //**********************************************************
     {
         year,
         month,
@@ -2062,29 +2164,30 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     private static final String msg = "(press \"s\" to start/stop/change direction, \"x\"=faster, \"w\"=slower) speed = ";
 
-    // **********************************************************
+    //**********************************************************
     private void start_scan()
-    // **********************************************************
+    //**********************************************************
     {
         the_scan_show = new Scan_show(this, vertical_slider, aborter, logger);
-        set_status("Scan show starting ! " + msg + the_scan_show.get_speed());
+        logger.log("start_scan");
+        //set_status("Scan show starting ! " + msg + the_scan_show.get_speed());
     }
 
-    // **********************************************************
+    //**********************************************************
     public void stop_scan()
-    // **********************************************************
+    //**********************************************************
     {
-        if (the_scan_show == null)
-            return;
+        if (the_scan_show == null) return;
+        logger.log("stop_scan");
         the_scan_show.stop_the_show();
         the_scan_show = null;
-        set_status("Scan show stopped " + msg);
+        //set_status("Scan show stopped " + msg);
 
     }
 
-    // **********************************************************
+    //**********************************************************
     public void invert_scan()
-    // **********************************************************
+    //**********************************************************
     {
         if (the_scan_show == null)
             start_scan();
@@ -2092,9 +2195,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             the_scan_show.invert_scan_direction();
     }
 
-    // **********************************************************
+    //**********************************************************
     public void slow_down_scan()
-    // **********************************************************
+    //**********************************************************
     {
         if (the_scan_show == null) {
             start_scan();
@@ -2105,9 +2208,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     public void speed_up_scan()
-    // **********************************************************
+    //**********************************************************
     {
         if (the_scan_show == null) {
             start_scan();
@@ -2118,17 +2221,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     @Override // Feature_change_target
     public void update(Feature feature, boolean new_val)
-    // **********************************************************
+    //**********************************************************
     {
         redraw_fx("the Feature ->" + feature + "<- has new value:" + new_val);
     }
 
-    // **********************************************************
+    //**********************************************************
     enum Scan_state
-    // **********************************************************
+    //**********************************************************
     {
         off,
         down,
@@ -2137,9 +2240,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     private Scan_state scan_state = Scan_state.off;
 
-    // **********************************************************
+    //**********************************************************
     void handle_scan_switch()
-    // **********************************************************
+    //**********************************************************
     {
         switch (scan_state) {
             case off -> {
@@ -2157,17 +2260,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     public void abort_backup()
-    // **********************************************************
+    //**********************************************************
     {
         logger.log("✅ aborting backup");
         Backup_singleton.abort();
     }
 
-    // **********************************************************
+    //**********************************************************
     public void start_backup()
-    // **********************************************************
+    //**********************************************************
     {
         logger.log("✅ starting backup");
         Path backup_source = Static_backup_paths.get_backup_source();
@@ -2189,17 +2292,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     public void abort_fusk()
-    // **********************************************************
+    //**********************************************************
     {
         logger.log("✅ aborting fusk");
         Fusk_singleton.abort();
     }
 
-    // **********************************************************
+    //**********************************************************
     public void start_fusk()
-    // **********************************************************
+    //**********************************************************
     {
         logger.log("✅ starting fusk");
         Path fusk_source = Static_fusk_paths.get_fusk_source();
@@ -2221,9 +2324,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     public void start_defusk()
-    // **********************************************************
+    //**********************************************************
     {
         logger.log("✅ starting defusk");
         Path defusk_source = Static_fusk_paths.get_fusk_source();
@@ -2245,9 +2348,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     public void you_are_backup_destination()
-    // **********************************************************
+    //**********************************************************
     {
         Static_backup_paths.set_backup_destination(path_list_provider.get_folder_path());
         logger.log("✅ backup destination = " + path_list_provider.get_name());
@@ -2256,9 +2359,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     public void you_are_backup_source()
-    // **********************************************************
+    //**********************************************************
     {
         Static_backup_paths.set_backup_source(path_list_provider.get_folder_path());
         logger.log("✅ backup source = " + path_list_provider.get_name());
@@ -2267,9 +2370,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     public void you_are_fusk_destination()
-    // **********************************************************
+    //**********************************************************
     {
         Static_fusk_paths.set_fusk_destination(path_list_provider.get_folder_path());
         logger.log("✅ fusk destination = " + path_list_provider.get_name());
@@ -2278,9 +2381,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     public void you_are_fusk_source()
-    // **********************************************************
+    //**********************************************************
     {
         Static_fusk_paths.set_fusk_source(path_list_provider.get_folder_path());
         logger.log("✅ fusk source = " + path_list_provider.get_name());
@@ -2289,9 +2392,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     public void enter_fusk_pin_code()
-    // **********************************************************
+    //**********************************************************
     {
         // Pin_code_getter_stage pin_code_getter_stage =
         // Pin_code_getter_stage.ask_pin_code_in_a_thread(logger);
@@ -2304,9 +2407,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     // redrawing engine: in its own thread
 
-    // **********************************************************
+    //**********************************************************
     public void redraw_fx(String from)
-    // **********************************************************
+    //**********************************************************
     {
         if (dbg)
             logger.log("✅ Virtual_landscape redraw from:" + from);
@@ -2318,9 +2421,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     private void start_redraw_engine(Window owner, Aborter aborter, Logger logger)
-    // **********************************************************
+    //**********************************************************
     {
         Runnable r = () -> {
             for (;;) {
@@ -2341,9 +2444,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     private final AtomicBoolean the_guard = new AtomicBoolean(false);
 
-    // **********************************************************
+    //**********************************************************
     private void redraw_all_internal(Window owner, double x, double y)
-    // **********************************************************
+    //**********************************************************
     {
         if (the_guard.get()) {
             // logger.log("\n\n redraw request ignored, guard is set!\n\n");
@@ -2383,9 +2486,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     private void set_comparators(double x, double y)
-    // **********************************************************
+    //**********************************************************
     {
         // logger.log("Virtual_landscape: set_comparators");
 
@@ -2422,9 +2525,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         paths_holder.non_iconized = new ConcurrentSkipListSet<>(other_file_comparator);
     }
 
-    // **********************************************************
+    //**********************************************************
     private void scan_list()
-    // **********************************************************
+    //**********************************************************
     {
         try (Perf p = new Perf("scan_list")) {
             boolean show_icons = Feature_cache.get(Feature.Show_icons_for_files);
@@ -2514,9 +2617,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // **********************************************************
+    //**********************************************************
     private void all_image_properties_acquired_4(long start, Hourglass progress_window)
-    // **********************************************************
+    //**********************************************************
     {
         if (dbg)
             logger.log("✅ Virtual_landscape: looking at path Virtual_landscape::all_image_properties_acquired_4() ");
@@ -2537,9 +2640,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     private void refresh_UI(String from, Hourglass progress_window)
-    // **********************************************************
+    //**********************************************************
     {
         sort_iconized_items(from);
 
@@ -2551,9 +2654,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     }
 
-    // **********************************************************
+    //**********************************************************
     private void refresh_UI_on_fx_thread(String from, Hourglass progress_window)
-    // **********************************************************
+    //**********************************************************
     {
 
         try (Perf p = new Perf("refresh_UI_on_fx_thread")) {
@@ -2587,9 +2690,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         logger.log("✅ Klik start time = " + (System.currentTimeMillis() - Klik_application.start_time) + " ms");
     }
 
-    // **********************************************************
+    //**********************************************************
     public void on_geometry_changed(String reason, Hourglass progress_window)
-    // **********************************************************
+    //**********************************************************
     {
         try (Perf p1 = new Perf("compute_geometry")) {
             if (dbg)
@@ -2724,9 +2827,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
     private File_comp_cache file_comp_cache;
 
-    // **********************************************************
+    //**********************************************************
     public Comparator<Path> get_path_comparator()
-    // **********************************************************
+    //**********************************************************
     {
         Comparator<Path> local_file_comparator = image_file_comparator;
 
@@ -2756,9 +2859,9 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         return local_file_comparator;
     }
 
-    // **********************************************************
+    //**********************************************************
     private Comparator<Path> create_fast_file_comparator()
-    // **********************************************************
+    //**********************************************************
     {
 
         Comparator<Path> local_file_comparator = null;

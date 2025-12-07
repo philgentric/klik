@@ -45,7 +45,7 @@ public class Properties_for_history
         {
             if ( !current.equals(tag))
             {
-                logger.log("pushing :"+current);
+                //logger.log("pushing :"+current);
                 if ( !back_trace.contains(tag))
                 {
                     stack.push(current);

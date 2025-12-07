@@ -27,7 +27,7 @@ public enum Feature
     Enable_auto_purge_disk_caches,
     Display_image_distances,
     Play_ding_after_long_processes,
-    Shift_d_is_sure_delete,
+    //Shift_d_is_sure_delete,
 
     Enable_3D,
     Enable_backup,

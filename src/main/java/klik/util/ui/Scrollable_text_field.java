@@ -3,6 +3,8 @@ package klik.util.ui;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Window;
 import klik.Instructions;
 import klik.Shared_services;
@@ -60,7 +62,7 @@ public class Scrollable_text_field extends Region
 
         text_field.setBorder(Border.EMPTY);
         //textField.setMouseTransparent(true);
-        //text_field.setFocusTraversable(true); // we don’t need focus
+        text_field.setFocusTraversable(true); // we don’t need focus
         text_field.setEditable(false); // change to false if you only want a label
         text_field.setOnMouseMoved(e -> onHover(e.getX()));
         text_field.setOnMouseExited(e -> stopScroll());
@@ -80,11 +82,11 @@ public class Scrollable_text_field extends Region
     {
         ContextMenu context_menu = new ContextMenu();
         if ( path != null) {
-            Menu_items.add_menu_item_for_context_menu("Open_With_System",
+            Menu_items.add_menu_item_for_context_menu("Open_With_System",null,
                     actionEvent -> {
                         System_open_actor.open_with_system(path, owner,Shared_services.aborter(),logger);
                     },context_menu,owner,logger);
-            Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",
+            Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",null,
                     actionEvent -> {
                         System_open_actor.open_with_click_registered_application(path, owner,Shared_services.aborter(),logger);
                     },context_menu,owner,logger);
@@ -92,12 +94,13 @@ public class Scrollable_text_field extends Region
             if (Files.isDirectory(path))
             {
                 Menu_items.add_menu_item_for_context_menu(
-                        "Get_folder_size",
+                        "Get_folder_size",null,
                         event -> Folder_size_stage.get_folder_size(path,owner, logger),
                         context_menu,owner,logger);
 
                 Menu_items.add_menu_item_for_context_menu(
                         "Browse_in_new_window",
+                        (new KeyCodeCombination(KeyCode.N,KeyCodeCombination.SHORTCUT_DOWN)).getDisplayText(),
                         event -> {
                             if (dbg) logger.log("Browse in new window!");
                             Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(path,owner,logger), owner, logger);
@@ -105,7 +108,7 @@ public class Scrollable_text_field extends Region
 
                 if (Booleans.get_boolean_defaults_to_false(Feature.Enable_3D.name())) {
                     Menu_items.add_menu_item_for_context_menu(
-                            "Browse_in_new_3D_window",
+                            "Browse_in_new_3D_window",null,
                             event -> {
                                 if (dbg) logger.log("Browse in new window!");
                                 Instructions.additional_no_past(Window_type.File_system_3D, new Path_list_provider_for_file_system(path, owner, logger), owner, logger);
@@ -248,5 +251,12 @@ public class Scrollable_text_field extends Region
             if ( dbg) logger.log("Stopping scroll");
             scroll_timeline.stop();
         }
+    }
+
+    //**********************************************************
+    public void setText(String s)
+    //**********************************************************
+    {
+        text_field.setText(s);
     }
 }

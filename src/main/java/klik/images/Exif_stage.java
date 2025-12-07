@@ -29,6 +29,7 @@ import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.execute.Execute_command;
 import klik.util.ui.Jfx_batch_injector;
+import klik.util.ui.Scrollable_text_field;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -68,11 +69,15 @@ public class Exif_stage
             logger.log(Stack_trace_getter.get_stack_trace("FATL: image is null"));
             return;
         }
+        Stage local_stage = new Stage();
+
         TextFlow textFlow = new TextFlow();
         textFlow.setLayoutX(40);
         textFlow.setLayoutY(40);
         if (exif_dbg) logger.log("$$$$$$ EXIF $$$$$$$$$$$");
 
+        //Scrollable_text_field text_field = new Scrollable_text_field(path.toAbsolutePath().toString(),path,null,local_stage,aborter, logger);
+        //Look_and_feel_manager.set_region_look(text_field, owner, logger);
         TextField text_field = new TextField(path.toAbsolutePath().toString());
         Look_and_feel_manager.set_TextField_look(text_field, false, owner, logger);
         text_field.setMinWidth(VERY_WIDE);
@@ -92,7 +97,6 @@ public class Exif_stage
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-        Stage local_stage = new Stage();
         local_stage.initOwner(owner);
         local_stage.setHeight(600);
         local_stage.setWidth(WIDTH);

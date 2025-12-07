@@ -6,6 +6,9 @@ package klik.images;
 
 import javafx.print.PrinterJob;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import klik.Window_type;
 import klik.Instructions;
 import klik.path_lists.Path_list_provider_for_file_system;
@@ -62,7 +65,8 @@ public class Menus_for_image_window
     //**********************************************************
     {
         return Menu_items.make_menu_item("Undo_LAST_move_or_delete",
-                    e -> {
+                image_window.undo.getDisplayText(),
+                e -> {
             image_window.logger.log("undoing last move");
             double x = image_window.stage.getX()+100;
             double y = image_window.stage.getY()+100;
@@ -166,6 +170,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         return Menu_items.make_menu_item("Search_by_keywords_from_this_ones_name",
+                image_window.find.getDisplayText(),
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
@@ -181,6 +186,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         return Menu_items.make_menu_item("Copy",
+                image_window.copy.getDisplayText(),
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             Runnable r = image_window.image_display_handler.image_indexer::signal_file_copied;
@@ -191,7 +197,7 @@ public class Menus_for_image_window
     private static MenuItem get_print_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item("Print", event -> print(image_window), image_window.stage, image_window.logger);
+        return Menu_items.make_menu_item("Print", null,event -> print(image_window), image_window.stage, image_window.logger);
     }
 
     private static void print(Image_window image_window) {
@@ -222,7 +228,9 @@ public class Menus_for_image_window
     private static MenuItem get_rename_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item("Rename_with_shortcut",
+        return Menu_items.make_menu_item("Rename",
+                image_window.rename.getDisplayText(),
+
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.image_display_handler.get_image_context().get().rename_file_for_an_image_window(image_window);
@@ -236,7 +244,9 @@ public class Menus_for_image_window
     private static MenuItem get_delete_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item("Delete_with_shortcut",
+        return Menu_items.make_menu_item("Delete",
+                image_window.delete.getDisplayText(),
+
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.image_display_handler.get_image_context().get().rename_file_for_an_image_window(image_window);
@@ -247,20 +257,20 @@ public class Menus_for_image_window
     private static MenuItem get_browse_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return get_browse_menu_item_ejective("Browse_folder",image_window, Window_type.File_system_2D);
+        return get_browse_menu_item_effective("Browse_folder",image_window, Window_type.File_system_2D);
     }
 
     //**********************************************************
     private static MenuItem get_browse_3D_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return get_browse_menu_item_ejective("Browse_folder_3D", image_window, Window_type.File_system_3D);
+        return get_browse_menu_item_effective("Browse_folder_3D", image_window, Window_type.File_system_3D);
     }
     //**********************************************************
-    private static MenuItem get_browse_menu_item_ejective(String button_text_key,Image_window image_window, Window_type context_type)
+    private static MenuItem get_browse_menu_item_effective(String button_text_key,Image_window image_window, Window_type context_type)
     //**********************************************************
     {
-        return Menu_items.make_menu_item(button_text_key,
+        return Menu_items.make_menu_item(button_text_key,null,
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
              Instructions.additional_no_past(
@@ -277,7 +287,7 @@ public class Menus_for_image_window
     private static MenuItem get_open_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item("Open",
+        return Menu_items.make_menu_item("Open",null,
                 event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -295,7 +305,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         return Menu_items.make_menu_item(
-                "Perform_face_recognition_service_DIRECTLY",
+                "Perform_face_recognition_service_DIRECTLY",null,
                 event -> perform_face_reco_directly(image_window),
                 image_window.stage, image_window.logger);
     }
@@ -355,7 +365,8 @@ public class Menus_for_image_window
     //**********************************************************
     {
         return Menu_items.make_menu_item("Edit",
-                event -> {
+                image_window.edit.getDisplayText(),
+        event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
             image_window.image_display_handler.get_image_context().get().edit(image_window.stage);
         }, image_window.stage, image_window.logger);
@@ -365,7 +376,7 @@ public class Menus_for_image_window
     private static MenuItem make_edit_with_klik_registered_application_menu_item(Image_window image_window, Logger logger)
     //**********************************************************
     {
-        return Menu_items.make_menu_item("Open_With_Registered_Application",
+        return Menu_items.make_menu_item("Open_With_Registered_Application",null,
                 event -> {
 
             if ( image_window.image_display_handler.get_image_context().isEmpty())
@@ -408,18 +419,25 @@ public class Menus_for_image_window
 
         boolean slide_show_is_running = image_window.is_slide_show_running();
 
-        MenuItem slide_show = new MenuItem(My_I18n.get_I18n_string("Start_slide_show", image_window.stage,image_window.logger)+" (s)");
+
+        MenuItem slide_show = new MenuItem(get_start_text(image_window, image_window.slideshow_start_stop));
         Look_and_feel_manager.set_menu_item_look(slide_show,image_window.stage,image_window.logger);
         returned.add(slide_show);
 
-        MenuItem faster = new MenuItem("Slide show: faster (x)");
+        MenuItem faster = new MenuItem(
+                My_I18n.get_I18n_string("Speed_up_scan",image_window.stage,image_window.logger)
+                +" ("+image_window.speed_up_scan.getDisplayText()+")"
+        );
         Look_and_feel_manager.set_menu_item_look(faster,image_window.stage,image_window.logger);
 
         returned.add(faster);
         faster.setOnAction(actionEvent -> {
-            if (slide_show_is_running) image_window.hurry_up();
+            if (slide_show_is_running) image_window.speed_up();
         });
-        MenuItem slower = new MenuItem("Slide show: slower (w)");
+        MenuItem slower = new MenuItem(
+                My_I18n.get_I18n_string("Slow_down_scan",image_window.stage,image_window.logger)
+                        +" ("+image_window.slow_down_scan.getDisplayText()+")"
+        );
         Look_and_feel_manager.set_menu_item_look(slower,image_window.stage,image_window.logger);
 
         returned.add(slower);
@@ -429,13 +447,17 @@ public class Menus_for_image_window
 
         if( slide_show_is_running)
         {
-            slide_show.setText(My_I18n.get_I18n_string("Stop_slide_show", image_window.stage,image_window.logger));
+            slide_show.setText(
+                    My_I18n.get_I18n_string("Stop_slide_show", image_window.stage,image_window.logger)
+                            +" ("+image_window.slideshow_start_stop.getDisplayText()+")");
+
             faster.setDisable(false);
             slower.setDisable(false);
         }
         else
         {
-            slide_show.setText(My_I18n.get_I18n_string("Start_slide_show", image_window.stage,image_window.logger));
+            slide_show.setText(get_start_text(image_window, image_window.slideshow_start_stop));
+
             faster.setDisable(true);
             slower.setDisable(true);
         }
@@ -458,6 +480,14 @@ public class Menus_for_image_window
 
 
         return returned;
+    }
+
+    //**********************************************************
+    private static String get_start_text(Image_window image_window, KeyCombination onoff)
+    //**********************************************************
+    {
+        return My_I18n.get_I18n_string("Start_slide_show", image_window.stage, image_window.logger)
+                + " (" + onoff.getDisplayText() + ")";
     }
 
 

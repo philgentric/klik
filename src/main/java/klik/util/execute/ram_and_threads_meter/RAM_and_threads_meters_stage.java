@@ -97,12 +97,12 @@ public class RAM_and_threads_meters_stage
         stage.setTitle("Last "+context_length+" seconds");
 
         ContextMenu context_menu = new ContextMenu();
-        Menu_items.add_menu_item_for_context_menu("Call_GC",
+        Menu_items.add_menu_item_for_context_menu("Call_GC",null,
                     event -> {
                 System.gc();
                 logger.log("Garbage collector was called");
             },context_menu,stage,logger);
-        Menu_items.add_menu_item_for_context_menu("List_threads",
+        Menu_items.add_menu_item_for_context_menu("List_threads",null,
                 event -> {
                     Actor_engine.list_jobs(logger);
                 },context_menu,stage,logger);

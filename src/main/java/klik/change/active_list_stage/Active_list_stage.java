@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klik.look.Look_and_feel_manager;
 import klik.util.log.Logger;
 
@@ -35,15 +36,15 @@ public class Active_list_stage
     private final Stage stage;
 
     //**********************************************************
-    public static Active_list_stage show_active_list_stage(String title, Datetime_to_signature_source source_, Active_list_stage_action on_action, Logger logger_)
+    public static Active_list_stage show_active_list_stage(String title, Datetime_to_signature_source source_, Active_list_stage_action on_action, Window owner, Logger logger_)
     //**********************************************************
     {
-        Active_list_stage returned = new Active_list_stage(title,source_,on_action,logger_);
+        Active_list_stage returned = new Active_list_stage(title,source_,on_action,owner,logger_);
         return returned;
     }
 
     //**********************************************************
-    private Active_list_stage(String title, Datetime_to_signature_source source_, Active_list_stage_action on_action, Logger logger_)
+    private Active_list_stage(String title, Datetime_to_signature_source source_, Active_list_stage_action on_action, Window owner, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
@@ -58,6 +59,7 @@ public class Active_list_stage
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
         stage = new Stage();
+        stage.initOwner(owner);
         stage.setHeight(600);
         stage.setWidth(1000);
 

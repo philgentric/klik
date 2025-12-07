@@ -59,7 +59,8 @@ public class More_settings_stage_old implements Feature_change_target
             Feature.Display_image_distances,
             Feature.Play_ding_after_long_processes,
             //Feature.Max_RAM_is_defined_by_user,
-            Feature.Shift_d_is_sure_delete};
+           // Feature.Shift_d_is_sure_delete
+    };
 
     public static final Feature[] basic_features ={
             Feature.Show_icons_for_files,

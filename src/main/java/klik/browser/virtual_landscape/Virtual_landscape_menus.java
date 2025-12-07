@@ -21,6 +21,9 @@ package klik.browser.virtual_landscape;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.Window;
 import klik.Window_type;
 import klik.Instructions;
@@ -128,18 +131,22 @@ public class Virtual_landscape_menus
             Menu create = new Menu(create_string);
             Look_and_feel_manager.set_menu_item_look(create,owner,logger);
 
-            if ( virtual_landscape.context_type == Window_type.File_system_2D) Menu_items.add_menu_item_for_menu("Create_new_empty_directory", event -> create_new_directory(),create,owner,logger);
+            if ( virtual_landscape.context_type == Window_type.File_system_2D)
+            {
+                Menu_items.add_menu_item_for_menu("Create_new_empty_directory", null,
+                        event -> create_new_directory(),create,owner,logger);
+            }
             /*if (Feature_cache.get(Feature.Enable_image_playlists))
             {
                 logger.log(Stack_trace_getter.get_stack_trace("not implemented"));
                 //Menu_items.add_menu_item2("Create_new_empty_image_playlist",event -> Instructions.create_new_image_playlist(owner, logger)));
             }*/
-            Menu_items.add_menu_item_for_menu("Create_PDF_contact_sheet", event -> create_PDF_contact_sheet(),create,owner,logger);
+            Menu_items.add_menu_item_for_menu("Create_PDF_contact_sheet", null,event -> create_PDF_contact_sheet(),create,owner,logger);
             if ( virtual_landscape.context_type == Window_type.File_system_2D)
             {
-                Menu_items.add_menu_item_for_menu("Stash_Files_In_Folders_By_Year", event -> sort_by_time(Virtual_landscape.Sort_by_time.year),create,owner,logger);
-                Menu_items.add_menu_item_for_menu("Stash_Files_In_Folders_By_Month", event -> sort_by_time(Virtual_landscape.Sort_by_time.month),create,owner,logger);
-                Menu_items.add_menu_item_for_menu("Stash_Files_In_Folders_By_Day", event -> sort_by_time(Virtual_landscape.Sort_by_time.day),create,owner,logger);
+                Menu_items.add_menu_item_for_menu("Stash_Files_In_Folders_By_Year", null, event -> sort_by_time(Virtual_landscape.Sort_by_time.year),create,owner,logger);
+                Menu_items.add_menu_item_for_menu("Stash_Files_In_Folders_By_Month", null,event -> sort_by_time(Virtual_landscape.Sort_by_time.month),create,owner,logger);
+                Menu_items.add_menu_item_for_menu("Stash_Files_In_Folders_By_Day", null,event -> sort_by_time(Virtual_landscape.Sort_by_time.day),create,owner,logger);
                 create.getItems().add(make_import_menu());
             }
             files_menu.getItems().add(create);
@@ -149,10 +156,10 @@ public class Virtual_landscape_menus
             Menu search = new Menu(search_string);
             Look_and_feel_manager.set_menu_item_look(search,owner,logger);
 
-            Menu_items.add_menu_item_for_menu("Search_by_keywords", event -> search_files_by_keyworks_fx(),search,owner,logger);
+            Menu_items.add_menu_item_for_menu("Search_by_keywords", virtual_landscape.find.getDisplayText(), event -> search_files_by_keyworks_fx(),search,owner,logger);
             if ( virtual_landscape.context_type == Window_type.File_system_2D)
             {
-                Menu_items.add_menu_item_for_menu("Show_Where_Are_Images", event -> show_where_are_images(),search,owner,logger);
+                Menu_items.add_menu_item_for_menu("Show_Where_Are_Images", null,event -> show_where_are_images(),search,owner,logger);
             }
             search.getItems().add(make_add_to_Enable_face_recognition_training_set_menu_item());
 
@@ -179,20 +186,20 @@ public class Virtual_landscape_menus
             Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
 
 
-            Menu_items.add_menu_item_for_menu("Remove_empty_folders",
+            Menu_items.add_menu_item_for_menu("Remove_empty_folders",null,
                     event -> remove_empty_folders_fx(false),menu,owner,logger);
 
             if (Booleans.get_boolean_defaults_to_false(Feature.Enable_recursive_empty_folders_removal.name()))
             {
-                Menu_items.add_menu_item_for_menu("Remove_empty_folders_recursively", event -> remove_empty_folders_fx(true),menu,owner,logger);
+                Menu_items.add_menu_item_for_menu("Remove_empty_folders_recursively", null,event -> remove_empty_folders_fx(true),menu,owner,logger);
             }
             if (Booleans.get_boolean_defaults_to_false(Feature.Enable_name_cleaning.name()) )
             {
-                Menu_items.add_menu_item_for_menu("Clean_up_names", event -> clean_up_names_fx(),menu,owner,logger);
+                Menu_items.add_menu_item_for_menu("Clean_up_names", null,event -> clean_up_names_fx(),menu,owner,logger);
             }
             if ( Booleans.get_boolean_defaults_to_false(Feature.Enable_corrupted_images_removal.name()) )
             {
-                Menu_items.add_menu_item_for_menu("Remove_corrupted_images", event -> remove_corrupted_images_fx(),menu,owner,logger);
+                Menu_items.add_menu_item_for_menu("Remove_corrupted_images", null,event -> remove_corrupted_images_fx(),menu,owner,logger);
             }
 
 
@@ -502,11 +509,11 @@ public class Virtual_landscape_menus
 
 
         Menu_items.add_menu_item_for_context_menu(
-                "Clear_Trash_Folder",
+                "Clear_Trash_Folder",null,
                 event -> Static_files_and_paths_utilities.clear_trash(true,owner, virtual_landscape.aborter, logger),
                 context_menu,owner,logger);
 
-        Menu_items.add_menu_item_for_context_menu("Clear_All_Caches",
+        Menu_items.add_menu_item_for_context_menu("Clear_All_Caches",null,
                 event -> {
                     Browsing_caches.clear_all_RAM_caches(logger);
                     Static_files_and_paths_utilities.clear_all_DISK_caches(owner,virtual_landscape.aborter,logger);
@@ -515,7 +522,7 @@ public class Virtual_landscape_menus
 
 
         Menu_items.add_menu_item_for_context_menu(
-                "More_Settings",
+                "More_Settings",null,
                 event -> More_settings_stage_old.show_Preferences_stage("Preferences", owner,logger),
                 context_menu,owner,logger);
 
@@ -532,7 +539,7 @@ public class Virtual_landscape_menus
         clean.getItems().add(menu);
 
         // quasi similar means same image size
-        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_quasi_similar_images",
+        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_quasi_similar_images",null,
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(
@@ -547,7 +554,7 @@ public class Virtual_landscape_menus
                             logger)).do_your_job();
                 },menu,owner,logger);
 
-        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_images_looking_a_bit_the_same",
+        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_images_looking_a_bit_the_same",null,
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(
@@ -575,7 +582,7 @@ public class Virtual_landscape_menus
         Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
         clean.getItems().add(menu);
 
-        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_quasi_similar_songs",
+        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_quasi_similar_songs",null,
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(
@@ -590,7 +597,7 @@ public class Virtual_landscape_menus
                             logger)).do_your_job();
                 },menu,owner,logger);
 
-        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_songs_sounding_a_bit_the_same",
+        Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_songs_sounding_a_bit_the_same",null,
                 event -> {
                     //logger.log("Deduplicate manually");
                     (new Deduplication_by_similarity_engine(
@@ -645,7 +652,7 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(txt);
         Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
 
-        Menu_items.add_menu_item_for_menu("Deduplicate_help",
+        Menu_items.add_menu_item_for_menu("Deduplicate_help",null,
                 event -> Popups.popup_warning(
                         "Help on deduplication",
                         "The deduplication tool will look recursively down the path starting at:" + virtual_landscape.path_list_provider.get_name() +
@@ -661,17 +668,17 @@ public class Virtual_landscape_menus
                         false,
                         owner,logger), menu,owner,logger);
 
-        Menu_items.add_menu_item_for_menu("Deduplicate_count",
+        Menu_items.add_menu_item_for_menu("Deduplicate_count",null,
                 event -> {
                     (new Deduplication_engine(owner, virtual_landscape.path_list_provider.get_folder_path().toFile(), virtual_landscape.path_list_provider,virtual_landscape,logger)).count(false);
                 },menu,owner,logger);
-        Menu_items.add_menu_item_for_menu("Deduplicate_manual", event -> {
+        Menu_items.add_menu_item_for_menu("Deduplicate_manual", null,event -> {
             //logger.log("Deduplicate manually");
             (new Deduplication_engine(owner, virtual_landscape.path_list_provider.get_folder_path().toFile(), virtual_landscape.path_list_provider,virtual_landscape,logger)).do_your_job(false);
         },menu,owner,logger);
 
 
-        Menu_items.add_menu_item_for_menu("Deduplicate_auto",
+        Menu_items.add_menu_item_for_menu("Deduplicate_auto",null,
                 event -> {
                     //logger.log("Deduplicate auto");
 
@@ -757,7 +764,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         String key = "Add_all_images_to_face_recognition_training_set";
-        MenuItem item = Menu_items.make_menu_item(key,
+        MenuItem item = Menu_items.make_menu_item(key,null,
         event -> {
             Face_recognition_service i = Face_recognition_service.get_instance(owner,logger);
             logger.log("❌ NOT IMPLEMENTED add_all_pictures_to_training_set for "+virtual_landscape.path_list_provider.get_name());
@@ -772,7 +779,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         return Menu_items.make_menu_item(
-                "Save_Face_Recognition",
+                "Save_Face_Recognition",null,
                 event -> Face_recognition_service.save(),
                 owner,logger);
     }
@@ -782,7 +789,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         return Menu_items.make_menu_item(
-                "Load_Face_Recognition",
+                "Load_Face_Recognition",null,
                 event -> Face_recognition_service.load(owner,logger),
                 owner,logger);
 
@@ -794,7 +801,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         return Menu_items.make_menu_item(
-                "Start_New_Face_Recognition",
+                "Start_New_Face_Recognition",null,
                 event -> Face_recognition_service.start_new(owner,logger),
                 owner,logger);
     }
@@ -805,7 +812,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         return Menu_items.make_menu_item(
-                "Auto_Face_Recognition",
+                "Auto_Face_Recognition",null,
                 event -> Face_recognition_service.auto(Path.of(virtual_landscape.path_list_provider.get_name()),owner,logger),
                 owner,logger);
 
@@ -816,7 +823,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         return Menu_items.make_menu_item(
-                "Do_Face_Recognition_On_Whole_Folder",
+                "Do_Face_Recognition_On_Whole_Folder",null,
                 event -> Face_recognition_service.do_folder(virtual_landscape.path_list_provider.get_folder_path(),owner,logger),
                 owner,logger);
     }
@@ -841,8 +848,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Select_all_folders_for_drag_and_drop",virtual_landscape.owner,logger);
-
-        select_all_folders_menu_item = new CheckMenuItem(text);
+        select_all_folders_menu_item = new CheckMenuItem(text+" "+virtual_landscape.select_all_folders.getDisplayText());
         Look_and_feel_manager.set_menu_item_look(select_all_folders_menu_item, virtual_landscape.owner, logger);
 
         select_all_folders_menu_item.setSelected(false);
@@ -868,7 +874,7 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Select_all_files_for_drag_and_drop",virtual_landscape.owner,logger);
 
-        select_all_files_menu_item= new CheckMenuItem(text+ " (meta-A)");
+        select_all_files_menu_item= new CheckMenuItem(text+ " "+virtual_landscape.select_all_files.getDisplayText());
         Look_and_feel_manager.set_menu_item_look(select_all_files_menu_item,virtual_landscape.owner,logger);
         select_all_files_menu_item.setSelected(false);
         select_all_files_menu_item.setOnAction(event -> {
@@ -972,7 +978,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
 
-        Menu_items.add_menu_item_for_menu("Clear_History",
+        Menu_items.add_menu_item_for_menu("Clear_History",null,
                     event -> {
                         logger.log("clearing history");
                         History_engine.get(owner).clear();
@@ -1075,7 +1081,7 @@ public class Virtual_landscape_menus
                 return the_whole_history;
             }
         };
-        Active_list_stage.show_active_list_stage("Whole history: "+the_whole_history.size()+" items", source, action,logger);
+        Active_list_stage.show_active_list_stage("Whole history: "+the_whole_history.size()+" items", source, action, owner, logger);
     }
 
     //**********************************************************
@@ -1088,10 +1094,12 @@ public class Virtual_landscape_menus
             Window owner, Logger logger)
     //**********************************************************
     {
-        Menu_items.add_menu_item_for_menu("Bookmark_this",
+        KeyCodeCombination bookmark_this = new KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN);
+
+        Menu_items.add_menu_item_for_menu("Bookmark_this", bookmark_this.getDisplayText(),
                 event -> Bookmarks.get(owner).add(path.toAbsolutePath().toString()),
                 bookmarks_menu,owner,logger);
-        Menu_items.add_menu_item_for_menu("Clear_Bookmarks",
+        Menu_items.add_menu_item_for_menu("Clear_Bookmarks",null,
                 event -> Bookmarks.get(owner).clear(),
                 bookmarks_menu,owner,logger);
 
@@ -1111,20 +1119,22 @@ public class Virtual_landscape_menus
 
 
     //**********************************************************
-    public static void create_undos_menu(Menu undos_menu, Window owner, Logger logger)
+    public static void create_undos_menu(Menu undos_menu,  Window owner, Logger logger)
     //**********************************************************
     {
         double x = owner.getX()+100;
         double y = owner.getY()+100;
 
+        KeyCodeCombination undo = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
+
         undos_menu.getItems().add(Menu_items.make_menu_item(
-                "Undo_LAST_move_or_delete",
+                "Undo_LAST_move_or_delete", undo.getDisplayText(),
                 event -> Undo_for_moves.perform_last_undo_fx(owner, x, y, logger),owner,logger));
         undos_menu.getItems().add(Menu_items.make_menu_item(
-                "Show_Undos",
+                "Show_Undos",null,
                 event -> pop_up_whole_undo_history(owner,logger),owner,logger));
         undos_menu.getItems().add(Menu_items.make_menu_item(
-                "Clear_Undos",
+                "Clear_Undos",null,
                 event -> Undo_for_moves.remove_all_undo_items(owner, logger),owner,logger));
     }
 
@@ -1184,7 +1194,7 @@ public class Virtual_landscape_menus
             if ( ok) Undo_for_moves.perform_undo(item, owner, x, y, logger);
         };
         String title = My_I18n.get_I18n_string("Whole_Undo_History",owner,logger);
-        Undo_for_moves.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_for_moves.get_instance(owner,logger), action, logger));
+        Undo_for_moves.undo_stages.add(Active_list_stage.show_active_list_stage(title, Undo_for_moves.get_instance(owner,logger), action, owner,logger));
     }
 
 
@@ -1536,16 +1546,14 @@ public class Virtual_landscape_menus
         {
             MenuItem plus = new MenuItem("+ 10%");
             Look_and_feel_manager.set_menu_item_look(plus, virtual_landscape.owner, logger);
-
             menu.getItems().add(plus);
             plus.setOnAction(actionEvent -> virtual_landscape.increase_icon_size());
         }
         {
-            MenuItem moins = new MenuItem("- 10%");
-            Look_and_feel_manager.set_menu_item_look(moins, virtual_landscape.owner, logger);
-
-            menu.getItems().add(moins);
-            moins.setOnAction(actionEvent -> virtual_landscape.reduce_icon_size());
+            MenuItem minus = new MenuItem("- 10%");
+            Look_and_feel_manager.set_menu_item_look(minus, virtual_landscape.owner, logger);
+            menu.getItems().add(minus);
+            minus.setOnAction(actionEvent -> virtual_landscape.decrease_icon_size());
         }
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         List<Icon_size> icon_sizes = get_icon_sizes();
@@ -1721,11 +1729,11 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(text);
         Look_and_feel_manager.set_menu_item_look(menu,virtual_landscape.owner, logger);
 
-        menu.getItems().add(Menu_items.make_menu_item("Set_as_backup_source_folder",event -> virtual_landscape.you_are_backup_source(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Set_as_backup_destination_folder",event -> virtual_landscape.you_are_backup_destination(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Start_backup",event -> virtual_landscape.start_backup(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Abort_backup",event -> virtual_landscape.abort_backup(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Backup_help",event -> show_backup_help(logger),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Set_as_backup_source_folder",null,event -> virtual_landscape.you_are_backup_source(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Set_as_backup_destination_folder",null,event -> virtual_landscape.you_are_backup_destination(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Start_backup",null,event -> virtual_landscape.start_backup(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Abort_backup",null,event -> virtual_landscape.abort_backup(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Backup_help",null,event -> show_backup_help(logger),owner,logger));
         return menu;
     }
     //**********************************************************
@@ -1734,8 +1742,8 @@ public class Virtual_landscape_menus
     {
         String text = My_I18n.get_I18n_string("Import",virtual_landscape.owner,logger);
         Menu menu = new Menu(text);
-        menu.getItems().add(Menu_items.make_menu_item("Estimate_Size_Of_Import_Apple_Photos",event -> virtual_landscape.estimate_size_of_importing_apple_Photos(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Import_Apple_Photos",event -> virtual_landscape.import_apple_Photos(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Estimate_Size_Of_Import_Apple_Photos",null,event -> virtual_landscape.estimate_size_of_importing_apple_Photos(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Import_Apple_Photos",null,event -> virtual_landscape.import_apple_Photos(),owner,logger));
         return menu;
     }
     //**********************************************************
@@ -1744,13 +1752,13 @@ public class Virtual_landscape_menus
     {
         String text = "Fusk (experimental!)"; //My_I18n.get_I18n_string("Backup",logger);
         Menu menu = new Menu(text);
-        menu.getItems().add(Menu_items.make_menu_item("Enter fusk pin code",event -> virtual_landscape.enter_fusk_pin_code(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Set this folder as fusk source",event -> virtual_landscape.you_are_fusk_source(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Set this folder as fusk destination",event -> virtual_landscape.you_are_fusk_destination(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Start fusk (experimental!)",event -> virtual_landscape.start_fusk(),owner,logger));
-        menu.getItems().add( Menu_items.make_menu_item("Abort fusk",event -> virtual_landscape.abort_fusk(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Start defusk (experimental!)",event -> virtual_landscape.start_defusk(),owner,logger));
-        menu.getItems().add(Menu_items.make_menu_item("Fusk help",event -> show_fusk_help(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Enter fusk pin code",null,event -> virtual_landscape.enter_fusk_pin_code(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Set this folder as fusk source",null,event -> virtual_landscape.you_are_fusk_source(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Set this folder as fusk destination",null,event -> virtual_landscape.you_are_fusk_destination(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Start fusk (experimental!)",null,event -> virtual_landscape.start_fusk(),owner,logger));
+        menu.getItems().add( Menu_items.make_menu_item("Abort fusk",null,event -> virtual_landscape.abort_fusk(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Start defusk (experimental!)",null,event -> virtual_landscape.start_defusk(),owner,logger));
+        menu.getItems().add(Menu_items.make_menu_item("Fusk help",null,event -> show_fusk_help(),owner,logger));
         return menu;
     }
 
@@ -1789,7 +1797,7 @@ public class Virtual_landscape_menus
     public MenuItem get_advanced_preferences()
     //**********************************************************
     {
-        return Menu_items.make_menu_item("More_Settings",event -> More_settings_stage_old.show_Preferences_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
+        return Menu_items.make_menu_item("More_Settings",null,event -> More_settings_stage_old.show_Preferences_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
     }
 
 

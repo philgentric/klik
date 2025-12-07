@@ -5,6 +5,9 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -25,6 +28,7 @@ import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.ui.Items_with_explanation;
 import klik.util.ui.Popups;
+
 
 import java.util.Optional;
 
@@ -52,7 +56,7 @@ public class More_settings_stage
             Feature.Enable_auto_purge_disk_caches,
             Feature.Play_ding_after_long_processes,
             //Feature.Max_RAM_is_defined_by_user,
-            Feature.Shift_d_is_sure_delete,
+            //Feature.Shift_d_is_sure_delete,
             Feature.Hide_beginners_text_on_images,
             Feature.Hide_question_mark_buttons_on_mysterious_menus
     };
@@ -82,6 +86,7 @@ public class More_settings_stage
 
     private final Window owner;
     private final Logger logger;
+    private final Scene scene;
 
     //**********************************************************
     public More_settings_stage(String title, Window owner, Logger logger)
@@ -94,6 +99,8 @@ public class More_settings_stage
         this.owner = owner;
         this.logger = logger;
         Accordion accordion = new Accordion();
+        scene = new Scene(accordion);
+
         Look_and_feel_manager.set_region_look(accordion,owner,logger);
         {
             VBox box = new VBox(10);
@@ -205,7 +212,6 @@ public class More_settings_stage
 
         Stage stage = new Stage();
         stage.setTitle(title);
-        Scene scene = new Scene(accordion);
         stage.setScene(scene);
         stage.initOwner(owner);
         stage.setMinWidth(1000);
@@ -228,10 +234,7 @@ public class More_settings_stage
 
             cb.setOnAction((ActionEvent e) ->
             {
-                boolean value = cb.isSelected();
-                logger.log("Preference changing for: " + bf + "new value:" + value);
-                Booleans.set_boolean(bf.name(), value, owner); // this will trigger a file save
-                Feature_cache.update_cached_boolean(bf, value, owner);
+                on_change(bf, cb);
             });
             hbox.getChildren().add(cb);
 
@@ -241,6 +244,16 @@ public class More_settings_stage
 
         }
         vbox.getChildren().add(hbox);
+    }
+
+    //**********************************************************
+    private void on_change(Feature bf, CheckBox cb)
+    //**********************************************************
+    {
+        boolean value = cb.isSelected();
+        logger.log("Preference changing for: " + bf + "new value:" + value);
+        Booleans.set_boolean(bf.name(), value, owner); // this will trigger a file save
+        Feature_cache.update_cached_boolean(bf, value, owner);
     }
 
     //**********************************************************

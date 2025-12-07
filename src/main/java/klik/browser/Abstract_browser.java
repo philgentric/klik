@@ -36,7 +36,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
 
     public static final boolean dbg = false;
-    public static final boolean keyboard_dbg = false;
+    public static final boolean kbd_dbg = true;
 
     public static final AtomicInteger number_of_windows = new AtomicInteger(0);
 

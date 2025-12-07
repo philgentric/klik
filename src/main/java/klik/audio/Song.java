@@ -10,8 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.MouseButton;
+import javafx.scene.input.*;
 import javafx.stage.Window;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
@@ -119,7 +118,7 @@ public class Song
         Look_and_feel_manager.set_context_menu_look(context_menu, owner, logger);
 
         Menu_items.add_menu_item_for_context_menu(
-                "Play_Similar_Song",
+                "Play_Similar_Song",null,
                 (ActionEvent e) ->
                         play_similar(Path.of(full_path), playlist, owner, logger),
                 context_menu,
@@ -128,13 +127,16 @@ public class Song
 
         Menu_items.add_menu_item_for_context_menu(
             "Browse_in_new_window",
-            (ActionEvent e) ->
+                (new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
+                (ActionEvent e) ->
             UI_instance_holder.start_new_process_to_browse(Path.of(full_path).getParent(), logger),
             context_menu,
                 owner, logger);
 
         Menu_items.add_menu_item_for_context_menu(
                 "Rename",
+                (new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
+
                 (ActionEvent e) ->
                 {
 
@@ -154,7 +156,7 @@ public class Song
                 owner, logger);
 
         Menu_items.add_menu_item_for_context_menu(
-                "Remove_From_Playlist",
+                "Remove_From_Playlist",null,
                 (ActionEvent e) ->
                         playlist.remove_from_playlist(full_path),
                 context_menu, owner, logger);
@@ -173,7 +175,7 @@ public class Song
         }
 
         Menu_items.add_menu_item_for_context_menu(
-                "Edit_Song_Metadata",
+                "Edit_Song_Metadata",null,
                 (ActionEvent e) -> Ffmpeg_metadata_editor.edit_metadata_of_a_file_in_a_thread(Path.of(full_path), owner, logger),
                 context_menu, owner, logger);
 

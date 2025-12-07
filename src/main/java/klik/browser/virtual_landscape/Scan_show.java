@@ -12,7 +12,7 @@ import klik.util.log.Logger;
 public class Scan_show
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     public static final double FAC = 1.3;
     public final double MAX_SPEED;
     public final double MIN_SPEED;
@@ -20,7 +20,7 @@ public class Scan_show
     long last_start_sleep_ms;
     private final Scan_show_slave scan_show_slave;
     private final Logger logger;
-    private Aborter the_aborter;
+    private Aborter private_aborter;
     private final Aborter browser_aborter;
     private double dy;
 
@@ -54,23 +54,23 @@ public class Scan_show
     //**********************************************************
     {
         if ( browser_aborter.should_abort()) return;
-        if ( the_aborter != null)  return;
+        if ( private_aborter != null)  return;
 
         last_start_sleep_ms = System.currentTimeMillis();
-        the_aborter = new Aborter("browser scan show aborter", logger);
+        private_aborter = new Aborter("browser scan show aborter", logger);
         Runnable r = () -> {
             if ( dbg) logger.log("scan show start runnable");
             for(;;)
             {
                 if (browser_aborter.should_abort())
                 {
-                    the_aborter = null;
+                    private_aborter = null;
                     return;
                 }
-                if ( the_aborter == null) return;
-                if (the_aborter.should_abort())
+                if ( private_aborter == null) return;
+                if (private_aborter.should_abort())
                 {
-                    the_aborter = null;
+                    private_aborter = null;
                     return;
                 }
 
@@ -89,7 +89,7 @@ public class Scan_show
                 }
                 catch (InterruptedException e) {
                     logger.log(""+e);
-                    the_aborter = null;
+                    private_aborter = null;
                     return;
                 }
                 Runnable r1 = () -> {
@@ -150,10 +150,10 @@ public class Scan_show
 
             if ( dbg) logger.log("scan show stop");
         }*/
-        if ( the_aborter != null)
+        if ( private_aborter != null)
         {
-            the_aborter.abort("stop_the_show");
-            the_aborter = null;
+            private_aborter.abort("stop_the_show");
+            private_aborter = null;
             if ( dbg) logger.log("scan show stop");
         }
     }
