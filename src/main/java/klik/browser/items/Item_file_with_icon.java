@@ -277,7 +277,7 @@ public class Item_file_with_icon extends Item_file
                 path_list_provider.delete(get_item_path(),owner,x,y, aborter,logger);
             },context_menu,owner,logger);
         */
-        Menu_items.add_menu_item_for_context_menu("Edit",
+        Menu_items.add_menu_item_for_context_menu("Edit_File",
                 (new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                 event -> {
                 if (dbg) logger.log("Editing "+get_item_path());

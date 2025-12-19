@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -25,10 +26,15 @@ public class Items_with_explanation
     public static final String EXPLANATION = "_Explanation";
 
     //**********************************************************
-    public static MenuItem make_menu_item_with_explanation(String key, EventHandler<ActionEvent> ev, Window owner, Logger logger)
+    public static MenuItem make_menu_item_with_explanation(
+            String key,
+            KeyCombination kc,//maybe null
+            EventHandler<ActionEvent> ev, Window owner, Logger logger)
     //**********************************************************
     {
-        MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string(key, owner,logger));
+        String s = My_I18n.get_I18n_string(key, owner,logger);
+        if( kc !=null) s += " ("+kc.getDisplayText()+")";
+        MenuItem menu_item = new MenuItem(s);
         Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
         menu_item.setMnemonicParsing(false);
         menu_item.setOnAction(ev);

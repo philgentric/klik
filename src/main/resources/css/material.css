@@ -195,3 +195,15 @@ my_dialog{
 -fx-font-style: italic;
 -fx-fill: #404040; // dark grey
 }
+
+
+/* make the arrow size follow the font, for context menus */
+.context-menu .menu > .right-container > .arrow {
+    -fx-scale-shape: true;
+
+    /* 2. Define the size using 'em' so it scales with font size.
+       Format: top right bottom left.
+       Increase these numbers to make the arrow larger relative to text. */
+    -fx-padding: 0.4em 0.25em 0.4em 0.25em;
+    -fx-background-color: black;
+}

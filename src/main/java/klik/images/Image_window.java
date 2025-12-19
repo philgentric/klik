@@ -318,6 +318,9 @@ public class Image_window
     KeyCombination rename;
     KeyCombination delete;
     KeyCombination edit;
+    KeyCombination pix_for_pix;
+    KeyCombination click_to_zoom;
+    KeyCombination drag_and_drop;
 
     //**********************************************************
     private void register_shortcuts(Scene scene)
@@ -326,8 +329,8 @@ public class Image_window
         // MOUSE MODES ACCELERATORS
         {
             //pix for pix
-            KeyCombination kc = new KeyCodeCombination(KeyCode.EQUALS);
-            scene.getAccelerators().put(kc, () -> {
+            pix_for_pix = new KeyCodeCombination(KeyCode.EQUALS);
+            scene.getAccelerators().put(pix_for_pix, () -> {
                 mouse_handling_for_image_window.set_mouse_mode(this, Mouse_mode.pix_for_pix);
             });
         }
@@ -340,8 +343,8 @@ public class Image_window
         }
         {
             //MOVE / drag and drop
-            KeyCombination kc = new KeyCodeCombination(KeyCode.M);
-            scene.getAccelerators().put(kc, () -> {
+            drag_and_drop = new KeyCodeCombination(KeyCode.M);
+            scene.getAccelerators().put(drag_and_drop, () -> {
                 mouse_handling_for_image_window.set_mouse_mode(this, Mouse_mode.drag_and_drop);
             });
         }
@@ -354,8 +357,8 @@ public class Image_window
         }
         {
             //click to zoom
-            KeyCombination kc = new KeyCodeCombination(KeyCode.Z);
-            scene.getAccelerators().put(kc, () -> {
+            click_to_zoom = new KeyCodeCombination(KeyCode.Z);
+            scene.getAccelerators().put(click_to_zoom, () -> {
                 mouse_handling_for_image_window.set_mouse_mode(this, Mouse_mode.click_to_zoom);
             });
         }

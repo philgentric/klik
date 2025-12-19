@@ -36,12 +36,11 @@ public class More_settings_stage
 {
 
     public static final Feature[] basic_features ={
+            Feature.Show_single_column,
             Feature.Show_icons_for_files,
             Feature.Show_icons_for_folders,
             Feature.Show_hidden_files,
             Feature.Show_hidden_folders,
-            Feature.Show_single_column,
-            Feature.Monitor_folders,
             Feature.Show_file_names_as_tooltips,
             Feature.Reload_last_folder_on_startup,
             Feature.Dont_zoom_small_images,
@@ -49,9 +48,11 @@ public class More_settings_stage
     };
 
     public static final Feature[] advanced_features ={
+            Feature.Monitor_folders,
             Feature.Enable_face_recognition,
             Feature.Enable_image_similarity,
             Feature.Enable_bit_level_deduplication,
+            Feature.Enable_backup,
             Feature.Enable_recursive_empty_folders_removal,
             Feature.Enable_auto_purge_disk_caches,
             Feature.Play_ding_after_long_processes,
@@ -63,7 +64,6 @@ public class More_settings_stage
 
     public static final Feature[] experimental_features ={
             Feature.Enable_3D,
-            Feature.Enable_backup,
             Feature.Enable_fusk,
             Feature.Enable_name_cleaning,
             Feature.Enable_corrupted_images_removal,
@@ -115,20 +115,7 @@ public class More_settings_stage
         }
         {
             VBox box = new VBox(10);
-            for (Feature f : advanced_features)
-            {
-                add_one_line(f, box);
-            }
-            TitledPane pane = new TitledPane("Advanced features", box);
-            accordion.getPanes().add(pane);
-        }
-        {
-            VBox box = new VBox(10);
-            for (Feature f : experimental_features)
-            {
-                add_one_line(f, box);
-            }
-            //if (Feature_cache.get(Feature.Max_RAM_is_defined_by_user))
+
             {
                 String key = "Set_The_VM_Max_RAM";
                 EventHandler<ActionEvent> handler = e -> show_max_ram_dialog();
@@ -155,6 +142,21 @@ public class More_settings_stage
                         logger);
                 box.getChildren().add(hb);
             }
+            for (Feature f : advanced_features)
+            {
+                add_one_line(f, box);
+            }
+            TitledPane pane = new TitledPane("Advanced features", box);
+            accordion.getPanes().add(pane);
+        }
+        {
+            VBox box = new VBox(10);
+            for (Feature f : experimental_features)
+            {
+                add_one_line(f, box);
+            }
+            //if (Feature_cache.get(Feature.Max_RAM_is_defined_by_user))
+
             TitledPane pane = new TitledPane("Experimental features", box);
             accordion.getPanes().add(pane);
         }

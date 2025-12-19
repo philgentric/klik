@@ -77,7 +77,14 @@ public class My_I18n
         }
         catch (MissingResourceException e)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ BAD WARNING My_I18n ->"+key+"<- not found"));
+            if ( key.endsWith("_Explanation"))
+            {
+                if (dbg) logger.log(("WARNING My_I18n ->" + key + "<- not found"));
+            }
+            else
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("❌ BAD WARNING My_I18n ->" + key + "<- not found"));
+            }
             if ( ultra_dbg) {
                 logger.log("the resource bundle contains these keys:");
                 Enumeration<String> es = the_resource_bundle.getKeys();

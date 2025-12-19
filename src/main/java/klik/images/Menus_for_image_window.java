@@ -6,8 +6,6 @@ package klik.images;
 
 import javafx.print.PrinterJob;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import klik.Window_type;
 import klik.Instructions;
@@ -36,8 +34,6 @@ import klik.util.ui.Items_with_explanation;
 import klik.util.ui.Menu_items;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -254,14 +250,14 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
-    private static MenuItem get_browse_menu_item(Image_window image_window)
+    private static MenuItem make_browse_menu_item(Image_window image_window)
     //**********************************************************
     {
         return get_browse_menu_item_effective("Browse_folder",image_window, Window_type.File_system_2D);
     }
 
     //**********************************************************
-    private static MenuItem get_browse_3D_menu_item(Image_window image_window)
+    private static MenuItem make_browse_3D_menu_item(Image_window image_window)
     //**********************************************************
     {
         return get_browse_menu_item_effective("Browse_folder_3D", image_window, Window_type.File_system_3D);
@@ -284,10 +280,10 @@ public class Menus_for_image_window
 
 
     //**********************************************************
-    private static MenuItem get_open_menu_item(Image_window image_window)
+    private static MenuItem make_open_file_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item("Open",null,
+        return Menu_items.make_menu_item("Open_File",null,
                 event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -364,7 +360,7 @@ public class Menus_for_image_window
     private static MenuItem make_edit_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item("Edit",
+        return Menu_items.make_menu_item("Edit_File",
                 image_window.edit.getDisplayText(),
         event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -373,7 +369,7 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
-    private static MenuItem make_edit_with_klik_registered_application_menu_item(Image_window image_window, Logger logger)
+    private static MenuItem make_open_with_klik_registered_application_menu_item(Image_window image_window, Logger logger)
     //**********************************************************
     {
         return Menu_items.make_menu_item("Open_With_Registered_Application",null,
@@ -411,76 +407,6 @@ public class Menus_for_image_window
 
 
 
-    //**********************************************************
-    private static List<MenuItem> manage_slide_show(Image_window image_window)
-    //**********************************************************
-    {
-        List<MenuItem> returned = new ArrayList<>();
-
-        boolean slide_show_is_running = image_window.is_slide_show_running();
-
-
-        MenuItem slide_show = new MenuItem(get_start_text(image_window, image_window.slideshow_start_stop));
-        Look_and_feel_manager.set_menu_item_look(slide_show,image_window.stage,image_window.logger);
-        returned.add(slide_show);
-
-        MenuItem faster = new MenuItem(
-                My_I18n.get_I18n_string("Speed_up_scan",image_window.stage,image_window.logger)
-                +" ("+image_window.speed_up_scan.getDisplayText()+")"
-        );
-        Look_and_feel_manager.set_menu_item_look(faster,image_window.stage,image_window.logger);
-
-        returned.add(faster);
-        faster.setOnAction(actionEvent -> {
-            if (slide_show_is_running) image_window.speed_up();
-        });
-        MenuItem slower = new MenuItem(
-                My_I18n.get_I18n_string("Slow_down_scan",image_window.stage,image_window.logger)
-                        +" ("+image_window.slow_down_scan.getDisplayText()+")"
-        );
-        Look_and_feel_manager.set_menu_item_look(slower,image_window.stage,image_window.logger);
-
-        returned.add(slower);
-        slower.setOnAction(actionEvent -> {
-            if (slide_show_is_running) image_window.slow_down();
-        });
-
-        if( slide_show_is_running)
-        {
-            slide_show.setText(
-                    My_I18n.get_I18n_string("Stop_slide_show", image_window.stage,image_window.logger)
-                            +" ("+image_window.slideshow_start_stop.getDisplayText()+")");
-
-            faster.setDisable(false);
-            slower.setDisable(false);
-        }
-        else
-        {
-            slide_show.setText(get_start_text(image_window, image_window.slideshow_start_stop));
-
-            faster.setDisable(true);
-            slower.setDisable(true);
-        }
-
-        slide_show.setOnAction(event -> {
-            System.out.println("slide_show OnAction");
-            if( slide_show_is_running)
-            {
-                image_window.stop_slide_show();
-                faster.setDisable(true);
-                slower.setDisable(true);
-            }
-            else
-            {
-                image_window.start_slide_show();
-                faster.setDisable(false);
-                slower.setDisable(false);
-            }
-        });
-
-
-        return returned;
-    }
 
     //**********************************************************
     private static String get_start_text(Image_window image_window, KeyCombination onoff)
@@ -539,23 +465,12 @@ public class Menus_for_image_window
         Look_and_feel_manager.set_context_menu_look(context_menu,image_window.stage,logger);
         context_menu.getItems().add(manage_full_screen(image_window));
 
-        List<MenuItem> l = manage_slide_show(image_window);
-        for (MenuItem mi : l) context_menu.getItems().add(mi);
+        context_menu.getItems().add(get_slideshow_menu(image_window));
+        context_menu.getItems().add(get_mouse_mode_menu(image_window));
 
         context_menu.getItems().add(make_info_menu_item(image_window));
-        context_menu.getItems().add(make_edit_menu_item(image_window));
-        context_menu.getItems().add(make_edit_with_klik_registered_application_menu_item(image_window,logger));
 
 
-        if (Booleans.get_boolean_defaults_to_false(Feature.Enable_alternate_image_scaling.name()))
-        {
-            Path p = image_window.image_display_handler.get_image_context().get().path;
-            if(!Guess_file_type.is_this_path_a_gif(p, image_window.stage, logger))
-            {
-                // javafx Image for GIF does not support pixelReader
-                context_menu.getItems().add(get_rescaler_menu(image_window));
-            }
-        }
 
         if ( Booleans.get_boolean_defaults_to_false(Feature.Enable_image_similarity.name()))
         {
@@ -571,52 +486,23 @@ public class Menus_for_image_window
 
         if ( Booleans.get_boolean_defaults_to_false(Feature.Enable_face_recognition.name()))
         {
-            String s = My_I18n.get_I18n_string("Face_recognition_service", image_window.stage,logger);
-            Menu fr_context_menu = new Menu(s);
-            Look_and_feel_manager.set_menu_item_look(fr_context_menu, image_window.stage, logger);
-
-            context_menu.getItems().add(fr_context_menu);
-            fr_context_menu.getItems().add(get_perform_face_recognition_service_no_face_detection_menu_item(image_window));
-
-            fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
-                    "Perform_face_recognition_service_with_high_precision_face_detector",
-                    event -> face_rec(Face_detection_type.MTCNN, image_window),image_window.stage,logger));
-            fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
-                    "Perform_face_recognition_service_with_optimistic_face_detector",
-                    event -> face_rec(Face_detection_type.haars_false_positioves, image_window),image_window.stage,logger));
-            fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
-                    "Perform_face_recognition_service_with_ALT1_face_detector",
-                    event -> face_rec(Face_detection_type.haars_alt1, image_window),image_window.stage,logger));
-            fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
-                    "Perform_face_recognition_service_with_ALT2_face_detector",
-                    event -> face_rec(Face_detection_type.haars_alt2, image_window),image_window.stage,logger));
-
+            context_menu.getItems().add(get_face_recognition_context_menu(image_window));
         }
+
+
+
         context_menu.getItems().add(get_open_menu_item(image_window));
-        context_menu.getItems().add(get_browse_menu_item(image_window));
-        if (Booleans.get_boolean_defaults_to_false(Feature.Enable_3D.name()))
-        {
-            context_menu.getItems().add(get_browse_3D_menu_item(image_window));
-        }
+
+
+
+
         context_menu.getItems().add(get_rename_menu_item(image_window));
         context_menu.getItems().add(get_delete_menu_item(image_window));
+        context_menu.getItems().add(get_undo_menu_item(image_window));
         context_menu.getItems().add(get_copy_menu_item(image_window));
         context_menu.getItems().add(get_print_menu_item(image_window));
         context_menu.getItems().add(get_search_by_autoextracted_keyword_menu_item(image_window));
         context_menu.getItems().add(get_search_by_user_given_keywords_menu_item(image_window));
-
-        context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
-                "Click_to_zoom",
-                event -> image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.click_to_zoom),image_window.stage,logger));
-
-        context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
-                "Drag_and_drop",
-                event -> image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.drag_and_drop),image_window.stage,logger));
-
-        context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
-                "Pix_for_pix",
-                event -> image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.pix_for_pix), image_window.stage,logger));
-
 
         if (image_window.image_display_handler.get_image_context().isPresent())
         {
@@ -627,20 +513,173 @@ public class Menus_for_image_window
             }
         }
 
-        context_menu.getItems().add(get_undo_menu_item(image_window));
-
+        if (Booleans.get_boolean_defaults_to_false(Feature.Enable_alternate_image_scaling.name()))
+        {
+            Path p = image_window.image_display_handler.get_image_context().get().path;
+            if(!Guess_file_type.is_this_path_a_gif(p, image_window.stage, logger))
+            {
+                // javafx Image for GIF does not support pixelReader
+                context_menu.getItems().add(get_rescaler_menu(image_window,logger));
+            }
+        }
         return context_menu;
     }
 
     //**********************************************************
-    private static Menu get_rescaler_menu(Image_window imageWindow)
+    private static Menu get_open_menu_item(Image_window image_window)
     //**********************************************************
     {
-        Menu returned =  new Menu("Image Rescaler");
+        String s = My_I18n.get_I18n_string("Open", image_window.stage, image_window.logger);
+        Menu returned = new Menu(s);
+        Look_and_feel_manager.set_menu_item_look(returned, image_window.stage, image_window.logger);
+        returned.getItems().add(make_open_with_klik_registered_application_menu_item(image_window,image_window.logger));
+        returned.getItems().add(make_edit_menu_item(image_window));
+        returned.getItems().add(make_open_file_menu_item(image_window));
+        returned.getItems().add(make_browse_menu_item(image_window));
+        if (Booleans.get_boolean_defaults_to_false(Feature.Enable_3D.name()))
+        {
+            returned.getItems().add(make_browse_3D_menu_item(image_window));
+        }
+        return returned;
+    }
+
+    //**********************************************************
+    private static Menu get_face_recognition_context_menu(Image_window image_window)
+    //**********************************************************
+    {
+        String s = My_I18n.get_I18n_string("Face_recognition_service", image_window.stage, image_window.logger);
+        Menu fr_context_menu = new Menu(s);
+        Look_and_feel_manager.set_menu_item_look(fr_context_menu, image_window.stage, image_window.logger);
+
+        fr_context_menu.getItems().add(get_perform_face_recognition_service_no_face_detection_menu_item(image_window));
+
+        fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
+                "Perform_face_recognition_service_with_high_precision_face_detector",
+                null,
+                event -> face_rec(Face_detection_type.MTCNN, image_window), image_window.stage, image_window.logger));
+        fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
+                "Perform_face_recognition_service_with_optimistic_face_detector",
+                null,
+                event -> face_rec(Face_detection_type.haars_false_positioves, image_window), image_window.stage, image_window.logger));
+        fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
+                "Perform_face_recognition_service_with_ALT1_face_detector",
+                null,
+                event -> face_rec(Face_detection_type.haars_alt1, image_window), image_window.stage, image_window.logger));
+        fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
+                "Perform_face_recognition_service_with_ALT2_face_detector",
+                null,
+                event -> face_rec(Face_detection_type.haars_alt2, image_window), image_window.stage, image_window.logger));
+        return fr_context_menu;
+    }
+    //**********************************************************
+    private static Menu get_mouse_mode_menu(Image_window image_window)
+    //**********************************************************
+    {
+        String s = My_I18n.get_I18n_string("Mouse_Mode", image_window.stage,image_window.logger);
+        Menu mouse_mode_context_menu = new Menu(s);
+        Look_and_feel_manager.set_menu_item_look(mouse_mode_context_menu, image_window.stage, image_window.logger);
+
+
+        mouse_mode_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
+                "Click_to_zoom",
+                image_window.click_to_zoom,
+                event -> image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.click_to_zoom), image_window.stage, image_window.logger));
+
+        mouse_mode_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
+                "Drag_and_drop",
+                image_window.drag_and_drop,
+                event -> image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.drag_and_drop), image_window.stage, image_window.logger));
+
+        mouse_mode_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
+                "Pix_for_pix",
+                image_window.pix_for_pix,
+                event -> image_window.mouse_handling_for_image_window.set_mouse_mode(image_window, Mouse_mode.pix_for_pix), image_window.stage, image_window.logger));
+        return mouse_mode_context_menu;
+    }
+
+    //**********************************************************
+    private static Menu get_slideshow_menu(Image_window image_window)
+    //**********************************************************
+    {
+        String s = My_I18n.get_I18n_string("Slide_Show", image_window.stage,image_window.logger);
+
+        Menu returned = new Menu(s);
+        Look_and_feel_manager.set_menu_item_look(returned,image_window.stage,image_window.logger);
+
+        boolean slide_show_is_running = image_window.is_slide_show_running();
+
+
+        MenuItem slide_show = new MenuItem(get_start_text(image_window, image_window.slideshow_start_stop));
+        Look_and_feel_manager.set_menu_item_look(slide_show,image_window.stage,image_window.logger);
+        returned.getItems().add(slide_show);
+
+        MenuItem faster = new MenuItem(
+                My_I18n.get_I18n_string("Speed_up_scan",image_window.stage,image_window.logger)
+                        +" ("+image_window.speed_up_scan.getDisplayText()+")"
+        );
+        Look_and_feel_manager.set_menu_item_look(faster,image_window.stage,image_window.logger);
+
+        returned.getItems().add(faster);
+        faster.setOnAction(actionEvent -> {
+            if (slide_show_is_running) image_window.speed_up();
+        });
+        MenuItem slower = new MenuItem(
+                My_I18n.get_I18n_string("Slow_down_scan",image_window.stage,image_window.logger)
+                        +" ("+image_window.slow_down_scan.getDisplayText()+")"
+        );
+        Look_and_feel_manager.set_menu_item_look(slower,image_window.stage,image_window.logger);
+
+        returned.getItems().add(slower);
+        slower.setOnAction(actionEvent -> {
+            if (slide_show_is_running) image_window.slow_down();
+        });
+
+        if( slide_show_is_running)
+        {
+            slide_show.setText(
+                    My_I18n.get_I18n_string("Stop_slide_show", image_window.stage,image_window.logger)
+                            +" ("+image_window.slideshow_start_stop.getDisplayText()+")");
+
+            faster.setDisable(false);
+            slower.setDisable(false);
+        }
+        else
+        {
+            slide_show.setText(get_start_text(image_window, image_window.slideshow_start_stop));
+
+            faster.setDisable(true);
+            slower.setDisable(true);
+        }
+
+        slide_show.setOnAction(event -> {
+            System.out.println("slide_show OnAction");
+            if( slide_show_is_running)
+            {
+                image_window.stop_slide_show();
+                faster.setDisable(true);
+                slower.setDisable(true);
+            }
+            else
+            {
+                image_window.start_slide_show();
+                faster.setDisable(false);
+                slower.setDisable(false);
+            }
+        });
+        return returned;
+    }
+
+    //**********************************************************
+    private static Menu get_rescaler_menu(Image_window image_window,Logger logger)
+    //**********************************************************
+    {
+        String s = My_I18n.get_I18n_string("Image_Rescaler", image_window.stage,logger);
+
+        Menu returned =  new Menu(s);
         ToggleGroup group = new ToggleGroup();
         for ( Image_rescaling_filter filter : Image_rescaling_filter.values())
         {
-            RadioMenuItem rmi = get_rescaler_radio_menu_item(imageWindow,filter);
+            RadioMenuItem rmi = get_rescaler_radio_menu_item(image_window,filter);
             rmi.setToggleGroup(group);
             returned.getItems().add(rmi);
         }
