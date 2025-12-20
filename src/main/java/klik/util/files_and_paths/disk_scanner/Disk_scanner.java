@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.LongAdder;
 public class Disk_scanner implements Runnable
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     final Path path;
     final String origin;
     final File_payload file_payload;
