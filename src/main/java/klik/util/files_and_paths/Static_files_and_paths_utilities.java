@@ -133,7 +133,8 @@ public class Static_files_and_paths_utilities
             return;
         }
         Path trash_dir = Non_booleans_properties.get_trash_dir(paths.get(0),owner,logger);
-        if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
+        if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString()))
+        {
             Popups.popup_warning("❗" + My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
             return;
         }
