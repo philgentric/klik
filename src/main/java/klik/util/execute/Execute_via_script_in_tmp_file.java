@@ -41,7 +41,7 @@ public class Execute_via_script_in_tmp_file
     // writes the command to it, and then executes that script.
     // Logs are also created in the klik trash directory.
 
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     private static final boolean ultra_dbg = false;
     public static final String END = "__END_OF_PROCESS_OUTPUT__";
 

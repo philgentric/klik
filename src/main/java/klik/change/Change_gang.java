@@ -85,7 +85,8 @@ public class Change_gang
             {
                 if (oan.old_Path.getParent() == null)
                 {
-                    logger.log(Stack_trace_getter.get_stack_trace("Should not happen?" + oan.to_string()));
+                    // change at root folder
+                    return Possible_outcome.more_changes;
                 }
                 else
                 {

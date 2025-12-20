@@ -12,7 +12,7 @@ import klik.util.log.Logger;
 public class Scan_show
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     public static final double FAC = 1.3;
     public final double MAX_SPEED;
     public final double MIN_SPEED;
