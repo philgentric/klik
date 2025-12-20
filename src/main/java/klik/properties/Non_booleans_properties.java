@@ -30,7 +30,7 @@ import java.util.List;
 public class Non_booleans_properties
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     public static final String SCREEN_TOP_LEFT_X = "_SCREEN_TOP_LEFT_X";
     public static final String SCREEN_TOP_LEFT_Y = "_SCREEN_TOP_LEFT_Y";
     public static final String SCREEN_WIDTH = "_SCREEN_WIDTH";
@@ -451,7 +451,7 @@ public class Non_booleans_properties
     public static Path get_absolute_hidden_dir_on_user_home(String relative_dir_name, boolean can_fail, Window owner, Logger logger)
     //**********************************************************
     {
-        if (dbg) logger.log("dir_name=" + relative_dir_name);
+        if (dbg) logger.log("get_absolute_hidden_dir_on_user_home relative_dir_name=" + relative_dir_name);
         String home = System.getProperty(USER_HOME);
         if (dbg) logger.log("user home =" + home);
         return from_top_folder(home, relative_dir_name, can_fail, owner, logger);
@@ -463,9 +463,13 @@ public class Non_booleans_properties
     //**********************************************************
     {
         Path conf_dir1 = Paths.get(top_folder, CONF_DIR);
-        if (!conf_dir1.toFile().exists()) {
+        if (dbg) logger.log("conf_dir1 =" + conf_dir1);
+        if (!conf_dir1.toFile().exists())
+        {
             try {
                 Files.createDirectory(conf_dir1);
+                if (dbg) logger.log("conf_dir1 =" + conf_dir1+" directory created");
+
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed (1)" + e;
                 if (can_fail) {
@@ -481,9 +485,13 @@ public class Non_booleans_properties
 
         //Path conf_dir2 = Paths.get(conf_dir1.toString(), CONF_DIR + "_privacy_screen");
         Path conf_dir2 = Paths.get(conf_dir1.toString(), PRIVACY_SCREEN );
-        if (!conf_dir2.toFile().exists()) {
+        if (dbg) logger.log("conf_dir2 =" + conf_dir2);
+
+        if (!conf_dir2.toFile().exists())
+        {
             try {
                 Files.createDirectory(conf_dir2);
+                if (dbg) logger.log("conf_dir2 =" + conf_dir2+" directory created");
             } catch (IOException e) {
                 String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed (2)";
                 Popups.popup_Exception(e, 300, err, owner, logger);
@@ -493,7 +501,7 @@ public class Non_booleans_properties
 
 
         Path returned = Paths.get(conf_dir2.toAbsolutePath().toString(), relative_dir_name);
-        if (dbg) logger.log("get_dir returns=" + returned.toAbsolutePath());
+        if (dbg) logger.log("privacy screen dir=" + returned.toAbsolutePath());
         if (!Files.exists(returned)) {
             try {
                 Files.createDirectory(returned);
@@ -584,9 +592,12 @@ public class Non_booleans_properties
     //**********************************************************
     {
         List<Path> trashes = new ArrayList<>();
-        for (File f : File.listRoots()) {
-            //logger.log("root ->"+f+"<-");
-            if (f.toString().equals("/")) {
+        for (File f : File.listRoots())
+        {
+            logger.log("root ->"+f+"<-");
+            if (f.toString().equals("/"))
+            {
+                // unix system...
                 Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
                 trashes.add(trash_dir);
                 // unix system...
@@ -601,12 +612,20 @@ public class Non_booleans_properties
                         }
                     }
                 }
-            } else {
-                if (f.getName().startsWith("C:")) {
+            }
+            else
+            {
+                logger.log("windows , trash for: "+f);
+                if (f.getAbsolutePath().startsWith("C:"))
+                {
                     Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
+                    logger.log("windows , trash is (1): "+trash_dir);
                     trashes.add(trash_dir);
-                } else {
+                }
+                else
+                {
                     Path trash_dir = from_top_folder(f.toPath().toString(), TRASH_DIR, true, owner, logger);
+                    logger.log("windows , trash is (2): "+trash_dir);
                     trashes.add(trash_dir);
                     logger.log("WARNING: untested trash on windows drives !!!!");
                 }

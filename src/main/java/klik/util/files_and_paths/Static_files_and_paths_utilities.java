@@ -337,7 +337,8 @@ public class Static_files_and_paths_utilities
             List<Path> trashes = Non_booleans_properties.get_existing_trash_dirs(owner,logger);
             String s1 = My_I18n.get_I18n_string("Warning_delete", owner,logger);
             double size = 0;
-            for (Path trash : trashes) {
+            for (Path trash : trashes)
+            {
                 long tmp = get_size_on_disk(trash, aborter, logger);
                 logger.log("trash dir: "+trash+" "+tmp+" bytes");
                 size += tmp;

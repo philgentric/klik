@@ -130,7 +130,7 @@ public class Moving_files
     public static void safe_delete_files(List<Old_and_new_Path> l, double x, double y, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        // WHY create a copy of the list ?????
+        // WHY create a copy of the list ?
         List<Old_and_new_Path> l2 = new ArrayList<>();
         for (Old_and_new_Path oanf : l) {
             Path trash_dir = Non_booleans_properties.get_trash_dir(oanf.old_Path,owner,logger);
