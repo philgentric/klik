@@ -355,7 +355,8 @@ public class Static_files_and_paths_utilities
                 {
                     if (!Popups.popup_ask_for_confirmation("❗"+s1, finalS, owner,logger)) return;
                 }
-                for (Path trash : trashes) {
+                for (Path trash : trashes)
+                {
                     delete_for_ever_all_files_in_dir_in_a_thread(trash, true,owner,logger);
                     logger.log("deletion ongoing: "+trash);
                 }
@@ -620,11 +621,14 @@ public class Static_files_and_paths_utilities
         File files[] = dir.toFile().listFiles();
         if ( files == null)
         {
+            logger.log("cannot list dir ->"+dir.toAbsolutePath()+"<-");
             return "cannot list dir ->"+dir.toAbsolutePath()+"<-";
         }
         List<Old_and_new_Path> l = new ArrayList<>();
         for ( File f : files)
         {
+            logger.log("delete_for_ever_all_files_in_dir: ->"+f.getAbsolutePath()+"<-");
+
             if (f.isDirectory())
             {
                 String s = delete_for_ever_all_files_in_dir(f.toPath(), also_folders, owner,logger);
@@ -754,6 +758,7 @@ public class Static_files_and_paths_utilities
         {
             if ( p.getFileName().toString().startsWith("._"))
             {
+                if ( dbg) logger.log("NoSuchFileException for : " + p);
                 // this is a macOS file found on external drives, if the file was deleted, then this file was deleted too,
                 // so the original list is "wrong", it is not an error, just ignore it
                 return null;
