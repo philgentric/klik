@@ -95,7 +95,8 @@ public class Icon_factory_actor implements Actor
         }
 
         Optional<Image_and_properties> image_and_properties = Optional.empty();
-        for(;;) {
+        for(;;)
+        {
             image_and_properties = try_once(destination, icon_factory_request);
             if ( image_and_properties.isEmpty())
             {
@@ -117,7 +118,7 @@ public class Icon_factory_actor implements Actor
                 icon_factory_request.retry_count++;
                 logger.log("❗ RETRYING : " + icon_factory_request.retry_count + " times, after empty icon for : " + destination.get_item_path() );
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(100*icon_factory_request.retry_count);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

@@ -4,6 +4,7 @@
 package klik.browser.comparators;
 
 import klik.browser.Clearable_RAM_cache;
+import klik.util.execute.actor.Actor_engine;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -52,6 +53,13 @@ public record Last_access_comparator(Logger logger) implements Comparator<Path>,
 
     //**********************************************************
     public static void set_last_access(Path p, Logger logger)
+    //**********************************************************
+    {
+        Actor_engine.execute(()->set_last_access_in_a_thread(p,logger),"set_last_access_in_a_thread",logger);
+    }
+
+    //**********************************************************
+    public static void set_last_access_in_a_thread(Path p, Logger logger)
     //**********************************************************
     {
         FileTime ft = FileTime.fromMillis(System.currentTimeMillis());

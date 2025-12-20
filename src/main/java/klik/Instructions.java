@@ -43,20 +43,6 @@ public class Instructions
         this.rectangle = rectangle;
         this.shutdown_target = shutdown_target;
         this.owner = owner;
-
-/*        if ( path_list_provider == null) {
-            Path target = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
-            if (Booleans.get_boolean_defaults_to_true(Feature.Reload_last_folder_on_startup.name(), originator)) {
-                List<History_item> l = History_engine.get(originator).get_all_history_items();
-                if (!l.isEmpty()) {
-                    History_item h = History_engine.get(originator).get_all_history_items().get(0);
-                    if (h != null) {
-                        target = Path.of(h.value);
-                        logger.log("reloading last folder from history:" + target);
-                    }
-                }
-            }
-        }*/
         this.path_list_provider = path_list_provider;
     }
 
@@ -206,9 +192,11 @@ public class Instructions
             Logger logger)
     //**********************************************************
     {
+
         Last_access_comparator.set_last_access(path_list_provider.get_folder_path(),logger);
 
-        if ( dbg) logger.log("replace_different_folder new path: " + path_list_provider.get_folder_path().toAbsolutePath());
+        if ( dbg)
+            logger.log("replace_different_folder new path: " + path_list_provider.get_folder_path().toAbsolutePath());
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         Instructions context =  new Instructions(
                 context_type,
@@ -217,7 +205,8 @@ public class Instructions
                 shutdown_target,
                 originator,
                 logger);
-        if ( dbg) logger.log(("\nreplace_different_folder\n"+ context.to_string() ));
+        if ( dbg)
+            logger.log(("\nreplace_different_folder\n"+ context.to_string() ));
         get_one_new(context,logger);
 
     }

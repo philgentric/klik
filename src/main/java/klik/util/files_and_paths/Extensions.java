@@ -14,8 +14,8 @@ public class Extensions
         int index = file_name.lastIndexOf(".");
         if ( index == -1) return file_name;
 
-        String extension = file_name.substring(0,index);
-        return extension;
+        String base = file_name.substring(0,index);
+        return base;
     }
     //**********************************************************
     public static String get_extension(String file_name)

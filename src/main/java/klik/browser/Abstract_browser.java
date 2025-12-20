@@ -86,7 +86,8 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     {
         this.context_type = context_type;
         int count = number_of_windows.incrementAndGet();
-        if ( dbg) logger.log("Browser constructor browsers_created(1)=" + count);
+        if ( dbg)
+            logger.log("Browser constructor browsers_created(1)=" + count);
         if (shutdown_target != null)
         {
             if ( dbg) logger.log("closing previous browser");
@@ -141,7 +142,8 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
                 height = rectangle.getHeight();
             }
         }
-        if (dbg) logger.log("NEW Abstract_browser "+x+","+y);
+        if (dbg)
+            logger.log("NEW Abstract_browser "+x+","+y);
 
         my_Stage.the_Stage.setX(x);
         my_Stage.the_Stage.setY(y);
@@ -167,7 +169,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         my_Stage.set_escape_event_handler(this);
 
-        logger.log("Browser init");
+        if ( dbg) logger.log("Browser init");
         monitor();
         virtual_landscape = new Virtual_landscape(context_type,get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,this,aborter, logger);
         virtual_landscape.redraw_fx("Browser constructor");

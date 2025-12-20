@@ -170,14 +170,16 @@ public class Finder_actor implements Actor
                     {
                         if( Guess_file_type.should_ignore(path,owner,logger))
                         {
-                            if ( dbg) logger.log("ignoring hidden file:"+path.toAbsolutePath());
+                            //if ( dbg)
+                                logger.log("ignoring hidden file:"+path.toAbsolutePath());
                             do_this_file = false;
                         }
 
                     }
                     if (!fm.search_config.search_files())
                     {
-                        if ( dbg) logger.log("ignoring files");
+                        //if ( dbg)
+                            logger.log("ignoring files");
 
                         // we are not interested in files
                         do_this_file = false;
@@ -262,12 +264,9 @@ public class Finder_actor implements Actor
                 }
             }
             name = Extensions.get_base_name(target_path.getFileName().toString());
-            if ( name != null)
+            if ( !fm.search_config.check_case())
             {
-                if ( !fm.search_config.check_case())
-                {
-                    name = name.toLowerCase();
-                }
+                name = name.toLowerCase();
             }
         }
 
