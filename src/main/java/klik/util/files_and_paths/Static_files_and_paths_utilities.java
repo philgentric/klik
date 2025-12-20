@@ -54,7 +54,7 @@ public class Static_files_and_paths_utilities
 //**********************************************************
 {
 
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
 
 
 
@@ -221,8 +221,13 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         Path tmp_dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
-        if (dbg) if (tmp_dir != null) {
-            logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
+        if (tmp_dir == null)
+        {
+            logger.log("WARNING get_absolute_hidden_dir_on_user_homer=" + null);
+        }
+        else
+        {
+            if (dbg) logger.log("get_absolute_hidden_dir_on_user_home=" + tmp_dir.toAbsolutePath());
         }
         return tmp_dir;
     }
@@ -759,7 +764,7 @@ public class Static_files_and_paths_utilities
         {
             if ( p.getFileName().toString().startsWith("._"))
             {
-                if ( dbg) logger.log("NoSuchFileException for : " + p);
+                if ( dbg) logger.log("ignoring file with name " + p);
                 // this is a macOS file found on external drives, if the file was deleted, then this file was deleted too,
                 // so the original list is "wrong", it is not an error, just ignore it
                 return null;

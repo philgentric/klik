@@ -30,7 +30,7 @@ import java.util.List;
 public class Non_booleans_properties
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     public static final String SCREEN_TOP_LEFT_X = "_SCREEN_TOP_LEFT_X";
     public static final String SCREEN_TOP_LEFT_Y = "_SCREEN_TOP_LEFT_Y";
     public static final String SCREEN_WIDTH = "_SCREEN_WIDTH";
@@ -512,10 +512,7 @@ public class Non_booleans_properties
                 return null;
             }
         }
-        if (dbg) {
-            String err = "directory named->" + returned.toAbsolutePath() + "<- OK";
-            logger.log_stack_trace(err);
-        }
+        if (dbg) logger.log_stack_trace("directory named->" + returned.toAbsolutePath() + "<- OK");
         return returned;
     }
 
