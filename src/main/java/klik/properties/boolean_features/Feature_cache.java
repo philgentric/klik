@@ -30,6 +30,7 @@ public class Feature_cache
 
     private static final List<Feature> default_to_true = List.of(
             Feature.Show_icons_for_files,
+            Feature.Show_file_names_as_tooltips,
             Feature.Reload_last_folder_on_startup,
             Feature.Monitor_folders,
             Feature.Use_escape_to_close_windows,

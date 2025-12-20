@@ -71,7 +71,7 @@ dependencies {
     // for writing png files without AWT
     implementation 'ar.com.hjg:pngj:2.1.0'
 
-    // for Magic Kernel Sharp 2021 top quality image rescaling
+    // for VIPS image rescaling
     implementation("app.photofox.vips-ffm:vips-ffm-core:1.9.1")
 
 
