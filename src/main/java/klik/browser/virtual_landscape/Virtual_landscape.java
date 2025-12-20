@@ -1204,14 +1204,18 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 all_items_map.put(folder_path, folder_item);
             }
 
-            p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width,
-                    single_column);
-            if (folder_item instanceof Item_folder ini) {
-                if (ini.get_button() == null) {
-                    logger.log(Stack_trace_getter.get_stack_trace("PANIC "));
+            p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width, single_column);
+            if (folder_item instanceof Item_folder item_folder)
+            {
+                if (item_folder.get_button() == null)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("PANIC item_folder.get_button() == null"));
                 }
-                ini.get_button().setPrefWidth(column_increment);
-                ini.get_button().setMinWidth(column_increment);
+                else
+                {
+                    item_folder.get_button().setPrefWidth(column_increment);
+                    item_folder.get_button().setMinWidth(column_increment);
+                }
             }
             return p;
         }

@@ -591,7 +591,7 @@ public class Non_booleans_properties
         List<Path> trashes = new ArrayList<>();
         for (File f : File.listRoots())
         {
-            logger.log("root ->"+f+"<-");
+            logger.log("get_existing_trash_dirs root ->"+f+"<-");
             if (f.toString().equals("/"))
             {
                 // unix system...
@@ -612,22 +612,18 @@ public class Non_booleans_properties
             }
             else
             {
-                logger.log("windows , trash for: "+f);
                 if (f.getAbsolutePath().startsWith("C:"))
                 {
                     Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
-                    logger.log("windows , trash is (1): "+trash_dir);
+                    logger.log("get_existing_trash_dirs, windows , trash for+"+f+" is : "+trash_dir);
                     trashes.add(trash_dir);
                 }
                 else
                 {
                     Path trash_dir = from_top_folder(f.toPath().toString(), TRASH_DIR, true, owner, logger);
-                    logger.log("windows , trash is (2): "+trash_dir);
+                    logger.log("get_existing_trash_dirs, windows , trash for+"+f+" is : "+trash_dir);
                     trashes.add(trash_dir);
-                    logger.log("WARNING: untested trash on windows drives !!!!");
                 }
-
-
             }
         }
         return trashes;
