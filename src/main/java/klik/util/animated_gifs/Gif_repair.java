@@ -5,6 +5,7 @@ package klik.util.animated_gifs;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klik.External_application;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.properties.Non_booleans_properties;
@@ -60,7 +61,7 @@ public class Gif_repair
 
         List<String> graphicsMagick_command_line = new ArrayList<>();
         // user GraphicsMagick to extract all gif frames
-        graphicsMagick_command_line.add("gm");
+        graphicsMagick_command_line.add(External_application.GraphicsMagick.get_command(owner,logger));
         graphicsMagick_command_line.add("convert");
         graphicsMagick_command_line.add(new_path.toAbsolutePath().toString());//+"[0--1]");
         //l.add("-scene");
@@ -73,7 +74,7 @@ public class Gif_repair
         if ( !res.status())
         {
             List<String> verify = new ArrayList<>();
-            verify.add("gm");
+            verify.add(External_application.GraphicsMagick.get_command(owner,logger));
             verify.add("--version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
@@ -97,7 +98,7 @@ public class Gif_repair
 
         {
             List<String> graphicsMagick_command_line = new ArrayList<>();
-            graphicsMagick_command_line.add("gm");
+            graphicsMagick_command_line.add(External_application.GraphicsMagick.get_command(owner,logger));
             graphicsMagick_command_line.add("convert");
             graphicsMagick_command_line.add("-delay");
             graphicsMagick_command_line.add(""+new_delay);
@@ -110,7 +111,7 @@ public class Gif_repair
             if ( !res.status())
             {
                 List<String> verify = new ArrayList<>();
-                verify.add("gm");
+                verify.add(External_application.GraphicsMagick.get_command(owner,logger));
                 verify.add("--version");
                 String home = System.getProperty(Non_booleans_properties.USER_HOME);
                 Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);

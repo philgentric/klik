@@ -130,7 +130,10 @@ public class Feature_cache
     {
         Booleans.set_boolean(feature.name(),new_val,owner);
         boolean_feature_cache.put(feature,new_val);
-        for( Feature_change_target fct : registered_for_any_boolean_change) fct.update(feature,new_val);
+        for( Feature_change_target fct : registered_for_any_boolean_change)
+        {
+            fct.update(feature,new_val);
+        }
 
         List<Feature_change_target> l = registered_for.get(feature);
         if ( l == null) return;

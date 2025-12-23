@@ -6,6 +6,7 @@ package klik.util.tcp;
 //SOURCES ./Session_factory.java
 
 
+import klik.Launcher;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.log.File_logger;
@@ -174,6 +175,14 @@ public class TCP_server
     }
 
 
+    //**********************************************************
+    public void stop()
+    //**********************************************************
+    {
+        aborter.abort("stop requested");
+        // send message to unblock
+        TCP_client.send_in_a_thread("localhost", port_number, "stop", logger);
+    }
 
 
     //**********************************************************
@@ -289,4 +298,5 @@ public class TCP_server
             throw new RuntimeException(e);
         }
     }
+
 }

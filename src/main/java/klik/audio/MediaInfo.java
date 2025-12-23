@@ -4,6 +4,7 @@
 package klik.audio;
 
 import javafx.stage.Window;
+import klik.External_application;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_command;
@@ -25,7 +26,7 @@ public class MediaInfo
     //**********************************************************
     {
         List<String> command_line_for_media_info = new ArrayList<>();
-        command_line_for_media_info.add("mediainfo");
+        command_line_for_media_info.add(External_application.MediaInfo.get_command(owner,logger));
         command_line_for_media_info.add(path.toAbsolutePath().toString());
 
         StringBuilder sb = new StringBuilder();
@@ -33,7 +34,7 @@ public class MediaInfo
         if ( !res.status())
         {
             List<String> verify = new ArrayList<>();
-            verify.add("mediainfo");
+            verify.add(External_application.MediaInfo.get_command(owner,logger));
             verify.add("--version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);

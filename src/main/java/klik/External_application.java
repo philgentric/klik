@@ -21,11 +21,12 @@ import klik.util.ui.Items_with_explanation;
 public enum External_application
 //**********************************************************
 {
-    FFmpeg,
+    Ffmpeg,
+    Ffprobe,
     GraphicsMagick,
     MediaInfo,
     Ytdlp,
-    AcousticID_chromaprint,
+    AcousticID_chromaprint_fpcalc,
     ImageMagick,
     Vips;
 
@@ -40,16 +41,15 @@ public enum External_application
             if ( cmd == null) return;
             Execute_via_script_in_tmp_file.execute(cmd, true,false,owner,logger);
         };
-        HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
-                get_I18n_key(),
+
+        return Items_with_explanation.make_hbox_with_button_and_explanation(
+                get_install_I18n_key(),
                 handler,
                 width,
                 icon_size,
                 look_and_feel,
                 owner,
                 logger);
-
-        return hb;
     }
 
 
@@ -71,21 +71,22 @@ public enum External_application
 
 
     //**********************************************************
-    public String get_I18n_key()
+    public String get_install_I18n_key()
     //**********************************************************
     {
         // this is NOT for display: this MUST be the exact string
         // as found in the ressource bundles
         return switch (this) {
             case Ytdlp -> "Install_Youtubedownloader";
-            case AcousticID_chromaprint -> "Install_Fpcalc";
+            case AcousticID_chromaprint_fpcalc -> "Install_Fpcalc";
             case ImageMagick -> "Install_Imagemagick";
-            case FFmpeg -> "Install_Ffmpeg";
+            case Ffmpeg, Ffprobe -> "Install_Ffmpeg";
             case Vips -> "Install_Vips";
             case GraphicsMagick -> "Install_Graphicsmagick";
             case MediaInfo -> "Install_Mediainfo";
         };
     }
+
     //**********************************************************
     public String get_macOS_install_command()
     //**********************************************************
@@ -94,9 +95,9 @@ public enum External_application
         // brew install <REQUIRED_STRING>
         return switch (this) {
             case Ytdlp -> "brew install yt-dlp";
-            case AcousticID_chromaprint -> "brew install chromaprint";
+            case AcousticID_chromaprint_fpcalc -> "brew install chromaprint";
             case ImageMagick -> "brew install imagemagick";
-            case FFmpeg -> "brew install ffmpeg";
+            case Ffmpeg, Ffprobe -> "brew install ffmpeg";
             case Vips -> "brew install vips";
             case GraphicsMagick -> "brew install graphicsmagick";
             case MediaInfo -> "brew install mediainfo";
@@ -111,9 +112,9 @@ public enum External_application
         // brew install <REQUIRED_STRING>
         return switch (this) {
             case Ytdlp -> "choco install yt-dlp -y";
-            case AcousticID_chromaprint -> "choco install chromaprint -y";
+            case AcousticID_chromaprint_fpcalc -> "choco install chromaprint -y";
             case ImageMagick -> "choco install imagemagick -y";
-            case FFmpeg -> "choco install ffmpeg -y";
+            case Ffmpeg, Ffprobe -> "choco install ffmpeg -y";
             case Vips -> "choco install vips -y";
             case GraphicsMagick -> "choco install graphicsmagick -y";
             case MediaInfo -> "choco install mediainfo -y";
@@ -129,16 +130,19 @@ public enum External_application
         return switch (this)
         {
             case Ytdlp -> "brew install yt-dlp";
-            case AcousticID_chromaprint -> "brew install chromaprint";
+            case AcousticID_chromaprint_fpcalc -> "brew install chromaprint";
             case ImageMagick -> "brew install imagemagick";
             case Vips -> "brew install vips";
             case GraphicsMagick -> "brew install graphicsmagick";
             case MediaInfo -> "brew install mediainfo";
-            case FFmpeg -> special(owner,logger);
+            case Ffmpeg, Ffprobe -> special(owner,logger);
         };
     }
 
-    private String special(Window owner, Logger logger) {
+    //**********************************************************
+    private String special(Window owner, Logger logger)
+    //**********************************************************
+    {
         {
             // super important: on Linux javaFX audio i.e. the audio player REQUIRES ffmpeg
             TextInputDialog dialog = new TextInputDialog("");
@@ -160,5 +164,70 @@ public enum External_application
             dialog.close();
         }
         return null;
+    }
+
+    //**********************************************************
+    public String get_command(Window owner, Logger logger)
+    //**********************************************************
+    {
+        switch(Guess_OS.guess(owner, logger))
+        {
+            case MacOS -> {return get_macOS_command();}
+            case Linux -> {return get_Linux_command(owner,logger);}
+            case Windows -> {return get_Windows_command();}
+            case Unknown -> {return "";}
+        }
+        return "";
+    }
+
+    //**********************************************************
+    private String get_Windows_command()
+    //**********************************************************
+    {
+        return switch (this) {
+            case Ytdlp -> "yt-dlp";
+            case AcousticID_chromaprint_fpcalc -> "fpcalc";
+            case ImageMagick -> "magick";
+            case Ffmpeg -> "ffmpeg";
+            case Ffprobe -> "ffprobe";
+            case Vips -> "not used";
+            case GraphicsMagick -> "gm";
+            case MediaInfo -> "mediainfo";
+        };
+    }
+
+    //**********************************************************
+    private String get_Linux_command(Window owner, Logger logger)
+    //**********************************************************
+    {
+        return switch (this) {
+            case Ytdlp -> "yt-dlp";
+            case AcousticID_chromaprint_fpcalc -> "fpcalc";
+            case ImageMagick -> "magick";
+            case Ffmpeg -> "ffmpeg";
+            case Ffprobe -> "ffprobe";
+            case Vips -> "not used";
+            case GraphicsMagick -> "gm";
+            case MediaInfo -> "mediainfo";
+        };
+    }
+
+    //**********************************************************
+    private String get_macOS_command()
+    //**********************************************************
+    {
+        // in macOS, an app installed with a DMG has a restricted PATH
+        // especially /opt/homebrew/bin (stuff installed with brew)
+        // is NOT in the path ... so we do it explicitly
+        return switch (this) {
+            case Ytdlp -> "/opt/homebrew/bin/yt-dlp";
+            case AcousticID_chromaprint_fpcalc -> "/opt/homebrew/bin/fpcalc";
+            case ImageMagick -> "/opt/homebrew/bin/magick";
+            case Ffmpeg -> "/opt/homebrew/bin/ffmpeg";
+            case Ffprobe -> "/opt/homebrew/bin/ffprobe";
+            case Vips -> "not used";
+            case GraphicsMagick -> "/opt/homebrew/bin/gm";
+            case MediaInfo -> "/opt/homebrew/bin/mediainfo";
+        };
     }
 }

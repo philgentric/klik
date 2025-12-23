@@ -8,6 +8,7 @@
 package klik.util.image;
 
 import javafx.stage.Window;
+import klik.External_application;
 import klik.util.execute.actor.Aborter;
 import klik.browser.items.Iconifiable_item_type;
 import klik.look.Jar_utils;
@@ -132,7 +133,9 @@ public class Icons_from_disk
         // "+original_image_file.toAbsolutePath()+ " "+ png_path.toAbsolutePath();
         // Execute_via_script_in_tmp_file.execute(command_string_to_create_tmp_icon,
         // false, owner, logger);
-        List<String> list = List.of("gm", "convert", original_image_file.toAbsolutePath().toString(),
+        List<String> list = List.of(
+                External_application.GraphicsMagick.get_command(owner,logger),
+                "convert", original_image_file.toAbsolutePath().toString(),
                 png_path.toAbsolutePath().toString());
         Execute_command.execute_command_list(list, new File("."), 20_000, null, logger);
 
@@ -161,7 +164,7 @@ public class Icons_from_disk
         // "+original_image_file.toAbsolutePath()+ " "+ png_path.toAbsolutePath();
         // Execute_via_script_in_tmp_file.execute(command_string_to_create_tmp_icon,
         // false, owner,logger);
-        List<String> list = List.of("magick", original_image_file.toAbsolutePath().toString(),
+        List<String> list = List.of(External_application.ImageMagick.get_command(owner,logger), original_image_file.toAbsolutePath().toString(),
                 png_path.toAbsolutePath().toString());
         Execute_command.execute_command_list(list, new File("."), 20_000, null, logger);
 

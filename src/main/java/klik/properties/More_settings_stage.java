@@ -14,6 +14,8 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.Shared_services;
 import klik.System_info;
+import klik.audio.Audio_player;
+import klik.audio.Audio_player_application;
 import klik.browser.comparators.Similarity_comparator;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.look.Look_and_feel;
@@ -24,6 +26,7 @@ import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
 import klik.util.Installers;
+import klik.util.execute.Debug_console;
 import klik.util.files_and_paths.Static_files_and_paths_utilities;
 import klik.util.log.Logger;
 import klik.util.ui.Items_with_explanation;
@@ -36,7 +39,7 @@ public class More_settings_stage
 {
 
     public static final Feature[] basic_features ={
-            Feature.Show_single_column,
+            Feature.Show_single_column_with_details,
             Feature.Show_icons_for_files,
             Feature.Show_icons_for_folders,
             Feature.Show_hidden_files,
@@ -142,9 +145,23 @@ public class More_settings_stage
                         logger);
                 box.getChildren().add(hb);
             }
+
             for (Feature f : advanced_features)
             {
                 add_one_line(f, box);
+            }
+            {
+                String key = "Show_Version";
+                EventHandler<ActionEvent> handler = e -> Installers.show_version(owner,logger);
+                HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
+                        key,
+                        handler,
+                        w,
+                        icon_size,
+                        look_and_feel,
+                        owner,
+                        logger);
+                box.getChildren().add(hb);
             }
             TitledPane pane = new TitledPane("Advanced features", box);
             accordion.getPanes().add(pane);
@@ -166,6 +183,7 @@ public class More_settings_stage
             {
                 add_one_line(f, box);
             }
+            box.getChildren().add(Debug_console.get_button(owner,logger));
             TitledPane pane = new TitledPane("Debugging", box);
             accordion.getPanes().add(pane);
         }

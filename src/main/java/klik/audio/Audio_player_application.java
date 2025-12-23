@@ -26,9 +26,7 @@ import java.nio.file.Path;
 public class Audio_player_application extends Application
 //**********************************************************
 {
-    private static final boolean dbg = false;
     private final static String name = "Audio_player_application";
-    private Stage stage;
     Logger logger;
     //**********************************************************
     public static void main(String[] args) {launch(args);}
@@ -39,142 +37,35 @@ public class Audio_player_application extends Application
     public void start(Stage stage_) throws Exception
     //**********************************************************
     {
-        this.stage = stage_;
         Shared_services.init(name, stage_);
         logger = Shared_services.logger();
         Start_context context = Start_context.get_context_and_args(this);
 
-        if (  start_server(Shared_services.aborter()))
+        if (  Audio_player.start_server(Shared_services.aborter(), stage_,logger))
         {
-            init(context);
+            Audio_player.init(true,context.extract_path(),stage_,logger);
         }
         else
         {
-            logger.log("AUDIO PLAYER: Aborting start!\n" +
+            logger.log("AUDIO PLAYER: not starting!\n" +
                     "(reason: failed to start server)\n" +
                     "This is normal if the audio player is already running\n" +
-                    "Since in general having 2 player playing is just cacophonie :-)");
+                    "Since in general having 2 player playing is just cacophony :-)");
             // send not_started to unblock the launcher server
-            int reply_port = extract_reply_port();
+            Integer reply_port = Audio_player.extract_reply_port(logger);
+            if ( reply_port == null)
+            {
+                logger.log("AUDIO PLAYER: failed to get reply port");
+                return;
+            }
             // blocking call otherwise exit will prevent the reply from flying out
             TCP_client.send("localhost", reply_port, Launcher.NOT_STARTED, logger);
 
-
-            stage.close();
+            stage_.close();
             Platform.exit();
             System.exit(0);
 
         }
-    }
-
-    //**********************************************************
-    private Integer extract_reply_port()
-    //**********************************************************
-    {
-        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
-        try {
-            if (java.nio.file.Files.exists(p)) {
-                java.util.List<String> lines = java.nio.file.Files.readAllLines(p, StandardCharsets.UTF_8);
-                if (lines.size() > 0) {
-                    String s = lines.get(0);
-                    int port = Integer.parseInt(s);
-                    if ( dbg) logger.log("✅ Audio_player_application: extracted reply_port= " + port);
-                    return port;
-                }
-            }
-        } catch (IOException | NumberFormatException e) {
-            logger.log("❗Warning: could not read reply_port "+p);
-        }
-        return null;
-    }
-
-    //**********************************************************
-    private void init(Start_context context)
-    //**********************************************************
-    {
-        logger.log("Audio_player_application starts");
-        System_info.print();
-
-        String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC, stage,logger);
-
-        Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC,stage,logger);
-
-        Integer reply_port = extract_reply_port();
-        if ( reply_port == null)
-        {
-            logger.log("Audio_player_application, cannot send reply?");
-        }
-        else
-        {
-            TCP_client.send_in_a_thread("localhost",reply_port, Launcher.STARTED,logger);
-        }
-
-        //Window_provider window_provider = New_song_playlist_context.additional_no_past(null,stage,logger);
-
-        UI_instance_holder.init_ui(Shared_services.aborter(), logger);
-        if ( context != null)
-        {
-            Path path = context.extract_path();
-            if (path == null)
-            {
-                logger.log("✅ Audio_player_application, NO audio file found in context");
-            }
-            else
-            {
-                long start = System.currentTimeMillis();
-                UI_instance_holder.play_this(path.toAbsolutePath().toString(), start,true,stage, logger);
-                logger.log("✅ Audio_player_application, opening audio file = " + path.toAbsolutePath());
-            }
-        }
-    }
-
-    //**********************************************************
-    private boolean start_server(Aborter aborter)
-    //**********************************************************
-    {
-        // start the server to receive play requests via TCP
-        // also listen for UI_CHANGED messages
-
-        Session_factory session_factory = () -> new Session() {
-            @Override
-            public boolean on_client_connection(DataInputStream dis, DataOutputStream dos)
-            {
-                try {
-                    String received = TCP_util.read_string(dis);
-                    if (received.startsWith(Launcher.UI_CHANGED))
-                    {
-                        Non_booleans_properties.force_reload_from_disk(stage);
-                        String change = received.split(" ")[1];
-                        logger.log("Audio player: UI_CHANGED RECEIVED change is: "+change);
-                        My_I18n.reset();
-                        Look_and_feel_manager.reset();
-                        Runnable r = () -> Platform.runLater(() -> UI_instance_holder.define_ui());
-                        Actor_engine.execute(r,"Redefining UI upon TCP message",logger);
-                    }
-                    else
-                    {
-                        long start = System.currentTimeMillis();
-                        TCP_util.write_string(Audio_player_access.PLAY_REQUEST_ACCEPTED, dos);
-                        dos.flush();
-                        UI_instance_holder.play_this(received, start, false, stage,logger);
-                    }
-                    logger.log("Audio_player_application server accepted file for playing");
-                }
-                catch (IOException e)
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace(""+e));
-                }
-
-                return true;
-            }
-
-            @Override
-            public String name() {
-                return "";
-            }
-        };
-        TCP_server tcp_server = new TCP_server(session_factory,aborter, logger);
-        return tcp_server.start(Audio_player_access.AUDIO_PLAYER_PORT,"Audio player listening for songs and playlists",false);
     }
 
 

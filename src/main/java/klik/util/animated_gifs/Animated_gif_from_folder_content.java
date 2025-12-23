@@ -6,6 +6,7 @@
 package klik.util.animated_gifs;
 
 import javafx.stage.Window;
+import klik.External_application;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.browser.virtual_landscape.Path_comparator_source;
@@ -100,7 +101,7 @@ public class Animated_gif_from_folder_content
         {
             List<String> graphicsMagick_command_line = new ArrayList<>();
             // call GraphicsMagick
-            graphicsMagick_command_line.add("gm");
+            graphicsMagick_command_line.add(External_application.GraphicsMagick.get_command(owner,logger));
             graphicsMagick_command_line.add("convert");
             graphicsMagick_command_line.add("-delay");
             graphicsMagick_command_line.add("30"); // in centiseconds
@@ -115,7 +116,7 @@ public class Animated_gif_from_folder_content
             if ( !res.status())
             {
                 List<String> verify = new ArrayList<>();
-                verify.add("gm");
+                verify.add(External_application.GraphicsMagick.get_command(owner,logger));
                 verify.add("--version");
                 String home = System.getProperty(Non_booleans_properties.USER_HOME);
                 Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
@@ -149,7 +150,7 @@ public class Animated_gif_from_folder_content
         // gm convert in.jpg -resize 256x256 -gravity center -background transparent -extent 256x256 padded_icon.png
         List<String> graphicsMagick_command_line = new ArrayList<>();
         // call GraphicsMagick
-        graphicsMagick_command_line.add("gm");
+        graphicsMagick_command_line.add(External_application.GraphicsMagick.get_command(owner,logger));
         graphicsMagick_command_line.add("convert");
         graphicsMagick_command_line.add(p.toAbsolutePath().toString());
         graphicsMagick_command_line.add("-resize");
@@ -168,7 +169,7 @@ public class Animated_gif_from_folder_content
         if ( !res.status())
         {
             List<String> verify = new ArrayList<>();
-            verify.add("gm");
+            verify.add(External_application.GraphicsMagick.get_command(owner,logger));
             verify.add("--version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);

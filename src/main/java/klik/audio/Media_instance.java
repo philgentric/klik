@@ -14,6 +14,7 @@ import javafx.util.Duration;
 import klik.util.execute.actor.Aborter;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
+import klik.util.log.Stack_trace_getter;
 
 
 //**********************************************************
@@ -56,6 +57,7 @@ public class Media_instance
     //**********************************************************
     {
         if ( the_media_player == null) return;
+        //logger.log(Stack_trace_getter.get_stack_trace("play_internal"));
         the_media_player.play();
     }
 
@@ -114,6 +116,8 @@ public class Media_instance
     //**********************************************************
     {
         if ( the_media_player == null) return;
+        logger.log(Stack_trace_getter.get_stack_trace("seek_internal"));
+
         the_media_player.seek(target);
     }
 

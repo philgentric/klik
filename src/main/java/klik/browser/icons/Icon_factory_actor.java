@@ -13,6 +13,7 @@ package klik.browser.icons;
 
 import javafx.scene.image.Image;
 import javafx.stage.Window;
+import klik.External_application;
 import klik.look.Jar_utils;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.*;
@@ -414,7 +415,15 @@ public class Icon_factory_actor implements Actor
             }
 
 
-            Ffmpeg_utils.video_to_gif(destination.get_item_path(), icon_factory_request.icon_size, 10,destination_gif_full_path, length, skip, 0,icon_factory_request.get_aborter(), icon_factory_request.owner,logger);
+            Ffmpeg_utils.video_to_gif(
+                    destination.get_item_path(),
+                    icon_factory_request.icon_size,
+                    10,
+                    destination_gif_full_path,
+                    length,
+                    skip,
+                    0,
+                    icon_factory_request.get_aborter(), icon_factory_request.owner,logger);
             if (icon_factory_request.aborter.should_abort()) {
                 if (aborting_dbg) logger.log("❗ Icon_factory thread: aborting6");
                 return null;
@@ -490,7 +499,7 @@ public class Icon_factory_actor implements Actor
         {
             // gm convert -density 300 -resize 256x256 -quality 90 input.pdf output.png
             List<String> command_line_for_GraphicsMagic = new ArrayList<>();
-            command_line_for_GraphicsMagic.add("gm");
+            command_line_for_GraphicsMagic.add(External_application.GraphicsMagick.get_command(owner,logger));
             command_line_for_GraphicsMagic.add("convert");
             command_line_for_GraphicsMagic.add("-density");
             command_line_for_GraphicsMagic.add("300");
@@ -507,7 +516,7 @@ public class Icon_factory_actor implements Actor
             if ( !res.status())
             {
                 List<String> verify = new ArrayList<>();
-                verify.add("gm");
+                verify.add(External_application.GraphicsMagick.get_command(owner,logger));
                 verify.add("--version");
                 String home = System.getProperty(Non_booleans_properties.USER_HOME);
                 Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);

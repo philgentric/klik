@@ -4,6 +4,7 @@
 package klik.machine_learning.song_similarity;
 
 import javafx.stage.Window;
+import klik.External_application;
 import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
@@ -74,7 +75,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
     //**********************************************************
     {
         List<String> cmds = new ArrayList<>();
-        cmds.add("fpcalc");
+        cmds.add(External_application.AcousticID_chromaprint_fpcalc.get_command(owner,logger));
         cmds.add("-raw");
         cmds.add(wav_path);
 
@@ -88,7 +89,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
         if ( !res.status())
         {
             List<String> verify = new ArrayList<>();
-            verify.add("fpcalc");
+            verify.add(External_application.AcousticID_chromaprint_fpcalc.get_command(owner,logger));
             verify.add("-version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
@@ -113,7 +114,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
         //logger.log("tmp wav path is:"+wav_path);
 
         List<String> cmds = new ArrayList<>();
-        cmds.add("ffmpeg");
+        cmds.add(External_application.Ffmpeg.get_command(owner,logger));
         cmds.add("-y");
         cmds.add("-i");
         cmds.add(path.toString());
@@ -138,7 +139,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
         if ( !res.status())
         {
             List<String> verify = new ArrayList<>();
-            verify.add("ffmpeg");
+            verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);

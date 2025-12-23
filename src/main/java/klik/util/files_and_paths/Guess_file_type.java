@@ -4,6 +4,7 @@
 package klik.util.files_and_paths;
 
 import javafx.stage.Window;
+import klik.External_application;
 import klik.util.execute.Guess_OS;
 import klik.util.execute.Operating_system;
 import klik.util.execute.actor.Aborter;
@@ -247,7 +248,7 @@ public class Guess_file_type
             Logger logger)
     //**********************************************************
     {
-        List<String> list = get_ffprobe_cmd(path);
+        List<String> list = get_ffprobe_cmd(path,owner,logger);
         StringBuilder sb = new StringBuilder();
         File wd = path.getParent().toFile();
         if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null)
@@ -267,11 +268,11 @@ public class Guess_file_type
     }
 
     //**********************************************************
-    private static List<String> get_ffprobe_cmd(Path path)
+    private static List<String> get_ffprobe_cmd(Path path,Window owner, Logger logger)
     //**********************************************************
     {
         List<String> list = new ArrayList<>();
-        list.add("ffprobe");
+        list.add(External_application.Ffprobe.get_command(owner,logger));
         list.add("-v");
         list.add("error");
         list.add("-show_entries");
@@ -289,7 +290,7 @@ public class Guess_file_type
             Logger logger)
     //**********************************************************
     {
-        List<String> list = get_ffprobe_cmd( path);
+        List<String> list = get_ffprobe_cmd(path,owner,logger);
         StringBuilder sb = new StringBuilder();
         File wd = path.getParent().toFile();
         if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null)

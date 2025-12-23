@@ -6,6 +6,7 @@ package klik.util.image;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Window;
+import klik.External_application;
 import klik.browser.virtual_landscape.Browsing_caches;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
@@ -258,7 +259,11 @@ public class Full_image_from_disk
         {
             logger.log("png (converted image) does not exist, creating "+png_path);
             // use GraphicsMagick to convert to png
-            List<String> list = List.of("gm", "convert", original_image_file.toAbsolutePath().toString(), png_path.toAbsolutePath().toString());
+            List<String> list = List.of(
+                    External_application.GraphicsMagick.get_command(owner,logger),
+                    "convert",
+                    original_image_file.toAbsolutePath().toString(),
+                    png_path.toAbsolutePath().toString());
             Execute_command.execute_command_list(list, new File("."), 20_000,null, logger);
         }
         else
@@ -291,7 +296,7 @@ public class Full_image_from_disk
         {
             logger.log("png (converted image) does not exist, creating "+png_path);
             // use ImageMagick to convert to png
-            List<String> list = List.of("magick", original_image_file.toAbsolutePath().toString(), png_path.toAbsolutePath().toString());
+            List<String> list = List.of(External_application.ImageMagick.get_command(owner,logger), original_image_file.toAbsolutePath().toString(), png_path.toAbsolutePath().toString());
             if ( Execute_command.execute_command_list(list, new File("."), 20_000,null, logger)==null);
             {
                 Booleans.manage_show_imagemagick_install_warning(owner,logger);

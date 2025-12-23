@@ -108,12 +108,14 @@ package klik;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import klik.audio.Audio_player;
 import klik.change.history.History_engine;
 import klik.change.history.History_item;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.ui.Github_stars;
 import klik.util.cache_auto_clean.Disk_usage_and_caches_monitor;
 import klik.util.log.Exceptions_in_threads_catcher;
@@ -132,6 +134,7 @@ public class Klik_application extends Application
 {
 
     public static Application application;
+    public static Audio_player audio_player;
     public static long start_time; // used to compute the time since the application started
     private final static String name = "Klik_application";
 
@@ -222,6 +225,12 @@ public class Klik_application extends Application
         if ( reply_port != null) // is null when launched from the audio player
         {
             TCP_client.send_in_a_thread("localhost", reply_port, Launcher.STARTED, logger);
+        }
+
+
+        if ( Feature_cache.get(Feature.Play_music))
+        {
+            audio_player = new Audio_player(null,logger);
         }
 
         int count = 0;

@@ -269,6 +269,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     KeyCodeCombination undo;
     KeyCodeCombination select_all_files;
     KeyCodeCombination select_all_folders;
+    KeyCodeCombination show_details;
 
 
 
@@ -276,26 +277,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void register_shortcuts(Scene scene)
     //**********************************************************
     {
-        /*
-        scene.addEventFilter(KeyEvent.KEY_PRESSED,e->
-                {
-                    logger.log("key pressed:"+e);
-                    if(e.getCode() == KeyCode.SPACE)
-                    {
-                        if (Browser.kbd_dbg) logger.log("character is SPACE = start/stop scan");
-                        handle_scan_switch();
-                    }
-                });*/
+
         double x = owner.getX()+100;
         double y = owner.getY()+100;
 
         // note that  KeyCombination.SHORTCUT_DOWN is ⌘ on macOS, Ctrl elsewhere
         {
             // Shortcut show details: ⌘/Ctrl + 2
-            KeyCombination kc = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHORTCUT_DOWN);
-            scene.getAccelerators().put(kc, () -> {
-                if (!Feature_cache.get(Feature.Show_single_column))
-                    Feature_cache.update_cached_boolean(Feature.Show_single_column, true, owner);
+            show_details = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(show_details, () -> {
+                if (!Feature_cache.get(Feature.Show_single_column_with_details))
+                    Feature_cache.update_cached_boolean(Feature.Show_single_column_with_details, true, owner);
             });
         }
 
@@ -303,8 +295,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             // Shortcut normal view: ⌘/Ctrl + 1
             KeyCombination kc = new KeyCodeCombination(KeyCode.DIGIT1, KeyCombination.SHORTCUT_DOWN);
             scene.getAccelerators().put(kc, () -> {
-                if (Feature_cache.get(Feature.Show_single_column))
-                    Feature_cache.update_cached_boolean(Feature.Show_single_column,false,owner);
+                if (Feature_cache.get(Feature.Show_single_column_with_details))
+                    Feature_cache.update_cached_boolean(Feature.Show_single_column_with_details,false,owner);
             });
         }
 
@@ -802,19 +794,12 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
             // first compute how many images are in flight
             int image_properties_in_flight = 0;
-            // boolean show_icons_for_files =
-            // Feature_cache.get(Feature.Show_icons_for_files);
-            // boolean show_single_column = Feature_cache.get(Feature.Show_single_column);
-            // if ( show_single_column) show_icons_for_files = false;
-            for (Path path : paths_holder.iconized_paths) {
-                Item item;
-                // if (show_icons_for_files)
-                {
-                    item = all_items_map.get(path);
-                    if (item == null) {
-                        if (need_image_properties) {
-                            image_properties_in_flight++;
-                        }
+            for (Path path : paths_holder.iconized_paths)
+            {
+                Item item = all_items_map.get(path);
+                if (item == null) {
+                    if (need_image_properties) {
+                        image_properties_in_flight++;
                     }
                 }
             }
@@ -901,9 +886,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             }
 
             boolean show_icons_for_files = Feature_cache.get(Feature.Show_icons_for_files);
-            boolean show_single_column = Feature_cache.get(Feature.Show_single_column);
-            if (show_single_column)
-                show_icons_for_files = false;
+            boolean show_single_column = Feature_cache.get(Feature.Show_single_column_with_details);
+            if (show_single_column) show_icons_for_files = false;
 
             /// at this stage we MUST have get_iconized_sorted() in the proper order
             // that will define the x,y layout
@@ -2535,8 +2519,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         try (Perf p = new Perf("scan_list")) {
             boolean show_icons = Feature_cache.get(Feature.Show_icons_for_files);
-            if (Feature_cache.get(Feature.Show_single_column))
-                show_icons = false;
+            if (Feature_cache.get(Feature.Show_single_column_with_details)) show_icons = false;
 
             if (dbg) {
                 logger.log("✅ Virtual_landscape: scan_list");
@@ -2703,7 +2686,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 logger.log("\n✅ compute_geometry reason=" + reason + " current_vertical_offset="
                         + current_vertical_offset);
             if (scroll_dbg)
-                logger.log(("✅ compute_geometry single_column=" + Feature_cache.get(Feature.Show_single_column)));
+                logger.log(("✅ compute_geometry single_column=" + Feature_cache.get(Feature.Show_single_column_with_details)));
 
             double magic = 2.0;
             double row_increment_for_dirs = magic * Non_booleans_properties.get_font_size(owner, logger);
@@ -2715,7 +2698,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             int icon_size = Non_booleans_properties.get_icon_size(owner);
             int column_increment_for_icons = icon_size;
 
-            if (Feature_cache.get(Feature.Show_single_column)) {
+            if (Feature_cache.get(Feature.Show_single_column_with_details)) {
                 // the -100 is to make the button shorter than the full width so that
                 // the mouse selection can "start" in the rightmost part of the pane
                 column_increment_for_icons = (int) (the_Scene.getWidth() - RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
@@ -2775,16 +2758,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                     Point2D p = new Point2D(0, 0);
 
                     long start = System.currentTimeMillis();
-                    p = process_folders(Feature_cache.get(Feature.Show_single_column), row_increment_for_dirs,
+                    p = process_folders(Feature_cache.get(Feature.Show_single_column_with_details), row_increment_for_dirs,
                             final_column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
                     if (dbg)
                         logger.log("✅ process_folders took " + (System.currentTimeMillis() - start) + " ms");
                     p = new Point2D(p.getX(), p.getY() + MARGIN_Y);
-                    p = process_non_iconized_items(Feature_cache.get(Feature.Show_single_column),
+                    p = process_non_iconized_items(Feature_cache.get(Feature.Show_single_column_with_details),
                             final_column_increment_for_folders, scene_width, p);
                     p = new Point2D(p.getX(), p.getY() + MARGIN_Y);
                     start = System.currentTimeMillis();
-                    process_iconized_items(Feature_cache.get(Feature.Show_single_column), icon_size,
+                    process_iconized_items(Feature_cache.get(Feature.Show_single_column_with_details), icon_size,
                             final_column_increment_for_icons, scene_width, p);
                     if (dbg)
                         logger.log("✅ process_iconized_items took " + (System.currentTimeMillis() - start) + " ms");

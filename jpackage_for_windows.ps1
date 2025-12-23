@@ -51,7 +51,7 @@ $AddModules      = @(
 $IconPath        = Join-Path $ProjectRoot 'src\main\resources\icons\klik.ico'  # <-- provide your own
 
 # Java options you want inside the installer
-$JavaOptions     = '-Xmx2g'            # example; change if you need more memory
+$JavaOptions     = '-Xmx4g'            # example; change if you need more memory
 
 # -------------------------------------------------------
 # Build the fat JAR (Gradle)

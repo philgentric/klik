@@ -19,14 +19,20 @@
 package klik.browser.virtual_landscape;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.HBox;
 import javafx.stage.Window;
+import klik.External_application;
+import klik.Klik_application;
 import klik.Window_type;
 import klik.Instructions;
+import klik.audio.Audio_player;
 import klik.path_lists.Path_list_provider;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Actor_engine;
@@ -61,7 +67,6 @@ import klik.properties.*;
 import klik.properties.boolean_features.Booleans;
 import klik.properties.boolean_features.Feature;
 import klik.properties.boolean_features.Feature_cache;
-import klik.properties.More_settings_stage_old;
 import klik.util.execute.Execute_command;
 import klik.util.execute.System_open_actor;
 import klik.util.files_and_paths.*;
@@ -352,14 +357,14 @@ public class Virtual_landscape_menus
         boolean formula1 = false;
         if ( formula1)
         {
-            graphicsMagick_command_line.add("gm");
+            graphicsMagick_command_line.add(External_application.GraphicsMagick.get_command(owner,logger));
             graphicsMagick_command_line.add("convert");
             graphicsMagick_command_line.add("vid:*.jpg");
             graphicsMagick_command_line.add("contact_sheet.pdf");
 
         }
         else {
-            graphicsMagick_command_line.add("gm");
+            graphicsMagick_command_line.add(External_application.GraphicsMagick.get_command(owner,logger));
             graphicsMagick_command_line.add("montage");
             graphicsMagick_command_line.add("-label");
             graphicsMagick_command_line.add("'%f'");
@@ -387,7 +392,7 @@ public class Virtual_landscape_menus
         if ( !res.status())
         {
             List<String> verify = new ArrayList<>();
-            verify.add("gm");
+            verify.add(External_application.GraphicsMagick.get_command(owner,logger));
             verify.add("--version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
@@ -494,7 +499,7 @@ public class Virtual_landscape_menus
         {
             context_menu.getItems().add(make_folder_icon_size_menu());
         }
-        context_menu.getItems().add(make_column_width_menu());
+        context_menu.getItems().add(make_column_width_menu(virtual_landscape,owner,logger));
         context_menu.getItems().add(make_font_size_menu_item());
         context_menu.getItems().add(make_style_menu_item());
         context_menu.getItems().add(make_language_menu());
@@ -506,6 +511,47 @@ public class Virtual_landscape_menus
             context_menu.getItems().add(make_fusk_check_menu_item());
         }
 
+        {
+            String key = "Launch_Music_Player";
+            String s = My_I18n.get_I18n_string(key, owner,logger);
+            CheckMenuItem menu_item = new CheckMenuItem(s);
+            Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
+            menu_item.setMnemonicParsing(false);
+            EventHandler<ActionEvent> handler = e ->
+            {
+                if ( menu_item.isSelected())
+                {
+                    if ( Klik_application.audio_player != null)
+                    {
+                        logger.log("an audio player already exists");
+                    }
+                    else
+                    {
+                        logger.log("starting new audio player");
+                        Klik_application.audio_player = new Audio_player(null, logger);
+                    }
+                    Feature_cache.update_cached_boolean(Feature.Play_music, true, owner);
+                }
+                else
+                {
+                    if ( Klik_application.audio_player != null)
+                    {
+                        logger.log("killing audio player");
+                        Klik_application.audio_player.die();
+                        Klik_application.audio_player = null;
+                    }
+                    else
+                    {
+                        logger.log("No audio player to kill?");
+                    }
+                    Feature_cache.update_cached_boolean(Feature.Play_music, false, owner);
+                }
+
+            };
+            menu_item.setOnAction(handler);
+            context_menu.getItems().add(menu_item);
+            menu_item.setSelected(Feature_cache.get(Feature.Play_music));
+        }
 
 
         Menu_items.add_menu_item_for_context_menu(
@@ -523,7 +569,7 @@ public class Virtual_landscape_menus
 
         Menu_items.add_menu_item_for_context_menu(
                 "More_Settings",null,
-                event -> More_settings_stage_old.show_Preferences_stage("Preferences", owner,logger),
+                event -> new More_settings_stage("Preferences", owner,logger),
                 context_menu,owner,logger);
 
         return context_menu;
@@ -1341,12 +1387,12 @@ public class Virtual_landscape_menus
     }
 
     //**********************************************************
-    public void create_menu_item_for_one_column_width(Menu menu, int length, List<CheckMenuItem> all_check_menu_items)
+    public static void create_menu_item_for_one_column_width(Menu menu, int length, List<CheckMenuItem> all_check_menu_items, Virtual_landscape local_virtual_landscape, Window owner, Logger logger)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Non_booleans_properties.COLUMN_WIDTH,virtual_landscape.owner,logger);
+        String text = My_I18n.get_I18n_string(Non_booleans_properties.COLUMN_WIDTH,owner,logger);
         CheckMenuItem item = new CheckMenuItem(text + " = " +length);
-        Look_and_feel_manager.set_menu_item_look(item, virtual_landscape.owner, logger);
+        Look_and_feel_manager.set_menu_item_look(item, owner, logger);
         int actual_size = Non_booleans_properties.get_column_width(owner);
         item.setSelected(actual_size == length);
         item.setOnAction(actionEvent -> {
@@ -1357,7 +1403,37 @@ public class Virtual_landscape_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_column_width(length,owner);
-                virtual_landscape.redraw_fx("column width changed");
+                Booleans.set_boolean(Feature.Show_single_column_with_details.name(), false, owner); // this will trigger a file save
+                Feature_cache.update_cached_boolean(Feature.Show_single_column_with_details, false, owner);
+                local_virtual_landscape.redraw_fx("column width changed");
+            }
+        });
+        menu.getItems().add(item);
+        all_check_menu_items.add(item);
+
+    }
+
+    //**********************************************************
+    public static void create_menu_item_for_show_details(Menu menu, List<CheckMenuItem> all_check_menu_items, Virtual_landscape local_virtual_landscape, Window owner, Logger logger)
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Show_Details",owner,logger);
+        text += " ("+local_virtual_landscape.show_details.getDisplayText()+")";
+        CheckMenuItem item = new CheckMenuItem(text );
+        Look_and_feel_manager.set_menu_item_look(item, owner, logger);
+        int actual_size = Non_booleans_properties.get_column_width(owner);
+        item.setSelected(actual_size == 100_000_000);
+        item.setOnAction(actionEvent -> {
+            CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
+            if (local.isSelected()) {
+                for ( CheckMenuItem cmi : all_check_menu_items)
+                {
+                    if ( cmi != local) cmi.setSelected(false);
+                }
+                Non_booleans_properties.set_column_width(100_000_000,owner);
+                Booleans.set_boolean(Feature.Show_single_column_with_details.name(), true, owner); // this will trigger a file save
+                Feature_cache.update_cached_boolean(Feature.Show_single_column_with_details, true, owner);
+                local_virtual_landscape.redraw_fx("column width set to Show_single_column_with_details");
             }
         });
         menu.getItems().add(item);
@@ -1463,17 +1539,20 @@ public class Virtual_landscape_menus
         return menu;
     }
     //**********************************************************
-    public Menu make_column_width_menu()
+    public static Menu make_column_width_menu(Virtual_landscape local_virtual_landscape, Window owner, Logger logger)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Non_booleans_properties.COLUMN_WIDTH,virtual_landscape.owner,logger);
+        String text = My_I18n.get_I18n_string(Non_booleans_properties.COLUMN_WIDTH,owner,logger);
         Menu menu = new Menu(text);
-        Look_and_feel_manager.set_menu_item_look(menu,virtual_landscape.owner, logger);
+        Look_and_feel_manager.set_menu_item_look(menu,owner, logger);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
+
+        create_menu_item_for_show_details(menu,all_check_menu_items,local_virtual_landscape,owner,logger);
+
         int[] possible_lengths ={Virtual_landscape.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
         for ( int l : possible_lengths)
         {
-            create_menu_item_for_one_column_width(menu, l, all_check_menu_items);
+            create_menu_item_for_one_column_width(menu, l, all_check_menu_items,local_virtual_landscape,owner, logger);
         }
         return menu;
     }
@@ -1797,7 +1876,7 @@ public class Virtual_landscape_menus
     public MenuItem get_advanced_preferences()
     //**********************************************************
     {
-        return Menu_items.make_menu_item("More_Settings",null,event -> More_settings_stage_old.show_Preferences_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
+        return Menu_items.make_menu_item("More_Settings",null,event -> new More_settings_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
     }
 
 

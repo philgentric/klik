@@ -7,11 +7,12 @@ package klik.properties.boolean_features;
 public enum Feature
 //**********************************************************
 {
+    Play_music,
     Show_icons_for_files,
     Show_icons_for_folders,
     Show_hidden_files,
     Show_hidden_folders,
-    Show_single_column,
+    Show_single_column_with_details,
     Show_file_names_as_tooltips,
     Reload_last_folder_on_startup,
     Dont_zoom_small_images,

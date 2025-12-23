@@ -63,6 +63,7 @@ public class UI_instance_holder
     {
         if ( file == null)
         {
+            logger.log("audio player going to guess?");
             play_this_song(null,start,first_time,logger);
             return;
         }
@@ -102,13 +103,19 @@ public class UI_instance_holder
         {
             if (ui == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: you must call Audio_player2.init() before trying to play"));
+                logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: audio ui not initialized"));
             }
 
             ui.change_song(finalSong, start, first_time);
         };
         if (Platform.isFxApplicationThread()) r.run();
         else Platform.runLater(r);
+    }
+
+    public static void die()
+    {
+        ui.die();
+        ui = null;
     }
 
     public static void set_null()

@@ -24,7 +24,7 @@ import javafx.stage.Window;
 import klik.experimental.deduplicate.manual.Againor;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
-import klik.audio.Audio_player_access;
+import klik.audio.Audio_player_gradle_start;
 import klik.browser.items.Item_file_with_icon;
 import klik.browser.virtual_landscape.Path_comparator_source;
 import klik.path_lists.Path_list_provider;
@@ -199,7 +199,7 @@ public class Stage_with_2_images
 			{
 				if ( Guess_file_type.is_this_extension_an_audio(Extensions.get_extension(file.getName())))
 				{
-					Audio_player_access.play_song_in_separate_process(file,logger);
+					Audio_player_gradle_start.play_song_in_separate_process(file,logger);
 				}
 				else
 				{

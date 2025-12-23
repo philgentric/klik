@@ -10,6 +10,7 @@
 package klik.util.animated_gifs;
 
 import javafx.stage.Window;
+import klik.External_application;
 import klik.properties.Non_booleans_properties;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
@@ -44,7 +45,7 @@ public class Ffmpeg_utils
     //**********************************************************
     {
         List<String> list = new ArrayList<>();
-        list.add("ffprobe");
+        list.add(External_application.Ffprobe.get_command(owner,logger));
         list.add("-i");
         list.add(path.getFileName().toString());
         list.add("-show_format");
@@ -54,7 +55,7 @@ public class Ffmpeg_utils
         if ( !res.status())
         {
             List<String> verify = new ArrayList<>();
-            verify.add("ffmpeg");
+            verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
@@ -96,7 +97,7 @@ public class Ffmpeg_utils
     //**********************************************************
     {
         List<String> list = new ArrayList<>();
-        list.add("ffprobe");
+        list.add(External_application.Ffprobe.get_command(owner,logger));
         list.add("-i");
         list.add(audio_path.toAbsolutePath().toString());
 
@@ -106,7 +107,7 @@ public class Ffmpeg_utils
         if ( !res.status())
         {
             List<String> verify = new ArrayList<>();
-            verify.add("ffmpeg");
+            verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
@@ -166,7 +167,7 @@ public class Ffmpeg_utils
     //**********************************************************
     {
         List<String> list = new ArrayList<>();
-        list.add("ffmpeg");
+        list.add(External_application.Ffmpeg.get_command(owner,logger));
         list.add("-i");
         list.add(video_path.getFileName().toString());
         list.add("-codec");
@@ -192,7 +193,7 @@ public class Ffmpeg_utils
         if ( !res.status())
         {
             List<String> verify = new ArrayList<>();
-            verify.add("ffmpeg");
+            verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
@@ -222,7 +223,7 @@ public class Ffmpeg_utils
     {
         if (retry_safety_count > 5) return false;
         List<String> list = new ArrayList<>();
-        list.add("ffmpeg");
+        list.add(External_application.Ffmpeg.get_command(owner,logger));
         list.add("-y"); // force overwrite of output without asking
         // skip some time at the beginning
         if (start_time_in_seconds >= 0)
@@ -255,8 +256,9 @@ public class Ffmpeg_utils
         Execute_result res = Execute_command.execute_command_list(list, wd, 2000, sb, logger);
         if ( !res.status())
         {
+            logger.log("ffmpeg command failed! let us retry using a working folder that the user owns");
             List<String> verify = new ArrayList<>();
-            verify.add("ffmpeg");
+            verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
             String home = System.getProperty(Non_booleans_properties.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
@@ -271,11 +273,9 @@ public class Ffmpeg_utils
 
         if (sb.toString().contains("Output file is empty"))
         {
-            if ( retry_safety_count > 5) return false;
             retry_safety_count++;
             //retry without delay
             return video_to_gif(video_path, height,fps,destination_gif_full_path, clip_duration_in_seconds, 0, retry_safety_count, aborter,owner, logger);
-
         }
         return true;
     }

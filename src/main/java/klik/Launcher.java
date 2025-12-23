@@ -22,14 +22,12 @@ import klik.util.Installers;
 import klik.util.execute.Guess_OS;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
-import klik.audio.Audio_player_access;
+import klik.audio.Audio_player_gradle_start;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
 import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
-import klik.properties.boolean_features.Booleans;
-import klik.properties.boolean_features.Feature;
 import klik.util.execute.Execute_command;
 import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.log.Logger;
@@ -215,7 +213,7 @@ public class Launcher extends Application implements UI_change
                 look_and_feel.set_Button_look(b, WIDTH, icon_size, Icon_type.MUSIC, stage, logger);
                 b.setOnAction(event -> {
                     start_app_with_gradle_and_listen("audio_player", stage, logger);
-                    propagate_to.add(Audio_player_access.AUDIO_PLAYER_PORT);
+                    propagate_to.add(Audio_player_gradle_start.AUDIO_PLAYER_PORT);
                 });
             }
 

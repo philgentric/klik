@@ -22,6 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -90,8 +92,8 @@ public class Execute_via_script_in_tmp_file
     private static void execute_internal_nix(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
     //**********************************************************
     {
-
-        String uuid = UUID.randomUUID().toString();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        String uuid = LocalDateTime.now().format(dtf)+"_"+UUID.randomUUID();
         Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
         String log_file_name = klik_trash.resolve("log_"+uuid+".log").toString();
         logger.log("Going to execute (Nix) ->" + the_command+"<-\nvia script in tmp file, logs in : "+log_file_name);
@@ -236,11 +238,18 @@ public class Execute_via_script_in_tmp_file
                 if (the_command_process.waitFor(10, TimeUnit.MINUTES))
                 {
                     int exitValue = the_command_process.exitValue();
+
                     if ( exitValue != 0)
                     {
-                        logger.log("❗Warning Process ->"+the_command+"<- exited with value: " + exitValue);
+                        String msg = "❗Warning: Process ->"+the_command+"<- exited with value: " + exitValue;
+                        logger.log(msg);
+                        if ( output_queue != null) output_queue.add(msg+"\n");
+
                     }
-                    else if ( ultra_dbg) logger.log("Process exited with value: " + exitValue);
+                    else if ( ultra_dbg)
+                    {
+                        logger.log("Process exited with value: " + exitValue);
+                    }
                     // wait a bit before aborting the tailer or we might miss the output
 
                     Actor_engine.execute(()->{

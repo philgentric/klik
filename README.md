@@ -1,7 +1,8 @@
 
-# Klik: a file system explorer/manager with a strong focus readability
+# Klik: a file system explorer/manager with a strong focus on readability
 
 Klik has been designed for people who, while not 'visually impaired', do not have 10/10 on both eyes.
+
 [En Français](LISEZ_MOI.md)
 (klik is available in Breton, Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Spanish)
 
@@ -11,6 +12,17 @@ Klik has been designed for people who, while not 'visually impaired', do not hav
 Sort files by displaying pictures and documents as icons, into folders, intuitive and fast, drag-and-drop anything, hyperlegible font available in large size.
 
 # Try klik now!
+
+Download the [DMG](https://github.com/philgentric/klik/releases/download/1rc1/Klik-1.0.dmg) installer for MacOS
+
+Download the [MSI](https://github.com/philgentric/klik/releases/download/1rc1/Klik-1.0.msi) installer for Windows:
+
+
+For more advanced users: run Klik from source!
+- get updates in 1 click
+- change the JVM max memory 
+- modify the appearance (CSS) or even create your own look and feel!
+
 
 [Installation for macOS](MacOS_en.md)
 
@@ -32,21 +44,22 @@ Klik only uses 100% transparent file system operations.
 Klik never modifies a file, it only creates folders when you ask
 and enables you to move files from folder to folder.
 
-# Safety
+# Safe
 
 Klik features a crash-resistant undo capability: actions are stored in a file allowing to undo any action, even after a crash, even for multiple files or folder.
 
-Klik never deletes a file without asking you for confirmation. In Klik, "delete" actually means moving the file into the (klik) "trash" folder (down in .klik)
+Klik never deletes a file without asking you for confirmation. In Klik, "delete" actually means moving the file into the (klik) "trash" folder
 
 There are 3 ways to recover a deleted or accidentally moved (moved,but you did not know where) file or folder: (1) use the undo menu item (2) Use klik search! (3) visit the "trash" folder using klik (press the top right button) (4) visit the trash folder using your favorite file manager... 
 Only clearing the "trash" folder is final, and you will be asked for confirmation.
 If you move a file into a folder where there is already a file with the same name, it is renamed with a postfix.
 When you have duplicates, and you merge by moving files, Klik will detect identical files with the same name and move the redundant copy into the trash folder.
 
+All Klik data stored on your disk is located in your home folder in a folder named '.klik' (warning for beginners: files and folders which names start with '.' are invisible by default ;-), this includes the trash, all caches and face recognition data.
 
-# Numerous formats supported
+# Most image formats supported
 
-Klik supports all major image & video file formats, as well as PDF (makes icons). (also broad format support for the music player)
+Klik supports all major image & video file formats, as well as PDF (makes icons for PDF files).
 
 Klik browser window displays icons for still images, animated gifs are displayed animated, PDF documents are displayed as a icon-size image of the first page, movies are displayed as a few second of animated gif (this feature requires to have ffmpeg installed, the length of the animated gif can be changed in 'preferences').
 
@@ -56,6 +69,7 @@ Klik comes with an audio players (can load music from whole folders and import Y
 
 Klik relies on your default system applications for:
 - video play
+- PDF display/edit
 - image edition
 - in general opening any file that is not an image or a sound, or a not-supported format
 
@@ -71,14 +85,15 @@ Uses icons for images, PDFs and movies, and buttons for everything else. Has a s
 
 Icons size can be changed in the 'preferences' menu or using keyboard accelerators: 'meta +' or '-'
 
-### License
+### MIT License
 
 Klik license is MIT
 
 ## Customizable look-and-feel
 
 Klik comes with a few look-and-feels, and they are customisable using CSS (Cascaded Style Sheets) like web pages.
-(The CSS files and the icons are in src/main/resources, feel free to create your own L&F... and to submit it as a pull-request)
+
+The CSS files and the icons are in src/main/resources, so you can create your own L&F!
 
 ## Drag & drop
 

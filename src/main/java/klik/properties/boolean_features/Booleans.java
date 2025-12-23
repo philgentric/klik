@@ -64,15 +64,21 @@ public class Booleans
     {
         if ( get_boolean_defaults_to_true(Feature.Show_ffmpeg_install_warning.name()))
         {
-            if ( show_ffmpeg_install_warning_done) return;
+            if ( show_ffmpeg_install_warning_done)
+            {
+                logger.log("ffmpeg warning already shown to the user, in this session");
+                return;
+            }
             show_ffmpeg_install_warning_done = true;
-            String msg = "klik uses ffmpeg to support several features. " +
-                    "\nIt is easy and free to install (https://ffmpeg.org/)"+
-                    "\nOn Mac: use the launcher or type 'brew install ffmpeg' in a shell";
+            String msg = "klik uses ffmpeg to support several features, " +
+                    "\nlike making an animated gif icon for movies."+
+                    "\nffmpeg is easy and free to install (https://ffmpeg.org/)"+
+                    "\nOn Mac, type 'brew install ffmpeg' in a shell";
 
             Platform.runLater(()->{
             if ( Popups.info_popup(msg, GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
             {
+                // user decided that the warning is annoying
                 set_boolean(Feature.Show_ffmpeg_install_warning.name(), false,owner);
             }});
         }
@@ -92,7 +98,7 @@ public class Booleans
                 public void run() {
                     String msg = "klik uses the gm convert utility of graphicsmagick (gm) to support some features. " +
                             "\nIt is easy and free to install (http://www.graphicsmagick.org/)" +
-                            "\nOn Mac: use the launcher or type 'brew install graphicsmagick' in a shell";
+                            "\nOn Mac, type: 'brew install graphicsmagick' in a shell";
                     if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
                     {
                         set_boolean(Feature.Show_graphicsmagick_install_warning.name(), false,owner);

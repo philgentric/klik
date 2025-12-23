@@ -22,7 +22,7 @@ import klik.util.log.Stack_trace_getter;
 import klik.util.ui.Scrollable_text_field;
 import klik.util.ui.progress.Progress;
 import klik.util.execute.actor.Aborter;
-import klik.audio.Audio_player_access;
+import klik.audio.Audio_player_gradle_start;
 import klik.browser.Drag_and_drop;
 import klik.path_lists.Path_list_provider_for_file_system;
 import klik.browser.items.Item_file_with_icon;
@@ -175,7 +175,7 @@ public class Results_frame
 				//Image_window is = Image_window.get_Image_window(the_browser, path, logger);
 			} else if (Guess_file_type.is_this_path_a_music(path,owner, logger)) {
 				logger.log("opening audio file: " + path.toAbsolutePath());
-				Audio_player_access.play_song_in_separate_process(path.toFile(), logger);
+				Audio_player_gradle_start.play_song_in_separate_process(path.toFile(), logger);
 			} else if (Guess_file_type.is_this_path_a_text(path,owner, logger)) {
 				logger.log("opening text file: " + path.toAbsolutePath());
 				Text_frame.show(path, logger);

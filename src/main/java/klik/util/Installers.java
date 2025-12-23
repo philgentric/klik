@@ -7,6 +7,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.External_application;
+import klik.Klik_application;
 import klik.look.Look_and_feel;
 import klik.machine_learning.ML_servers_util;
 import klik.util.execute.Execute_command;
@@ -203,7 +204,7 @@ public class Installers
     }
 
     //**********************************************************
-    private static void show_version(Window owner, Logger logger)
+    public static void show_version(Window owner, Logger logger)
     //**********************************************************
     {
         Hourglass local_hourglass = Progress_window.show(
@@ -215,8 +216,17 @@ public class Installers
                 owner,
                 logger);
 
-        String version_string = get_version_string(logger);
-        logger.log("version: "+version_string);
+        String git_version_string = get_version_string(logger);
+        logger.log("git_version_string: "+git_version_string);
+        String code_version_string = Klik_application.class.getPackage().getImplementationVersion();
+        logger.log("code_version_string: "+code_version_string);
+
+        String version_string = git_version_string;
+        if ( version_string == null)
+        {
+            // this is an installed app, i.e. not executing from the source folder
+            version_string = code_version_string;
+        }
 
         Popups.simple_alert("version is "+version_string,owner,logger);
 
@@ -228,6 +238,7 @@ public class Installers
     //**********************************************************
     {
         String version =get_version_from_gradle_build(logger);
+        if ( version == null) return null;
         String commit_count =get_commit_count(logger);
         String version_string = version+"."+commit_count;
         return version_string;
@@ -282,7 +293,7 @@ public class Installers
                     // remove the end of the line:
                     // "1.0" // application_version
                     String[] parts2 = parts[1].split("//");
-                    return parts2[0].trim().replaceAll("\"","");
+                    return parts2[0].trim().replaceAll("'","").replaceAll("\"","");
                 }
             }
         }

@@ -45,7 +45,7 @@ java {
 
 
 
-version = "1.0" // application_version
+version = '1.0.93' // application_version
 group = 'klik'
 
 
@@ -118,14 +118,6 @@ tasks.register('klik', JavaExec) {
 }
 
 
-tasks.register('stf', JavaExec) {
-    dependsOn 'classes'
-    mainClass = 'klik.util.ui.Stf'
-    classpath = sourceSets.main.runtimeClasspath
-    group = 'applications'
-    return
-}
-
 tasks.register('audio_player', JavaExec) {
     dependsOn 'classes'
     mainClass = 'klik.audio.Audio_player_application'
@@ -176,6 +168,7 @@ shadowJar {
     manifest {
         attributes(
                 'Main-Class': 'klik.Klik_application',
+                'Implementation-Version' : project.version,
                 'JavaFX-Modules': ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml', 'javafx.media', 'javafx.web']
         )
     }

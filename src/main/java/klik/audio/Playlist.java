@@ -80,6 +80,7 @@ public class Playlist
     }
 
 
+
     //**********************************************************
     void add_to_playlist(String file_path)
     //**********************************************************
@@ -380,8 +381,13 @@ public class Playlist
         }
         load_playlist(playlist_file);
         String song = Non_booleans_properties.get_current_song(owner);
-        if (song == null) {
-            if ( the_playlist.size() == 0) return;
+        if (song == null)
+        {
+            if (the_playlist.isEmpty())
+            {
+                logger.log("Playlist is empty");
+                return;
+            }
             song = the_playlist.get(0);
         }
         change_song(song,start, true);
@@ -601,6 +607,7 @@ public class Playlist
         Runnable r = () -> update_playlist_size_info_in_a_thread();
         Actor_engine.execute(r,"Update playlist size info",logger);
     }
+
 
     //**********************************************************
     class Duration_message implements Message
@@ -1077,7 +1084,7 @@ public class Playlist
         }
         if (new_song == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL new_song == null"));
+            logger.log("❗Warning new_song == null in change_song");
             return;
         }
         String finalNew_song = new_song;

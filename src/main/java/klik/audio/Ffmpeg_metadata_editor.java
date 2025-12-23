@@ -6,6 +6,7 @@ package klik.audio;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Window;
+import klik.External_application;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Booleans;
 import klik.util.execute.Execute_result;
@@ -75,7 +76,7 @@ public class Ffmpeg_metadata_editor
             String extension = Extensions.get_extension(output_path);
             output_path = Extensions.add(base + "_edited", extension);
             List<String> command_line_for_ffmpeg = new ArrayList<>();
-            command_line_for_ffmpeg.add("ffmpeg");
+            command_line_for_ffmpeg.add(External_application.Ffmpeg.get_command(owner,logger));
             command_line_for_ffmpeg.add("-i");
             command_line_for_ffmpeg.add(path.toAbsolutePath().toString());
             command_line_for_ffmpeg.add("-c");
@@ -97,7 +98,7 @@ public class Ffmpeg_metadata_editor
             if ( !res.status())
             {
                 List<String> verify = new ArrayList<>();
-                verify.add("ffmpeg");
+                verify.add(External_application.Ffmpeg.get_command(owner,logger));
                 verify.add("-version");
                 String home = System.getProperty(Non_booleans_properties.USER_HOME);
                 Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);

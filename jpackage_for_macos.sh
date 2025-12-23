@@ -10,6 +10,7 @@ iconutil -c icns myicon.iconset -o myicon.icns
 
 jpackage \
   --type dmg \
+  --mac-entitlements mac-entitlements.plist \
   --name Klik \
   --app-version 1.0 \
   --vendor "Klik" \
@@ -20,4 +21,4 @@ jpackage \
   --module-path "$JAVA_HOME/jmods:/opt/homebrew/Cellar/openjfx/25/lib" \
   --add-modules javafx.base,javafx.graphics,javafx.controls,javafx.fxml,javafx.media,javafx.web \
   --icon myicon.icns \
-  --java-options "-Xmx2g --enable-native-access=ALL-UNNAMED"
+  --java-options "-Xmx4g --enable-native-access=ALL-UNNAMED"

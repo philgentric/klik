@@ -26,6 +26,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import klik.External_application;
 import klik.util.execute.Execute_result;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
@@ -754,6 +755,7 @@ public class Audio_player_FX_UI implements Media_callbacks
     public void on_player_ready()
     // **********************************************************
     {
+        logger.log("Audio_player_FX_UI on_player_ready()");
 
         equalizer_bands = Media_instance_statics.get_bands();
         // logger.log("\n\nequalizer init, bands= "+ equalizer_bands.size());
@@ -916,19 +918,7 @@ public class Audio_player_FX_UI implements Media_callbacks
     public void play_song_with_new_media_player(String new_song, boolean first_time)
     // **********************************************************
     {
-        String encoded;
-        // try
-        {
-            // encoded = "file://"+(new File(new_song)).getCanonicalPath();
-            encoded = (new File(new_song)).toURI().toString();
-        } /*
-           * catch (IOException e)
-           * {
-           * logger.log("ERROR "+e);
-           * return;
-           * }
-           * encoded = encoded.replaceAll(" ","%20");
-           */
+        String encoded = (new File(new_song)).toURI().toString();
 
         Media_instance_statics.play_this(encoded, this, first_time, stage, logger);
 
@@ -1164,7 +1154,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         logger.log("going to extract audio tracks from URl:" + youtube_url);
 
         List<String> command_line_for_ytdlp = new ArrayList<>();
-        command_line_for_ytdlp.add("yt-dlp");
+        command_line_for_ytdlp.add(External_application.Ytdlp.get_command(stage,logger));
         command_line_for_ytdlp.add("-4");
         command_line_for_ytdlp.add("-x");
         command_line_for_ytdlp.add("--audio-format");
@@ -1179,7 +1169,7 @@ public class Audio_player_FX_UI implements Media_callbacks
                 logger);
         if (!res.status()) {
             List<String> verif = new ArrayList<>();
-            verif.add("yt-dlp");
+            verif.add(External_application.Ytdlp.get_command(stage,logger));
             verif.add("--version");
             Execute_result res2 = Execute_command.execute_command_list(verif, new File(home), 20 * 1000, null, logger);
             if (!res2.status()) {
@@ -1248,7 +1238,6 @@ public class Audio_player_FX_UI implements Media_callbacks
     // **********************************************************
     {
         playlist.init();
-        // Platform.runLater(()->process_scroll(null));
     }
 
     // **********************************************************
@@ -1256,5 +1245,11 @@ public class Audio_player_FX_UI implements Media_callbacks
     // **********************************************************
     {
         playlist.set_selected(System.currentTimeMillis());
+    }
+
+    public void die()
+    {
+        stage.close();
+        Media_instance_statics.dispose();
     }
 }

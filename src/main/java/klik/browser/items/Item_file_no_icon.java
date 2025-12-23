@@ -16,7 +16,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
 import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
-import klik.audio.Audio_player_access;
+import klik.audio.Audio_player_gradle_start;
 import klik.browser.Drag_and_drop;
 import klik.browser.Image_and_properties;
 import klik.path_lists.Path_list_provider_for_file_system;
@@ -309,7 +309,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     //**********************************************************
     {
 
-        if ( Feature_cache.get(Feature.Show_single_column))
+        if ( Feature_cache.get(Feature.Show_single_column_with_details))
         {
             StringBuilder sb = new StringBuilder();
             try {
@@ -326,8 +326,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             } catch (IOException e) {
                 logger.log_exception("",e);
             }
-            String size_string = sb.toString();
-            label = new Label(size_string);
+            label = new Label(sb.toString());
             //Font_size.set_preferred_font_size(label,logger);
             Font_size.apply_global_font_size_to_Node(label,owner,logger);
             button = new Button(text,label);
@@ -359,7 +358,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             {
                 logger.log("✅ opening audio playlist: " + get_item_path().toAbsolutePath());
                 //UI_instance_holder.play_playlist(get_item_path().toFile(),logger);
-                Audio_player_access.play_play_list_in_separate_process(get_item_path().toFile(),logger);
+                Audio_player_gradle_start.play_play_list_in_separate_process(get_item_path().toFile(),logger);
                 return;
             }
             /*
@@ -376,7 +375,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                 if ( Guess_file_type.does_this_file_contain_an_audio_track(get_item_path(),owner,logger))
                 {
                     logger.log("✅ Item_button, opening audio file: " + get_item_path().toAbsolutePath());
-                    Audio_player_access.play_song_in_separate_process(get_item_path().toFile(),logger);
+                    Audio_player_gradle_start.play_song_in_separate_process(get_item_path().toFile(),logger);
                     return;
                 }
             }
