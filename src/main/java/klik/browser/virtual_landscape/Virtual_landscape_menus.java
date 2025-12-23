@@ -503,7 +503,7 @@ public class Virtual_landscape_menus
         context_menu.getItems().add(make_font_size_menu_item());
         context_menu.getItems().add(make_style_menu_item());
         context_menu.getItems().add(make_language_menu());
-        context_menu.getItems().add(make_video_length_menu());
+        //context_menu.getItems().add(make_video_length_menu());
 
 
         if (Feature_cache.get(Feature.Enable_fusk))
@@ -1362,29 +1362,6 @@ public class Virtual_landscape_menus
         all_check_menu_items.add(item);
     }
 
-    //**********************************************************
-    public void create_menu_item_for_one_video_length( Menu menu, int length, List<CheckMenuItem> all_check_menu_items)
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Length_of_video_sample",virtual_landscape.owner,logger);
-        CheckMenuItem item = new CheckMenuItem(text + " = " +length+" s");
-        Look_and_feel_manager.set_menu_item_look(item, virtual_landscape.owner, logger);
-        int actual_size = Non_booleans_properties.get_animated_gif_duration_for_a_video(owner);
-        item.setSelected(actual_size == length);
-        item.setOnAction(actionEvent -> {
-            CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
-            if (local.isSelected()) {
-                for ( CheckMenuItem cmi : all_check_menu_items)
-                {
-                    if ( cmi != local) cmi.setSelected(false);
-                }
-                Non_booleans_properties.set_animated_gif_duration_for_a_video(length,owner);
-                Popups.popup_warning( "❗ Note well:","You have to clear the icon cache to see the effect for already visited folders",false,owner,logger);
-            }
-        });
-        menu.getItems().add(item);
-        all_check_menu_items.add(item);
-    }
 
     //**********************************************************
     public static void create_menu_item_for_one_column_width(Menu menu, int length, List<CheckMenuItem> all_check_menu_items, Virtual_landscape local_virtual_landscape, Window owner, Logger logger)
@@ -1523,21 +1500,6 @@ public class Virtual_landscape_menus
     }
 
 
-    //**********************************************************
-    public Menu make_video_length_menu()
-    //**********************************************************
-    {
-        String text = My_I18n.get_I18n_string("Length_of_video_sample",virtual_landscape.owner,logger);
-        Menu menu = new Menu(text);
-        Look_and_feel_manager.set_menu_item_look(menu,virtual_landscape.owner, logger);
-        List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        int[] possible_lenghts ={Non_booleans_properties.DEFAULT_VIDEO_LENGTH,2,3,5,7,10,15,20};
-        for ( int l : possible_lenghts)
-        {
-            create_menu_item_for_one_video_length(menu, l, all_check_menu_items);
-        }
-        return menu;
-    }
     //**********************************************************
     public static Menu make_column_width_menu(Virtual_landscape local_virtual_landscape, Window owner, Logger logger)
     //**********************************************************

@@ -62,8 +62,8 @@ public class Full_image_from_disk
                         user_warned_about_slow_disk = true;
                         Actor_engine.execute(()-> Platform.runLater(
                                 ()-> Popups.popup_warning(
-                                        "Reading file "+original_image_file+ " was ridiculously slow.",
-                                        "Maybe this is a network drive and your network connection is slow?",
+                                        "Reading file "+original_image_file+ "\nwas ridiculously slow...",
+                                        "\nMaybe it is a bad USB drive\nor a network drive with a slow network connection?",
                                         false,
                                         null,logger)),"Warm user about slow disk",logger);
 

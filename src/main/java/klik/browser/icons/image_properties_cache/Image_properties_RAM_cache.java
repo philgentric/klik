@@ -114,7 +114,9 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
             {
                 if (Guess_file_type.is_this_path_an_image(p, owner, logger))
                 {
-                    logger.log(Stack_trace_getter.get_stack_trace("❗ WARNING null Image_properties in cache after blocking call for :" + p));
+                    logger.log(
+                            //Stack_trace_getter.get_stack_trace
+                            ("❗ WARNING null Image_properties in cache after blocking call for :" + p));
                 }
             }
             return x;

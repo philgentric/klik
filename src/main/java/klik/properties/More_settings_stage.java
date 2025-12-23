@@ -33,13 +33,15 @@ import klik.util.ui.Items_with_explanation;
 import klik.util.ui.Popups;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class More_settings_stage
 {
 
     public static final Feature[] basic_features ={
-            Feature.Show_single_column_with_details,
+            //Feature.Show_single_column_with_details,
             Feature.Show_icons_for_files,
             Feature.Show_icons_for_folders,
             Feature.Show_hidden_files,
@@ -83,7 +85,7 @@ public class More_settings_stage
             Feature.Fusk_is_on,
             Feature.Show_ffmpeg_install_warning,
             Feature.Show_graphicsmagick_install_warning,
-            Feature.Show_can_use_ESC_to_close_windows,
+            //Feature.Show_can_use_ESC_to_close_windows,
             Feature.Enable_feature_vector_monitoring
     };
 
@@ -111,7 +113,10 @@ public class More_settings_stage
             {
                 add_one_line(f, box);
             }
-            TitledPane pane = new TitledPane("Basic features", box);
+            ScrollPane sp = new ScrollPane(box);
+            sp.setFitToWidth(true);          // stretch items horizontally
+            sp.setPrefViewportHeight(200);   // limit visible height
+            TitledPane pane = new TitledPane("Basic features", sp);
             accordion.getPanes().add(pane);
             accordion.setExpandedPane(pane);
 
@@ -151,6 +156,23 @@ public class More_settings_stage
                 add_one_line(f, box);
             }
             {
+                String text = My_I18n.get_I18n_string("Length_of_video_sample",owner,logger);
+                MenuButton mb = new MenuButton(text);
+                Look_and_feel_manager.set_region_look(mb,owner, logger);
+
+                List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
+                int[] possible_lenghts ={Non_booleans_properties.DEFAULT_VIDEO_LENGTH,2,3,5,7,10,15,20};
+                for ( int l : possible_lenghts)
+                {
+                    create_menu_item_for_one_video_length(mb, l, all_check_menu_items);
+                }
+                box.getChildren().add(mb);
+            }
+
+
+
+
+            {
                 String key = "Show_Version";
                 EventHandler<ActionEvent> handler = e -> Installers.show_version(owner,logger);
                 HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
@@ -163,7 +185,10 @@ public class More_settings_stage
                         logger);
                 box.getChildren().add(hb);
             }
-            TitledPane pane = new TitledPane("Advanced features", box);
+            ScrollPane sp = new ScrollPane(box);
+            sp.setFitToWidth(true);          // stretch items horizontally
+            sp.setPrefViewportHeight(200);   // limit visible height
+            TitledPane pane = new TitledPane("Advanced features", sp);
             accordion.getPanes().add(pane);
         }
         {
@@ -174,7 +199,10 @@ public class More_settings_stage
             }
             //if (Feature_cache.get(Feature.Max_RAM_is_defined_by_user))
 
-            TitledPane pane = new TitledPane("Experimental features", box);
+            ScrollPane sp = new ScrollPane(box);
+            sp.setFitToWidth(true);          // stretch items horizontally
+            sp.setPrefViewportHeight(200);   // limit visible height
+            TitledPane pane = new TitledPane("Experimental features", sp);
             accordion.getPanes().add(pane);
         }
         {
@@ -184,7 +212,10 @@ public class More_settings_stage
                 add_one_line(f, box);
             }
             box.getChildren().add(Debug_console.get_button(owner,logger));
-            TitledPane pane = new TitledPane("Debugging", box);
+            ScrollPane sp = new ScrollPane(box);
+            sp.setFitToWidth(true);          // stretch items horizontally
+            sp.setPrefViewportHeight(200);   // limit visible height
+            TitledPane pane = new TitledPane("Debugging", sp);
             accordion.getPanes().add(pane);
         }
 
@@ -197,7 +228,10 @@ public class More_settings_stage
                 look_and_feel,
                 box
                 );
-            TitledPane pane = new TitledPane("Cache debugging", box);
+            ScrollPane sp = new ScrollPane(box);
+            sp.setFitToWidth(true);          // stretch items horizontally
+            sp.setPrefViewportHeight(200);   // limit visible height
+            TitledPane pane = new TitledPane("Cache debugging", sp);
             accordion.getPanes().add(pane);
         }
         {
@@ -226,7 +260,10 @@ public class More_settings_stage
                     disable_button(hb);
                 }
             }
-            TitledPane pane = new TitledPane("ML debugging", box);
+            ScrollPane sp = new ScrollPane(box);
+            sp.setFitToWidth(true);          // stretch items horizontally
+            sp.setPrefViewportHeight(200);   // limit visible height
+            TitledPane pane = new TitledPane("ML debugging", sp);
             accordion.getPanes().add(pane);
         }
 
@@ -236,6 +273,29 @@ public class More_settings_stage
         stage.initOwner(owner);
         stage.setMinWidth(1000);
         stage.show();
+    }
+    //**********************************************************
+    public void create_menu_item_for_one_video_length( MenuButton menu, int length, List<CheckMenuItem> all_check_menu_items)
+    //**********************************************************
+    {
+        String text = My_I18n.get_I18n_string("Length_of_video_sample",owner,logger);
+        CheckMenuItem item = new CheckMenuItem(text + " = " +length+" s");
+        Look_and_feel_manager.set_menu_item_look(item, owner, logger);
+        int actual_size = Non_booleans_properties.get_animated_gif_duration_for_a_video(owner);
+        item.setSelected(actual_size == length);
+        item.setOnAction(actionEvent -> {
+            CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
+            if (local.isSelected()) {
+                for ( CheckMenuItem cmi : all_check_menu_items)
+                {
+                    if ( cmi != local) cmi.setSelected(false);
+                }
+                Non_booleans_properties.set_animated_gif_duration_for_a_video(length,owner);
+                Popups.popup_warning( "❗ Note well:","You have to clear the icon cache to see the effect for already visited folders",false,owner,logger);
+            }
+        });
+        menu.getItems().add(item);
+        all_check_menu_items.add(item);
     }
 
 
