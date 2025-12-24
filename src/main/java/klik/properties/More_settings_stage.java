@@ -54,8 +54,8 @@ public class More_settings_stage
 
     public static final Feature[] advanced_features ={
             Feature.Monitor_folders,
-            Feature.Enable_face_recognition,
-            Feature.Enable_image_similarity,
+            //Feature.Enable_face_recognition,
+            //Feature.Enable_image_similarity,
             Feature.Enable_bit_level_deduplication,
             Feature.Enable_backup,
             Feature.Enable_recursive_empty_folders_removal,
@@ -205,6 +205,47 @@ public class More_settings_stage
             accordion.getPanes().add(pane);
             accordion.setExpandedPane(pane);
         }
+
+        {
+            VBox box = new VBox(10);
+            Installers.make_ui_to_install_python_libs_for_ML(w, icon_size, look_and_feel,box, owner, logger);
+
+            add_one_line(Feature.Enable_image_similarity,box);
+            {
+                HBox hb = Installers.make_ui_to_start_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
+                if (!Feature_cache.get(Feature.Enable_image_similarity)) {
+                    disable_button(hb);
+                }
+            }
+            add_one_line(Feature.Display_image_distances, box);
+            {
+                HBox hb = Installers.make_ui_to_stop_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
+                if (!Feature_cache.get(Feature.Enable_image_similarity)) {
+                    disable_button(hb);
+                }
+            }
+
+            add_one_line(Feature.Enable_face_recognition,box);
+            {
+                HBox hb = Installers.make_ui_to_start_face_recognition_servers(w, icon_size, look_and_feel, box, owner, logger);
+                if (!Feature_cache.get(Feature.Enable_face_recognition)) {
+                    disable_button(hb);
+                }
+            }
+            {
+                HBox hb = Installers.make_ui_to_stop_face_recognition_servers(w, icon_size, look_and_feel, box, owner, logger);
+                if (!Feature_cache.get(Feature.Enable_face_recognition)) {
+                    disable_button(hb);
+                }
+            }
+
+            ScrollPane sp = new ScrollPane(box);
+            sp.setFitToWidth(true);          // stretch items horizontally
+            sp.setPrefViewportHeight(200);   // limit visible height
+            TitledPane pane = new TitledPane("Machine Learning (ML) features", sp);
+            accordion.getPanes().add(pane);
+        }
+
         {
             VBox box = new VBox(10);
             for (Feature f : debugging_features)
@@ -245,45 +286,6 @@ public class More_settings_stage
             sp.setFitToWidth(true);          // stretch items horizontally
             sp.setPrefViewportHeight(200);   // limit visible height
             TitledPane pane = new TitledPane("Cache debugging", sp);
-            accordion.getPanes().add(pane);
-        }
-        {
-            VBox box = new VBox(10);
-            Installers.make_ui_to_install_python_libs_for_ML(w, icon_size, look_and_feel,box, owner, logger);
-
-            {
-                HBox hb = Installers.make_ui_to_start_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
-                if (!Feature_cache.get(Feature.Enable_image_similarity)) {
-                    disable_button(hb);
-                }
-            }
-            add_one_line(Feature.Display_image_distances, box);
-            {
-                HBox hb = Installers.make_ui_to_stop_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
-                if (!Feature_cache.get(Feature.Enable_image_similarity)) {
-                    disable_button(hb);
-                }
-            }
-
-            {
-                HBox hb = Installers.make_ui_to_start_face_recognition_servers(w, icon_size, look_and_feel, box, owner, logger);
-                if (!Feature_cache.get(Feature.Enable_face_recognition)) {
-                    disable_button(hb);
-                }
-            }
-            {
-                HBox hb = Installers.make_ui_to_stop_face_recognition_servers(w, icon_size, look_and_feel, box, owner, logger);
-                if (!Feature_cache.get(Feature.Enable_face_recognition)) {
-                    disable_button(hb);
-                }
-            }
-
-
-
-            ScrollPane sp = new ScrollPane(box);
-            sp.setFitToWidth(true);          // stretch items horizontally
-            sp.setPrefViewportHeight(200);   // limit visible height
-            TitledPane pane = new TitledPane("ML debugging", sp);
             accordion.getPanes().add(pane);
         }
 
