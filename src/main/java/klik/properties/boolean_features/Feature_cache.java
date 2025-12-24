@@ -162,7 +162,7 @@ public class Feature_cache
         if (Klik_application.ui_change_report_port_at_launcher != null)
         {
             // when klik is started "standalone" (not from the launcher), this port is null
-            TCP_client.send_in_a_thread("localhost", Klik_application.ui_change_report_port_at_launcher, msg+" "+new_lang, logger);
+            TCP_client.send_in_a_thread("127.0.0.1", Klik_application.ui_change_report_port_at_launcher, msg+" "+new_lang, logger);
         }
     }
 

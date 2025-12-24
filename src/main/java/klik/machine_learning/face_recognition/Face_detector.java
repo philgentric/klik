@@ -90,7 +90,7 @@ public class Face_detector
         String url_string = null;
         try {
             String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");
-            url_string = "http://localhost:"+port+"/" + encodedPath;
+            url_string = "http://127.0.0.1:"+port+"/" + encodedPath;
         } catch (UnsupportedEncodingException e) {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return new Face_detection_result(null, Face_recognition_in_image_status.error);

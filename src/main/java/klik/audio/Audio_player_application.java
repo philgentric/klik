@@ -59,7 +59,7 @@ public class Audio_player_application extends Application
                 return;
             }
             // blocking call otherwise exit will prevent the reply from flying out
-            TCP_client.send("localhost", reply_port, Launcher.NOT_STARTED, logger);
+            TCP_client.send("127.0.0.1", reply_port, Launcher.NOT_STARTED, logger);
 
             stage_.close();
             Platform.exit();

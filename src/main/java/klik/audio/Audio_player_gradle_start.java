@@ -33,7 +33,7 @@ public class Audio_player_gradle_start
     //**********************************************************
     {
         // try to connect in case an audio player is already started
-        TCP_client_out tco = TCP_client.request("localhost",AUDIO_PLAYER_PORT,song.getAbsolutePath().toString(),logger);
+        TCP_client_out tco = TCP_client.request("127.0.0.1",AUDIO_PLAYER_PORT,song.getAbsolutePath().toString(),logger);
         if ( tco.status())
         {
             if ( tco.reply().equals(PLAY_REQUEST_ACCEPTED))
@@ -58,7 +58,7 @@ public class Audio_player_gradle_start
     //**********************************************************
     {
         // try to connect in case an audio player is already started
-        TCP_client_out tco = TCP_client.request("localhost",AUDIO_PLAYER_PORT,song.getAbsolutePath().toString(),logger);
+        TCP_client_out tco = TCP_client.request("127.0.0.1",AUDIO_PLAYER_PORT,song.getAbsolutePath().toString(),logger);
         if ( tco.status())
         {
             if ( tco.reply().equals(PLAY_REQUEST_ACCEPTED))

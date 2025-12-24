@@ -320,13 +320,13 @@ public class Properties_server
         String key = "toto";
         String value = "tata";
         {
-            TCP_client_out reply = TCP_client.request2("localhost", PROPERTY_PORT_for_set, key, value, logger);
+            TCP_client_out reply = TCP_client.request2("127.0.0.1", PROPERTY_PORT_for_set, key, value, logger);
             if ( reply.status()) logger.log("status OK");
             else logger.log("status FAIL");
             logger.log(reply.reply());
         }
         {
-            TCP_client_out reply = TCP_client.request("localhost", PROPERTY_PORT_for_get, key, logger);
+            TCP_client_out reply = TCP_client.request("127.0.0.1", PROPERTY_PORT_for_get, key, logger);
             if ( reply.status()) logger.log("status OK");
             else logger.log("status FAIL");
 

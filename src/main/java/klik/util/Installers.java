@@ -4,7 +4,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import klik.External_application;
 import klik.Klik_application;
@@ -48,83 +47,88 @@ public class Installers
     }
 
     //**********************************************************
-    public static HBox make_ui_to_stop_image_similarity_servers(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window stage, Logger logger)
+    public static HBox make_ui_to_stop_image_similarity_servers(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window owner, Logger logger)
     //**********************************************************
     {
         String key = "Stop_Image_Similarity_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false, true, stage, logger);
+        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false, true, owner, logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
                 icon_size,
                 look_and_feel,
-                stage,
+                owner,
                 logger);
         vbox.getChildren().add(hb);
         return hb;
     }
 
     //**********************************************************
-    public static HBox make_ui_to_start_face_recognition_servers(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window stage, Logger logger)
+    public static HBox make_ui_to_start_face_recognition_servers(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window owner, Logger logger)
     //**********************************************************
     {
         String key = "Start_Face_Recognition_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(stage, logger), false, true, stage, logger);
+        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(owner, logger), false, true, owner, logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
                 icon_size,
                 look_and_feel,
-                stage,
+                owner,
                 logger);
         vbox.getChildren().add(hb);
         return hb;
     }
 
     //**********************************************************
-    public static HBox make_ui_to_stop_face_recognition_servers(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window stage, Logger logger)
+    public static HBox make_ui_to_stop_face_recognition_servers(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window owner, Logger logger)
     //**********************************************************
     {
         String key = "Stop_Face_Recognition_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false, true, stage, logger);
+        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false, true, owner, logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
                 icon_size,
                 look_and_feel,
-                stage,
+                owner,
                 logger);
         vbox.getChildren().add(hb);
         return hb;
     }
 
     //**********************************************************
-    public static void make_ui_to_install_python_libs_for_ML(int width, int icon_size, Look_and_feel look_and_feel, VBox vbox, Stage stage, Logger logger)
+    public static void make_ui_to_install_python_libs_for_ML(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window owner, Logger logger)
     //**********************************************************
     {
         String key = "Install_Python_Libs_For_ML";
-        EventHandler<ActionEvent> handler = e -> ML_servers_util.install_python_libs_for_ML(stage, logger);
+        EventHandler<ActionEvent> handler = e -> ML_servers_util.install_python_libs_for_ML(owner, logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
                 icon_size,
                 look_and_feel,
-                stage,
+                owner,
                 logger);
         vbox.getChildren().add(hb);
     }
 
     //**********************************************************
-    public static void make_ui_to_install_all_apps(int width, int icon_size, Look_and_feel look_and_feel, VBox vbox, Stage stage, Logger logger)
+    public static void make_ui_to_install_all_apps(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window owner, Logger logger)
     //**********************************************************
     {
         for(External_application app :External_application.values())
         {
-            HBox hb = app.get_button(width, icon_size, look_and_feel, stage, logger);
+            if ( app==External_application.Ffprobe)
+            {
+                // assume ffprobe is installed with ffmpeg
+                continue;
+            }
+            HBox hb = app.get_button(width, icon_size, look_and_feel, owner, logger);
             vbox.getChildren().add(hb);
         }
     }
@@ -132,36 +136,38 @@ public class Installers
 
 
     //**********************************************************
-    public static void make_ui_to_install_everything(int width, int icon_size, Look_and_feel look_and_feel, VBox vbox, Stage stage, Logger logger)
+    public static void make_ui_to_install_everything(boolean also_python_ML_libs,double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window owner, Logger logger)
     //**********************************************************
     {
         String key = "Install_All_Tools";
-        EventHandler<ActionEvent> handler = e -> Installers.install_everything(stage, logger);
+        EventHandler<ActionEvent> handler = e -> Installers.install_everything(also_python_ML_libs,owner, logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
                 icon_size,
                 look_and_feel,
-                stage,
+                owner,
                 logger);
         vbox.getChildren().add(hb);
     }
 
 
     //**********************************************************
-    private static void install_everything(Window owner, Logger logger)
+    private static void install_everything(boolean also_python_ML_libs,Window owner, Logger logger)
     //**********************************************************
     {
-        Actor_engine.execute(() -> install_everything_in_a_thread(owner, logger), "Installing all tools", logger);
+        Actor_engine.execute(() -> install_everything_in_a_thread(also_python_ML_libs,owner, logger), "Installing all tools", logger);
     }
 
     //**********************************************************
-    private static void install_everything_in_a_thread(Window owner, Logger logger)
+    private static void install_everything_in_a_thread(boolean also_python_ML_libs, Window owner, Logger logger)
     //**********************************************************
     {
-        ML_servers_util.install_python_libs_for_ML(owner, logger);
-        for (External_application app : External_application.values()) {
+        if ( also_python_ML_libs) ML_servers_util.install_python_libs_for_ML(owner, logger);
+        for (External_application app : External_application.values())
+        {
+            if ( app==External_application.Ffprobe) continue; // installs with ffmpeg
             String cmd = app.get_command_string_to_install(owner, logger);
             if (cmd == null) continue;
             Execute_via_script_in_tmp_file.execute(cmd, true, false, owner, logger);
@@ -170,35 +176,35 @@ public class Installers
 
 
     //**********************************************************
-    public static void make_ui_to_show_version(int width, int icon_size, Look_and_feel look_and_feel, VBox vbox, Stage stage, Logger logger)
+    public static void make_ui_to_show_version(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window owner, Logger logger)
     //**********************************************************
     {
         String key = "Show_Version";
-        EventHandler<ActionEvent> handler =e -> show_version(stage, logger);
+        EventHandler<ActionEvent> handler =e -> show_version(owner, logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
                 icon_size,
                 look_and_feel,
-                stage,
+                owner,
                 logger);
         vbox.getChildren().add(hb);
     }
 
     //**********************************************************
-    public static void make_ui_get_most_recent_version(int width, int icon_size, Look_and_feel look_and_feel, VBox vbox, Stage stage, Logger logger)
+    public static void make_ui_get_most_recent_version(double width, double icon_size, Look_and_feel look_and_feel, VBox vbox, Window owner, Logger logger)
     //**********************************************************
     {
         String key = "Get_Most_Recent_Version";
-        EventHandler<ActionEvent> handler =e -> get_most_recent_version(stage, logger);
+        EventHandler<ActionEvent> handler =e -> get_most_recent_version(owner, logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
                 width,
                 icon_size,
                 look_and_feel,
-                stage,
+                owner,
                 logger);
         vbox.getChildren().add(hb);
     }
@@ -303,20 +309,20 @@ public class Installers
 
 
     //**********************************************************
-    private static void get_most_recent_version(Stage stage, Logger logger)
+    private static void get_most_recent_version(Window owner, Logger logger)
     //**********************************************************
     {
         Hourglass local_hourglass = Progress_window.show(
                 false,
                 "Please wait ... getting version",
                 30*60,
-                stage.getX()+100,
-                stage.getY()+100,
-                stage,
+                owner.getX()+100,
+                owner.getY()+100,
+                owner,
                 logger);
 
 
-        if (Popups.popup_ask_for_confirmation("❗ Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best, but of course, things need to be restarted for changes to take effect",stage,logger))
+        if (Popups.popup_ask_for_confirmation("❗ Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best, but of course, things need to be restarted for changes to take effect",owner,logger))
         {
             logger.log("version before:"+get_version_string(logger));
             {

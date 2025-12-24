@@ -65,8 +65,8 @@ class MTCNN_FaceDetectionHandler(SimpleHTTPRequestHandler):
             processing_time = (time.time() - start_time)*1000
             monitor_data = f"{SERVER_UUID},mtcnn_detection,mtcnn,{processing_time:.3f}"
             try:
-                bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('localhost', MONITOR_PORT))
-                print(f"UDP sent {bytes_sent} bytes to localhost:{MONITOR_PORT}: {monitor_data}")
+                bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('127.0.0.1', MONITOR_PORT))
+                print(f"UDP sent {bytes_sent} bytes to 127.0.0.1:{MONITOR_PORT}: {monitor_data}")
             except Exception as e:
                 print(f"UDP send error: {e}")
 
@@ -84,7 +84,7 @@ def run_server(port, config_number, monitor_udp_port):
     MONITOR_PORT = monitor_udp_port
 
     print("Starting local MTCNN FACE DETECTION server on port "+str(port)+ " with config: "+str(config_number))
-    server_address = ('localhost', port)
+    server_address = ('127.0.0.1', port)
     handler = partial(MTCNN_FaceDetectionHandler, config_number)
     httpd = HTTPServer(server_address, handler)
     httpd.serve_forever()

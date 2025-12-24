@@ -109,7 +109,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
                 aborter, my_Stage.the_Stage, logger);
         if ( Klik_application.ui_change_report_port_at_launcher !=null) // is null when launched from ther audio player
         {
-            TCP_client.send_in_a_thread("localhost", Klik_application.ui_change_report_port_at_launcher, UI_change.THIS_IS_THE_PORT_I_LISTEN_TO_FOR_UI_CHANGES + " " + ui_change_receiver_port, logger);
+            TCP_client.send_in_a_thread("127.0.0.1", Klik_application.ui_change_report_port_at_launcher, UI_change.THIS_IS_THE_PORT_I_LISTEN_TO_FOR_UI_CHANGES + " " + ui_change_receiver_port, logger);
         }
 
         my_Stage.the_Stage.setOnCloseRequest(event -> {

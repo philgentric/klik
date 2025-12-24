@@ -120,7 +120,7 @@ public class Audio_player
         }
         else
         {
-            TCP_client.send_in_a_thread("localhost",reply_port, Launcher.STARTED,logger);
+            TCP_client.send_in_a_thread("127.0.0.1",reply_port, Launcher.STARTED,logger);
         }
 
         //Window_provider window_provider = New_song_playlist_context.additional_no_past(null,stage,logger);

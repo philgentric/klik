@@ -73,7 +73,7 @@ public class More_settings_stage
             Feature.Enable_name_cleaning,
             Feature.Enable_corrupted_images_removal,
             Feature.Enable_alternate_image_scaling,
-            Feature.Display_image_distances,
+            //Feature.Display_image_distances,
             //Feature.Enable_tags,
             //Feature.Enable_image_playlists,
     };
@@ -121,6 +121,7 @@ public class More_settings_stage
             accordion.setExpandedPane(pane);
 
         }
+
         {
             VBox box = new VBox(10);
 
@@ -172,19 +173,7 @@ public class More_settings_stage
 
 
 
-            {
-                String key = "Show_Version";
-                EventHandler<ActionEvent> handler = e -> Installers.show_version(owner,logger);
-                HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
-                        key,
-                        handler,
-                        w,
-                        icon_size,
-                        look_and_feel,
-                        owner,
-                        logger);
-                box.getChildren().add(hb);
-            }
+
             ScrollPane sp = new ScrollPane(box);
             sp.setFitToWidth(true);          // stretch items horizontally
             sp.setPrefViewportHeight(200);   // limit visible height
@@ -207,9 +196,33 @@ public class More_settings_stage
         }
         {
             VBox box = new VBox(10);
+            Installers.make_ui_to_install_everything(false,w,icon_size,look_and_feel,box,owner,logger);
+            Installers.make_ui_to_install_all_apps(w,icon_size,look_and_feel,box,owner,logger);
+            ScrollPane sp = new ScrollPane(box);
+            sp.setFitToWidth(true);          // stretch items horizontally
+            sp.setPrefViewportHeight(200);   // limit visible height
+            TitledPane pane = new TitledPane("Install helper applications", sp);
+            accordion.getPanes().add(pane);
+            accordion.setExpandedPane(pane);
+        }
+        {
+            VBox box = new VBox(10);
             for (Feature f : debugging_features)
             {
                 add_one_line(f, box);
+            }
+            {
+                String key = "Show_Version";
+                EventHandler<ActionEvent> handler = e -> Installers.show_version(owner,logger);
+                HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
+                        key,
+                        handler,
+                        w,
+                        icon_size,
+                        look_and_feel,
+                        owner,
+                        logger);
+                box.getChildren().add(hb);
             }
             box.getChildren().add(Debug_console.get_button(owner,logger));
             ScrollPane sp = new ScrollPane(box);
@@ -236,18 +249,22 @@ public class More_settings_stage
         }
         {
             VBox box = new VBox(10);
+            Installers.make_ui_to_install_python_libs_for_ML(w, icon_size, look_and_feel,box, owner, logger);
+
             {
                 HBox hb = Installers.make_ui_to_start_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
                 if (!Feature_cache.get(Feature.Enable_image_similarity)) {
                     disable_button(hb);
                 }
             }
+            add_one_line(Feature.Display_image_distances, box);
             {
                 HBox hb = Installers.make_ui_to_stop_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
                 if (!Feature_cache.get(Feature.Enable_image_similarity)) {
                     disable_button(hb);
                 }
             }
+
             {
                 HBox hb = Installers.make_ui_to_start_face_recognition_servers(w, icon_size, look_and_feel, box, owner, logger);
                 if (!Feature_cache.get(Feature.Enable_face_recognition)) {
@@ -260,6 +277,9 @@ public class More_settings_stage
                     disable_button(hb);
                 }
             }
+
+
+
             ScrollPane sp = new ScrollPane(box);
             sp.setFitToWidth(true);          // stretch items horizontally
             sp.setPrefViewportHeight(200);   // limit visible height

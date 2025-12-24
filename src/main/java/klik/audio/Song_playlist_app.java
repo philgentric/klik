@@ -195,7 +195,7 @@ public class Song_playlist_app extends Application
         Integer reply_port = extract_started_reply_port(logger);
         if ( reply_port != null) // is null when launched from the audio player
         {
-            TCP_client.send_in_a_thread("localhost", reply_port, Launcher.STARTED, logger);
+            TCP_client.send_in_a_thread("127.0.0.1", reply_port, Launcher.STARTED, logger);
         }
     }
 

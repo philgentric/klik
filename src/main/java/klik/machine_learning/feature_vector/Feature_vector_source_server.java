@@ -230,7 +230,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         String url_string = null;
         try {
             String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");
-            url_string = "http://localhost:" + random_port + "/" + encodedPath;
+            url_string = "http://127.0.0.1:" + random_port + "/" + encodedPath;
         } catch (UnsupportedEncodingException e) {
             logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (1): "+e));
             return Optional.empty();

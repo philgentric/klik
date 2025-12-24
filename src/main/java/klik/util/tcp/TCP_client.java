@@ -233,7 +233,7 @@ public class TCP_client
     //**********************************************************
     {
         Logger logger = new File_logger("TCP client test");
-        TCP_client_out tco = TCP_client.request("localhost",TCP_server.TEST_PORT, "hello", logger);
+        TCP_client_out tco = TCP_client.request("127.0.0.1",TCP_server.TEST_PORT, "hello", logger);
 
         logger.log("status: "+tco.status());
         logger.log("reply: "+tco.reply());

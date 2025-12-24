@@ -69,8 +69,8 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         processing_time = (time.time() - start_time) * 1000  # Convert to milliseconds
         monitor_data = f"{SERVER_UUID},mobilenet,{image_raw_url},{processing_time:.3f}"
         try:
-            bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('localhost', MONITOR_PORT))
-            #print(f"UDP sent {bytes_sent} bytes to localhost:{MONITOR_PORT}: {monitor_data}")
+            bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('127.0.0.1', MONITOR_PORT))
+            #print(f"UDP sent {bytes_sent} bytes to 127.0.0.1:{MONITOR_PORT}: {monitor_data}")
         except Exception as e:
             print(f"UDP send error: {e}")
 
@@ -83,7 +83,7 @@ def run_server(tcp_port,udp_port):
     MONITOR_PORT = udp_port
 
     print("Starting local MobileNet EMBEDDINGS server on TCP port: "+str(tcp_port))
-    server_address = ('localhost', tcp_port)
+    server_address = ('127.0.0.1', tcp_port)
     httpd = HTTPServer(server_address, EmbeddingGenerator)
     httpd.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
     httpd.socket.listen(1024)

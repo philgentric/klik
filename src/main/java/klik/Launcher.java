@@ -235,7 +235,7 @@ public class Launcher extends Application implements UI_change
         Installers.make_ui_to_show_version(WIDTH,icon_size,look_and_feel, left, stage, logger);
         Installers.make_ui_get_most_recent_version(WIDTH,icon_size,look_and_feel, left, stage, logger);
 
-        Installers.make_ui_to_install_everything(WIDTH,icon_size,look_and_feel, right, stage, logger);
+        Installers.make_ui_to_install_everything(true,WIDTH,icon_size,look_and_feel, right, stage, logger);
         Installers.make_ui_to_install_python_libs_for_ML(WIDTH,icon_size,look_and_feel, right, stage, logger);
         Installers.make_ui_to_install_all_apps(WIDTH,icon_size,look_and_feel, right, stage, logger);
     }

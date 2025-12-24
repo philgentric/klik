@@ -181,7 +181,7 @@ public class TCP_server
     {
         aborter.abort("stop requested");
         // send message to unblock
-        TCP_client.send_in_a_thread("localhost", port_number, "stop", logger);
+        TCP_client.send_in_a_thread("127.0.0.1", port_number, "stop", logger);
     }
 
 

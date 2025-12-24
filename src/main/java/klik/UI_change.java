@@ -52,7 +52,7 @@ public interface UI_change
                         if ( propagate_to != null) {
                             for (int p : propagate_to) {
                                 logger.log(app_name+": propagating UI_CHANGED to port: " + p);
-                                TCP_client.send("localhost", p, msg, logger);
+                                TCP_client.send("127.0.0.1", p, msg, logger);
                             }
                         }
                     }
