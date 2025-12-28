@@ -1834,39 +1834,5 @@ public class Virtual_landscape_menus
     }
 
 
-    //**********************************************************
-    public MenuItem get_advanced_preferences()
-    //**********************************************************
-    {
-        return Menu_items.make_menu_item("More_Settings",null,event -> new More_settings_stage("Preferences", virtual_landscape.owner,logger),owner,logger);
-    }
-
-
-
-
-
-/*
-
-    //**********************************************************
-    public MenuItem make_start_face_recognition_servers_menu_item()
-    //**********************************************************
-    {
-        String key = "Start_Face_Recognition_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(owner,logger), false, true, owner, logger);
-        MenuItem item = Menu_items.make_menu_item(key,handler, owner,logger);
-        add_question_mark_button(key, item);
-        return item;
-    }
-    //**********************************************************
-    public MenuItem make_start_image_similarity_servers_menu_item()
-    //**********************************************************
-    {
-        String key = "Start_Image_Similarity_Servers";
-        EventHandler< ActionEvent > handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(owner,logger), false, true, owner, logger);
-        MenuItem item = Menu_items.make_menu_item(key,handler, owner,logger);
-        add_question_mark_button(key, item);
-        return item;
-    }
-*/
 
 }

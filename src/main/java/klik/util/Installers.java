@@ -11,7 +11,7 @@ import klik.look.Look_and_feel;
 import klik.machine_learning.ML_servers_util;
 import klik.util.execute.Execute_command;
 import klik.util.execute.Execute_result;
-import klik.util.execute.Execute_via_script_in_tmp_file;
+import klik.util.execute.Nix_execute_via_script_in_tmp_file;
 import klik.util.execute.actor.Actor_engine;
 import klik.util.log.Logger;
 import klik.util.ui.Items_with_explanation;
@@ -33,7 +33,7 @@ public class Installers
     //**********************************************************
     {
         String key = "Start_Image_Similarity_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(owner,logger), false, true, owner, logger);
+        EventHandler<ActionEvent> handler = e -> ML_servers_util.start_image_similarity_servers(owner, logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
@@ -51,7 +51,7 @@ public class Installers
     //**********************************************************
     {
         String key = "Stop_Image_Similarity_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_image_similarity_servers(logger), false, true, owner, logger);
+        EventHandler<ActionEvent> handler = e -> ML_servers_util.stop_image_similarity_servers(owner,logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
@@ -69,7 +69,7 @@ public class Installers
     //**********************************************************
     {
         String key = "Start_Face_Recognition_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(owner, logger), false, true, owner, logger);
+        EventHandler<ActionEvent> handler = e -> ML_servers_util.start_face_recognition_servers(owner, logger);;
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
@@ -87,7 +87,7 @@ public class Installers
     //**********************************************************
     {
         String key = "Stop_Face_Recognition_Servers";
-        EventHandler<ActionEvent> handler = e -> Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_stop_face_recognition_servers(logger), false, true, owner, logger);
+        EventHandler<ActionEvent> handler = e -> ML_servers_util.stop_face_recognition_servers(owner,logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,
@@ -170,7 +170,7 @@ public class Installers
             if ( app==External_application.Ffprobe) continue; // installs with ffmpeg
             String cmd = app.get_command_string_to_install(owner, logger);
             if (cmd == null) continue;
-            Execute_via_script_in_tmp_file.execute(cmd, true, false, owner, logger);
+            Nix_execute_via_script_in_tmp_file.execute(cmd, true, false, owner, logger);
         }
     }
 

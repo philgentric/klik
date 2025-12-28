@@ -3,22 +3,15 @@
 
 package klik.machine_learning.image_similarity;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.stage.Window;
 import klik.machine_learning.ML_servers_util;
-import klik.util.execute.Execute_command;
-import klik.util.execute.Execute_via_script_in_tmp_file;
 import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector;
 import klik.machine_learning.feature_vector.Feature_vector_source_server;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,7 +37,7 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
     //**********************************************************
     {
         super(owner, logger);
-        logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source_for_image_similarity"));
+        //logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source_for_image_similarity"));
     }
 
     //**********************************************************
@@ -67,8 +60,7 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
     protected boolean start_servers(Window owner, Logger logger)
     //**********************************************************
     {
-        Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_image_similarity_servers(owner,logger), false, false, owner, logger);
-        return true;
+        return ML_servers_util.start_image_similarity_servers(owner,logger);
     }
 
     //**********************************************************

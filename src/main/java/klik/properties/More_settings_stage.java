@@ -86,7 +86,7 @@ public class More_settings_stage
             Feature.Show_ffmpeg_install_warning,
             Feature.Show_graphicsmagick_install_warning,
             //Feature.Show_can_use_ESC_to_close_windows,
-            Feature.Enable_feature_vector_monitoring
+            //Feature.Enable_feature_vector_monitoring
     };
 
     private final Window owner;
@@ -217,6 +217,7 @@ public class More_settings_stage
                     disable_button(hb);
                 }
             }
+            add_one_line(Feature.Enable_feature_vector_monitoring, box);
             add_one_line(Feature.Display_image_distances, box);
             {
                 HBox hb = Installers.make_ui_to_stop_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);

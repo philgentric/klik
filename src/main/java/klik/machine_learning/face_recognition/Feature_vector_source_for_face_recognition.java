@@ -3,11 +3,9 @@
 
 package klik.machine_learning.face_recognition;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.stage.Window;
 import klik.machine_learning.ML_servers_util;
-import klik.util.execute.Execute_via_script_in_tmp_file;
+import klik.util.execute.Nix_execute_via_script_in_tmp_file;
 import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector;
 import klik.machine_learning.feature_vector.Feature_vector_source_server;
@@ -70,7 +68,7 @@ public class Feature_vector_source_for_face_recognition extends Feature_vector_s
     protected boolean start_servers(Window owner, Logger logger)
     //**********************************************************
     {
-        Execute_via_script_in_tmp_file.execute(ML_servers_util.get_command_string_to_start_face_recognition_servers(owner,logger), false, true, owner, logger);
+        ML_servers_util.start_face_recognition_servers(owner,logger);
         return true;
     }
 

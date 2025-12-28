@@ -45,7 +45,7 @@ pip install -r requirements.txt
 
 Prerequisite: You need to go to the advanced preference menu of klik to enable the capabilities
 
-method1 (easiest!): klik in the dedictated button in the Launcher
+method1 (easiest!): klik in the dedicated button in the Launcher
 
 method2: ask klik to provide the command line in the preferences menu
 
@@ -56,10 +56,10 @@ source ~/.klik/venv-metal/bin/activate
 
 Image embeddings python service : to start the image similarity embeddings servers, use the launch command:
 
-./launch_image_similarity_servers
+./launch_image_similarity_servers.sh
 
 (to kill the image similarity embeddings servers:
-./kill_image_similarity_servers)
+./kill_image_similarity_servers.sh)
 
 Face recognition servers : to start the face detection and face embeddings servers:
 open a shell/terminal, cd to this folder, type:

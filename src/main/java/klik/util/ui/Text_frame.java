@@ -18,7 +18,7 @@ import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
 import klik.look.Look_and_feel_manager;
 import klik.properties.Non_booleans_properties;
-import klik.util.execute.Execute_via_script_in_tmp_file;
+import klik.util.execute.Nix_execute_via_script_in_tmp_file;
 import klik.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
 import klik.util.files_and_paths.modifications.Filesystem_modification_reporter;
 import klik.util.log.Logger;
@@ -109,7 +109,7 @@ public class Text_frame
                     if ( dbg) logger.log("text frame received: " + line);
 
                     if ( aborter.should_abort()) break;
-                    if ( line.equals(Execute_via_script_in_tmp_file.END))
+                    if ( line.equals(Nix_execute_via_script_in_tmp_file.END))
                     {
                         if ( dbg) logger.log("text frame received END");
                         break;

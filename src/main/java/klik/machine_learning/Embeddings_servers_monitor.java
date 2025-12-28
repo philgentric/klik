@@ -29,7 +29,7 @@ public class Embeddings_servers_monitor implements AutoCloseable
     private volatile boolean running = true;
     private final Logger logger;
     public final int port;
-    private Embeddings_servers_monitoring_stage monitoring_frame;
+    private Embeddings_servers_monitoring_stage monitoring_frame; // may be null
 
     //**********************************************************
     public static int get_servers_monitor_udp_port(Window owner, Logger logger)
@@ -59,7 +59,8 @@ public class Embeddings_servers_monitor implements AutoCloseable
             logger.log(""+e);
         }
         port = port_tmp;
-        if (Feature_cache.get(Feature.Enable_feature_vector_monitoring)) {
+        if (Feature_cache.get(Feature.Enable_feature_vector_monitoring))
+        {
             Platform.runLater(() -> {
                 monitoring_frame = new Embeddings_servers_monitoring_stage(owner, logger);
             });
@@ -103,7 +104,7 @@ public class Embeddings_servers_monitor implements AutoCloseable
 
             Report report = new Report(server_uuid, model_name, image_path, processing_time);
 
-            monitoring_frame.inject(report);
+            if ( monitoring_frame!=null) monitoring_frame.inject(report);
             logger.log("Server: "+server_uuid+" Model: "+model_name+" processed "+image_path+" in "+processing_time+" seconds%n");
         }
         else

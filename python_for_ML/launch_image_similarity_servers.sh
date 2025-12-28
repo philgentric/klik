@@ -4,7 +4,6 @@ source ~/.klik/venv-metal/bin/activate
 
 python3 --version
 
-
 # First argument is the UDP monitoring port
 UDP_PORT=$1
 shift  # Remove first argument, leaving remaining args as HTTP ports

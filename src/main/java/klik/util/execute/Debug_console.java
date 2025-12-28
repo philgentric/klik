@@ -11,7 +11,6 @@ import javafx.stage.Window;
 import klik.util.log.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -46,7 +45,7 @@ public class Debug_console
             exe.setOnAction(event ->
             {
                 String cmd = tf.getText();
-                Execute_via_script_in_tmp_file.execute(cmd, true, false, stage, logger);
+                Nix_execute_via_script_in_tmp_file.execute(cmd, true, false, stage, logger);
             });
         }
         {

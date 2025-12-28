@@ -755,7 +755,7 @@ public class Audio_player_FX_UI implements Media_callbacks
     public void on_player_ready()
     // **********************************************************
     {
-        logger.log("Audio_player_FX_UI on_player_ready()");
+        //logger.log("Audio_player_FX_UI on_player_ready()");
 
         equalizer_bands = Media_instance_statics.get_bands();
         // logger.log("\n\nequalizer init, bands= "+ equalizer_bands.size());

@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import klik.look.Look_and_feel;
 import klik.look.Look_and_feel_manager;
-import klik.util.execute.Execute_via_script_in_tmp_file;
+import klik.util.execute.Nix_execute_via_script_in_tmp_file;
 import klik.util.execute.Guess_OS;
 import klik.util.log.Logger;
 import klik.util.ui.Items_with_explanation;
@@ -39,7 +39,7 @@ public enum External_application
         {
             String cmd = get_command_string_to_install(owner,logger);
             if ( cmd == null) return;
-            Execute_via_script_in_tmp_file.execute(cmd, true,false,owner,logger);
+            Nix_execute_via_script_in_tmp_file.execute(cmd, true,false,owner,logger);
         };
 
         return Items_with_explanation.make_hbox_with_button_and_explanation(

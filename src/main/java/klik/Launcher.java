@@ -29,7 +29,7 @@ import klik.look.Look_and_feel_manager.Icon_type;
 import klik.look.my_i18n.My_I18n;
 import klik.properties.Non_booleans_properties;
 import klik.util.execute.Execute_command;
-import klik.util.execute.Execute_via_script_in_tmp_file;
+import klik.util.execute.Nix_execute_via_script_in_tmp_file;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 import klik.util.tcp.*;
@@ -262,7 +262,7 @@ public class Launcher extends Application implements UI_change
         if ( use_script_in_tmp)
         {
             String cmd = "gradle "+app_name;
-            Execute_via_script_in_tmp_file.execute(cmd,false, true,stage,logger);
+            Nix_execute_via_script_in_tmp_file.execute(cmd,false, true,stage,logger);
         }
         else
         {

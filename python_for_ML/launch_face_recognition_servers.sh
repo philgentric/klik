@@ -1,6 +1,6 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 MONITOR_UDP_PORT=$1
+
 
 FACENET_EMBEDDINGS_PORTS=(8020 8021)
 for PORT in "${FACENET_EMBEDDINGS_PORTS[@]}"; do
