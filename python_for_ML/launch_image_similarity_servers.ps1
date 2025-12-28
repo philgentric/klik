@@ -34,5 +34,5 @@ foreach ($Port in $EMBEDDINGS_PORTS) {
 MobileNet_embeddings_server.run_server($p, $udp)" `  | Out-Null
     } -ArgumentList $Port, $UDP_PORT
 
-    Write-Host "Started MobileNet server on port $Port (sending UDP monitoring: $UDP_PORT) – Job ID: $($job.Id)"
+    Write-Host "Started MobileNet server on port $Port"
 }

@@ -65,7 +65,7 @@ public class ML_servers_util
             case MacOS, Linux ->
             {
                 String cmd = get_NIX_command_string_to_start_image_similarity_servers(owner,logger);
-                Nix_execute_via_script_in_tmp_file.execute(cmd, false, true, owner, logger);
+                Nix_execute_via_script_in_tmp_file.execute(cmd, true, true, owner, logger);
             }
             case Windows ->
             {
