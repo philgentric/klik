@@ -71,7 +71,7 @@ public class ML_servers_util
             {
                 List<Integer> ports = get_image_similarity_servers_ports(owner,logger);
                 String exeDir = System.getProperty("user.dir"); // directory of java.exe that launched this VM
-                Path ps1_script = Paths.get(exeDir, "scripts", "launch_image_similarity_servers.ps1");
+                Path ps1_script = Paths.get(exeDir, "Scripts", "launch_image_similarity_servers.ps1");
                 Execute_Windows_ps1_script.execute("Start image similarity servers",ps1_script,ports,true,true, owner,logger);
             }
 
@@ -91,7 +91,7 @@ public class ML_servers_util
             case Windows ->
             {
                 String exeDir = System.getProperty("user.dir"); // directory of java.exe that launched this VM
-                Path ps1_script = Paths.get(exeDir, "scripts", "kill_image_similarity_servers.ps1");
+                Path ps1_script = Paths.get(exeDir, "Scripts", "kill_image_similarity_servers.ps1");
                 Execute_Windows_ps1_script.execute("Kill image similarity servers",ps1_script,List.of(),true,true, owner,logger);
             }
         }
@@ -111,7 +111,7 @@ public class ML_servers_util
             {
                 List<Integer> ports = get_face_recognition_servers_ports(owner,logger);
                 String exeDir = System.getProperty("user.dir"); // directory of java.exe that launched this VM
-                Path ps1_script = Paths.get(exeDir, "scripts", "launch_face_recognition_servers.ps1");
+                Path ps1_script = Paths.get(exeDir, "Scripts", "launch_face_recognition_servers.ps1");
                 Execute_Windows_ps1_script.execute("Start face recognition servers",ps1_script,ports,true,true, owner,logger);
             }
         }
@@ -140,7 +140,7 @@ public class ML_servers_util
             {
                 {
                     String exeDir = System.getProperty("user.dir"); // directory of java.exe that launched this VM
-                    Path ps1_script = Paths.get(exeDir, "scripts", "kill_face_recognition_servers.ps1");
+                    Path ps1_script = Paths.get(exeDir, "Scripts", "kill_face_recognition_servers.ps1");
                     Execute_Windows_ps1_script.execute("Kill face recognition servers",ps1_script,List.of(),true,true, owner,logger);
                 }
             }

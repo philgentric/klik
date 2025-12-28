@@ -14,9 +14,7 @@ param(
 # ------------------------------------------------------------------
 $VenvDir = Join-Path $HOME ".klik\venv-metal"
 
-# Two ways to activate a venv – choose whichever is installed:
-#   * activate.bat  – works in cmd.exe
-#   * Activate.ps1  – works in PowerShell
+# Activate the venv
 $ActivateScript = Join-Path $VenvDir "Scripts\Activate.ps1"
 if (Test-Path $ActivateScript) {
     & $ActivateScript          # Source the PowerShell script
