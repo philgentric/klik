@@ -26,31 +26,16 @@ public class ML_servers_util
         {
             case Windows ->
             {
-                {
-                    String cmd = "winget install -e --id Python.Python.3";
-                    Execute_windows_command.execute(cmd, true, false, owner, logger);
-                }
-                {
-                    // create venv folder
-                    String cmd =  "New-Item -ItemType Directory -Path \"$env:USERPROFILE\\.klik\\venv-metal\" -Force";
-                    Execute_windows_command.execute(cmd, true, true, owner, logger);
-                }
-                {
-                    // create the venv
-                    String cmd =  "python -m venv %USERPROFILE%\\.klik\\venv-metal";
-                    Execute_windows_command.execute(cmd, true, true, owner, logger);
-                }
-
-                {
-                    // activate it
-                    String cmd =  ".\\..klik\\venv-metal\\Scripts\\Activate.ps1";
-                    Execute_windows_command.execute(cmd, true, true, owner, logger);
-                }
-                {
-                    // install all required packages
-                    String cmd =  "py -m pip install -r requirements.txt";
-                    Execute_windows_command.execute(cmd, true, true, owner, logger);
-                }
+                List<String> cmds = new ArrayList<>();
+                cmds.add("winget install -e --id Python.Python.3");
+                // create venv folder
+                cmds.add("New-Item -ItemType Directory -Path \"$env:USERPROFILE\\.klik\\venv-metal\" -Force");
+                // create the venv
+                cmds.add("python -m venv %USERPROFILE%\\.klik\\venv-metal");
+                // activate it
+                cmds.add(".\\..klik\\venv-metal\\Scripts\\Activate.ps1");
+                cmds.add("py -m pip install -r requirements.txt");
+                Execute_windows_command.execute(cmds, true, true, owner, logger);
             }
             case MacOS, Linux ->
             {
