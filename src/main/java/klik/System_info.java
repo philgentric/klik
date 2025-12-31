@@ -80,8 +80,11 @@ public class System_info
                     java.util.Scanner s = new java.util.Scanner(process.getInputStream());
                     while (s.hasNext()) {
                         String line = s.next();
-                        if (!line.isEmpty() && line.matches("\\d+")) {
+                        System.out.println("WINDAUBE Total Physical Memory: ->" + line + "<-");
+                        if (!line.isEmpty() && line.matches("\\d+"))
+                        {
                             long totalMemoryBytes = Long.parseLong(line);
+                            System.out.println("Total Physical Memory: " + totalMemoryBytes + " B");
                             int totalMemoryGB = (int)(totalMemoryBytes / (1024L * 1024L * 1024L));
                             System.out.println("Total Physical Memory: " + totalMemoryGB + " GB");
                             return totalMemoryGB;
