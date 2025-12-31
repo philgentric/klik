@@ -5,10 +5,7 @@ package klik.machine_learning;
 
 import javafx.stage.Window;
 import klik.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
-import klik.util.execute.Execute_Windows_ps1_script;
-import klik.util.execute.Nix_execute_via_script_in_tmp_file;
-import klik.util.execute.Guess_OS;
-import klik.util.execute.Operating_system;
+import klik.util.execute.*;
 import klik.util.log.Logger;
 
 import java.nio.file.Path;
@@ -29,21 +26,20 @@ public class ML_servers_util
         {
             case Windows ->
             {
+                String cmd = "winget install -e --id Python.Python.3";
+                Execute_windows_command.execute(cmd,true,false,owner,logger);
                 logger.log("install_python_libs_for_ML not implemented for Windows");
                 return;
             }
             case MacOS, Linux ->
             {
+                for (String s : macOS_commands_to_install_python)
                 {
-                    for (String s : macOS_commands_to_install_python)
-                    {
-                        Nix_execute_via_script_in_tmp_file.execute(s, true, false,owner, logger);
-                    }
+                    Nix_execute_via_script_in_tmp_file.execute(s, true, false,owner, logger);
                 }
+                for (String s : macOS_commands_to_install_metal)
                 {
-                    for (String s : macOS_commands_to_install_metal) {
-                        Nix_execute_via_script_in_tmp_file.execute(s, true, false,owner, logger);
-                    }
+                    Nix_execute_via_script_in_tmp_file.execute(s, true, false,owner, logger);
                 }
             }
 
@@ -211,15 +207,20 @@ public class ML_servers_util
         return "cd "+Paths.get("").toAbsolutePath()+"/python_for_ML; ./kill_face_recognition_servers.sh";
     }
 
+    //**********************************************************
     static final String[] macOS_commands_to_install_python ={
             "brew install python@3.10",
             "/opt/homebrew/bin/python3.10 -m venv " + venv_metal(),
             "source " + venv_metal() + "/bin/activate;pip install -U pip"
     };
+    //**********************************************************
+
+    //**********************************************************
     static final String[] macOS_commands_to_install_metal ={
             "source " + venv_metal() + "/bin/activate;pip install tensorflow-macos tensorflow-metal",
             "source " + venv_metal() + "/bin/activate;cd ./python_for_ML;pip install -r requirements.txt"
     };
+    //**********************************************************
 
 
 }
