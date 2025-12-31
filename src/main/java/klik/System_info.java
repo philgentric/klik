@@ -88,12 +88,14 @@ public class System_info
                     while (s.hasNext()) {
                         String line = s.next();
                         System.out.println("WINDAUBE Total Physical Memory: ->" + line + "<-");
-                        if (!line.isEmpty() && line.matches("\\d+"))
+                        //the output is "TotalPhysicalMemory=32324232"
+                        if (line.startsWith("TotalPhysicalMemory="))
                         {
+                            line = line.substring("TotalPhysicalMemory=".length());
                             long totalMemoryBytes = Long.parseLong(line);
-                            System.out.println("Total Physical Memory: " + totalMemoryBytes + " B");
+                            System.out.println("WINDAUBE Total Physical Memory: " + totalMemoryBytes + " B");
                             int totalMemoryGB = (int)(totalMemoryBytes / (1024L * 1024L * 1024L));
-                            System.out.println("Total Physical Memory: " + totalMemoryGB + " GB");
+                            System.out.println("WINDAUBE Total Physical Memory: " + totalMemoryGB + " GB");
                             return Optional.of(totalMemoryGB);
                         }
                     }
