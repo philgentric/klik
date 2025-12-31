@@ -25,7 +25,7 @@ import java.util.Random;
 public class Embeddings_servers_monitoring_stage
 //**********************************************************
 {
-    Stage stage;
+    private Stage stage;
     //private final Map<String, List<Report>> uuid_to_record= new HashMap<>();
     private final Map<String, VBox> uuid_to_vbox= new HashMap<>();
     private HBox hits_hbox;
@@ -126,6 +126,7 @@ public class Embeddings_servers_monitoring_stage
                 }
             }
         }
+        stage.show();
     }
 
     Random r = new Random();
@@ -155,5 +156,11 @@ public class Embeddings_servers_monitoring_stage
         }
         time_window.addLast(currentTime);
         return time_window.size() / WINDOW_SIZE_S;
+    }
+
+    public void show()
+    {
+        logger.log(" Embeddings_servers_monitoring_stage show");
+        stage.show();
     }
 }

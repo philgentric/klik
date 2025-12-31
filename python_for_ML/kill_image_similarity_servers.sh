@@ -1,29 +1,16 @@
 #!/usr/bin/env bash
 
-EMBEDDINGS_PORTS=(8200 8201 8202 8203 8204 8205 8206 8207 8208 8209
-8210 8211 8212 8213 8214 8215 8216 8217 8218 8219
-8220 8221 8222 8223 8224 8225 8226 8227 8228 8229
-8230 8231 8232 8233 )
+# -----------------------------------------------
+# kill every “MobileNet_embeddings_server” process
+# -----------------------------------------------
+set -euo pipefail      # safer bash defaults
 
-# --------------------------------------------------------------------
-# Helper: Return the PID(s) of a python process that was started with
-#        MobileNet_embeddings_server.run_server <port>
-# --------------------------------------------------------------------
-get_pids_for_port() {
-  local port="$1"
-  ps -e -o pid=,cmd= 2>/dev/null | \
-          grep -E -i "[p]ython[^ ]*MobileNet_embeddings_server\.run_server[^ ]*${port}" | \
-          awk '{print $1}'
-}
+pids=$(pgrep -f MobileNet_embeddings_server)
 
+if [[ -z $pids ]]; then
+    echo "Image similarity: No MobileNet_embeddings_server processes found."
+    exit 0
+fi
 
-for PORT in "${EMBEDDINGS_PORTS[@]}"; do
-  pids=$(get_pids_for_port "$PORT")
-
-  if [[ -n $pids ]]; then
-        echo "Image similarity, killing process(es) ${pids} for port ${PORT}"
-        kill -9 $pids
-    else
-        echo "Image similarity, No process(es) found for port ${PORT}"
-    fi
-done
+echo "Image similarity: Killing process(es) $pids for MobileNet_embeddings_server"
+kill -9 $pids

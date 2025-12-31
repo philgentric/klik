@@ -49,7 +49,7 @@ public class Feature_vector_source_for_face_recognition extends Feature_vector_s
 
     //**********************************************************
     @Override
-    protected boolean get_server_started()
+    protected boolean server_started()
     //**********************************************************
     {
         return server_started.get();

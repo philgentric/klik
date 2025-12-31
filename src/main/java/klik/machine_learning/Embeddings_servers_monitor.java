@@ -28,11 +28,21 @@ public class Embeddings_servers_monitor implements AutoCloseable
     private final byte[] buffer = new byte[1024];
     private volatile boolean running = true;
     private final Logger logger;
-    public final int port;
+    public final int port = 65123;
     private Embeddings_servers_monitoring_stage monitoring_frame; // may be null
 
+    // used when we start servers
     //**********************************************************
     public static int get_servers_monitor_udp_port(Window owner, Logger logger)
+    //**********************************************************
+    {
+        start_servers_monitoring(owner, logger);
+        return instance.port;
+    }
+
+    // used when we start servers
+    //**********************************************************
+    public static void start_servers_monitoring(Window owner, Logger logger)
     //**********************************************************
     {
         if ( instance == null)
@@ -40,25 +50,25 @@ public class Embeddings_servers_monitor implements AutoCloseable
             instance = new Embeddings_servers_monitor(owner,logger);
         }
         logger.log("Embeddings servers monitor listening on UDP port: "+instance.port);
-        return instance.port;
     }
 
     //**********************************************************
     private Embeddings_servers_monitor(Window owner, Logger logger)
     //**********************************************************
     {
-        int port_tmp;
+
+        //int port_tmp;
         this.logger = logger;
-        port_tmp = -1;
+        //port_tmp = -1;
         try {
             // find FREE UDP port
-            socket = new DatagramSocket(0);
-            port_tmp = socket.getLocalPort();
-            logger.log("Servers monitor started on UDP port: "+port_tmp);
+            socket = new DatagramSocket(port);
+            //port_tmp = socket.getLocalPort();
+            logger.log("Servers monitor started on UDP port: "+port);
         } catch (SocketException e) {
             logger.log(""+e);
         }
-        port = port_tmp;
+        //port = port_tmp;
         if (Feature_cache.get(Feature.Enable_feature_vector_monitoring))
         {
             Platform.runLater(() -> {

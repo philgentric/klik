@@ -633,7 +633,7 @@ public class Static_files_and_paths_utilities
         List<Old_and_new_Path> l = new ArrayList<>();
         for ( File f : files)
         {
-            logger.log("delete_for_ever_all_files_in_dir: ->"+f.getAbsolutePath()+"<-");
+            if ( dbg) logger.log("delete_for_ever_all_files_in_dir: ->"+f.getAbsolutePath()+"<-");
 
             if (f.isDirectory())
             {

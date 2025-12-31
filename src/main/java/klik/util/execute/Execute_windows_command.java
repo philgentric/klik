@@ -146,10 +146,10 @@ public class Execute_windows_command
                 logger.log("Error reading elevated process output: " + ex);
             }
         };
-        Actor_engine.execute(r,"Windows cooland",logger);
+        Actor_engine.execute(r,"Windows command",logger);
 
         /* ------------------------------------------------------------------ */
-        /* 6️⃣  Wait for completion (10 min max)                              */
+        /* 6️⃣  Wait for completion (10min max)                              */
         /* ------------------------------------------------------------------ */
         int exitCode;
         try {

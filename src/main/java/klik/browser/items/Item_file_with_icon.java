@@ -135,8 +135,7 @@ public class Item_file_with_icon extends Item_file
 
         ContextMenu context_menu = make_context_menu();
         button.setOnContextMenuRequested((ContextMenuEvent event) -> {
-            //if ( dbg)
-            logger.log("show context menu of image_view:"+ get_item_path().toAbsolutePath());
+            if ( dbg) logger.log("show context menu of image_view:"+ get_item_path().toAbsolutePath());
             context_menu.show(button, event.getScreenX(), event.getScreenY());
         });
 

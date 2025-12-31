@@ -19,7 +19,12 @@ public class Execute_command
     public static final String IN_WORKING_DIR = "in working dir";
 
     //**********************************************************
-    public static Execute_result execute_command_list(List<String> command_tokens, File wd, int max_ms_wait_time, StringBuilder string_builder, Logger logger)
+    public static Execute_result execute_command_list(
+            List<String> command_tokens,
+            File wd,
+            int max_ms_wait_time,
+            StringBuilder debug_string_builder, // can be null
+            Logger logger)
     //**********************************************************
     {
         StringBuilder received_line = new StringBuilder();
@@ -27,9 +32,9 @@ public class Execute_command
         {
             received_line.append(s).append(" ");
         }
-        if ( string_builder != null) string_builder.append(GOING_TO_SHOOT_THIS).append(received_line).append("<-\n" + IN_WORKING_DIR + ":").append(wd.getAbsolutePath()).append("\n");
+        if ( debug_string_builder != null) debug_string_builder.append(GOING_TO_SHOOT_THIS).append(received_line).append("<-\n" + IN_WORKING_DIR + ":").append(wd.getAbsolutePath()).append("\n");
 
-        String output = "";
+        StringBuilder output = new StringBuilder();
         ProcessBuilder process_builder = new ProcessBuilder(command_tokens);
         process_builder.directory(wd);
         process_builder.redirectErrorStream(true);
@@ -51,10 +56,10 @@ public class Execute_command
         }
         catch (Exception e1)
         {
-            if ( string_builder != null)
+            if ( debug_string_builder != null)
             {
-                string_builder.append("EXEC error: ").append(e1).append("\n");
-                logger.log(string_builder.toString());
+                debug_string_builder.append("EXEC error: ").append(e1).append("\n");
+                logger.log(debug_string_builder.toString());
             }
             else
             {
@@ -69,20 +74,19 @@ public class Execute_command
         {
             while ((message = stdInput.readLine()) != null)
             {
-                output += message + "\n";
-                if ( string_builder != null)
+                output.append(message).append("\n");
+                if ( debug_string_builder != null)
                 {
-                    string_builder.append(message);
-                    string_builder.append("\n");
+                    debug_string_builder.append(message).append("\n");
                 }
             }
         }
         catch (IOException e)
         {
-            if ( string_builder != null)
+            if ( debug_string_builder != null)
             {
-                string_builder.append("could not read from process: ").append(e).append("\n");
-                logger.log(string_builder.toString());
+                debug_string_builder.append("could not read from process: ").append(e).append("\n");
+                logger.log(debug_string_builder.toString());
             }
             else
             {
@@ -97,10 +101,10 @@ public class Execute_command
         }
         catch (InterruptedException e)
         {
-            if ( string_builder != null)
+            if ( debug_string_builder != null)
             {
-                string_builder.append("could not wait for  process: ").append(e).append("\n");
-                logger.log_stack_trace(string_builder.toString());
+                debug_string_builder.append("could not wait for  process: ").append(e).append("\n");
+                logger.log_stack_trace(debug_string_builder.toString());
             }
             else
             {
@@ -108,12 +112,12 @@ public class Execute_command
             }
             return new Execute_result(false,"process interrupted: "+ e);
         }
-        if ( string_builder != null)
+        if ( debug_string_builder != null)
         {
-            string_builder.append(EXECUTE_COMMAND_END_OF_WAIT_OK);
+            debug_string_builder.append(EXECUTE_COMMAND_END_OF_WAIT_OK);
         }
 
-        return new Execute_result(true,output);
+        return new Execute_result(true,output.toString());
     }
 
 

@@ -4,7 +4,10 @@
 package klik.machine_learning.image_similarity;
 
 import javafx.stage.Window;
+import klik.machine_learning.Embeddings_servers_monitor;
 import klik.machine_learning.ML_servers_util;
+import klik.properties.boolean_features.Feature;
+import klik.properties.boolean_features.Feature_cache;
 import klik.util.execute.actor.Aborter;
 import klik.machine_learning.feature_vector.Feature_vector;
 import klik.machine_learning.feature_vector.Feature_vector_source_server;
@@ -37,6 +40,10 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
     //**********************************************************
     {
         super(owner, logger);
+        if (Feature_cache.get(Feature.Enable_feature_vector_monitoring))
+        {
+            Embeddings_servers_monitor.start_servers_monitoring(owner, logger);
+        }
         //logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source_for_image_similarity"));
     }
 
@@ -49,7 +56,7 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
 
     //**********************************************************
     @Override
-    protected boolean get_server_started()
+    protected boolean server_started()
     //**********************************************************
     {
         return server_started.get();

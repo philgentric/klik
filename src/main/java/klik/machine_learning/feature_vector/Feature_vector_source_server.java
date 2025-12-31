@@ -3,9 +3,9 @@
 
 package klik.machine_learning.feature_vector;
 
-import javafx.application.Platform;
 import javafx.stage.Window;
 import klik.Shared_services;
+import klik.util.execute.Execute_result;
 import klik.util.execute.Guess_OS;
 import klik.util.execute.Operating_system;
 import klik.util.execute.actor.Aborter;
@@ -13,8 +13,6 @@ import klik.util.execute.actor.Actor_engine;
 import klik.util.execute.Execute_command;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
-import klik.util.ui.Jfx_batch_injector;
-import klik.util.ui.Popups;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
@@ -38,7 +35,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
 
     protected abstract int get_random_port();
     protected abstract String get_server_python_name();
-    protected abstract boolean get_server_started();
+    protected abstract boolean server_started();
     protected abstract boolean start_servers(Window owner, Logger logger);
     protected abstract void set_server_started(boolean b);
     public static long start = System.nanoTime();
@@ -55,8 +52,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         {
             start_monitoring();
         }
-        // start servers if needed
-        if (get_server_started()) return ;
+        if (server_started()) return;
 
         if ( check(owner,logger))
         {
@@ -104,7 +100,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
             logger.log("aborting Feature_vector_source::get_feature_vector_from_server, reason: "+aborter.reason());
             return Optional.empty();
         }
-        if ( !get_server_started())
+        if ( !server_started())
         {
             return Optional.empty();
         }
@@ -321,7 +317,6 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
     public boolean check(Window owner,Logger logger)
     //**********************************************************
     {
-        if ( !get_server_started()) return false;
         try {
             limit.acquire();
         } catch (InterruptedException e) {
@@ -343,77 +338,38 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         }
         StringBuilder sb = new StringBuilder();
         File wd = new File (".");
-        if (! Execute_command.execute_command_list(list, wd, 2000, sb, logger).status())
+        Execute_result er = Execute_command.execute_command_list(list, wd, 2000, sb, logger);
+        if (!er.status())
         {
             logger.log("WARNING, checking if servers are running => failed(1)" );
             set_server_started(false);
             limit.release();
             return false;
         }
-        String result = sb.toString();
-        logger.log("check():->" + result+"<-");
+        String result = er.output();
+        logger.log("checking if servers are running check():->" + result+"<-");
         String[] parts = result.split("\\r?\\n"); // Split on new lines
-        if ( parts.length > 2)
+        int count = 0;
+        for ( String p : parts)
         {
-            logger.log(get_server_python_name()+" server name keyword found");
-            set_server_started(true);
-            limit.release();
-            return true;
+            try {
+                int port = Integer.parseInt(p);
+                logger.log("found port:" + port);
+                count++;
+            }
+            catch (NumberFormatException e)
+            {
+                logger.log("❌ WARNING, checking if servers named like "+get_server_python_name()+" are running => failed, non integer found in pgrep reply:"+p );
+                set_server_started(false);
+                limit.release();
+                return false;
+            }
         }
-        logger.log("WARNING, checking if "+get_server_python_name()+" are running => failed(2)" );
-        set_server_started(false);
+        logger.log("✅  OK, found "+count+" PIDs for servers named like "+get_server_python_name());
+        set_server_started(true);
         limit.release();
-        return false;
-    }
-
-/*
-    //**********************************************************
-    private static boolean check(Logger logger)
-    //**********************************************************
-    {
-        List<String> list = new ArrayList<>();
-        list.add("pgrep");
-        list.add("-f");
-        list.add("Python");
-        //list.add("Python.*run_server.*");
-        StringBuilder sb = new StringBuilder();
-        File wd = new File (".");
-        if (! Execute_command.execute_command_list(list, wd, 2000, sb, logger).status())
-        {
-            logger.log("WARNING, checking if servers are running => failed(1):\n"+ sb );
-            return false;
-        }
-        // scan sb looking for integers (PIDs)
-        String result = sb.toString();
-        String[] parts = result.split("\\s+"); // Split on non-digit sequences
-        for (String part : parts)
-        {
-            try
-            {
-                int pid = Integer.parseInt(part);
-                //System.out.println("found PID: " + part+" in:"+result);
-                return true;
-            }
-            catch ( NumberFormatException e)
-            {
-
-            }
-        }
-        // no PIDs found
-        logger.log("WARNING, checking if servers are running => failed(2):\n"+ sb );
-        return false;
-    }
-    //**********************************************************
-    private static void popup(Window owner, Logger logger)
-    //**********************************************************
-    {
-        Jfx_batch_injector.inject(() -> Popups.popup_warning(
-                "Servers not started.",
-                "This feature requires to start the Image Feature Extraction Servers\n" +
-                        "Look in the menu 'preferences' for instructions",
-                false,owner,logger), logger);
+        return true;
 
     }
 
- */
 }

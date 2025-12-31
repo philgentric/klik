@@ -106,9 +106,14 @@ public class ML_servers_util
         Operating_system os = Guess_OS.guess(owner,logger);
         switch( os)
         {
-            case MacOS, Linux -> Nix_execute_via_script_in_tmp_file.execute(ML_servers_util.get_NIX_command_string_to_start_face_recognition_servers(owner,logger), false, true, owner, logger);
+            case MacOS, Linux ->
+            {
+                logger.log(os+" starting image similarity servers");
+                Nix_execute_via_script_in_tmp_file.execute(ML_servers_util.get_NIX_command_string_to_start_face_recognition_servers(owner,logger), false, true, owner, logger);
+            }
             case Windows ->
             {
+                logger.log(os+" starting image similarity servers");
                 List<Integer> ports = get_face_recognition_servers_ports(owner,logger);
                 String exeDir = System.getProperty("user.dir"); // directory of java.exe that launched this VM
                 Path ps1_script = Paths.get(exeDir, "Scripts", "launch_face_recognition_servers.ps1");
@@ -155,6 +160,7 @@ public class ML_servers_util
         return Paths.get(System.getProperty("user.home"), ".klik", "venv-metal").toAbsolutePath().toString();
     }
 
+    // this is the WHOLE list, starting with the udp monitoring port
     //**********************************************************
     private static List<Integer> get_image_similarity_servers_ports(Window owner, Logger logger)
     //**********************************************************
@@ -171,16 +177,14 @@ public class ML_servers_util
     private static String get_NIX_command_string_to_start_image_similarity_servers(Window owner, Logger logger)
     //**********************************************************
     {
-        // if not already started, start the servers monitor
-        int udp_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(owner, logger);
-
+        List<Integer> ports = get_image_similarity_servers_ports(owner, logger);
         String list_of_ports = "";
-        for ( int port : Feature_vector_source_for_image_similarity.ports)
+        for ( int port : ports)
         {
             list_of_ports += port + " ";
         }
 
-       return "source " + venv_metal() + "/bin/activate; cd " +Paths.get("").toAbsolutePath()+"/python_for_ML; ./launch_image_similarity_servers.sh "+ udp_port +" "+ list_of_ports;
+       return "source " + venv_metal() + "/bin/activate; cd " +Paths.get("").toAbsolutePath()+"/python_for_ML; ./launch_image_similarity_servers.sh "+ list_of_ports;
     }
     //**********************************************************
     private static String get_NIX_command_string_to_stop_image_similarity_servers(Window owner,Logger logger)
