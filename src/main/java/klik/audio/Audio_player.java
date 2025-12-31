@@ -109,7 +109,7 @@ public class Audio_player
     {
         logger.log("Audio_player starts");
         if ( as_app) {
-            System_info.print();
+            System_info.print(stage,logger);
             String music = My_I18n.get_I18n_string(Look_and_feel_manager.MUSIC, stage, logger);
             Look_and_feel_manager.set_icon_for_main_window(stage, music, Look_and_feel_manager.Icon_type.MUSIC, stage, logger);
         }

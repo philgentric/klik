@@ -127,7 +127,7 @@ public class More_settings_stage
 
             {
                 String key = "Set_The_VM_Max_RAM";
-                EventHandler<ActionEvent> handler = e -> show_max_ram_dialog();
+                EventHandler<ActionEvent> handler = e -> show_max_ram_dialog(owner, logger);
                 HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                         key,
                         handler,
@@ -492,7 +492,7 @@ public class More_settings_stage
     }
 
     //**********************************************************
-    private void show_max_ram_dialog()
+    private void show_max_ram_dialog(Window owner, Logger logger)
     //**********************************************************
     {
         TextInputDialog dialog = new TextInputDialog(""+ Non_booleans_properties.get_java_VM_max_RAM(owner, logger));
@@ -502,7 +502,7 @@ public class More_settings_stage
         dialog.setHeight(800);
         dialog.setTitle("Java VM max RAM size");
         dialog.setHeaderText("This is the max RAM that the java VM will be allowed to reserve THE NEXT TIME you run klik.");
-        int max = System_info.get_total_machine_RAM_in_GBytes();
+        int max = System_info.get_total_machine_RAM_in_GBytes(owner, logger).orElse(4);
         dialog.setContentText("This machine RAM size is: "+max+ "GB.\nEnter JVM max RAM in GB: ");
         Node old = dialog.getDialogPane().getContent();
         Label lab = new Label(

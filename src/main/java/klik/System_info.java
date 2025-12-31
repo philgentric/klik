@@ -4,8 +4,14 @@
 package klik;
 
 
+import javafx.stage.Window;
+import klik.util.execute.Guess_OS;
+import klik.util.execute.Operating_system;
+import klik.util.log.Logger;
+
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 //import java.lang.management.ManagementFactory;
@@ -32,10 +38,10 @@ public class System_info
 
 
     //**********************************************************
-    public static void print()
+    public static void print(Window owner, Logger logger)
     //**********************************************************
     {
-        print_machine_properties();
+        print_machine_properties(owner,logger);
 
         print_java_system_properties();
         //show_environement_variables();
@@ -45,20 +51,16 @@ public class System_info
 
     private static final boolean use_JMX_for_RAM = false;
     //**********************************************************
-    public static int get_total_machine_RAM_in_GBytes()
+    public static Optional<Integer> get_total_machine_RAM_in_GBytes(Window owner, Logger logger)
     //**********************************************************
     {
-        //if ( use_JMX_for_RAM) {
-        //    OperatingSystemMXBean b = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        //    return b.getTotalPhysicalMemorySize() / (1024L * 1024L * 1024L);
-        //}
-        //else
+        Operating_system os = Guess_OS.guess(owner,logger);
+        switch (os)
         {
-            String os_name = System.getProperty("os.name").toLowerCase();
-            if (os_name.contains("mac")) {
+            case MacOS ->
+            {
                 String cmd = "sysctl hw.memsize";
-                // the reply is something like: hw.memsize: 68719476736
-                // these are bytes
+                // the reply is something like: hw.memsize: 68719476736  these are bytes
                 try {
                     Process p = Runtime.getRuntime().exec(cmd);
                     p.waitFor();
@@ -67,14 +69,17 @@ public class System_info
                     if (line != null && line.startsWith("hw.memsize: ")) {
                         String s = line.substring(12).trim();
                         long bytes = Long.parseLong(s);
-                        return (int)(bytes / (1024L * 1024L * 1024L));
+                        return Optional.of((int)(bytes / (1024L * 1024L * 1024L)));
                     }
                 } catch (Exception e) {
                     System.out.println("Error when executing command: " + cmd);
                     e.printStackTrace();
+                    return Optional.empty();
                 }
 
-            } else if (os_name.contains("win")) {
+            }
+            case Windows ->
+            {
                 try {
                     Process process = Runtime.getRuntime().exec("wmic ComputerChip get TotalPhysicalMemory");
                     java.util.Scanner s = new java.util.Scanner(process.getInputStream());
@@ -87,13 +92,16 @@ public class System_info
                             System.out.println("Total Physical Memory: " + totalMemoryBytes + " B");
                             int totalMemoryGB = (int)(totalMemoryBytes / (1024L * 1024L * 1024L));
                             System.out.println("Total Physical Memory: " + totalMemoryGB + " GB");
-                            return totalMemoryGB;
+                            return Optional.of(totalMemoryGB);
                         }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    return Optional.empty();
                 }
-            } else if (os_name.contains("nux") || os_name.contains("nix")) {
+            }
+            case Linux ->
+            {
                 String cmd = "grep MemTotal /proc/meminfo";
                 // the reply is something like: MemTotal:       16367484 kB
                 try {
@@ -105,23 +113,23 @@ public class System_info
                         String s = line.substring(9).trim();
                         s = s.substring(0, s.length() - 3).trim(); // remove kB
                         long kbytes = Long.parseLong(s);
-                        return (int) (kbytes / (1024L * 1024L));
+                        return Optional.of((int) (kbytes / (1024L * 1024L)));
                     }
                 } catch (Exception e) {
                     System.out.println("Error when executing command: " + cmd);
                     e.printStackTrace();
+                    return Optional.empty();
                 }
             }
-            return -1;
-
         }
+        return Optional.empty();
     }
 
     //**********************************************************
-    private static void print_machine_properties()
+    private static void print_machine_properties(Window owner, Logger logger)
     //**********************************************************
     {
-        System.out.println("Physical RAM on this machine: "+ get_total_machine_RAM_in_GBytes()+" GBytes");
+        System.out.println("Physical RAM on this machine: "+ get_total_machine_RAM_in_GBytes( owner, logger).orElse(4)+" GBytes");
         System.out.println("\n\nNumber of cores: "+ how_many_cores());
         System.out.println("Java VM max RAM for klik: "+(int)(Runtime.getRuntime().maxMemory()/1_000_000_000.0)+" GBytes (reported by Runtime.maxMemory()");
         //System.out.println("Java VM current RAM for klik: "+(int)(Runtime.getRuntime().totalMemory()/1_000_000_000.0)+" GBytes");
