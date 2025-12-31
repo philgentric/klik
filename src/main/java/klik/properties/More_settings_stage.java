@@ -203,7 +203,6 @@ public class More_settings_stage
             sp.setPrefViewportHeight(200);   // limit visible height
             TitledPane pane = new TitledPane("Install helper applications", sp);
             accordion.getPanes().add(pane);
-            accordion.setExpandedPane(pane);
         }
 
         {

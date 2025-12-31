@@ -79,35 +79,38 @@ public class Execute_windows_command
         // double‑quote the *actual* command because cmd.exe expects a single
         // quoted argument when /c is used.
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("& { ");                     // start a PowerShell script block
-        sb.append("$commands = @(");           // build an array of commands
+        // 1. Build the PowerShell script as a single string.
+        StringBuilder ps = new StringBuilder();
 
+        ps.append("foreach ($cmd in $commands) { ");
+        ps.append("    Start-Process -FilePath 'cmd.exe' ");
+        ps.append("    -ArgumentList '/c', $cmd ");
+        ps.append("    -Verb RunAs ");
+        ps.append("    -Wait ");
+        ps.append("}");
+
+        // 2. Prepare the array of commands (you already have this logic).
+        StringBuilder commandsArr = new StringBuilder("@(");
         for (int i = 0; i < commands.size(); i++) {
-            // wrap each command in single quotes
-            // escape any single quote inside the command by doubling it
-            sb.append('\'')
+            // Escape single quotes inside each command.
+            commandsArr.append('\'')
                     .append(commands.get(i).replace("'", "''"))
                     .append('\'');
-            if (i < commands.size() - 1) sb.append(", ");
+            if (i < commands.size() - 1) {
+                commandsArr.append(", ");
+            }
         }
-        sb.append("); ");                      // close the array
+        commandsArr.append(')');
 
-        // For every command: start an elevated cmd.exe, wait for it
-        sb.append("foreach ($cmd in $commands) { ");
-        sb.append("Start-Process ");
-        sb.append("-FilePath 'cmd.exe' ");
-        sb.append("-ArgumentList \"/c \\\"$cmd\\\"\" ");   // double‑quoted string inside cmd
-        sb.append("-Verb RunAs ");
-        sb.append("-Wait; ");
-        sb.append("} ");                        // end foreach
-        sb.append("}");                         // end script block
+        // 3. Combine everything into the final script.
+        String script = commandsArr.toString() + "\n" + ps.toString();
 
+        // 4. Build the ProcessBuilder arguments.
         List<String> psArgs = List.of(
                 "powershell.exe",
                 "-NoProfile",
                 "-ExecutionPolicy", "Bypass",
-                "-Command", sb.toString()
+                "-Command", script
         );
 
         ProcessBuilder pb = new ProcessBuilder(psArgs);
