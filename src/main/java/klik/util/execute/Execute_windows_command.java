@@ -37,8 +37,7 @@ public class Execute_windows_command
 //**********************************************************
 {
 
-    private static final boolean dbg = false;
-    private static final boolean ultra_dbg = false;
+    private static final boolean dbg = true;
     public static final String END = "__END_OF_PROCESS_OUTPUT__";
 
     //**********************************************************

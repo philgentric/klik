@@ -26,10 +26,31 @@ public class ML_servers_util
         {
             case Windows ->
             {
-                String cmd = "winget install -e --id Python.Python.3";
-                Execute_windows_command.execute(cmd,true,false,owner,logger);
-                logger.log("install_python_libs_for_ML not implemented for Windows");
-                return;
+                {
+                    String cmd = "winget install -e --id Python.Python.3";
+                    Execute_windows_command.execute(cmd, true, false, owner, logger);
+                }
+                {
+                    // create venv folder
+                    String cmd =  "New-Item -ItemType Directory -Path \"$env:USERPROFILE\\.klik\\venv-metal\" -Force";
+                    Execute_windows_command.execute(cmd, true, true, owner, logger);
+                }
+                {
+                    // create the venv
+                    String cmd =  "python -m venv %USERPROFILE%\\.klik\\venv-metal";
+                    Execute_windows_command.execute(cmd, true, true, owner, logger);
+                }
+
+                {
+                    // activate it
+                    String cmd =  ".\\..klik\\venv-metal\\Scripts\\Activate.ps1";
+                    Execute_windows_command.execute(cmd, true, true, owner, logger);
+                }
+                {
+                    // install all required packages
+                    String cmd =  "py -m pip install -r requirements.txt";
+                    Execute_windows_command.execute(cmd, true, true, owner, logger);
+                }
             }
             case MacOS, Linux ->
             {
@@ -63,6 +84,7 @@ public class ML_servers_util
                 String cmd = get_NIX_command_string_to_start_image_similarity_servers(owner,logger);
                 Nix_execute_via_script_in_tmp_file.execute(cmd, true, true, owner, logger);
             }
+
             case Windows ->
             {
                 List<Integer> ports = get_image_similarity_servers_ports(owner,logger);
