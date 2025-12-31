@@ -92,25 +92,47 @@ tasks.register('klik', JavaExec) {
         def file    = new File(dir, 'ram.properties')
 
         // 1️⃣ Make sure the file exists
-        if (file.exists()) {
-            // 2️⃣ Load it safely
-            try {
-                file.withInputStream { stream -> props.load(stream) }
-                println "doFirst props loaded: ${props}"
-            } catch (Exception e) {
-                println "⚠️  Failed to load ${file}: ${e.message}"
-                // Optional: decide whether to abort or continue
-            }
-
-            // 3️⃣ Use the property if present
-            def maxRam = props['max_RAM_in_GBytes']
-            if (maxRam) {
-                println "doFirst found max_RAM_in_GBytes: ${maxRam}"
-                jvmArgs "-Xmx${maxRam}G"
-            }
-        } else {
-            println "⚠️  ${file} not found – using default JVM arguments."
+        if (!file.exists())
+        {
+            println "${file} not found – using default JVM arguments."
+            return;
         }
+
+        // Load it safely
+        try {
+            file.withInputStream { stream -> props.load(stream) }
+            println "doFirst props loaded: ${props}"
+        } catch (Exception e) {
+            println "Failed to load ${file}: ${e.message}"
+            // Optional: decide whether to abort or continue
+        }
+        // Pull the property, validate it, and set the flag
+        final int DEFAULT_RAM_GB = 2   // whatever feels sane for your project
+
+        def raw = props.getProperty('max_RAM_in_GBytes')
+        if (!raw) {
+            println "Property 'max_RAM_in_GBytes' missing – using default (${DEFAULT_RAM_GB}G)."
+            return
+        }
+
+        // try to parse the value
+        Integer ramInGb
+        try {
+            ramInGb = raw.toInteger()
+        } catch (NumberFormatException nfe) {
+            println "'max_RAM_in_GBytes' is not an integer: '${raw}'. Ignoring."
+            return
+        }
+
+        // validate the range
+        if (ramInGb <= 0) {
+            println "'max_RAM_in_GBytes' must be > 0 – got ${ramInGb}. Ignoring."
+            return
+        }
+
+        // All good – set the flag
+        println "doFirst found max_RAM_in_GBytes: ${ramInGb}G"
+        jvmArgs "-Xmx${ramInGb}G"
 
         // If you need to return something from doFirst, put it here.
         return
