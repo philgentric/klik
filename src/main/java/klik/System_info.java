@@ -81,7 +81,9 @@ public class System_info
             case Windows ->
             {
                 try {
-                    Process process = Runtime.getRuntime().exec("wmic ComputerChip get TotalPhysicalMemory");
+                    System.out.println("WINDAUBE Total Physical Memory ?");
+
+                    Process process = Runtime.getRuntime().exec("wmic computersystem get TotalPhysicalMemory /value");
                     java.util.Scanner s = new java.util.Scanner(process.getInputStream());
                     while (s.hasNext()) {
                         String line = s.next();
