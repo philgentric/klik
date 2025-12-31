@@ -5,28 +5,18 @@ package klik.util.execute;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
-import klik.util.execute.actor.Aborter;
 import klik.util.execute.actor.Actor_engine;
-import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
 import klik.util.ui.Popups;
 import klik.util.ui.Text_frame;
-import org.apache.commons.io.input.Tailer;
-import org.apache.commons.io.input.TailerListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -41,23 +31,25 @@ public class Execute_windows_command
     public static final String END = "__END_OF_PROCESS_OUTPUT__";
 
     //**********************************************************
-    public static void execute(String the_command,  boolean show_window, boolean in_a_thread, Window owner, Logger logger)
+    public static void execute(List<String> the_commands,  boolean show_window, boolean in_a_thread, Window owner, Logger logger)
     //**********************************************************
     {
         LinkedBlockingQueue<String> output_queue;
         if ( show_window)
         {
             if ( dbg)
-                logger.log(("Showing output window for command: "+the_command));
+                logger.log(("Showing output window for command: "+the_commands));
             output_queue = new LinkedBlockingQueue<>();
-            Platform.runLater(()-> Text_frame.show(the_command, output_queue,logger));
+            StringBuilder the_command = new StringBuilder();
+            for ( String s : the_commands) the_command.append(s).append("\n");
+            Platform.runLater(()-> Text_frame.show(the_command.toString(), output_queue,logger));
         }
         else
         {
             output_queue = null;
         }
 
-        Runnable r = () -> execute_internal(the_command,show_window,output_queue,owner,logger);
+        Runnable r = () -> execute_internal(the_commands,show_window,output_queue,owner,logger);
         if (in_a_thread)
         {
             Actor_engine.execute(r, "Execute_via_script_in_tmp_file in a thread", logger);
@@ -70,11 +62,11 @@ public class Execute_windows_command
     }
 
     //**********************************************************
-    private static void execute_internal(String command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
+    private static void execute_internal(List<String> commands, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
     //**********************************************************
     {
 
-        logger.log("Requesting elevated execution: " + command);
+        logger.log("Requesting elevated execution: " + commands);
 
         /* ------------------------------------------------------------------ */
         /* 1️⃣  Build a *PowerShell* one‑liner that starts an elevated CMD   */
@@ -86,15 +78,36 @@ public class Execute_windows_command
         // survive the PowerShell parser.  Inside the quoted argument list we
         // double‑quote the *actual* command because cmd.exe expects a single
         // quoted argument when /c is used.
-        String psCmd = String.format(
-                "Start-Process cmd.exe -Verb RunAs -ArgumentList '/c \"%s\"' -Wait",
-                command);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("& { ");                     // start a PowerShell script block
+        sb.append("$commands = @(");           // build an array of commands
+
+        for (int i = 0; i < commands.size(); i++) {
+            // wrap each command in single quotes
+            // escape any single quote inside the command by doubling it
+            sb.append('\'')
+                    .append(commands.get(i).replace("'", "''"))
+                    .append('\'');
+            if (i < commands.size() - 1) sb.append(", ");
+        }
+        sb.append("); ");                      // close the array
+
+        // For every command: start an elevated cmd.exe, wait for it
+        sb.append("foreach ($cmd in $commands) { ");
+        sb.append("Start-Process ");
+        sb.append("-FilePath 'cmd.exe' ");
+        sb.append("-ArgumentList \"/c \\\"$cmd\\\"\" ");   // double‑quoted string inside cmd
+        sb.append("-Verb RunAs ");
+        sb.append("-Wait; ");
+        sb.append("} ");                        // end foreach
+        sb.append("}");                         // end script block
 
         List<String> psArgs = List.of(
                 "powershell.exe",
                 "-NoProfile",
                 "-ExecutionPolicy", "Bypass",
-                "-Command", psCmd
+                "-Command", sb.toString()
         );
 
         ProcessBuilder pb = new ProcessBuilder(psArgs);
@@ -182,7 +195,7 @@ public class Execute_windows_command
         /* ------------------------------------------------------------------ */
         if (show_window) {
             Platform.runLater(() ->
-                    Popups.info_popup("✅  '" + command + "' finished", null, owner, logger));
+                    Popups.info_popup("✅  '" + commands + "' finished", null, owner, logger));
         }
     }
 
