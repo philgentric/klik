@@ -262,7 +262,7 @@ public class Launcher extends Application implements UI_change
         if ( use_script_in_tmp)
         {
             String cmd = "gradle "+app_name;
-            Nix_execute_via_script_in_tmp_file.execute(cmd,false, true,stage,logger);
+            Nix_execute_via_script_in_tmp_file.execute(".",cmd,false,List.of(),false, true,stage,logger);
         }
         else
         {

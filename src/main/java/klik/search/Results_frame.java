@@ -216,7 +216,7 @@ public class Results_frame
 		}
 
 		b.setOnContextMenuRequested((ContextMenuEvent event) -> {
-			logger.log("show context menu of button:"+ path.toAbsolutePath());
+			//logger.log("show context menu of button:"+ path.toAbsolutePath());
 			context_menu.show(b, event.getScreenX(), event.getScreenY());
 		});
 

@@ -606,8 +606,7 @@ public abstract class Item implements Icon_destination
     {
         ContextMenu context_menu = make_context_menu(local_button, local_label);
         local_button.setOnContextMenuRequested((ContextMenuEvent event) -> {
-            //if ( dbg)
-            logger.log("show context menu of button:"+ get_item_path().toAbsolutePath());
+            if ( dbg) logger.log("show context menu of button:"+ get_item_path().toAbsolutePath());
             context_menu.show(local_button, event.getScreenX(), event.getScreenY());
         });
     }

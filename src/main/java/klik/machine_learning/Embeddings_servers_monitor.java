@@ -60,13 +60,16 @@ public class Embeddings_servers_monitor implements AutoCloseable
         //int port_tmp;
         this.logger = logger;
         //port_tmp = -1;
+        socket = null;
         try {
             // find FREE UDP port
             socket = new DatagramSocket(port);
             //port_tmp = socket.getLocalPort();
             logger.log("Servers monitor started on UDP port: "+port);
         } catch (SocketException e) {
-            logger.log(""+e);
+            logger.log("WARNING: UDP socket failed"+e);
+            running = false;
+            return;
         }
         //port = port_tmp;
         if (Feature_cache.get(Feature.Enable_feature_vector_monitoring))
@@ -75,13 +78,15 @@ public class Embeddings_servers_monitor implements AutoCloseable
                 monitoring_frame = new Embeddings_servers_monitoring_stage(owner, logger);
             });
         }
-        Actor_engine.execute(() -> receive_messages(),"Receive embedding server UDP monitoring packets",logger);
+        Actor_engine.execute(this::receive_messages,"Receive embedding server UDP monitoring packets",logger);
     }
 
     //**********************************************************
     private void receive_messages()
     //**********************************************************
     {
+        if ( socket == null) return;
+
         while (running) {
             try {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);

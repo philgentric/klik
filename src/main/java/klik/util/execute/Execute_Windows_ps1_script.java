@@ -35,7 +35,7 @@ public class Execute_Windows_ps1_script
     public static final String END = "__END_OF_PROCESS_OUTPUT__";
 
     //**********************************************************
-    public static void execute(String description,Path ps1_script,  List<Integer> ports, boolean show_window, boolean in_a_thread, Window owner, Logger logger)
+    public static void execute(String description,Path ps1_script,  List<String> ports, boolean show_window, boolean in_a_thread, Window owner, Logger logger)
     //**********************************************************
     {
         LinkedBlockingQueue<String> output_queue;
@@ -67,7 +67,7 @@ public class Execute_Windows_ps1_script
     private static void execute_internal(
             String description,
             Path ps1_script,
-            List<Integer> ports,
+            List<String> ports,
             boolean show_window,
             BlockingQueue<String> output_queue,
             Window owner,
@@ -85,9 +85,9 @@ public class Execute_Windows_ps1_script
         cmd.add("Bypass");
         cmd.add("-File");
         cmd.add(ps1_script.toAbsolutePath().toString());
-        for (Integer p : ports)
+        for (String p : ports)
         {
-            cmd.add(String.valueOf(p));
+            cmd.add(p);
         }
 
 

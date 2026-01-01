@@ -17,6 +17,8 @@ import klik.util.execute.Guess_OS;
 import klik.util.log.Logger;
 import klik.util.ui.Items_with_explanation;
 
+import java.util.List;
+
 //**********************************************************
 public enum External_application
 //**********************************************************
@@ -39,7 +41,7 @@ public enum External_application
         {
             String cmd = get_command_string_to_install(owner,logger);
             if ( cmd == null) return;
-            Nix_execute_via_script_in_tmp_file.execute(cmd, true,false,owner,logger);
+            Nix_execute_via_script_in_tmp_file.execute(".",cmd, false,List.of(),true,false,owner,logger);
         };
 
         return Items_with_explanation.make_hbox_with_button_and_explanation(

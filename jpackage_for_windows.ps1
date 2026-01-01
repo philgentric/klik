@@ -77,7 +77,8 @@ $jpackageArgs = @(
     '--add-modules', ($AddModules -join ','),
     '--icon',      $IconPath,
     '--java-options', $JavaOptions,
-    '--dest',       $OutputDir           # folder where the MSI will appear
+    '--dest',       $OutputDir,
+    '--resource-dir', 'src/main/resources/scripts'
 )
 
 # Show the exact command for debugging

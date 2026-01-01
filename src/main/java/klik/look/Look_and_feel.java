@@ -23,6 +23,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
 import klik.properties.Non_booleans_properties;
+import klik.util.execute.Application_jar;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -305,7 +306,7 @@ public abstract class Look_and_feel
     protected boolean load_font(String file_name)
     //**********************************************************
     {
-        InputStream in = Jar_utils.get_jar_InputStream_by_name("/fonts/"+file_name);
+        InputStream in = Application_jar.get_jar_InputStream_by_name("/fonts/"+file_name);
         Font font = Font.loadFont(in, 24);
         try {
             in.close();

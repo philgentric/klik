@@ -21,4 +21,5 @@ jpackage \
   --module-path "$JAVA_HOME/jmods:/opt/homebrew/Cellar/openjfx/25/lib" \
   --add-modules javafx.base,javafx.graphics,javafx.controls,javafx.fxml,javafx.media,javafx.web \
   --icon myicon.icns \
-  --java-options "-Xmx4g --enable-native-access=ALL-UNNAMED"
+  --java-options "-Xmx4g --enable-native-access=ALL-UNNAMED" \
+  --resource-dir src/main/resources/scripts

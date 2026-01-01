@@ -4,6 +4,7 @@
 //SOURCES ./Simple_logger.java
 package klik.util.log;
 
+import klik.util.execute.Execute_common;
 import klik.util.execute.actor.Actor_engine;
 import klik.properties.Non_booleans_properties;
 
@@ -24,12 +25,7 @@ public class File_logger implements Logger
 	public File_logger(String tag_)
 	//*******************************************************
 	{
-		LocalDateTime now = LocalDateTime.now();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-		String tag = tag_+"_"+now.format(dtf);
-		Path folder = Non_booleans_properties.get_trash_dir(Path.of("."), null,new Simple_logger());
-		Path file = folder.resolve(tag+".txt");
-
+		Path file = Execute_common.get_tmp_file_path_in_trash(tag_,"txt",null,new Simple_logger());
 
 		Runnable r = () -> {
 			for(;;)

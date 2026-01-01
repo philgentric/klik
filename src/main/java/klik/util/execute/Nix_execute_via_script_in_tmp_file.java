@@ -39,7 +39,7 @@ public class Nix_execute_via_script_in_tmp_file
     // this is a workaround for problems when using ProcessBuilder
     // to execute commands that require a specific shell environment,
     // such as python in virtual environments or other complex commands.
-    // It creates a temporary script file in the klik trash directory,
+    // THIS creates a temporary script file in the klik trash directory,
     // writes the command to it, and then executes that script.
     // Logs are also created in the klik trash directory.
 
@@ -48,7 +48,7 @@ public class Nix_execute_via_script_in_tmp_file
     public static final String END = "__END_OF_PROCESS_OUTPUT__";
 
     //**********************************************************
-    public static void execute(String the_command,  boolean show_window, boolean in_a_thread, Window owner, Logger logger)
+    public static void execute(String folder, String the_command, boolean chmod_it,  List<String> args, boolean show_window, boolean in_a_thread, Window owner, Logger logger)
     //**********************************************************
     {
         LinkedBlockingQueue<String> output_queue;
@@ -64,7 +64,7 @@ public class Nix_execute_via_script_in_tmp_file
             output_queue = null;
         }
 
-        Runnable r = () -> execute_internal(the_command,show_window,output_queue,owner,logger);
+        Runnable r = () -> execute_internal(folder,the_command,chmod_it, args,show_window,output_queue,owner,logger);
         if (in_a_thread)
         {
             Actor_engine.execute(r, "Execute_via_script_in_tmp_file in a thread", logger);
@@ -77,29 +77,32 @@ public class Nix_execute_via_script_in_tmp_file
     }
 
     //**********************************************************
-    private static void execute_internal(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
+    private static void execute_internal(String folder,String command, boolean chmod_it, List<String> args, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
     //**********************************************************
     {
-        execute_internal_nix(the_command,show_window,output_queue,owner,logger);
+        execute_internal_nix(folder,command,chmod_it, args,show_window,output_queue,owner,logger);
     }
 
     //**********************************************************
-    private static void execute_internal_nix(String the_command, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
+    private static void execute_internal_nix(String folder, String command, boolean chmod_it, List<String> args, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
     //**********************************************************
     {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-        String uuid = LocalDateTime.now().format(dtf)+"_"+UUID.randomUUID();
-        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
-        String log_file_name = klik_trash.resolve("log_"+uuid+".log").toString();
-        logger.log("Going to execute (Nix) ->" + the_command+"<-\nvia script in tmp file, logs in : "+log_file_name);
+        Path p_for_log = Execute_common.get_tmp_file_path_in_trash("log","txt",owner, logger);
+        if ( p_for_log == null) return;
+        String log_file_name = p_for_log.toString();
 
-        String script_content = "#!/usr/bin/env bash\n"
-                + the_command + " > "+log_file_name+" 2>&1";
+        StringBuilder args_string = new StringBuilder();
+        for ( String s : args) args_string.append(" ").append(s);
+        String script_content = "#!/usr/bin/env bash\n";
+        script_content += "cd "+folder+"\n";
+        if ( chmod_it) script_content += "chmod +x "+command+"\n";
+        script_content += "./"+command + args_string+ " > "+log_file_name+" 2>&1";
+        logger.log("Going to execute (Nix) ->" + command+ args_string+"<-\nvia script in tmp file, logs in : "+log_file_name);
 
         // Write script to temporary file
         Path script_path;
         try {
-            script_path = klik_trash.resolve("cmd_"+ uuid+".sh");
+            script_path = Execute_common.get_tmp_file_path_in_trash("cmd_","sh",owner, logger);
             //if ( Files.exists(script_path)) Files.delete(script_path);
             Files.write(script_path, script_content.getBytes());
             Files.setPosixFilePermissions(script_path, PosixFilePermissions.fromString("rwxr-xr-x"));
@@ -130,7 +133,7 @@ public class Nix_execute_via_script_in_tmp_file
         }
         pb.inheritIO();
         try {
-            if ( dbg) logger.log("Executing:->"+the_command+"<-");
+            if ( dbg) logger.log("Executing:->"+command+"<-");
             Process the_command_process = pb.start();
 
             // Read output in a separate thread to prevent blocking
@@ -185,7 +188,7 @@ public class Nix_execute_via_script_in_tmp_file
                                 if ( dbg) logger.log("TailerListener: abort detected, stopping tailer");
                                 tailer.stop();
                                 if ( output_queue != null) output_queue.add(END);
-                                if ( show_window) Platform.runLater(() ->Popups.info_popup("'"+the_command+"' ➡\uFE0F done",null,owner,logger));
+                                if ( show_window) Platform.runLater(() ->Popups.info_popup("'"+command+"' ➡\uFE0F done",null,owner,logger));
                                 return;
                             }
                             if ( System.currentTimeMillis()-last> 600_000)
@@ -236,7 +239,7 @@ public class Nix_execute_via_script_in_tmp_file
 
                     if ( exitValue != 0)
                     {
-                        String msg = "❗Warning: Process ->"+the_command+"<- exited with value: " + exitValue;
+                        String msg = "❗Warning: Process ->"+command+"<- exited with value: " + exitValue;
                         logger.log(msg);
                         if ( output_queue != null) output_queue.add(msg+"\n");
 

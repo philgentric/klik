@@ -170,7 +170,7 @@ public class Installers
             if ( app==External_application.Ffprobe) continue; // installs with ffmpeg
             String cmd = app.get_command_string_to_install(owner, logger);
             if (cmd == null) continue;
-            Nix_execute_via_script_in_tmp_file.execute(cmd, true, false, owner, logger);
+            Nix_execute_via_script_in_tmp_file.execute(".",cmd, false,List.of(),true, false, owner, logger);
         }
     }
 

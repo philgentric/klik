@@ -7,6 +7,7 @@ import javafx.stage.Window;
 import klik.look.Jar_utils;
 import klik.properties.Non_booleans_properties;
 import klik.properties.boolean_features.Feature_cache;
+import klik.util.execute.Application_jar;
 import klik.util.log.Logger;
 import klik.util.log.Stack_trace_getter;
 
@@ -132,7 +133,7 @@ public class My_I18n
                 String name = "languages/MessagesBundle" + "_" + locale.getLanguage() + "_" + locale.getCountry()+".properties";
                 if ( dbg) logger.log("✅ trying get_jar_InputStream_by_name with name : "+name);
 
-                InputStream is = Jar_utils.get_jar_InputStream_by_name(name);
+                InputStream is = Application_jar.get_jar_InputStream_by_name(name);
                 the_resource_bundle = new PropertyResourceBundle(is);
                 if ( dbg) logger.log("✅ method2 succeeded loading language resource  : "+name);
            }

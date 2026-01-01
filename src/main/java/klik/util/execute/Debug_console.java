@@ -37,15 +37,18 @@ public class Debug_console
         Stage stage = new Stage();
         stage.initOwner(owner);
         VBox vbox = new VBox();
-        TextField tf = new TextField("< enter command here>");
-        vbox.getChildren().add(tf);
+        TextField cmd_tf = new TextField("< enter command here>");
+        vbox.getChildren().add(cmd_tf);
+        TextField folder_tf = new TextField("< enter working dir here>");
+        vbox.getChildren().add(folder_tf);
         {
             Button exe = new Button("Execute (via file.sh)");
             vbox.getChildren().add(exe);
             exe.setOnAction(event ->
             {
-                String cmd = tf.getText();
-                Nix_execute_via_script_in_tmp_file.execute(cmd, true, false, stage, logger);
+                String folder = folder_tf.getText();
+                String cmd = cmd_tf.getText();
+                Nix_execute_via_script_in_tmp_file.execute(folder,cmd, true,List.of(),true, false, stage, logger);
             });
         }
         {
@@ -54,9 +57,10 @@ public class Debug_console
             TextArea ta = new TextArea();
             exe.setOnAction(event ->
             {
-                String cmd = tf.getText();
+                String folder = folder_tf.getText();
+                String cmd = cmd_tf.getText();
                 String[] pieces = cmd.split("\\s+");
-                Execute_result es = Execute_command.execute_command_list_no_wait(List.of(pieces), new File("."), logger);
+                Execute_result es = Execute_command.execute_command_list_no_wait(List.of(pieces), new File(folder), logger);
                 if ( es.status())
                 {
                     ta.setText(es.output());

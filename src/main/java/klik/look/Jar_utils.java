@@ -6,6 +6,7 @@ package klik.look;
 import javafx.scene.image.*;
 import javafx.stage.Window;
 import klik.Klik_application;
+import klik.util.execute.Application_jar;
 import klik.util.image.Static_image_utilities;
 import klik.properties.Non_booleans_properties;
 import klik.util.log.Logger;
@@ -30,14 +31,14 @@ public class Jar_utils
     public static Image load_jfx_image_from_jar(String image_file_path, double icon_size, Window owner,Logger logger)
     //**********************************************************
     {
-        InputStream s = get_jar_InputStream_by_name(image_file_path);
-        if ( s == null)
+        InputStream input_stream = Application_jar.get_jar_InputStream_by_name(image_file_path);
+        if ( input_stream == null)
         {
             logger.log("load_icon_fx_from_jar failed for: " + image_file_path);
             return null;
         }
 
-        Image image = new Image(s, icon_size, icon_size, true, true);
+        Image image = new Image(input_stream, icon_size, icon_size, true, true);
         if (image.isError())
         {
             logger.log("WARNING: an error occurred when reading: " + image_file_path);
@@ -54,7 +55,7 @@ public class Jar_utils
     public static byte[] load_image_bytes_from_jar(String image_file_path,Window owner, Logger logger)
     //**********************************************************
     {
-        InputStream input_stream = get_jar_InputStream_by_name(image_file_path);
+        InputStream input_stream = Application_jar.get_jar_InputStream_by_name(image_file_path);
         if ( input_stream == null)
         {
             logger.log("load_icon_fx_from_jar failed for: " + image_file_path);
@@ -117,9 +118,9 @@ public class Jar_utils
 
         // read it back
         try {
-            InputStream s = new FileInputStream(tmp_icon_file_name);
-            byte[] icon_bytes = new byte[s.available()];
-            s.read(icon_bytes);
+            InputStream input_stream2 = new FileInputStream(tmp_icon_file_name);
+            byte[] icon_bytes = new byte[input_stream2.available()];
+            input_stream2.read(icon_bytes);
             return icon_bytes;
         } catch (IOException e)
         {
@@ -133,8 +134,8 @@ public class Jar_utils
     public static byte[] load_image_bytes_from_jar_square(String image_file_path, Window owner, Logger logger)
     //**********************************************************
     {
-        InputStream s = get_jar_InputStream_by_name(image_file_path);
-        if ( s == null)
+        InputStream input_stream = Application_jar.get_jar_InputStream_by_name(image_file_path);
+        if ( input_stream == null)
         {
             logger.log("load_icon_fx_from_jar failed for: " + image_file_path);
             return null;
@@ -143,8 +144,8 @@ public class Jar_utils
         try
         {
             // Read the stream into a byte array
-            byte[] icon_bytes = new byte[s.available()];
-            s.read(icon_bytes);
+            byte[] icon_bytes = new byte[input_stream.available()];
+            input_stream.read(icon_bytes);
             return icon_bytes;
         }
         catch (IOException e)
@@ -197,22 +198,6 @@ public class Jar_utils
         return Klik_application.class.getResource(name);
     }
 
-    //**********************************************************
-    public static InputStream get_jar_InputStream_by_name(String name)
-    //**********************************************************
-    {
-        // this scheme works with Jbang
-        ClassLoader class_loader = Thread.currentThread().getContextClassLoader();
-        //System.out.println("get_InputStream_by_name trying with class_loader : "+class_loader+ " ...");
-        InputStream s = class_loader.getResourceAsStream(name);
-        if (s != null)
-        {
-            //System.out.println("... worked");
-            return s;
-        }
-        //System.out.println("Thread.currentThread().getContextClassLoader().getResourceAsStream DID NOT work");
-        // this scheme works with Gradle
-        return Klik_application.class.getResourceAsStream(name);
-    }
+
 
 }
