@@ -3,7 +3,7 @@
 **NOTE SUR LA SECURITE** 
 
 1. Les commandes proposées dans cette recette d'installation sont des outils "standards" utilisés par des centaines de milliers de developpeurs dans le monde entier, le risque est très faible.
-2. Klik est développé avec soin et en particulier est conçu pour ne pas effacer de fichiers (sauf en vous demandant une confirmation), mais avec klikr on peut déplacer un répertoire en un mouvement de souris et paniquer en pensant que les photos sont perdues. Il n'en est rien. Klik a une fonction "défaire" qui se souvient de tout, même après un crash. Cependant, de la même façon que "les avions ne tombent jamais", personne ne peut exclure qu'une fausse-manip puisse causer des pertes de données : faites des sauvegardes!
+2. Klikr est développé avec soin et en particulier est conçu pour ne pas effacer de fichiers (sauf en vous demandant une confirmation), mais avec Klikr on peut déplacer un répertoire en un mouvement de souris et paniquer en pensant que les photos sont perdues. Il n'en est rien. Klikr a une fonction "défaire" qui se souvient de tout, même après un crash. Cependant, de la même façon que "les avions ne tombent jamais", personne ne peut exclure qu'une fausse-manip puisse causer des pertes de données : faites des sauvegardes!
 3. Le fait que 100% du code source de klikr soit visible est une garantie : un expert peut aller voir et vérifier que le code ne contient aucune partie malicieuse.
 
 ## Installation
@@ -37,7 +37,7 @@ Dans le terminal, copier-coller les commandes en gras données dans les étapes 
 
 ### obtenez le code source (128MB)
 
-**git clone https://github.com/philgentric/klik.git**
+**git clone https://github.com/philgentric/klikr.git**
 
 cette opération va créer un dossier 'klikr' avec tout le code source. 
 

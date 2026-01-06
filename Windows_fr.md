@@ -3,30 +3,28 @@
 **NOTE SUR LA SECURITE** 
 
 1. Les commandes proposées dans cette recette d'installation sont des outils "standards" utilisés par des centaines de milliers de developpeurs dans le monde entier, le risque est très faible.
-2. Klik est développé avec soin et en particulier est conçu pour ne pas effacer de fichiers (sauf en vous demandant une confirmation), mais avec klikr on peut déplacer un répertoire en un mouvement de souris et paniquer en pensant que les photos sont perdues. Il n'en est rien. Klik a une fonction "défaire" qui se souvient de tout, même après un crash. Cependant, de la même façon que "les avions ne tombent jamais", personne ne peut exclure qu'une fausse-manip puisse causer des pertes de données : faites des sauvegardes!
-3. Le fait que 100% du code source de klikr soit visible est une garantie: un expert peut aller voir et vérifier que le code ne contient aucune partie malicieuse.
+2. Klikr est développé avec soin et en particulier est conçu pour ne pas effacer de fichiers (sauf en vous demandant une confirmation), mais avec klikr on peut déplacer un répertoire en un mouvement de souris et paniquer en pensant que les photos sont perdues. Il n'en est rien. Klik a une fonction "défaire" qui se souvient de tout, même après un crash. Cependant, de la même façon que "les avions ne tombent jamais", personne ne peut exclure qu'une fausse-manip puisse causer des pertes de données : faites des sauvegardes!
+3. Le fait que 100% du code source de Klikr soit visible est une garantie: un expert peut aller voir et vérifier que le code ne contient aucune partie malicieuse.
 
 ## Installation
 
 **Vous avez besoin de savoir comment ouvrir un terminal.**
 
-Sur Window c'est une Application... qui s'appelle "Power shell" 
+###  installez git for Windows
 
-Dans le terminal, copier-coller les commandes en gras données dans les étapes suivantes:
+(git est un outil de gestion de version du code source)
 
-### installez WSL2
+**https://git-scm.com/downloads/win**
 
-Avec windows 10 2004 ou plus:
+L'avantage ENORME de git est qu'il install aussi un terminal 'unix-like' (MINGW64).
+C'EST CE TERMINAL QU'IL FAUT UTILISER.
 
-**wsl --install**
+### clonez le code source
 
-Avec une version plus ancienne: powershell clicker à droite, choisissez "exécuter en tant qu'administrateur" ("Invite de commande avec droits administrateur")
+**git clone https://github.com/philgentric/klikr.git**
 
-**dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart**
+cette opération va créer un dossier 'klikr' avec le code source. 
 
-(si votre version de windows est plus ancienne que windows 10 2004 ... désolé, ... google sera votre ami)
-
-ensuite:
 
 ### installez sdkman
 
@@ -39,25 +37,15 @@ ensuite:
 
 (gradle est un outil de compilation)
 
-**sdk install gradle 9.0.0**
+**sdk install gradle 9.2.0**
 
-### installez java 24 (avec javaFX) 
+### installez java 25 (avec javaFX)
 
-(le Java Development Kit (JDK) est l'outil qui permet de compiler et d'exécuter le code source java ; attention les versions antérieures à 23 de Java ne sont pas supportées par klikr)
+(le Java Development Kit (JDK) est l'outil qui permet de compiler et d'exécuter le code source java ; attention les versions antérieures à 23 de Java ne sont pas supportées par Klikr)
+De plus, il faut un JDK qui inclus JavaFX. En fait, Klikr n'est plus testé avec un JDK seul, mais ça devrait marcher, il faut cependant que gradle trouve javafx...
 
-**sdk install java 24.fx-zulu**
+**sdk install java 25.fx-zulu**
 
-###  installez git
-
-(git est un outil de gestion de version du code source)
-
-**https://git-scm.com/downloads/win**
-
-### clonez le code source
-
-**git clone https://github.com/philgentric/klik.git**
-
-cette opération va créer un dossier 'klikr' avec tout le code source. 
 
 ### Démarrez klikr!
 

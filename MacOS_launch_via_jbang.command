@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 cd -- "$(dirname "$BASH_SOURCE")"
-jbang src/main/java/klik/Klik_application.java
+jbang src/main/java/klikr/Klikr_application.java
 

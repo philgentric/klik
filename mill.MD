@@ -22,8 +22,6 @@ output is :
 
 and this file is executable!
 
-both WORKS! (but only for klikr, not for launcher and audio-player)
-
 Caveat: VIPS FFM does not work
 
 # Now trying to build a native image

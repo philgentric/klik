@@ -54,9 +54,9 @@ open a "windows power shell" in administrator mode
 
 ### Get the source code
 
-**git clone https://github.com/philgentric/klik.git**
+**git clone https://github.com/philgentric/klikr.git**
 
-### Start Klik (launcher)
+### Start Klikr (launcher)
 
 **cd klikr**
 
@@ -74,7 +74,7 @@ In all other cases, try:
 
 **gradle clean run**
 
-If klikr doesn't start anymore, it may be that you left a child (or a cat ?) playing with your computer, and he has made a mess in the code source of klikr ?
+If Klikr doesn't start anymore, it may be that you left a child (or a cat ?) playing with your computer, and he has made a mess in the code source of klikr ?
 
 Instead of erasing everything and restarting everything, do:
 
@@ -84,19 +84,17 @@ Instead of erasing everything and restarting everything, do:
 
 # Frequently Asked Questions
 
-Q: I do "gradle run", but klikr doesn't start ?
+Q: I do "gradle run", but Klikr doesn't start ?
 
-A: Check that you are in the 'klikr' folder of the code source of klikr. (the error message is : Directory 'xxxxx' does not contain a Gradle build.)
+A: Check that you are in the 'likr' folder of the code source of klikr. (the error message is : Directory 'xxxxx' does not contain a Gradle build.)
 
 Q: I have no more space on my disk.
 
 A: Go to the Preferences menu and erase the caches. Visit the trash to check that what it contains can go to heaven before doing "empty the trash".
 
-Q: When klikr runs, other applications are missing RAM.
-
+Q: When Klikr runs, other applications are missing RAM.
 A: Go to the Preferences menu and (1) erase the caches (2) reduce the maximum memory size of the JVM. 
 
-Q: I want to uninstall klikr.
-
-A: (1) Delete the code source folder (2) Delete the '.klikr' folder at the root of your user disk space, it contains caches and the trash, almost always this gives you more space than the code.
+Q: I want to uninstall Klikr.
+A: (1) Delete the '.klikr' folder at the root of your user disk space, it contains caches and the trash. (a) if you used the msi Windows installer ask Windows to uninstall (b) On macOS: erase Klikr from the Applications folder (c) If you installed from source, delete the code source folder.
 

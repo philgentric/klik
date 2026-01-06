@@ -1,10 +1,10 @@
 
-# Klik: un explorateur de système de fichers avec une forte orientation image #
+# Klikr: un explorateur de système de fichers avec une forte orientation image #
 
 Trier vos fichiers, documents et images de manière intuitive et rapide. 
 Ils sont représentés par des icônes que vous pouvez glisser-déposer d'une fenêtre vers une autre, chaque fenêtre correspondant à un dossier.  
 
-Klik est 100% gratuit.
+Klikr est 100% gratuit.
 
 
 [Installation pour MacOS](MacOS_fr.md)
@@ -18,13 +18,13 @@ Klik est 100% gratuit.
 
 - Les images et les PDFs sont représentées avec des icônes, les films avec des icônes animées.
 - On peut glisser-déposer les fichiers/images et les dossiers
-- Dans Klik, tous les objects (boutons, fenêtres) représentant des dossiers sont des "terrains d'atterrissage" pour le glisser-déposer
+- Dans Klikr, tous les objects (boutons, fenêtres) représentant des dossiers sont des "terrains d'atterrissage" pour le glisser-déposer
 
 # Fonctionnement sûr #
 
-- Dans Klik, toutes les actions peuvent être défaites (menu : Marque page & Historique / Défaire). La liste des choses à défaire est sauvée sur le disque, de sorte que vous pouvez revenir en arriere même après un crash inopiné.    
-- Les fichiers éffacés sont en fait seulement deplacés dans la corbeille de Klik (qui est indépendante de celle de la plateforme)
-- Quand on déplace un fichier, si un fichier du même nom existe dans le dossier de destination, Klik le renomme en ajoutant un suffixe numérique ... à moins que le fichier ne soit exactement identique.
+- Dans Klikr, toutes les actions peuvent être défaites (menu : Marque page & Historique / Défaire). La liste des choses à défaire est sauvée sur le disque, de sorte que vous pouvez revenir en arriere même après un crash inopiné.    
+- Les fichiers éffacés sont en fait seulement deplacés dans la corbeille de Klikr (qui est indépendante de celle de la plateforme)
+- Quand on déplace un fichier, si un fichier du même nom existe dans le dossier de destination, Klikr le renomme en ajoutant un suffixe numérique ... à moins que le fichier ne soit exactement identique.
 - Le code source de klikr est en open-source sur github, une garantie que des experts peuvent relire le code afin de vérifier qu'il ne contient aucune partie malicieuse.
 
 # 2 types de fenêtre #
@@ -35,7 +35,7 @@ Klik est 100% gratuit.
 # De nombreux réglages #
 
 Vous pouvez choisir :
-- La taille et la position des fenêtres, et Klik s'en souvient, même si vous avez plusieurs écrans
+- La taille et la position des fenêtres, et Klikr s'en souvient, même si vous avez plusieurs écrans
 - La langue (allemand, anglais, breton, chinois, espagnol, français, italien, japonais, coréen, portugais)
 - Le style du thème (clair ou sombre, expérimental : thème 'bois')
 - La taille des polices
@@ -50,24 +50,24 @@ Vous pouvez choisir :
 
 # Les bonnes surprises  #
 
-- Klik a une application pour jouer vos fichiers de musique (mp3 etc) avec des listes de lectures (si vous en avez marre de vous faire harceler/racketter par qui vous savez)
+- Klikr a une application pour jouer vos fichiers de musique (mp3 etc) avec des listes de lectures (si vous en avez marre de vous faire harceler/racketter par qui vous savez)
 - Les fenêtres de visualisation ont un mode diapositive, un mode plein écran, un mode (1 pixel = 1 pixel) et un mode zoom
 - Il y a de nombreux accélérateurs clavier (mais c'est pas super bien documenté)
 - Les fenêtres de navigation ont un mode diapositive
 - Mettez des gommettes de couleur pour les dossiers !
-- Klik possède un service ultra-rapide de recherche par mot clés dans les noms des fichiers (tapez "k")
-- Klik sait générer une planche-contact PDF des images dans un dossier
-- Klik peut importer (retrouver et faire une copie) les photos que ApplePhoto planque sur votre disque dur :-)
-- Klik peut ranger vos photos dans des dossiers annuels (1 année = 1 dossier)
-- Klik peut vous aider à identifier les fichiers en doubles (fichiers identiques)
-- Klik peut vous aider à identifier les images similaires (fichiers non identiques) par ML
-- Klik peut visualiser les dossiers cachés, et vous indique les liens symboliques
+- Klikr possède un service ultra-rapide de recherche par mot clés dans les noms des fichiers (tapez "k")
+- Klikr sait générer une planche-contact PDF des images dans un dossier
+- Klikr peut importer (retrouver et faire une copie) les photos que ApplePhoto planque sur votre disque dur :-)
+- Klikr peut ranger vos photos dans des dossiers annuels (1 année = 1 dossier)
+- Klikr peut vous aider à identifier les fichiers en doubles (fichiers identiques)
+- Klikr peut vous aider à identifier les images similaires (fichiers non identiques) par ML
+- Klikr peut visualiser les dossiers cachés, et vous indique les liens symboliques
 
 # Services IA #
 
 (Si votre machine est assez puissante)
 
-Klik dispose de plusieurs services basés sur des réseaux de neurones pour les images
+Klikr dispose de plusieurs services basés sur des réseaux de neurones pour les images
 - Similarité d'images pour tout le dossier : trier le dossier par similarité d'images, les images qui se ressemblent apparaissent côte à côte.
 - Similarité d'images à la demande : pour une image dans un dossier, obtenir les 5 images les plus proches dans le même dossier
 - Deduplication par similarité : pour les images dans un dossier, itérez sur les images qui se ressemblent (mais le fichier n'est pas forcément identique) avec l'option d'effacer la version qui ne vous plait pas. (exemple sympathique : ce service détecte les images en miroir !!)
@@ -104,11 +104,11 @@ Si vous avez des problèmes, des bogues, des suggestions, des idées de nouveaux
 
 (a) Activez les logs en fichier 
 
-(b) Relancez Klik 
+(b) Relancez Klikr 
 
-(c) Les fichiers de log sont des fichier nommés "Klik_application_xxxxx.txt" où 'xxxx' contient la date et l'heure, ils sont dans la poubelle de Klik (appuyez sur la poubelle en haut à droite pour visiter ce répertoire)
+(c) Les fichiers de log sont des fichier nommés "Klikr_application_xxxxx.txt" où 'xxxx' contient la date et l'heure, ils sont dans la poubelle de Klikr (appuyez sur la poubelle en haut à droite pour visiter ce répertoire)
 
-(Si vous avez démarer Klik depuis le code source, les logs s'écrivent dans le terminal)
+(Si vous avez démarré Klikr depuis le code source, les logs s'écrivent dans le terminal)
 
 - Essayez de reproduire le bogue
 

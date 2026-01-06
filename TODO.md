@@ -20,10 +20,11 @@ known bugs:
 
 # Installers #
 
-Yes, that would make it easier for the average granma user...
-But installers are really a pain,
-also need to create and test 3 installers (Mac, Windaube, Linux)
-And klikr is in rolling releases...
+You have installers for macOS (.dmg) and Windows (.msi)
+
+Note the dmg is not signed so you will have the usual hiccup from macOS, until you authorise Klikr in the security settings.
+
+Otherwise, from source, Klikr is in rolling releases...
 
 # Aesthetic: Better look, more styles, better icons better layouts#
 
@@ -61,7 +62,7 @@ Try faster jpeg decoding like twelveMonkey?
 
 # Support for more video formats #
 
-webm is the obvious target..
+webm is an obvious target..
 
 # Support for more audio formats #
 
@@ -69,14 +70,11 @@ Opus?
 
 # Allow more fonts especially super legible ones #
 
-klikr already allows large fonts... and uses Atkinson Hyperlegible
+Klikr already allows large fonts... and uses Atkinson Hyperlegible
 
 # implement AI-based voice-over for menus... and images! ??
 
-Use AI to produce explanations when the mouse is over ...
-- a menu item: super easy use AI Text-To-Speech
-- an image: use AI to produce a description of the image and then use AI Text-To-Speech
-
+Let the OS do that ?
 
 # implement tree-based search on image similarity #
 
@@ -93,13 +91,13 @@ with this tool, one could erase all entries for a given key, and then call 'tran
 
 # debug live #
 
-In the code there are many debug booleans, they trigger additonal traces, possibly a lot of them.
+In the code there are many debug booleans, they trigger additional traces, possibly a lot of them.
 
 They are all declared as 'static final', which has a huge advantage: the compiler optimizes the code and removes all the debug code that is not used (i.e. when the flag is false).
 
 (probably, if all debug booleans were set to true, the code would be much slower, but I have not tested that)
 
-But it could be useful if, when someone has a problem, the UI coud be used to set dbg =true, with a few choices about the scope?
+But it could be useful if, when someone has a problem, the UI could be used to set dbg =true, with a few choices about the scope?
 And logging to file, then the --user just has to copy/paste the log file in a discord channel.
 
 Because the booleans are static final, this is only possible by editing the code, and recompiling it.

@@ -18,7 +18,7 @@
 
 ### get the source code
 
-**git clone https://github.com/philgentric/klik.git**
+**git clone https://github.com/philgentric/klikr.git**
 
 this will create a folder "klikr"
 
@@ -44,5 +44,5 @@ Note: as an alternative to gradle, you can use (1) jbang or (2) the mill
 
 **sdk install jbang**
 
-**jbang src/main/java/klikr/Klik_application.java**
+**jbang src/main/java/klikr/Klikr_application.java**
 
