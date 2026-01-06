@@ -72,7 +72,7 @@ public class Look_and_feel_light extends Look_and_feel
     }
 
     @Override
-    public String get_klik_icon_path() {return "icons/klik.png";}
+    public String get_klik_icon_path() {return "icons/klikr.png";}
 
     @Override
     public String get_default_icon_path() {return "icons/light/image.png";}

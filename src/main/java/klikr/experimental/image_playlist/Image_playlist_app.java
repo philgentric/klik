@@ -31,7 +31,7 @@
 //FILES light/denied.png=../../resources/klik/light/denied.png
 //FILES light/folder.png=../../resources/klik/light/folder.png
 //FILES light/image.png=../../resources/klik/light/image.png
-//FILES klik.png=../../resources/klik/klik.png
+//FILES klikr.png=../../resources/klik/klikr.png
 //FILES light/light.css=../../resources/klik/css/light.css
 //FILES light/preferences.png=../../resources/klik/light/preferences.png
 //FILES light/trash.png=../../resources/klik/light/trash.png
