@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ~/.klik/venv-metal/bin/activate
+source ~/.klikr/venv/bin/activate
 
 python3 --version
 

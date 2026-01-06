@@ -46,7 +46,7 @@ def compute_embedding(audio_path: Path) -> list[int]:
     if not audio_path.exists() or not audio_path.is_file():
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
 
-    trash_dir = os.path.expanduser("~/.klik/klik_privacy_screen/klik_trash")
+    trash_dir = os.path.expanduser("~/.klikr/klik_privacy_screen/klik_trash")
     os.makedirs(trash_dir, exist_ok=True)
     base = os.path.splitext(os.path.basename(audio_path))[0]
     wav_path = os.path.join(trash_dir, f"{base}.wav")

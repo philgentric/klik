@@ -1,10 +1,10 @@
 /*
-Using gluon to build a native image for klik
+Using gluon to build a native image for klikr
 
 command summary:
 
 gradle nativeRun
- -> will start klik directly in NATIVE
+ -> will start klikr directly in NATIVE
 
 gradle launcher
  -> will run the launcher
@@ -18,7 +18,7 @@ end summary
 
 
 BEFORE doing "gradle nativeRun",
-you need to AOT-COMPILE klik with gluonfx,
+you need to AOT-COMPILE klikr with gluonfx,
 with quite a few prerequisites:
 
 0. make the active gradle this file:
@@ -104,11 +104,11 @@ then:
 
 gradle nativeRun
 
-this will start klik in native mode.
+this will start klikr in native mode.
 
 (one can also invoke the executable directly,
 on mac it is:
-./build/gluonfx/aarch64-darwin/klik)
+./build/gluonfx/aarch64-darwin/klikr)
 
 
 COSMETIC: to get 'live' transmission
@@ -134,7 +134,7 @@ java {
 
 
 version = "1.0" // application_version
-group = 'klik'
+group = 'klikr'
 
  javafx {
      version = "23.0.2"
@@ -206,19 +206,19 @@ jar {
 }
 
 application {
-  mainClass = "klik.Klik_application"
+  mainClass = "klikr.Klikr_application"
 }
 
  tasks.register('launcher', JavaExec) {
      dependsOn 'classes'
-     mainClass = 'klik.Launcher'
+     mainClass = 'klikr.Launcher'
      classpath(sourceSets.main.runtimeClasspath)
      group = 'applications'
  }
 
  tasks.register('audio_player', JavaExec) {
      dependsOn 'classes'
-     mainClass = 'klik.audio.Audio_player_application'
+     mainClass = 'klikr.audio.Audio_player_application'
      classpath = sourceSets.main.runtimeClasspath
      group = 'applications'
      return

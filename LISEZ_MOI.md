@@ -25,7 +25,7 @@ Klik est 100% gratuit.
 - Dans Klik, toutes les actions peuvent être défaites (menu : Marque page & Historique / Défaire). La liste des choses à défaire est sauvée sur le disque, de sorte que vous pouvez revenir en arriere même après un crash inopiné.    
 - Les fichiers éffacés sont en fait seulement deplacés dans la corbeille de Klik (qui est indépendante de celle de la plateforme)
 - Quand on déplace un fichier, si un fichier du même nom existe dans le dossier de destination, Klik le renomme en ajoutant un suffixe numérique ... à moins que le fichier ne soit exactement identique.
-- Le code source de klik est en open-source sur github, une garantie que des experts peuvent relire le code afin de vérifier qu'il ne contient aucune partie malicieuse.
+- Le code source de klikr est en open-source sur github, une garantie que des experts peuvent relire le code afin de vérifier qu'il ne contient aucune partie malicieuse.
 
 # 2 types de fenêtre #
 
@@ -75,23 +75,16 @@ Klik dispose de plusieurs services basés sur des réseaux de neurones pour les 
 
 Tous utilisent du code et des modèles Python open-source
 
-La reconnaissance faciale et la similarité d'images reposent sur des serveurs HTTP locaux qui peuvent être interrogés par l'application klik depuis Java, ce qui signifie que les serveurs survivent aux redémarrages de l'application klik.
-(Note : il y a plusieurs serveurs sur plusieurs ports TCP car Python ne supporte pas le multithreading (enfin... pas aussi bien que Java !) et le serveur HTTP Python ne gère pas très bien la mise en file d'attente, donc le code Java de klik va 'équilibrer la charge' des requêtes vers les serveurs.)
+La reconnaissance faciale et la similarité d'images reposent sur des serveurs HTTP locaux qui peuvent être interrogés par l'application klikr depuis Java, ce qui signifie que les serveurs survivent aux redémarrages de l'application klikr.
+(Note : il y a plusieurs serveurs sur plusieurs ports TCP car Python ne supporte pas le multithreading (enfin... pas aussi bien que Java !) et le serveur HTTP Python ne gère pas très bien la mise en file d'attente, donc le code Java de klikr va 'équilibrer la charge' des requêtes vers les serveurs.)
 
 AVERTISSEMENT IMPORTANT : sans matériel approprié, ceci n'est probablement pas utilisable.
 Pour la vitesse du ML, vous avez besoin d'une machine avec une carte graphique qui peut accéder à suffisamment de RAM...
-(les machines à mémoire unifiée comme un MacBook ARM fonctionnent bien). De plus, ces services ML utilisent beaucoup de caches en RAM et sur disque (sinon ils seraient horriblement lents), donc vous avez besoin d'une machine avec suffisamment des deux. En d'autres termes, si vous utilisez klik sur une petite/vieille machine sans GPU supportant keras et/ou sans assez de RAM (disons moins de 16GB) et d'espace disque (plusieurs GB), n'utilisez simplement pas ces fonctionnalités car elles seront lentes et/ou risquent de faire planter l'application (ou même la machine dans les cas extrêmes !).
+(les machines à mémoire unifiée comme un MacBook ARM fonctionnent bien). De plus, ces services ML utilisent beaucoup de caches en RAM et sur disque (sinon ils seraient horriblement lents), donc vous avez besoin d'une machine avec suffisamment des deux. En d'autres termes, si vous utilisez klikr sur une petite/vieille machine sans GPU supportant keras et/ou sans assez de RAM (disons moins de 16GB) et d'espace disque (plusieurs GB), n'utilisez simplement pas ces fonctionnalités car elles seront lentes et/ou risquent de faire planter l'application (ou même la machine dans les cas extrêmes !).
 
 ### Installation ###
-1. installer tensorflow+keras (une fois)
 
-ATTENTION : l'installation de tensorflow peut être très fastidieuse... (google sera votre ami)
-
-Dans le dossier "python_for_ML" se trouve une recette qui exploite l'accélération matérielle (metal) pour les Macs ARM64 qui fonctionne sur mon MacBookPro M3 64GB.
-
-2. Lancer les serveurs (après chaque redémarrage de votre machine)
-
-Les serveurs ML sont indépendants de klik: ils restent présents (en someil) après l'arrêt de klik.
+Utilisez le menu "plus de préférences".
 
 # Services optionnels avancés et expérimentaux #
 
@@ -107,12 +100,20 @@ Si vous avez des problèmes, des bogues, des suggestions, des idées de nouveaux
 ### Recommendations pour signaler des bogues ###
 
 
-- Faites un copie des logs que Klik écrit dans le terminal (en particulier si le texte contient les mots "panic" et "exception")
-- ou alors : dans le menu des préférences avancées : (a) activez les logs en fichier (b) redémarez tout (c) les fichiers de long sont des .txt dans la poubelle de Klik (appuyez sur la poubelle en haut à droite pour la visiter et trouver où elle est sur votre disque)
-- Essayez de reproduire le bogue, surtout si ce n'est pas facile de le reproduire !
+- Dans le menu des préférences: 
+
+(a) Activez les logs en fichier 
+
+(b) Relancez Klik 
+
+(c) Les fichiers de log sont des fichier nommés "Klik_application_xxxxx.txt" où 'xxxx' contient la date et l'heure, ils sont dans la poubelle de Klik (appuyez sur la poubelle en haut à droite pour visiter ce répertoire)
+
+(Si vous avez démarer Klik depuis le code source, les logs s'écrivent dans le terminal)
+
+- Essayez de reproduire le bogue
+
 - Décrivez ce que vous étiez en train de faire
-- Si le bogue est visuel, faites des copies d'écran 
-  - sur mac : command/pomme + majuscule + 4, récupérez l'image dans le fond d'écran = "Desktop"
-  - sur pc : touche "imp écr"  (en haut à droite)
+
+- Faites des copies d'écran 
 
 Merci par avance.

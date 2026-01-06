@@ -10,9 +10,9 @@ param(
 
 # ------------------------------------------------------------------
 # 1.  Activate the Python virtual‑environment that lives in
-#     'home'/.klik/venv-metal
+#     'home'/.klikr/venv
 # ------------------------------------------------------------------
-$VenvDir = Join-Path $HOME ".klik\venv-metal"
+$VenvDir = Join-Path $HOME ".klikr\venv"
 
 # Activate the venv
 $ActivateScript = Join-Path $VenvDir "Scripts\Activate.ps1"

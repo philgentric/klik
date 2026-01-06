@@ -1,4 +1,4 @@
-./gradlew shadowJar
+gradle shadowJar
 
 mkdir myicon.iconset
 sips -z 16 16   src/main/resources/icons/klik.png --out myicon.iconset/icon_16x16.png
@@ -22,4 +22,5 @@ jpackage \
   --add-modules javafx.base,javafx.graphics,javafx.controls,javafx.fxml,javafx.media,javafx.web \
   --icon myicon.icns \
   --java-options "-Xmx4g --enable-native-access=ALL-UNNAMED" \
-  --resource-dir src/main/resources/scripts
+  --resource-dir src/main/resources/scripts \
+  --add-modules ALL-MODULE-PATH

@@ -12,7 +12,7 @@ prerequisites:
 -then the script below will do the rest
 
    1. Installs Python 3.10 (winget / choco)
-   2. Creates a venv called “venv-metal” in your HOME+.klik dir
+   2. Creates a venv called “venv” in your HOME+.klikr dir
    3. Activates that venv
    4. Upgrades pip
    5. Installs TensorFlow (CPU‑only on Windows)on Windows)
@@ -48,7 +48,7 @@ Confirm-Command "python --version"
 python --version   # Should print 3.10.x
 
 # ─────── 2 Create the venv ───────
-$venvDir = "$HOME\.klik\venv-metal"
+$venvDir = "$HOME\.klikr\venv"
 Confirm-Command "python -m venv $venvDir"
 python -m venv $venvDir
 

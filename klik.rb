@@ -1,7 +1,7 @@
 class Klik < Formula
   desc "A picture-oriented file browser (JavaFX application)"
-  homepage "https://github.com/philgentric/klik"
-  url "https://github.com/philgentric/klik.git",
+  homepage "https://github.com/philgentric/klikr"
+  url "https://github.com/philgentric/klikr.git",
       branch: "main"
   version "1.0.0"
   license "MIT"
@@ -21,20 +21,20 @@ class Klik < Formula
     libexec.install Dir[".git"]
 
     # Create wrapper script
-    (bin/"klik").write <<~EOS
+    (bin/"klikr").write <<~EOS
       #!/bin/bash
-      exec "#{Formula["openjdk@25"].opt_bin}/java" -jar "#{libexec}/klik.jar" "$@"
+      exec "#{Formula["openjdk@25"].opt_bin}/java" -jar "#{libexec}/klikr.jar" "$@"
     EOS
 
     # Create update script
-    (bin/"klik-update").write <<~EOS
+    (bin/"klikr-update").write <<~EOS
       #!/bin/bash
       cd "#{libexec}" && git pull && gradle clean build -x test --no-daemon
     EOS
-    chmod 0755, bin/"klik-update"
+    chmod 0755, bin/"klikr-update"
   end
 
   test do
-    assert_match "klik", shell_output("#{bin}/klik --version 2>&1", 1)
+    assert_match "klikr", shell_output("#{bin}/klikr --version 2>&1", 1)
   end
 end

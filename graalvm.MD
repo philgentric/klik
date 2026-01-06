@@ -23,13 +23,13 @@ gradle clean run
 gradle clean shadowJar
 
 // first run
-java -agentlib:native-image-agent=config-output-dir=META-INF/native-image -jar build/libs/klik.jar
+java -agentlib:native-image-agent=config-output-dir=META-INF/native-image -jar build/libs/klikr.jar
 
 // next times: ('merge')
-java -agentlib:native-image-agent=config-merge-dir=META-INF/native-image -jar build/libs/klik.jar
+java -agentlib:native-image-agent=config-merge-dir=META-INF/native-image -jar build/libs/klikr.jar
 
 
-native-image --exact-reachability-metadata --no-fallback --enable-sbom -march=native -cp "./META-INF/native-image/reachability-metadata.json" -jar build/libs/klik.jar
+native-image --exact-reachability-metadata --no-fallback --enable-sbom -march=native -cp "./META-INF/native-image/reachability-metadata.json" -jar build/libs/klikr.jar
 
 ... generates an executable that fails at runtime
 

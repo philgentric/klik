@@ -10,13 +10,13 @@ Caveats are:
 - You have to download the whole installer (more than 100MB).
 - On MacOS, because Klik is not signed/notarized (yet), you have to visit the 'security' settings to enable Klik, everytime.
 
-For the 'developer' or 'computer savvy' people, klik is available from source. Here are the major differences with the 'installer' method:
+For the 'developer' or 'computer savvy' people, klikr is available from source. Here are the major differences with the 'installer' method:
 - Klik is 'recompiled' everytime you start it (well, only when the source code changed)
-- This implies that to start klik you either:
-- (a) type a gradle command (e.g. gradle klik), or 
+- This implies that to start klikr you either:
+- (a) type a gradle command (e.g. gradle klikr), or 
 - (b) click on a script that will do the same, or
 - (c) use the launcher = use (a) or (b) to start it and then starting Klik is just a button.
-- the big advantage is that getting updates, new features, and bug fixes is super fast and easy: git pull the last source and restart. (git pull is available from a klik or launcher menu)
+- the big advantage is that getting updates, new features, and bug fixes is super fast and easy: git pull the last source and restart. (git pull is available from a klikr or launcher menu)
 
 Said otherwise, Klik is in 'full rolling releases mode', but if you use installers, you will not get all releases...
 

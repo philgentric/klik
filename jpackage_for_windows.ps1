@@ -22,16 +22,16 @@ $LibsDir          = Join-Path $BuildDir 'libs'                         # Gradle 
 $OutputDir        = Join-Path $BuildDir 'jpackage'                     # jpackage writes there
 
 # App metadata
-$AppName         = 'Klik'
+$AppName         = 'Klikr'
 $AppVersion      = '1.0'
-$Vendor          = 'Klik'
-$Description     = 'Klik JavaFX application'
+$Vendor          = 'Klikr'
+$Description     = 'Klikr JavaFX application'
 
 # Main‑class – adjust if your launcher class lives elsewhere
-$MainClass       = 'klik.Klik_application'     # fully‑qualified class name
+$MainClass       = 'klikr.Klikr_application'     # fully‑qualified class name
 
 # The JAR that `shadowJar` produces
-$JarName         = 'klik.jar'          # (adjust if the artifact has a different name)
+$JarName         = 'klikr.jar'          # (adjust if the artifact has a different name)
 
 # JavaFX modules – adjust the path if you installed JavaFX elsewhere
 $JavaFXPath      = 'C:\Program Files\Java\javafx-sdk-25'     # <-- change if needed
@@ -48,7 +48,7 @@ $AddModules      = @(
 )
 
 # Windows icon – must be a .ico file
-$IconPath        = Join-Path $ProjectRoot 'src\main\resources\icons\klik.ico'  # <-- provide your own
+$IconPath        = Join-Path $ProjectRoot 'src\main\resources\icons\klikr.ico'  # <-- provide your own
 
 # Java options you want inside the installer
 $JavaOptions     = '-Xmx4g'            # example; change if you need more memory
@@ -79,6 +79,7 @@ $jpackageArgs = @(
     '--java-options', $JavaOptions,
     '--dest',       $OutputDir,
     '--resource-dir', 'src/main/resources/scripts'
+    '--add-modules', 'ALL-MODULE-PATH'
 )
 
 # Show the exact command for debugging

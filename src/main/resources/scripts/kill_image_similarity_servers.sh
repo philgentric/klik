@@ -2,7 +2,7 @@
 set -euo pipefail      # safer bash defaults
 
 # kill every “MobileNet_embeddings_server” process
-pids=$(pgrep -f MobileNet_embeddings_server)
+pids=$(pgrep -f MobileNet_embeddings_server  || true)
 if [[ -z $pids ]]; then
     echo "Image similarity: No MobileNet_embeddings_server processes found."
     exit 0

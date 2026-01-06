@@ -1,2 +1,2 @@
-$VenvDir = Join-Path $HOME ".klik\venv-metal"
+$VenvDir = Join-Path $HOME ".klikr\venv"
 python -m venv $VenvDir

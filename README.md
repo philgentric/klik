@@ -4,14 +4,14 @@
 Klik has been designed for people who, while not 'visually impaired', do not have 10/10 on both eyes.
 
 [En Français](LISEZ_MOI.md)
-(klik is available in Breton, Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Spanish)
+(klikr is available in Breton, Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Spanish)
 
 ![Alt text](klik.png?raw=true "Klik screen shot")
 
 
 Sort files by displaying pictures and documents as icons, into folders, intuitive and fast, drag-and-drop anything, hyperlegible font available in large size.
 
-# Try klik now!
+# Try klikr now!
 
 Download the [DMG](https://github.com/philgentric/klik/releases/download/1rc1/Klik-1.0.dmg) installer for MacOS
 
@@ -48,14 +48,14 @@ and enables you to move files from folder to folder.
 
 Klik features a crash-resistant undo capability: actions are stored in a file allowing to undo any action, even after a crash, even for multiple files or folder.
 
-Klik never deletes a file without asking you for confirmation. In Klik, "delete" actually means moving the file into the (klik) "trash" folder
+Klik never deletes a file without asking you for confirmation. In Klik, "delete" actually means moving the file into the (klikr) "trash" folder
 
-There are 3 ways to recover a deleted or accidentally moved (moved,but you did not know where) file or folder: (1) use the undo menu item (2) Use klik search! (3) visit the "trash" folder using klik (press the top right button) (4) visit the trash folder using your favorite file manager... 
+There are 3 ways to recover a deleted or accidentally moved (moved,but you did not know where) file or folder: (1) use the undo menu item (2) Use klikr search! (3) visit the "trash" folder using klikr (press the top right button) (4) visit the trash folder using your favorite file manager... 
 Only clearing the "trash" folder is final, and you will be asked for confirmation.
 If you move a file into a folder where there is already a file with the same name, it is renamed with a postfix.
 When you have duplicates, and you merge by moving files, Klik will detect identical files with the same name and move the redundant copy into the trash folder.
 
-All Klik data stored on your disk is located in your home folder in a folder named '.klik' (warning for beginners: files and folders which names start with '.' are invisible by default ;-), this includes the trash, all caches and face recognition data.
+All Klik data stored on your disk is located in your home folder in a folder named '.klikr' (warning for beginners: files and folders which names start with '.' are invisible by default ;-), this includes the trash, all caches and face recognition data.
 
 # Most image formats supported
 
@@ -125,7 +125,7 @@ View Menu: enables to open a new browsing window (for the current folder), and m
 
 Preferences menu for preferences
 
-Trash button: will display the content of the (klik specific) trash folder. If you drag a file over it, the file is moved to the trash.
+Trash button: will display the content of the (klikr specific) trash folder. If you drag a file over it, the file is moved to the trash.
 
 ### Open multiple browsers
 
@@ -158,7 +158,7 @@ Up button: the file will be moved into the parent folder
 
 You can easily rename things (folders and files). In Image mode type "r".
 
-Klik remembers all settings (in a human-readable file called klik.properties).
+Klik remembers all settings (in a human-readable file called klikr.properties).
 
 Klik tells you how many files, folders and pictures a folder contains, as well as the size on disk.
 
@@ -193,59 +193,59 @@ You can close Klik windows with Escape (or not: see preferences).
 
 # FAQ
 
-Q: What is the smallest/weakest hardware/software configuration klik has been proven to run onto?  
+Q: What is the smallest/weakest hardware/software configuration klikr has been proven to run onto?  
 A: It is a HP mini-PC, Celeron N2840 2.16GHz with 2GB of RAM, with a nominal memory bandwidth of 16GB/s, Windows 8.1 (2013), however Microsoft has disabled upgrades so that in 2025 this venerable hardware cannot be tested (if you have tips, please tell!)
 
 Q: When I type "git clone...", it says: **git** not found?  
 A: You need to install git, it is a safe open source code management tool used by all developers.
 
 Q: It says **java** not found?  
-A: klik requires java, you need to install it, look for the minimum version in the installation instructions: Klik requires a super recent version at least 23.
+A: klikr requires java, you need to install it, look for the minimum version in the installation instructions: Klik requires a super recent version at least 23.
 
 Q: It says **gradle** not found?  
-A: klik requires gradle (for expert users: klik also supports jbang and the mill)
+A: klikr requires gradle (for expert users: klikr also supports jbang and the mill)
 
 Q: Why don't you use gradlew?
 A: Failures have been reported
 
 Q: Where am I?  
-A: klik navigates your storage following the **directory structure**. The top left button makes you go up the tree (yes, computer guys are crazy, they have upside-down trees).
+A: klikr navigates your storage following the **directory structure**. The top left button makes you go up the tree (yes, computer guys are crazy, they have upside-down trees).
 
 Q: Ok, but where am I?  
-A: klik starts in your home folder. On mac it is /Users/yourname. Often people drop things on the desktop, it is located there: /Users/yourname/Desktop
+A: klikr starts in your home folder. On mac it is /Users/yourname. Often people drop things on the desktop, it is located there: /Users/yourname/Desktop
 
 Q: Where are my images?  
-A: To find where your images are on your disk, use klik: the "Files" menu has a "Search" item. Then use klik bookmarks to save the paths.
+A: To find where your images are on your disk, use klikr: the "Files" menu has a "Search" item. Then use klikr bookmarks to save the paths.
 
-Q: Can klik make a slide show?  
+Q: Can klikr make a slide show?  
 A: Yes, both the image display window and the Browser window implement slide shows.
 
-Q: What is klik made of?  
-A: klik is written 100% in a computer language named "java", and uses the javafx graphic system.
+Q: What is klikr made of?  
+A: klikr is written 100% in a computer language named "java", and uses the javafx graphic system.
 
-Q: Why is klik so incredibly fast?  
-A: klik uses background worker threads to avoid slowing down the User Interface.
+Q: Why is klikr so incredibly fast?  
+A: klikr uses background worker threads to avoid slowing down the User Interface.
 
 Q: What is a "background worker thread"?  
-A: It is a way to execute code on the different cores of your computer. When processing is spread other multiple cores, the job gets done faster, and it does not slow down the user interface; it reacts very fast, this is what you perceive as "speed". The more cores your machine has, the faster klik is.
+A: It is a way to execute code on the different cores of your computer. When processing is spread other multiple cores, the job gets done faster, and it does not slow down the user interface; it reacts very fast, this is what you perceive as "speed". The more cores your machine has, the faster klikr is.
 
-Q: Why is klik so slow on large images?  
-A: klik uses java ImageIO library, which is pretty fast but on very large images (say more than 100 MegaPixel) it simply requires more RAM and computing power to be decoded, if your computer is super recent and has a lot of RAM, it should be OK, but yes, on older machines it is going to take up to several seconds... and the garbage collection will cause hickups... on the other hand, I doubt you will find another FREE$ tool that can do it faster?
+Q: Why is klikr so slow on large images?  
+A: klikr uses java ImageIO library, which is pretty fast but on very large images (say more than 100 MegaPixel) it simply requires more RAM and computing power to be decoded, if your computer is super recent and has a lot of RAM, it should be OK, but yes, on older machines it is going to take up to several seconds... and the garbage collection will cause hickups... on the other hand, I doubt you will find another FREE$ tool that can do it faster?
 
 Q: Why is the "sort files by aspect ratio" mode slow the first time I open a folder?  
-A: Because the aspect ratio of every image in the folder has to be computed, before they can be sorted. Computing the aspect ratio involves opening the file and reading metadata, this is not a lot of work but if you have many images (say more than 200) in a folder, it will take several seconds on an old machine... good news is: klik caches these values and the second time you open the folder it should be quite fast.
+A: Because the aspect ratio of every image in the folder has to be computed, before they can be sorted. Computing the aspect ratio involves opening the file and reading metadata, this is not a lot of work but if you have many images (say more than 200) in a folder, it will take several seconds on an old machine... good news is: klikr caches these values and the second time you open the folder it should be quite fast.
 
 Q: A popup tells me the cache is getting pretty large, what should I do?  
-A: To make browsing faster klik uses several caches in RAM and on your disk. If you have a lot of images, the caches on disk can grow so large that your main storage could become full, which is a bad thing. For this reason, klik monitors its disk caches and will warn you when it gets larger than a configurable limit. Use the dedicated menu to clear the caches. If you have a lot of spare room, you can change the configuration to increase the limit, to get rid of the annoying popup when you start klik. Note that klik automatically erases items that are older than 2 days from the disk caches.
+A: To make browsing faster klikr uses several caches in RAM and on your disk. If you have a lot of images, the caches on disk can grow so large that your main storage could become full, which is a bad thing. For this reason, klikr monitors its disk caches and will warn you when it gets larger than a configurable limit. Use the dedicated menu to clear the caches. If you have a lot of spare room, you can change the configuration to increase the limit, to get rid of the annoying popup when you start klikr. Note that klikr automatically erases items that are older than 2 days from the disk caches.
 
 Q: Should I edit the configuration file?  
-A: Be careful when editing the configuration file, because it is super hard to make a config file reader 100% fool-proof. The good news is: if things go wrong, just erase the file, klik will create a fresh clean 'default' one, but of course you will lose preferences.
+A: Be careful when editing the configuration file, because it is super hard to make a config file reader 100% fool-proof. The good news is: if things go wrong, just erase the file, klikr will create a fresh clean 'default' one, but of course you will lose preferences.
 
 Q: Why should I edit the configuration file?  
 A: To look for easter eggs (there used to be quite a few).
 
 Q: How can I edit the configuration file?  
-A: The file name is klik.properties, it is located in the .klik folder in your home folder.
+A: The file name is klikr.properties, it is located in the .klikr folder in your home folder.
 
 Q: When I start the audio player, all (or some of) my songs are gone?
 A: Typically, this happens because you moved your music to a different folder. Drop that folder on the audio player drop area, the songs will be reloaded and your playlists will be updated.
@@ -255,7 +255,7 @@ A: Use 'meta v' (paste) in the audio player, it will download the audio track fr
 
 ## Dependencies
 
-klik can leverage several optional opensource resources. For example: ffmpeg enables to represent movies as animated gifs.
+klikr can leverage several optional opensource resources. For example: ffmpeg enables to represent movies as animated gifs.
 
 ## The experimental features that make Klik fun
 
@@ -263,26 +263,26 @@ Backup: you can backup incrementally whole file trees: faster than an OS copy -r
 
 Deduplication: You can find duplicated files/images (even if they have different names). 
 
-Tags: You can assign tags (text strings) to images that are saved in .properties files, one per image, and klik moves this metadata file with the image!
+Tags: You can assign tags (text strings) to images that are saved in .properties files, one per image, and klikr moves this metadata file with the image!
 
 Fusk: you can obfuscate images, for example if you store personal pictures on a network drive. Be careful that if you loose the key, the content will not be recoverable!
 
 Image-ML:
 
-ML brings to klik (1) image similarity and (2) face recognition  
+ML brings to klikr (1) image similarity and (2) face recognition  
 
 All operations are performed over HTTP to python servers that are leveraging free opensource python. 
-It requires to have multiple python3 stuff installed: See the dedicated README in the folder python_for_ML.
+It requires to have multiple python3 stuff installed: See the dedicated README in the 'scripts' folder.
 
 The main hurdle is that you must "manually" start the python servers, for this, copy/paste the command given in the help menu.
 
 Image search by similarity: Cosine similarity on MobileNetV3 image embeddings. The images are resized to 224x224 and passed through MobileNetV3 (28 layers Convolutional Neural Network) which produces a feature vector with 960 components. 
 
-In a folder, you can sort images by similarity and you can klik on an image and ask for the 5 most similar images in the folder. 
+In a folder, you can sort images by similarity and you can klikr on an image and ask for the 5 most similar images in the folder. 
 
 Note that since images are first down-sampled to 224x224 pixels, "similarity" will not "work" on small details. Also note that the first step consists in computing all the feature vectors (960 floats each) and store it in a cache, so if your folder contains many images it will take a while.
 
-Image similarity de-duplication: thanks to ML, klik can find 'similar images' that is: images that look the same but are NOT bit-identical. This includes images that have been rescaled, or cropped, as well as minor variants like when one has been shooting a scene with action very fast, to make sure you could capture something.
+Image similarity de-duplication: thanks to ML, klikr can find 'similar images' that is: images that look the same but are NOT bit-identical. This includes images that have been rescaled, or cropped, as well as minor variants like when one has been shooting a scene with action very fast, to make sure you could capture something.
 
 Face recognition:
 
@@ -303,12 +303,12 @@ a) MTCNN (Multi-Task Cascaded Convolutional Networks) or 4 variants of Haars Cas
 b) then classification uses KNN with cosine similarity on feature vectors extracted using FaceNet 'vggface2' image embeddings. 
 
 
-Recommended after training: visit the folder in .klik that has the name of your config and browse the "prototypes" i.e. the "faces" that were stored during training: you may find weird ones that are caused by face detection false positives (sometimes things that are detected as faces are not faces). Simply delete these bogus images and the next time you load the config, the vgg19 vector file will be erased too.
+Recommended after training: visit the folder in .klikr that has the name of your config and browse the "prototypes" i.e. the "faces" that were stored during training: you may find weird ones that are caused by face detection false positives (sometimes things that are detected as faces are not faces). Simply delete these bogus images and the next time you load the config, the vgg19 vector file will be erased too.
 
 
 # For developers
 
-How to build klik and klik installers.
+How to build klikr and klikr installers.
 
 You need git to get the source code.
 
@@ -335,7 +335,7 @@ Ideally you should use sdkman for gradle and java.
 
 ### Run Klik
 
-gradle klik
+gradle klikr
 
 ### Run the launcher
 
@@ -360,7 +360,7 @@ the produced file is named ./Klik-1.0.dmg
 
 ## Windows11
 
-You need a PC under Windows11. (maybe windows10 works too, not tested; earlier windows versions used to work with earlier klik+java version, but this is now hard to test as klik now requires a pretty recent java)
+You need a PC under Windows11. (maybe windows10 works too, not tested; earlier windows versions used to work with earlier klikr+java version, but this is now hard to test as klikr now requires a pretty recent java)
 
 ### Install git-for-windows
 
@@ -393,11 +393,11 @@ This will create a msi file in ./build/jpackage
 
 
 
-### Get klik updates
+### Get klikr updates
 
-To get the latest version of klik, just click the button in the Launcher!
+To get the latest version of klikr, just click the button in the Launcher!
 
-... Or go in the klik folder and type:
+... Or go in the klikr folder and type:
 
 **git pull**
 

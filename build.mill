@@ -1,4 +1,4 @@
-// this works for "klik" the image browser
+// this works for "klikr" the image browser
 // install mill and then do:
 // path_to_mill/mill run
 //
@@ -17,9 +17,9 @@ import mill.{Module, T, _}
 
 object `package` extends PublishModule with MavenModule {
 
-  def mainClass = Some("klik.Klik_application")
+  def mainClass = Some("klikr.Klikr_application")
 
-  def artifactName = "klik"
+  def artifactName = "klikr"
 
   def javacOptions = Seq("-source", "25", "-target", "25")
 

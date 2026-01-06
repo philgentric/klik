@@ -1,4 +1,4 @@
-# This documents using 'the mill build tool' a.k.a. 'mill' to build klik
+# This documents using 'the mill build tool' a.k.a. 'mill' to build klikr
 
 dowload the mill build tool from 
 
@@ -18,11 +18,11 @@ make an executable jar:
 
 output is :
 
-/Users/dqssdqss/Kode/java/klik/out/assembly.dest/out.jar
+/Users/dqssdqss/Kode/java/klikr/out/assembly.dest/out.jar
 
 and this file is executable!
 
-both WORKS! (but only for klik, not for launcher and audio-player)
+both WORKS! (but only for klikr, not for launcher and audio-player)
 
 Caveat: VIPS FFM does not work
 

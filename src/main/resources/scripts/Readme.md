@@ -8,79 +8,66 @@ Klik has 4 different image ML services
 
 All use python open-source code and models. 
 
-Both face recognition and image similarity rely on launching MULTIPLE local HTTP servers that can be queried by the klik app from java, which means that the servers survive the klik app restarts. Note: there are multiple servers (on multiple TCP ports) because python does not support multithreading (well... not as well as Java!-) and the python HTTP server does not support queuing too well, so the klik java code will 'load balance' the requests to the servers.
+Both face recognition and image similarity rely on launching MULTIPLE local HTTP servers that can be queried by the klikr app from java, which means that the servers survive the klikr app restarts. Note: there are multiple servers (on multiple TCP ports) because python does not support multithreading (well... not as well as Java!-) and the python HTTP server does not support queuing too well, so the klikr java code will 'load balance' the requests to the servers.
 
 IMPORTANT WARNING: without proper hardware, this is probably not usable.
 For ML speed, you need a machine with a graphic card that can access enough RAM...
-(unified memory machines like an ARM-based MacBook work fine). Furthermore, these ML services use a lot of caches both in RAM and on disk (otherwise they would be horribly slow), so you need a machine with enough of both. In other words, if you use klik on a small/old machine without a keras-supported GPU and/or without enough RAM (say less than 16GB) and disk space (many GBs), simply do not use these features as they will be slow and/or may crash the app (or even the machine in extreme cases!).
+(unified memory machines like an ARM-based MacBook work fine). Furthermore, these ML services use a lot of caches both in RAM and on disk (otherwise they would be horribly slow), so you need a machine with enough of both. In other words, if you use klikr on a small/old machine without a keras-supported GPU and/or without enough RAM (say less than 16GB) and disk space (many GBs), simply do not use these features as they will be slow and/or may crash the app (or even the machine in extreme cases!).
 
 # Installation #
 
-ONCE: install tensorflow+keras enchilada
+Klik provides buttons in the "more settings" menu:
+- install the python-based ML libs
+- start/stop the servers
+- 
+Otherwise here is the "manual" procedure:
 
-WARNING: tensorflow installation can be super tedious... YMMV 
-
-Only provided here is a recipe that leverages the hardware acceleration (metal) for ARM64 Macs:
-(works on my MBP-M3)
-
-open a shell/terminal, type:
+WARNING: tensorflow installation can be super tedious... YMMV
+Provided here is a recipe that leverages the hardware acceleration (metal) for ARM64 Macs
 
 brew install python@3.10
 
-/opt/homebrew/bin/python3.10 -m venv ~/venv-metal
+/opt/homebrew/bin/python3.10 -m venv ~/.klikr/venv
 
-source ~/venv-metal/bin/activate
+source ~/.klikr/venv/bin/activate
 
 pip install -U pip
 
-pip install tensorflow-macos tensorflow-metal 
+for macOS:
 
+pip install tensorflow-macos tensorflow-metal
 
-(assuming your shell is in the klik source code home directory:)
-cd ./python_for_ML
+otherwise:
+
+pip install tensorflow tensorflow
+
+(assuming your shell is in the Klik source code repo folder:)
+
+cd ./src/main/resources/scripts
 
 pip install -r requirements.txt
 
-# Usage
-
-Prerequisite: You need to go to the advanced preference menu of klik to enable the capabilities
-
-method1 (easiest!): klik in the dedicated button in the Launcher
-
-method2: ask klik to provide the command line in the preferences menu
-
-method3: "manually" start the python servers like this:
-
-AFTER a reboot: activate the virtual environment
-source ~/.klik/venv-metal/bin/activate
-
-Image embeddings python service : to start the image similarity embeddings servers, use the launch command:
-
 ./launch_image_similarity_servers.sh
 
-(to kill the image similarity embeddings servers:
-./kill_image_similarity_servers.sh)
+./kill_image_similarity_servers.sh
 
-Face recognition servers : to start the face detection and face embeddings servers:
-open a shell/terminal, cd to this folder, type:
+or windows ps1 version
 
-source ~/.klik/venv-metal/bin/activate
-./launch_face_recognition_servers
+./launch_face_recognition_servers.sh
 
-this will start several servers for respectively face detection (multiple flavors) and face embeddings 
+./kill_face_recognition_servers.sh
 
-to kill the face recognition servers:
-./kill_face_recognition_servers
+or windows ps1 version
 
 ### Caveats ###
 
 *The python image reader is not tolerant to truncated images* 
-(unlike a lot of jpeg decoders including ImageIO used by klik) 
-which means that feature vector extraction will fail on such images.
+(unlike a lot of jpeg decoders including ImageIO used by Klik) 
+which means that feature vector extraction will FAIL on such images.
 
 When using the "sort by image similarity" folder preferences, a few bad images in a folder can cause the whole scheme to hiccup seriously because the feature vector extraction will fail and everything is based on comparing images by their feature vectors. The good thing is: you will get error messages in the console.
 
-identify the wrong files and fix them (edit them or remove them!)
+Identify the wrong files and fix them (edit them or remove them!)
 
 ## How it works ##
 
@@ -102,7 +89,7 @@ Since on a per folder base, we need to compute:
 - the 'sort order' for each image
 ...
 
-The first time is quite slow for large folders but thanks to a cache the process is much faster for subsequent runs. Caveat: caching has a cost in RAM and DISK space (caches may grow as large as they can, and they are saved to disk)... This is why in the 'Preferences' menu you have cache clearing options.
+The first time is quite slow for large folders but thanks to caching the process is super fast for subsequent runs. Caveat: caching has a cost in RAM and DISK space (caches may grow as large as they can, and they are saved to disk)... This is why in the 'Preferences' menu you have cache clearing options.
 
 ### Face recognition ###
 
@@ -118,11 +105,11 @@ https://www.kaggle.com/datasets/vishesh1412/celebrity-face-image-dataset
 
 
 Then, browsing this master folder, in the 'Files' menu :
-1. select 'Start new face recognition training'; you will be prompted for a name (a folder with that name will be created in the .klik folder)
+1. select 'Start new face recognition training'; you will be prompted for a name (a folder with that name will be created in the .klikr folder)
 2. select 'Start automated face recognition training'; you will be prompted to create a file named '.folder_name_is_recognition_label'
 BEWARE: if you have many images, training will take a long time 
 
-Training results (a 'model' in ML terms) are stored in the .klik folder under the aforementioned name. 
+Training results (a 'model' in ML terms) are stored in the .klikr folder under the aforementioned name. 
 Incremental training is possible: you can add new persons into a model or try new pictures to generate more prototypes for a given person.
 
 #### Recognition stage ####
@@ -138,6 +125,6 @@ Then, for any image you can click on the menu item 'perform face recognition' an
 Face recognition starts with a face detection, and that can fail in 2 ways: no face is detected at all or what the system thinks is a face is not... This has multiple consequences:
 - During training all images for which face detection fails will not produce a prototype
 - During training, if you provide pictures with more than 1 face, the system will pick a face (no control over which) and this can result in a wrong prototype!
-- During training, things that the face detection wrongly detected as a face will end up in the prototype set. There is a cure for this issue: the prototypes are stored WITH the corresponding image: if you browse that folder (in the .klik folder) you can remove the wrong images and the corresponding prototype will be removed as well.
+- During training, things that the face detection wrongly detected as a face will end up in the prototype set. There is a cure for this issue: the prototypes are stored WITH the corresponding image: if you browse that folder (in the .klikr folder) you can remove the wrong images and the corresponding prototype will be removed as well.
 - During recognition, the system cannot recognize a face when face detection fails. If all face detection methods fail, you can try the 'direct' recognition i.e. the whole picture is taken a face; If that fails you can edit the picture to crop out the face and retry the 'direct' method.
 - During recognition, face detection will first pick one face, and in pictures will multiple faces, it may not be the one you want. Solution: edit the picture and crop the face you want to train/recognize.

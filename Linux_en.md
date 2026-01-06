@@ -31,19 +31,19 @@ https://git-scm.com/downloads
 
 **git clone https://github.com/philgentric/klik.git**
 
-this will create a folder "klik"
+this will create a folder "klikr"
 
-### start klik!
+### start klikr!
 
-**cd klik**
+**cd klikr**
 
 **gradle run**
 
-(this starts the launcher, and then you can start both klik and the music player)
+(this starts the launcher, and then you can start both klikr and the music player)
 
-to start klik directly:
+to start klikr directly:
 
-**gradle klik**
+**gradle klikr**
 
 to start the music player directly:
 
@@ -54,13 +54,13 @@ to start the music player directly:
 
 ### Install ffmpeg
 
-(klik uses ffmpeg to make several things including animated icons for videos)
+(klikr uses ffmpeg to make several things including animated icons for videos)
 
 **brew install ffmpeg**
 
 ### Install graphicsmagick
 
-(klik uses graphicsmagick to make icons for PDF files and animated icons for folders)
+(klikr uses graphicsmagick to make icons for PDF files and animated icons for folders)
 
 **brew install graphicsmagick**
 
@@ -72,7 +72,7 @@ Note1: as an alternative to gradle, you can use jbang:
 
 **sdk install jbang**
 
-**jbang src/main/java/klik/Klik_application.java**
+**jbang src/main/java/klikr/Klik_application.java**
 
 Note2: as an alternative to gradle, you can use the mill:
 

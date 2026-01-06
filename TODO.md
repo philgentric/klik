@@ -23,7 +23,7 @@ known bugs:
 Yes, that would make it easier for the average granma user...
 But installers are really a pain,
 also need to create and test 3 installers (Mac, Windaube, Linux)
-And klik is in rolling releases...
+And klikr is in rolling releases...
 
 # Aesthetic: Better look, more styles, better icons better layouts#
 
@@ -69,7 +69,7 @@ Opus?
 
 # Allow more fonts especially super legible ones #
 
-klik already allows large fonts... and uses Atkinson Hyperlegible
+klikr already allows large fonts... and uses Atkinson Hyperlegible
 
 # implement AI-based voice-over for menus... and images! ??
 

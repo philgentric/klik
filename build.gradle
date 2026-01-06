@@ -35,7 +35,7 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'com.gradleup.shadow' version '9.0.1'
-
+    //id 'org.beryx.jlink' version '2.24.0'       // Beryx jlink plugin
 }
 
 java {
@@ -45,8 +45,8 @@ java {
 
 
 
-version = '1.0.93' // application_version
-group = 'klik'
+version = '1.0' // application_version
+group = 'klikr'
 
 
 javafx {
@@ -61,25 +61,19 @@ repositories {
 dependencies {
     // EXIF reader
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
-
     // Cache
     implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.2'
-
     // moving folders across different drives
     implementation group: 'commons-io', name: 'commons-io', version: '2.19.0'
-
     // for writing png files without AWT
     implementation 'ar.com.hjg:pngj:2.1.0'
-
     // for VIPS image rescaling
     implementation("app.photofox.vips-ffm:vips-ffm-core:1.9.1")
-
-
 }
 
-tasks.register('klik', JavaExec) {
+tasks.register('klikr', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.Klik_application'
+    mainClass = 'klikr.Klikr_application'
     classpath(sourceSets.main.runtimeClasspath)
     group = 'applications'
     //jvmArgs = ['--enable-native-access=ALL-UNNAMED', '-Djava.library.path=/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib']
@@ -88,7 +82,7 @@ tasks.register('klik', JavaExec) {
         println 'doFirst start'
 
         def props   = new Properties()
-        def dir     = new File(System.getProperty('user.home'), '.klik')
+        def dir     = new File(System.getProperty('user.home'), '.klikr')
         def file    = new File(dir, 'ram.properties')
 
         // 1️⃣ Make sure the file exists
@@ -142,7 +136,7 @@ tasks.register('klik', JavaExec) {
 
 tasks.register('audio_player', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.audio.Audio_player_application'
+    mainClass = 'klikr.audio.Audio_player_application'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
     return
@@ -150,7 +144,7 @@ tasks.register('audio_player', JavaExec) {
 
 tasks.register('song_playlist_app', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.audio.Song_playlist_app'
+    mainClass = 'klikr.audio.Song_playlist_app'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
     return
@@ -159,7 +153,7 @@ tasks.register('song_playlist_app', JavaExec) {
 
 tasks.register('image_playlist_app', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.experimental.image_playlist.Image_playlist_app'
+    mainClass = 'klikr.experimental.image_playlist.Image_playlist_app'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
     return
@@ -167,14 +161,14 @@ tasks.register('image_playlist_app', JavaExec) {
 
 tasks.register('in3D', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klik.in3D.The_main_circular_3'
+    mainClass = 'klikr.in3D.The_main_circular_3'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
     return
 }
 
 application {
-    mainClass = "klik.Launcher"
+    mainClass = "klikr.Launcher"
 }
 
 run{
@@ -186,14 +180,18 @@ run{
 
 
 shadowJar {
-    archiveFileName.set("klik.jar")
+    archiveFileName.set("klikr.jar")
     manifest {
         attributes(
-                'Main-Class': 'klik.Klik_application',
+                'Main-Class': 'klikr.Klikr_application',
                 'Implementation-Version' : project.version,
                 'JavaFX-Modules': ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml', 'javafx.media', 'javafx.web']
         )
     }
     mergeServiceFiles()
+    //dependencies {
+    //    include(dependency('ar.com.hjg:pngj:2.1.0'))
+    //}
+    //relocate 'ar.com.hjg.pngj', 'klik.ar.com.hjg.pngj'
 }
 
