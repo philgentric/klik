@@ -10,14 +10,14 @@ public class Check_remaining_RAM
 //**********************************************************
 {
     private static final boolean dbg = false;
-    public static final long MIN_REMAINING_FREE_MEMORY_10MB = 10_000_000;
+    public static final long MIN_REMAINING_FREE_MEMORY_MB = 200_000_000;
 
 
     //**********************************************************
     public static boolean RAM_running_low(Logger logger)
     //**********************************************************
     {
-        if (get_remaining_memory(logger) < MIN_REMAINING_FREE_MEMORY_10MB) {
+        if (get_remaining_memory(logger) < MIN_REMAINING_FREE_MEMORY_MB) {
             logger.log("\n\nWARNING: running low on memory ! ");
             return true;
         }

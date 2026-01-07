@@ -38,7 +38,7 @@ public class Concurrency_limiter
     */
 
     //**********************************************************
-    public Concurrency_limiter(String origin, double max_number_of_threads_per_core, Logger logger)
+    public Concurrency_limiter(String origin, double max_number_of_threads_per_core)
     //**********************************************************
     {
         int permits = (int)(max_number_of_threads_per_core*(double)(System_info.how_many_cores()));

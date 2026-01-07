@@ -22,7 +22,7 @@ public class Animated_gif_generation_actor implements Actor
     Animated_gif_generation_actor(Logger logger)
     //**********************************************************
     {
-        if ( cl == null) cl = new Concurrency_limiter("Animated gif generator",1,logger);
+        if ( cl == null) cl = new Concurrency_limiter("Animated gif generator",1);
     }
 
 

@@ -133,9 +133,9 @@ public class Item_file_with_icon extends Item_file
 
         Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
 
-        ContextMenu context_menu = make_context_menu();
         button.setOnContextMenuRequested((ContextMenuEvent event) -> {
             if ( dbg) logger.log("show context menu of image_view:"+ get_item_path().toAbsolutePath());
+            ContextMenu context_menu = make_context_menu();
             context_menu.show(button, event.getScreenX(), event.getScreenY());
         });
 

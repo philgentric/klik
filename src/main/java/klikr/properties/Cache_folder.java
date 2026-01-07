@@ -9,5 +9,6 @@ public enum Cache_folder {
     image_properties_cache,
     feature_vectors_cache,
     similarity_cache,
-    face_reco_cache
+    face_reco_cache,
+    song_duration_cache
 }

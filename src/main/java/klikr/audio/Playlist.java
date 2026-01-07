@@ -18,6 +18,9 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.Shared_services;
+import klikr.path_lists.Path_list_provider_for_file_system;
+import klikr.properties.Cache_folder;
+import klikr.util.execute.actor.virtual_threads.Concurrency_limiter;
 import klikr.util.ui.progress.Progress;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor;
@@ -67,6 +70,7 @@ public class Playlist
     File saving_dir = null;
     private final Undo_core undo_core;
     private final Window owner;
+    Song_duration_RAM_cache duration_cache;
 
 
     //**********************************************************
@@ -77,6 +81,11 @@ public class Playlist
         this.owner = owner;
         this.logger = logger;
         this.undo_core = new Undo_core("undos_for_music_playlist.properties", owner,logger);
+
+        String cache_file_name = UUID.nameUUIDFromBytes("song_duration_cache".getBytes()) +".properties";
+        Path dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.image_properties_cache.name(), false,owner, logger);
+        Path cache_path = Path.of(dir.toAbsolutePath().toString(), cache_file_name);
+        duration_cache = new Song_duration_RAM_cache(new Path_list_provider_for_file_system(cache_path,owner,logger),"song_duration",owner,logger);
     }
 
 
@@ -609,69 +618,21 @@ public class Playlist
     }
 
 
-    //**********************************************************
-    class Duration_message implements Message
-    //**********************************************************
-    {
-        public final String path;
-        public final LongAdder seconds;
-        public final CountDownLatch cdl;
-        public final Aborter aborter;
-        //**********************************************************
-        public Duration_message(String path, LongAdder seconds, CountDownLatch cdl, Aborter aborter)
-        //**********************************************************
-        {
-            this.path = path;
-            this.seconds = seconds;
-            this.cdl = cdl;
-            this.aborter = aborter;
-        }
 
-        //**********************************************************
-        @Override
-        public String to_string()
-        //**********************************************************
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append(" Duration_message: ");
-            sb.append(" path: ").append(path);
-            return sb.toString();
-        }
-
-        //**********************************************************
-        @Override
-        public Aborter get_aborter()
-        //**********************************************************
-        {
-            return aborter;
-        }
-    }
     //**********************************************************
     private void update_playlist_size_info_in_a_thread()
     //**********************************************************
     {
-        Actor actor = new Actor()
-        {
-            @Override
-            public String run(Message m)
-            {
-                Duration_message dm = (Duration_message) m;
-                get_media_duration(dm.path, dm.seconds, dm.cdl);
-                return "OK";
-            }
-            @Override
-            public String name()
-            {
-                return "Duration_finder_actor";
-            }
-        };
+        Actor actor = new Song_duration_actor(logger);
         Aborter cleanup_aborter = new Aborter("actor engine cleanup",logger);
+
         Actor_engine_based_on_workers local = new Actor_engine_based_on_workers("playlist size",cleanup_aborter, logger);
+
         LongAdder seconds = new LongAdder();
         CountDownLatch cdl = new CountDownLatch(the_playlist.size());
         for ( String path: the_playlist)
         {
-            Message m = new Duration_message(path,seconds,cdl,new Aborter("dummy",logger));
+            Message m = new Duration_message(Path.of(path),duration_cache, seconds,cdl,new Aborter("dummy",logger));
             local.run(actor,m,null,logger);
         }
         try {
@@ -679,20 +640,12 @@ public class Playlist
         } catch (InterruptedException e) {
             logger.log(e.toString());
         }
+        duration_cache.save_whole_cache_to_disk();
         cleanup_aborter.abort("kill actor engine threads");
         final String text = My_I18n.get_I18n_string("Songs",owner,logger);
         Runnable r = () -> the_music_ui.set_total_duration(the_playlist.size() + " "+text+", " + Audio_player_FX_UI.get_nice_string_for_duration(seconds.doubleValue(),owner,logger));
         Platform.runLater(r);
 
-    }
-
-    //**********************************************************
-    private void get_media_duration(String path, LongAdder seconds, CountDownLatch cdl)
-    //**********************************************************
-    {
-        Double dur = Ffmpeg_utils.get_media_duration(Path.of(path), null, logger);
-        if ( dur != null) seconds.add((long) (double)dur);
-        cdl.countDown();
     }
 
 
