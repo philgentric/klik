@@ -41,7 +41,7 @@ public class File_based_IProperties implements IProperties
     //**********************************************************
     {
         if( dbg_set) logger.log(Stack_trace_getter.get_stack_trace("File_based_IProperties "+purpose+" set() "+key+"-"+value));
-        return pm.add(key, value);
+        return pm.add(key, value, true);
     }
     //**********************************************************
     @Override

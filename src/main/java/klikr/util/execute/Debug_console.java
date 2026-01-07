@@ -49,11 +49,11 @@ public class Debug_console
             {
                 String folder = folder_tf.getText();
                 String cmd = cmd_tf.getText();
-                Nix_execute_via_script_in_tmp_file.execute(Path.of(folder),cmd, true,List.of(),true, false, stage, logger);
+                Script_executor.execute(List.of(cmd),Path.of(folder), stage, logger);
             });
         }
         {
-            Button exe = new Button("Execute (processBuilder)");
+            Button exe = new Button("Execute (execute_command_list_no_wait)");
             vbox.getChildren().add(exe);
             TextArea ta = new TextArea();
             exe.setOnAction(event ->

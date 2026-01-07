@@ -135,7 +135,7 @@ public class Icon_factory_actor implements Actor
         Image_properties image_properties = image_and_properties.get().properties();
         if ( image_properties != null)
         {
-            image_properties_RAM_cache.inject(destination.get_item_path(),image_properties,true);
+            image_properties_RAM_cache.inject(destination.get_item_path(),image_properties,false);
         }
         //logger.log("Icon_factory_actor: "+ instance.decrementAndGet());
 
@@ -308,7 +308,7 @@ public class Icon_factory_actor implements Actor
         if (properties == null)
         {
             properties = new Image_properties(image_from_disk.getWidth(), image_from_disk.getHeight(), Rotation.normal);
-            image_properties_RAM_cache.inject(destination.get_path_for_display_icon_destination(), properties,true);
+            image_properties_RAM_cache.inject(destination.get_path_for_display_icon_destination(), properties,false);
             if ( dbg) logger.log("properties computed "+properties.to_string()+ "for path :"+destination.get_path_for_display_icon_destination());
         }
         else {

@@ -83,8 +83,9 @@ public class Audio_player_gradle_start
     public static void start_new_process_to_play(File song, Logger logger)
     //**********************************************************
     {
-        List<String> cmds = new ArrayList<>();
+        // TO DO: this works only FROM SOURCE
         logger.log("start_new_process_to_play()");
+        List<String> cmds = new ArrayList<>();
         cmds.add("gradle");
         cmds.add("audio_player");
         String path =  "--args=\""+song.getAbsolutePath()+"\"";

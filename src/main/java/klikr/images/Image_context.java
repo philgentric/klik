@@ -364,8 +364,11 @@ public class Image_context
             logger.log("❌ FATAL null keywords ??? ");
             return;
         }
-        if (keywords_set.isEmpty()) {
-            logger.log("❌ FATAL no keywords ??? ");
+        if (keywords_set.isEmpty())
+        {
+            // this happens when the image name does not contain text at all
+            keywords_set.add(path.getFileName().toString());
+            //logger.log("❌ FATAL no keywords ??? ");
             return;
         }
         List<String> keywords = new ArrayList<>();

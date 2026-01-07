@@ -111,7 +111,7 @@ public class Tag_items_management_stage
                     logger.log("remove " + p);
                     box.getChildren().remove(text_edit);
                 } else {
-                    pm.add(p.getKey(), result);
+                    pm.add(p.getKey(), result,true);
                 }
                 actionEvent.consume();
             });

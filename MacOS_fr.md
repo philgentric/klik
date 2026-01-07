@@ -6,11 +6,18 @@
 2. Klikr est développé avec soin et en particulier est conçu pour ne pas effacer de fichiers (sauf en vous demandant une confirmation), mais avec Klikr on peut déplacer un répertoire en un mouvement de souris et paniquer en pensant que les photos sont perdues. Il n'en est rien. Klikr a une fonction "défaire" qui se souvient de tout, même après un crash. Cependant, de la même façon que "les avions ne tombent jamais", personne ne peut exclure qu'une fausse-manip puisse causer des pertes de données : faites des sauvegardes!
 3. Le fait que 100% du code source de klikr soit visible est une garantie : un expert peut aller voir et vérifier que le code ne contient aucune partie malicieuse.
 
-## Installation
+## Installation 'classique'
+
+Télécharger l'application d'installation 'dmg'
+
+
+## Installation avec le code source
 
 **Vous avez besoin de savoir comment ouvrir un terminal.**
 
 Sur MacOS c'est une Application... qui s'appelle "Terminal" !-)
+
+Par exemple: iterm2. (https://iterm2.com/downloads/stable/latest)
 
 Dans le terminal, copier-coller les commandes en gras données dans les étapes suivantes:
 
@@ -25,31 +32,33 @@ Dans le terminal, copier-coller les commandes en gras données dans les étapes 
 
 ### installez gradle
 
-**sdk install gradle 9.0.0**
+**sdk install gradle 9.2.0**
 
-### installez java 24 (avec javaFX) 
+### installez java 25 avec javaFX
 
-**sdk install java 24.fx-zulu**
+**sdk install java 25.fx-zulu**
 
 ### installez git
 
 **brew install git**
 
-### obtenez le code source (128MB)
+### clonez le code source
 
 **git clone https://github.com/philgentric/klikr.git**
 
-cette opération va créer un dossier 'klikr' avec tout le code source. 
+cette opération va créer un dossier 'klikr' avec le code source. 
 
 ### Démarrez klikr!
 
 **cd klikr**
 
-**gradle run**
+**gradle klilr**
 
 ### Installez ffmpeg
 
 (klikr utilise ffmpeg pour fabriquer les icones animées des vidéos)
+
+Utilisez le bouton dans le menu "plus de préférences" ou bien:
 
 **brew install ffmpeg**
 
@@ -57,17 +66,13 @@ cette opération va créer un dossier 'klikr' avec tout le code source.
 
 (klikr utilise graphicsmagick pour fabriquer les icônes des fichiers PDF, les icônes animées des dossiers etc)
 
+
+Utilisez le bouton dans le menu "plus de préférences" ou bien:
+
 **brew install graphicsmagick**
 
 
-
-Note: en alternative à utiliser gradle, vous pouvez utiliser jbang:
-
-**sdk install jbang**
-
-**jbang src/main/java/klikr/Klik_application.java**
-
-### Plus tard ... Recevez les dernières mises à jour
+### Recevez les dernières mises à jour
 
 dans le dossier 'klikr', tapez:
 

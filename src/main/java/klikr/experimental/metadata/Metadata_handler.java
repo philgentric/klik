@@ -41,7 +41,7 @@ public class Metadata_handler
     public void add(String key, String value)
     //**********************************************************
     {
-        properties_manager.add(key,value);
+        properties_manager.add(key,value, true);
     }
 
     //**********************************************************
@@ -86,6 +86,6 @@ public class Metadata_handler
     //**********************************************************
     {
         properties_manager.remove(key);
-        if ( and_save) properties_manager.store_properties(false);
+        if ( and_save) properties_manager.save_everything_to_disk(false);
     }
 }

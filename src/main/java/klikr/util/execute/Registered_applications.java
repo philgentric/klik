@@ -91,7 +91,7 @@ public class Registered_applications
         {
             if ( key.endsWith(AGE)) continue; // skip age entries
             String value = map.get(key);
-            properties_manager.add(key,value);
+            properties_manager.add(key,value, true);
             logger.log("Registered_applications.save_map: "+key+" "+value);
         }
     }

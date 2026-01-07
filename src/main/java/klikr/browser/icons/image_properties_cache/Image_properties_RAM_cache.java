@@ -205,7 +205,7 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
         {
             pm.remove(key);
         }
-        if ( !cleanup.isEmpty()) pm.store_properties(false);
+        if ( !cleanup.isEmpty()) pm.save_everything_to_disk(false);
 
         if ( dbg)
         {
@@ -228,16 +228,16 @@ public class Image_properties_RAM_cache implements Clearable_RAM_cache
         for(Map.Entry<String, Image_properties> e : cache.entrySet())
         {
             saved++;
-            pm.add(e.getKey(), e.getValue().to_string());
+            pm.add(e.getKey(), e.getValue().to_string(),false);
         }
-        pm.store_properties(false);
+        pm.save_everything_to_disk(false);
         if (dbg) logger.log(saved +" TRUE items of aspect ratio cache saved to file");
     }
     //**********************************************************
     public void save_one_item_to_disk(Path path, Image_properties ip)
     //**********************************************************
     {
-        pm.add(key_from_path(path), ip.to_string());
+        pm.add(key_from_path(path), ip.to_string(),false);
     }
 
 }

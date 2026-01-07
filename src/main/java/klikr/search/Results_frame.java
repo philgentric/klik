@@ -3,6 +3,7 @@
 
 package klikr.search;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -129,7 +130,8 @@ public class Results_frame
         {
             graphic = new Scrollable_text_field(displayed_text,path, b,owner,aborter,logger);
         }
-        else {
+        else
+		{
             HBox hbox = new HBox();
             hbox.setAlignment(Pos.BASELINE_LEFT);
             if (is_max) {
@@ -209,7 +211,7 @@ public class Results_frame
 	private void open(Path path, Window owner)
 	//**********************************************************
 	{
-		Actor_engine.execute(()->open_internal(path,owner),"opening search result",logger);
+		Actor_engine.execute(()-> Platform.runLater(()->open_internal(path,owner)),"opening search result",logger);
 	}
 
 	//**********************************************************

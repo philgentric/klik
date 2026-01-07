@@ -19,17 +19,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.util.Installers;
-import klikr.util.execute.Guess_OS;
+import klikr.util.execute.Script_executor;
 import klikr.util.execute.actor.Aborter;
-import klikr.util.execute.actor.Actor_engine;
 import klikr.audio.Audio_player_gradle_start;
 import klikr.look.Look_and_feel;
 import klikr.look.Look_and_feel_manager;
 import klikr.look.Look_and_feel_manager.Icon_type;
 import klikr.look.my_i18n.My_I18n;
 import klikr.properties.Non_booleans_properties;
-import klikr.util.execute.Execute_command;
-import klikr.util.execute.Nix_execute_via_script_in_tmp_file;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.tcp.*;
@@ -40,7 +37,6 @@ import klikr.util.ui.progress.Progress_window;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -79,7 +75,6 @@ public class Launcher extends Application implements UI_change
     public static final int icon_size = 100;
     public static final String STARTED = "STARTED";
     public static final String NOT_STARTED = "NOT_STARTED";
-    private static boolean use_script_in_tmp;
 
     private Stage stage;
     private Aborter aborter;
@@ -110,14 +105,6 @@ public class Launcher extends Application implements UI_change
         logger.log("Launcher starting");
         System_info.print(stage,logger);
 
-        switch(Guess_OS.guess(stage,logger))
-        {
-            case Windows -> {
-                use_script_in_tmp = true;
-            }
-            default -> {use_script_in_tmp = false;}
-
-        }
 
 
         String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,stage,logger);
@@ -259,21 +246,8 @@ public class Launcher extends Application implements UI_change
         int port_to_reply_about_start = start_launch_status_server(app_name, local_hourglass, stage,logger);
         write_port_to_reply_about_start(port_to_reply_about_start,logger);
 
-        if ( use_script_in_tmp)
-        {
-            String cmd = "gradle "+app_name;
-            Nix_execute_via_script_in_tmp_file.execute(Path.of("."),cmd,false,List.of(),false, true,stage,logger);
-        }
-        else
-        {
-            List<String> cmds = new ArrayList<>();
-            cmds.add("gradle");
-            cmds.add(app_name);
-            Actor_engine.execute(
-                    () -> Execute_command.execute_command_list_no_wait(cmds, new File("."), logger),
-                    "gradle " + app_name,
-                    logger);
-        }
+        String cmd = "gradle "+app_name;
+        Script_executor.execute(List.of(cmd),Path.of("."),stage,logger);
 
     }
 

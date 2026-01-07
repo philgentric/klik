@@ -392,7 +392,7 @@ public class Menus_for_image_window
         String txt = My_I18n.get_I18n_string("Info_about", image_window.stage,image_window.logger);
 
         MenuItem info = new MenuItem(txt
-                + image_window.image_display_handler.get_image_context().get().path.getFileName() + My_I18n.get_I18n_string("Info_about_file_shortcut", image_window.stage,image_window.logger));
+                + image_window.image_display_handler.get_image_context().get().path.getFileName());
         Look_and_feel_manager.set_menu_item_look(info,image_window.stage,image_window.logger);
         info.setOnAction(event ->
                 {

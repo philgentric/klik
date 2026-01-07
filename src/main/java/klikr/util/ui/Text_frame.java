@@ -109,11 +109,7 @@ public class Text_frame
                     if ( dbg) logger.log("text frame received: " + line);
 
                     if ( aborter.should_abort()) break;
-                    if ( line.equals(Nix_execute_via_script_in_tmp_file.END))
-                    {
-                        if ( dbg) logger.log("text frame received END");
-                        break;
-                    }
+
                     Platform.runLater(() -> {
                         String jsSafe = "<br>"+ line
                                 .replace("\\", "\\\\")

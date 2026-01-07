@@ -12,6 +12,7 @@ import klikr.machine_learning.ML_servers_util;
 import klikr.util.execute.Execute_command;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.Nix_execute_via_script_in_tmp_file;
+import klikr.util.execute.Script_executor;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
 import klikr.util.ui.Items_with_explanation;
@@ -171,7 +172,7 @@ public class Installers
             if ( app==External_application.Ffprobe) continue; // installs with ffmpeg
             String cmd = app.get_command_string_to_install(owner, logger);
             if (cmd == null) continue;
-            Nix_execute_via_script_in_tmp_file.execute(Path.of("."),cmd, false,List.of(),true, false, owner, logger);
+            Script_executor.execute(List.of(cmd),Path.of("."), owner, logger);
         }
     }
 

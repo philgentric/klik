@@ -22,7 +22,7 @@ public class File_logger implements Logger
 	public File_logger(String tag_)
 	//*******************************************************
 	{
-		Path file = Execute_common.get_tmp_file_path_in_trash(tag_,"txt",null,new Simple_logger());
+		Path file = Tmp_file_in_trash.get_tmp_file_path_in_trash(tag_,"txt",null,new Simple_logger());
 
 		Runnable r = () -> {
 			for(;;)

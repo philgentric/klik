@@ -12,8 +12,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import klikr.look.Look_and_feel;
 import klikr.look.Look_and_feel_manager;
-import klikr.util.execute.Nix_execute_via_script_in_tmp_file;
 import klikr.util.execute.Guess_OS;
+import klikr.util.execute.Script_executor;
 import klikr.util.log.Logger;
 import klikr.util.ui.Items_with_explanation;
 
@@ -42,7 +42,7 @@ public enum External_application
         {
             String cmd = get_command_string_to_install(owner,logger);
             if ( cmd == null) return;
-            Nix_execute_via_script_in_tmp_file.execute(Path.of("."),cmd, false,List.of(),true,false,owner,logger);
+            Script_executor.execute(List.of(cmd),Path.of("."),owner,logger);
         };
 
         return Items_with_explanation.make_hbox_with_button_and_explanation(

@@ -2,7 +2,7 @@
 
 usage:
 
-powershell -ExecutionPolicy Bypass -File .\setup_windows_env.ps1
+powershell -ExecutionPolicy Bypass -File .\create_venv_for_windows.ps1
 
 prerequisites:
 - have a NVIDIA GPU on your PC

@@ -8,13 +8,11 @@ import javafx.util.Pair;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
-import klikr.util.ui.Popups;
 import klikr.util.log.Stack_trace_getter;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,28 +20,24 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 //**********************************************************
 public class Properties_manager
 //**********************************************************
 {
 
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     private static final boolean ultra_dbg = false;
     public static final String AGE = "_age";
     public static final int max = 30;
 
     private final Properties the_Properties;
-    private final Path the_properties_path;
-    private final Logger logger;
-    //private final Aborter aborter;
-    private final String purpose;
+    final Path the_properties_path;
+    final Logger logger;
+    final Aborter aborter;
+    final String purpose;
 
     // saving to file is done in a separate thread:
-    private final BlockingQueue<Boolean> disk_store_request_queue = new LinkedBlockingQueue<>();
 
     //**********************************************************
     public Properties_manager(Path f_, String purpose, Window owner,Aborter aborter,Logger logger)
@@ -51,14 +45,12 @@ public class Properties_manager
     {
         Objects.requireNonNull(aborter);
         this.purpose = purpose;
-        //this.aborter = aborter;
+        this.aborter = aborter;
         this.logger = logger;
         the_properties_path = f_;
         the_Properties = new Properties();
         load_properties(the_Properties, the_properties_path);
-        start_store_engine(purpose,  owner,aborter, logger);
 
-        //for ( String k : get_all_keys()) logger.log("property: " + k + " = " + get(k));
     }
 
     //**********************************************************
@@ -69,63 +61,25 @@ public class Properties_manager
     }
 
     //**********************************************************
-    public void store_properties(boolean reload_before_save)
+    private void store_properties(boolean reload_before_save)
     //**********************************************************
     {
-        disk_store_request_queue.add(reload_before_save);
+        Store_engine.get_queue(logger).add(new Save_job(reload_before_save,this));
     }
 
     // trying to limit disk writes for source that can be super active
     // like the image properties cache or image feature vectors etc
     // but keep as safe as possible, especially always saved on clean exit (with aborter)
+
     //**********************************************************
-    private void start_store_engine(String purpose, Window owner, Aborter aborter, Logger logger)
+    public void save_everything_to_disk(boolean reload_before_save)
     //**********************************************************
     {
-        Runnable r = () -> {
-            for(;;)
-            {
-                if (aborter.should_abort())
-                {
-                    if ( dbg) logger.log("Properties store engine aborting: " + purpose + " " + the_properties_path);
-                }
-                try {
-                    Boolean reload_before_save = disk_store_request_queue.poll(20, TimeUnit.SECONDS);
-                    if ( reload_before_save == null)
-                    {
-                        // this is a time out (20 seconds), nothing to save
-                        if (aborter.should_abort())
-                        {
-                            //logger.log("exiting Properties store engine due to abort: " + purpose + " " + the_properties_path);
-                            return;
-                        }
-                        continue;
-                    }
-                    if ( disk_store_request_queue.peek() != null)
-                    {
-                        //logger.log("ignoring as there are more requests for saving Properties store engine : " + tag + " " + the_properties_path);
-                        // if another request is already in flight, we will have an opportunity to save very soon
-                        continue;
-                    }
-                    save(reload_before_save, owner);
-                    if (aborter.should_abort())
-                    {
-                        logger.log("aborting (after saving) Properties store engine : " + purpose + " " + the_properties_path);
-                        return;
-                    }
-                }
-                catch (InterruptedException e)
-                {
-                    logger.log("INTERRUPTED Properties store engine : " + purpose + " " + the_properties_path);
-                    return;
-                }
-            }
-        };
-        Actor_engine.execute(r, "Properties_manager store engine for :"+purpose,logger);
+        Actor_engine.execute(()->save_everything_to_disk_internal(reload_before_save),"save_everything_to_disk for "+purpose,logger);
     }
 
     //**********************************************************
-    private void save(boolean reload_before_save, Window owner)
+    void save_everything_to_disk_internal(boolean reload_before_save)
     //**********************************************************
     {
         if ( reload_before_save)
@@ -191,11 +145,11 @@ public class Properties_manager
                 }
             }
         }
-        save_to_disk(owner);
+        save_to_disk();
     }
 
     //**********************************************************
-    private void save_to_disk(Window owner)
+    private void save_to_disk()
     //**********************************************************
     {
        if (dbg) logger.log("Properties_manager: save to disk "+the_properties_path.toAbsolutePath());
@@ -223,7 +177,7 @@ public class Properties_manager
 
         if (!Files.isWritable(the_properties_path))
         {
-            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties ", owner, logger);
+            //Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties ", owner, logger);
             logger.log("X FATAL: cannot write properties in:" + the_properties_path.toAbsolutePath());
             return;
         }
@@ -241,8 +195,8 @@ public class Properties_manager
         }
         catch (Exception e)
         {
-            //logger.log("store_properties Exception: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
-            Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, owner,logger);
+            logger.log("store_properties Exception: " + Stack_trace_getter.get_stack_trace_for_throwable(e));
+            //Popups.popup_Exception(new AccessDeniedException(the_properties_path.toAbsolutePath().toString()), 200, "Cannot store properties due to: "+e, owner,logger);
 
         }
     }
@@ -297,18 +251,18 @@ public class Properties_manager
     {
         logger.log("clearing properties");
         the_Properties.clear();
-        disk_store_request_queue.add(false);
+        Store_engine.get_queue(logger).add(new Save_job(false,this));
     }
 
 
 
     //**********************************************************
-    public boolean add(String key, String value)
+    public boolean add(String key, String value, boolean reload_before_save)
     //**********************************************************
     {
         the_Properties.setProperty(key, value);
         the_Properties.setProperty(key+AGE, LocalDateTime.now().toString());
-        disk_store_request_queue.add(true);
+        if ( reload_before_save) Store_engine.get_queue(logger).add(new Save_job(reload_before_save,this));
         return true;
     }
 
@@ -319,7 +273,7 @@ public class Properties_manager
     {
         the_Properties.remove(key+AGE);
         Object returned = the_Properties.remove(key);
-        disk_store_request_queue.add(true);
+        Store_engine.get_queue(logger).add(new Save_job(true,this));
         return returned;
     }
 
@@ -393,7 +347,7 @@ public class Properties_manager
         }
         String key = get_one_empty_key_for_base(key_base);
 
-        add(key, value);
+        add(key, value, true);
         return key;
     }
 

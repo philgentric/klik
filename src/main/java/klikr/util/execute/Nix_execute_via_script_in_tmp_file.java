@@ -8,6 +8,7 @@ import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
+import klikr.util.log.Tmp_file_in_trash;
 import klikr.util.ui.Popups;
 import klikr.util.ui.Text_frame;
 import org.apache.commons.io.input.Tailer;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 
 //**********************************************************
+@Deprecated
 public class Nix_execute_via_script_in_tmp_file
 //**********************************************************
 {
@@ -80,7 +82,7 @@ public class Nix_execute_via_script_in_tmp_file
     private static void execute_internal_nix(Path folder, String command, boolean chmod_it, List<String> args, boolean show_window, BlockingQueue<String> output_queue, Window owner, Logger logger)
     //**********************************************************
     {
-        Path p_for_log = Execute_common.get_tmp_file_path_in_trash("log","txt",owner, logger);
+        Path p_for_log = Tmp_file_in_trash.get_tmp_file_path_in_trash("log","txt",owner, logger);
         if ( p_for_log == null) return;
         String log_file_name = p_for_log.toString();
 
@@ -95,7 +97,7 @@ public class Nix_execute_via_script_in_tmp_file
         // Write script to temporary file
         Path script_path;
         try {
-            script_path = Execute_common.get_tmp_file_path_in_trash("cmd_","sh",owner, logger);
+            script_path = Tmp_file_in_trash.get_tmp_file_path_in_trash("cmd_","sh",owner, logger);
             //if ( Files.exists(script_path)) Files.delete(script_path);
             Files.write(script_path, script_content.getBytes());
             Files.setPosixFilePermissions(script_path, PosixFilePermissions.fromString("rwxr-xr-x"));

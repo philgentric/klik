@@ -213,7 +213,7 @@ public class Undo_core implements Datetime_to_signature_source
                 }
             }
         }
-        properties_manager.store_properties(false);
+        properties_manager.save_everything_to_disk(false);
     }
 
     /*
@@ -324,13 +324,13 @@ public class Undo_core implements Datetime_to_signature_source
         {
             String k = generate_key_for_how_many_oans(undo_item.index);
             String v = String.valueOf(undo_item.oans.size());
-            properties_manager.add(k, v);
+            properties_manager.add(k, v, true);
             if ( dbg) logger.log("       "+k+"="+v);
         }
         {
             String k = generate_key_for_datetime(undo_item.index);
             String v = undo_item.time_stamp.toString();
-            properties_manager.add(k, v);
+            properties_manager.add(k, v, true);
             if ( dbg)  logger.log("       "+k+"="+v);
         }
         int j = 0;
@@ -339,19 +339,19 @@ public class Undo_core implements Datetime_to_signature_source
             {
                 String key_for_old_path = generate_key_for_old_path(undo_item.index, j);
                 String string_for_old_path = oan.old_Path.toAbsolutePath().toString();
-                properties_manager.add(key_for_old_path, string_for_old_path);
+                properties_manager.add(key_for_old_path, string_for_old_path, true);
                 if ( dbg) logger.log("       "+key_for_old_path+"="+string_for_old_path);
             }
             if ( oan.new_Path != null)
             {
                 String key_for_new_path = generate_key_for_new_path(undo_item.index, j);
                 String string_for_new_path = oan.new_Path.toAbsolutePath().toString();
-                properties_manager.add(key_for_new_path, string_for_new_path);
+                properties_manager.add(key_for_new_path, string_for_new_path, true);
                 if ( dbg) logger.log("       "+key_for_new_path+"="+string_for_new_path);
             }
             j++;
         }
-        properties_manager.store_properties(false);
+        properties_manager.save_everything_to_disk(false);
 
     }
 
@@ -423,7 +423,7 @@ public class Undo_core implements Datetime_to_signature_source
             }
             j++;
         }
-        properties_manager.store_properties(false);
+        properties_manager.save_everything_to_disk(false);
     }
 
     //**********************************************************

@@ -67,9 +67,14 @@ public class Scrollable_text_field extends Region
         text_field.setOnMouseMoved(e -> onHover(e.getX()));
         text_field.setOnMouseExited(e -> stopScroll());
         text_field.setOnMouseClicked(e->{
+            //logger.log("Scrollable_text_field, click count = "+e.getClickCount());
             if ( e.getClickCount() == 2)
             {
-                if ( button != null) button.fire();
+                if ( button != null)
+                {
+                    //logger.log("Scrollable_text_field fire");
+                    button.fire();
+                }
             }
             e.consume();
         });

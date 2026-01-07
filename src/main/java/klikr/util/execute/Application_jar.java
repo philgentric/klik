@@ -11,7 +11,7 @@ import java.io.InputStream;
 public class Application_jar
 //**********************************************************
 {
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
 
 
     //**********************************************************
