@@ -31,7 +31,7 @@
 //SOURCES ../../properties/boolean_features/Feature.java
 //SOURCES ../../properties/boolean_features/Feature_cache.java
 //SOURCES ../../properties/boolean_features/Feature_change_target.java
-//SOURCES ./../icons/image_properties_cache/Image_properties_RAM_cache.java
+//SOURCES ./../icons/image_properties_cache/Image_properties_cache.java
 //SOURCES ./../icons/Refresh_target.java
 //SOURCES ./../icons/Icon_factory_actor.java
 //SOURCES ./../virtual_landscape/Paths_holder.java

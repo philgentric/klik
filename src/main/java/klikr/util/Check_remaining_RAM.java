@@ -3,6 +3,7 @@
 
 package klikr.util;
 
+import klikr.browser.virtual_landscape.Browsing_caches;
 import klikr.util.log.Logger;
 
 //**********************************************************
@@ -19,6 +20,8 @@ public class Check_remaining_RAM
     {
         if (get_remaining_memory(logger) < MIN_REMAINING_FREE_MEMORY_MB) {
             logger.log("\n\nWARNING: running low on memory ! ");
+
+            Browsing_caches.clear_all_RAM_caches(logger);
             return true;
         }
         return false;

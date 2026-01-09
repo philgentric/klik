@@ -381,7 +381,7 @@ public class More_settings_stage
             add_one_button("Clear_All_RAM_Caches",
                     event -> Browsing_caches.clear_all_RAM_caches(logger), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Image_Properties_RAM_Cache",
-                    event -> Browsing_caches.image_properties_RAM_cache_of_caches.clear(), w, icon_size, look_and_feel, vbox);
+                    event -> Browsing_caches.image_properties_cache_of_caches.clear(), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Image_Comparators_Caches",
                     event -> clear_image_comparators_caches(), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Scroll_Position_Cache",
@@ -428,13 +428,6 @@ public class More_settings_stage
         vbox.getChildren().add(hb);
     }
 
-    //**********************************************************
-    public void clear_image_properties_RAM_cache()
-    //**********************************************************
-    {
-    }
-
-
 
     //**********************************************************
     public void clear_image_comparators_caches()
@@ -442,7 +435,7 @@ public class More_settings_stage
     {
         for ( Similarity_comparator x : Browsing_caches.similarity_comparator_cache.values())
         {
-            x.clear_RAM_cache();
+            x.clear_RAM();
         }
     }
 
@@ -452,7 +445,7 @@ public class More_settings_stage
     {
         for( Feature_vector_cache x : Browsing_caches.fv_cache_of_caches.values())
         {
-            x.clear_RAM_cache();
+            x.clear_RAM();
         }
         Browsing_caches.fv_cache_of_caches.clear();
     }

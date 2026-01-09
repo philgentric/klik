@@ -6,7 +6,7 @@ package klikr.browser.comparators;
 import javafx.stage.Window;
 import klikr.browser.Clearable_RAM_cache;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 
 import java.nio.file.Path;
@@ -22,41 +22,41 @@ public class Aspect_ratio_comparator_random implements Comparator<Path>, Clearab
     private final long seed;
     // make sure the comparator is consistent
     private final HashMap<Path,Long> cache_local = new HashMap<>();
-    private final Image_properties_RAM_cache image_properties_ram_cache;
+    private final RAM_cache<Path, Image_properties> image_properties_cache;
     private final Aborter aborter;
     private final Window owner;
     //**********************************************************
-    public Aspect_ratio_comparator_random(Image_properties_RAM_cache image_properties_ram_cache, Aborter aborter, Window owner)
+    public Aspect_ratio_comparator_random(RAM_cache<Path, Image_properties> image_properties_cache, Aborter aborter, Window owner)
     //**********************************************************
     {
         this.aborter = aborter;
         this.owner = owner;
-        this.image_properties_ram_cache = image_properties_ram_cache;
+        this.image_properties_cache = image_properties_cache;
         Random r = new Random();
         seed = r.nextLong();
     }
 
     //**********************************************************
     @Override
-    public void clear_RAM_cache()
+    public void clear_RAM()
     //**********************************************************
     {
         cache_local.clear();
-        image_properties_ram_cache.clear_RAM_cache();
+        image_properties_cache.clear_RAM();
     }
     //**********************************************************
     @Override
     public int compare(Path p1, Path p2)
     //**********************************************************
     {
-        Image_properties ip1 = image_properties_ram_cache.get(p1,aborter,null,owner);
+        Image_properties ip1 = image_properties_cache.get(p1,aborter,null,owner);
         if ( ip1 == null)
         {
             //logger.log(Stack_trace_getter.get_stack_trace("PANIC image_property not found"));
             return 0;
         }
         Double d1 = ip1.get_aspect_ratio();
-        Image_properties ip2 = image_properties_ram_cache.get(p2,aborter,null,owner);
+        Image_properties ip2 = image_properties_cache.get(p2,aborter,null,owner);
         if ( ip2 == null)
         {
             //logger.log(Stack_trace_getter.get_stack_trace("PANIC image_property not found"));

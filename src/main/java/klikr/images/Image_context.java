@@ -462,23 +462,6 @@ public class Image_context
     */
 
 
-    //**********************************************************
-    void open(Image_window image_window)
-    //**********************************************************
-    {
-        System_open_actor.open_with_system(path, image_window.stage,new Aborter("dummy",logger), logger);
-        /*
-        Desktop d = Desktop.getDesktop();
-        logger.log("asking desktop to OPEN: " + path.getFileName());
-        try
-        {
-            d.open(path.toFile());
-        } catch (IOException e)
-        {
-            logger.log("open error:" + e);
-        }*/
-    }
-
 
     //**********************************************************
     boolean copy(

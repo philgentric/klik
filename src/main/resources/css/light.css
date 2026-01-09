@@ -197,5 +197,5 @@ my_dialog{
        Format: top right bottom left.
        Increase these numbers to make the arrow larger relative to text. */
     -fx-padding: 0.4em 0.25em 0.4em 0.25em;
-    -fx-background-color: white;
+    -fx-background-color: black;
 }

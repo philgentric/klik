@@ -516,10 +516,12 @@ public class Virtual_landscape_menus
             CheckMenuItem menu_item = new CheckMenuItem(s);
             Look_and_feel_manager.set_menu_item_look(menu_item,owner,logger);
             menu_item.setMnemonicParsing(false);
+            menu_item.setSelected(Feature_cache.get(Feature.Play_music));
             EventHandler<ActionEvent> handler = e ->
             {
                 if ( menu_item.isSelected())
                 {
+                    Feature_cache.update_cached_boolean(Feature.Play_music, true, owner);
                     if ( Klikr_application.audio_player != null)
                     {
                         logger.log("an audio player already exists");
@@ -529,10 +531,10 @@ public class Virtual_landscape_menus
                         logger.log("starting new audio player");
                         Klikr_application.audio_player = new Audio_player(null, logger);
                     }
-                    Feature_cache.update_cached_boolean(Feature.Play_music, true, owner);
                 }
                 else
                 {
+                    Feature_cache.update_cached_boolean(Feature.Play_music, false, owner);
                     if ( Klikr_application.audio_player != null)
                     {
                         logger.log("killing audio player");
@@ -543,13 +545,11 @@ public class Virtual_landscape_menus
                     {
                         logger.log("No audio player to kill?");
                     }
-                    Feature_cache.update_cached_boolean(Feature.Play_music, false, owner);
                 }
 
             };
             menu_item.setOnAction(handler);
             context_menu.getItems().add(menu_item);
-            menu_item.setSelected(Feature_cache.get(Feature.Play_music));
         }
 
 
@@ -593,7 +593,7 @@ public class Virtual_landscape_menus
                             virtual_landscape,
                             too_far_away_image,
                             virtual_landscape.path_list_provider.get_folder_path().toFile(),
-                            virtual_landscape.get_image_properties_ram_cache(),
+                            virtual_landscape.get_image_properties_cache(),
                             get_image_fv_cache,
                             owner,
                             logger)).do_your_job();
@@ -760,7 +760,7 @@ public class Virtual_landscape_menus
                 height,
                 is_trash_button,
                 is_parent_of,
-                virtual_landscape.get_image_properties_ram_cache(),
+                virtual_landscape.get_image_properties_cache(),
                 virtual_landscape.shutdown_target,
                 new Path_list_provider_for_file_system(path,owner,logger),
                 virtual_landscape,

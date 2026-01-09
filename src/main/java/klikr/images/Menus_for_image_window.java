@@ -10,10 +10,10 @@ import javafx.scene.input.KeyCombination;
 import klikr.Window_type;
 import klikr.Instructions;
 import klikr.path_lists.Path_list_provider_for_file_system;
+import klikr.util.execute.System_open_actor;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.animated_gifs.Gif_repair;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.browser.items.Item_file_with_icon;
 import klikr.change.Redo_same_move_engine;
 import klikr.change.undo.Undo_for_moves;
@@ -250,7 +250,7 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
-    private static MenuItem make_browse_menu_item(Image_window image_window)
+    private static MenuItem make_browse_2D_menu_item(Image_window image_window)
     //**********************************************************
     {
         return get_browse_menu_item_effective("Browse_folder",image_window, Window_type.File_system_2D);
@@ -280,14 +280,15 @@ public class Menus_for_image_window
 
 
     //**********************************************************
-    private static MenuItem make_open_file_menu_item(Image_window image_window)
+    private static MenuItem make_open_with_system_file_menu_item(Image_window image_window)
     //**********************************************************
     {
         return Menu_items.make_menu_item("Open_File",null,
                 event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().open(image_window);
+            Path path = image_window.image_display_handler.get_image_context().get().path;
+            System_open_actor.open_with_system(path, image_window.stage,image_window.aborter, image_window.logger);
         }, image_window.stage, image_window.logger);
     }
 
@@ -456,7 +457,6 @@ public class Menus_for_image_window
 
     //**********************************************************
     public static ContextMenu make_context_menu(Image_window image_window,
-                                                Image_properties_RAM_cache image_properties_cache,
                                                 Supplier<Feature_vector_cache> fv_cache_supplier,
                                                 Logger logger)
     //**********************************************************
@@ -526,16 +526,16 @@ public class Menus_for_image_window
     }
 
     //**********************************************************
-    private static Menu get_open_menu_item(Image_window image_window)
+    public static Menu get_open_menu_item(Image_window image_window)
     //**********************************************************
     {
         String s = My_I18n.get_I18n_string("Open", image_window.stage, image_window.logger);
         Menu returned = new Menu(s);
         Look_and_feel_manager.set_menu_item_look(returned, image_window.stage, image_window.logger);
         returned.getItems().add(make_open_with_klik_registered_application_menu_item(image_window,image_window.logger));
+        returned.getItems().add(make_open_with_system_file_menu_item(image_window));
         returned.getItems().add(make_edit_menu_item(image_window));
-        returned.getItems().add(make_open_file_menu_item(image_window));
-        returned.getItems().add(make_browse_menu_item(image_window));
+        returned.getItems().add(make_browse_2D_menu_item(image_window));
         if (Booleans.get_boolean_defaults_to_false(Feature.Enable_3D.name()))
         {
             returned.getItems().add(make_browse_3D_menu_item(image_window));

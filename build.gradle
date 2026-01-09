@@ -167,6 +167,16 @@ tasks.register('in3D', JavaExec) {
     return
 }
 
+
+tasks.register('example', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.util.cache.Example'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
 application {
     mainClass = "klikr.Launcher"
 }

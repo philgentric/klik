@@ -47,13 +47,13 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
 
     //**********************************************************
     @Override
-    public void clear_RAM_cache()
+    public void clear_RAM()
     //**********************************************************
     {
-        if(fv_cache_supplier.get() != null) fv_cache_supplier.get().clear_RAM_cache();
+        if(fv_cache_supplier.get() != null) fv_cache_supplier.get().clear_RAM();
         distances_cache.clear();
         dummy_names.clear();
-        if ( similarity_cache != null) similarity_cache.clear_RAM_cache();
+        if ( similarity_cache != null) similarity_cache.clear_RAM();
         images.clear();
     }
 

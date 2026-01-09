@@ -35,11 +35,12 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.*;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klikr.browser.icons.image_properties_cache.Rotation;
 import klikr.change.bookmarks.Bookmarks;
 import klikr.change.history.History_engine;
 import klikr.change.undo.Undo_for_moves;
 import klikr.path_lists.Files_and_folders;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
@@ -68,6 +69,8 @@ import klikr.path_lists.Path_list_provider;
 import klikr.properties.*;
 import klikr.properties.boolean_features.*;
 import klikr.util.files_and_paths.*;
+import klikr.util.image.Full_image_from_disk;
+import klikr.util.image.decoding.Fast_image_property_from_exif_metadata_extractor;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.perf.Perf;
@@ -75,7 +78,10 @@ import klikr.util.ui.*;
 import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -84,6 +90,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 //**********************************************************
@@ -159,6 +167,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private Feature_vector_cache fv_cache;
     private final Background_provider background_provider;
 
+    RAM_cache<Path, Image_properties> image_properties_cache;
+
     //**********************************************************
     public Virtual_landscape(
             Window_type context_type,
@@ -190,8 +200,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
         the_Pane = new Pane();
 
-        icon_factory_actor = new Icon_factory_actor(get_image_properties_ram_cache(), owner, aborter, logger);
-        paths_holder = new Paths_holder(get_image_properties_ram_cache(), aborter, logger);
+        icon_factory_actor = new Icon_factory_actor(get_image_properties_cache(), owner, aborter, logger);
+        paths_holder = new Paths_holder(get_image_properties_cache(), aborter, logger);
         selection_handler = new Selection_handler(the_Pane, this, this, logger);
 
         virtual_landscape_menus = new Virtual_landscape_menus(this, change_receiver, owner);
@@ -221,6 +231,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
         start_redraw_engine(owner, aborter, logger);
     }
+
 
     //**********************************************************
     @Override // String_change_target
@@ -657,10 +668,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     {
         try (Perf p = new Perf("sort_iconized_items")) {
             List<Path> local_iconized_sorted = new ArrayList<>(paths_holder.iconized_paths);
-            for (int tentative = 0; tentative < 3; tentative++) {
+            for (int tentative = 0; tentative < 3; tentative++)
+            {
+                // ugly trick due to similarity pursuit
+                // it is NOT a true metric so the sort algorithm
+                // can hiccup ... when that happens we reshuffle and retry
                 try {
                     if (dbg)
                         logger.log("sort_iconized_items with " + image_file_comparator.getClass().getName());
+                    // this blocks until icons are sorted
+                    // unless the sort aloo fails
+                    // which happens with similarity metrics
                     local_iconized_sorted.sort(image_file_comparator);
                     break;
                 } catch (IllegalArgumentException e) {
@@ -696,13 +714,19 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private List<Path> get_iconized_sorted(String from)
     //**********************************************************
     {
+        // non blocking
         List<Path> returned = iconized_sorted_queue.poll();
         if (returned != null)
-            return returned;
+        {
+            logger.log("\n\nHAPPENS\n\n");
 
-        // resort
+            // OK, icons are sorted
+            return returned;
+        }
+
+        // icons are not yet sorted, retry
         // if ( dbg)
-        logger.log("RESORTING iconized items");
+        logger.log(Stack_trace_getter.get_stack_trace("RESORTING iconized items"));
         sort_iconized_items(from);
         return iconized_sorted_queue.poll();
     }
@@ -723,9 +747,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    // make sure map_buttons_and_icons is not called again before it is finished
-    // cannot use "synchronized" because part of the job is performed
-    // on another thread
 
     //**********************************************************
     void scroll_to()
@@ -827,7 +848,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
 
                         if (need_image_properties) {
                             // ask for image properties fetch in threads
-                            get_image_properties_ram_cache().get(path, aborter, tr, owner);
+                            get_image_properties_cache().get(path, aborter, tr, owner);
                         }
                     }
                 }
@@ -853,7 +874,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 Double cache_aspect_ratio = Double.valueOf(1.0);
                 if (need_image_properties) {
                     // this is a BLOCKING call
-                    Image_properties ip = get_image_properties_ram_cache().get(path, aborter, null, owner);
+                    Image_properties ip = get_image_properties_cache().get(path, aborter, null, owner);
                     if (ip == null) {
                         if (dbg)
                             logger.log(("✅ Warning: image property cache miss for: " + path));
@@ -892,7 +913,16 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             /// at this stage we MUST have get_iconized_sorted() in the proper order
             // that will define the x,y layout
             start = System.currentTimeMillis();
+
+            // will block until icons are truly sorted
             List<Path> ll = get_iconized_sorted("process_iconified_items");
+
+            //if (dbg)
+            logger.log("✅ Virtual_landscape: all image properties acquired, saving cache ");
+            Actor_engine.execute(() -> get_image_properties_cache().save_whole_cache_to_disk(),
+                    "Save whole image property cache", logger);
+
+
             for (Path path : ll) {
                 Item item = all_items_map.get(path);
                 if (item == null) {
@@ -923,17 +953,154 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     }
 
     //**********************************************************
-    public Image_properties_RAM_cache get_image_properties_ram_cache()
+    public RAM_cache<Path, Image_properties> get_image_properties_cache()
     //**********************************************************
     {
-        Image_properties_RAM_cache returned = Browsing_caches.image_properties_RAM_cache_of_caches
-                .get(path_list_provider.get_folder_path().toAbsolutePath().toString());
-        if (returned == null) {
-            returned = new Image_properties_RAM_cache(path_list_provider, "image properties cache", owner, logger);
-            Browsing_caches.image_properties_RAM_cache_of_caches
-                    .put(path_list_provider.get_folder_path().toAbsolutePath().toString(), returned);
+        if ( image_properties_cache != null)
+        {
+            if ( dbg) logger.log("image_properties_cache found");
+            return image_properties_cache;
         }
-        return returned;
+
+        RAM_cache<Path, Image_properties> tmp = Browsing_caches.image_properties_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+        if ( tmp !=null)
+        {
+            if ( dbg) logger.log("image_properties_cache reloaded from cache of caches");
+            image_properties_cache = tmp;
+            return image_properties_cache;
+        }
+
+        image_properties_cache =  make_image_properties_cache(path_list_provider, aborter, owner, logger);
+        return image_properties_cache;
+    }
+
+    //**********************************************************
+    public static RAM_cache<Path, Image_properties> make_image_properties_cache(Path_list_provider path_list_provider, Aborter aborter, Window owner, Logger logger)
+    //**********************************************************
+    {
+
+        if ( dbg) logger.log("MAKING image_properties_cache");
+
+        String nam = Cache_folder.image_properties_cache.name()+path_list_provider.get_folder_path().getFileName();
+        String cache_file_name = UUID.nameUUIDFromBytes(nam.getBytes()) + ".properties";
+        Path dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.image_properties_cache.name(), false, owner, logger);
+        Path cache_path = Path.of(dir.toAbsolutePath().toString(), cache_file_name);
+
+        BiPredicate<Path, DataOutputStream> key_serializer= new BiPredicate<Path, DataOutputStream>() {
+            @Override
+            public boolean test(Path path, DataOutputStream dos)
+            {
+                String full_path = path.toAbsolutePath().normalize().toString();
+                try {
+                    dos.writeUTF(full_path);
+                    return true;
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+                return false;
+            }
+        };
+
+        Function<DataInputStream, Path> key_deserializer = new Function<DataInputStream, Path>() {
+            @Override
+            public Path apply(DataInputStream dis)
+            {
+                try {
+                    String full_path = dis.readUTF();
+                    return Path.of(full_path);
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+
+                return null;
+            }
+        };
+
+        BiPredicate<Image_properties, DataOutputStream> value_serializer = new BiPredicate<Image_properties, DataOutputStream>() {
+            @Override
+            public boolean test(Image_properties ip, DataOutputStream dos) {
+                try {
+                    dos.writeDouble(ip.w());
+                    dos.writeDouble(ip.h());
+                    dos.writeUTF(ip.rotation().name());
+                    return true;
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+                return false;
+            }
+        };
+        Function<DataInputStream, Image_properties> value_deserializer = new Function<DataInputStream, Image_properties>() {
+            @Override
+            public Image_properties apply(DataInputStream dis) {
+                try {
+                    double w = dis.readDouble();
+                    double h = dis.readDouble();
+                    String r = dis.readUTF();
+                    return new Image_properties(w,h,Rotation.valueOf(r));
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+                return null;
+            }
+        };
+
+
+
+
+        Function<Path, Image_properties> value_extractor = new Function<Path, Image_properties>() {
+            @Override
+            public Image_properties apply(Path path)
+            {
+
+                Optional<Image_properties> ip = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter, logger);
+                if (ip.isPresent()) {
+                    return ip.get();
+                }
+                // try to load the image
+                Optional<Image> op = Full_image_from_disk.load_native_resolution_image_from_disk(path, true, null, aborter,logger);
+                if ( op.isPresent())
+                {
+                    Image image = op.get();
+                    return new Image_properties(image.getWidth(), image.getHeight(), Rotation.normal);
+                }
+                logger.log("EXIF failed to return Image properties for"+path);
+                return new Image_properties(-1,-1, Rotation.normal);
+            }
+        };
+
+        Function<Path,String> string_key_maker = new Function<Path, String>() {
+            @Override
+            public String apply(Path path) {
+                return path.getFileName().toString();
+            }
+        };
+        Function<String,Path> object_key_maker = new Function<String, Path>() {
+            @Override
+            public Path apply(String s) {
+                return path_list_provider.get_folder_path().resolve(s);
+            }
+        };
+
+
+        RAM_cache<Path, Image_properties> local = new RAM_cache<Path, Image_properties>(
+                new Path_list_provider_for_file_system(cache_path, owner, logger),
+                Cache_folder.image_properties_cache.name(),
+                key_serializer, key_deserializer,
+                value_serializer, value_deserializer,
+                value_extractor,
+                string_key_maker,
+                object_key_maker,
+                aborter, owner, logger);
+
+        if ( dbg) logger.log("MADE image_properties_cache");
+
+        int reloaded = local.reload_cache_from_disk();
+        logger.log("✅ image_properties_cache: "+reloaded+" properties reloaded from file");
+
+        Browsing_caches.image_properties_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(),local);
+
+        return local;
     }
 
     //**********************************************************
@@ -962,7 +1129,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                             icon_factory_actor,
                             null,
                             text,
-                            get_image_properties_ram_cache(),
+                            get_image_properties_cache(),
                             shutdown_target,
                             path,
                             path_list_provider,
@@ -1108,7 +1275,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         100,
                         false,
                         null,
-                        get_image_properties_ram_cache(),
+                        get_image_properties_cache(),
                         shutdown_target,
                         new Path_list_provider_for_file_system(folder_path, owner, logger),
                         this,
@@ -1174,7 +1341,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         icon_height,
                         false,
                         null,
-                        get_image_properties_ram_cache(),
+                        get_image_properties_cache(),
                         shutdown_target,
                         new Path_list_provider_for_file_system(folder_path, owner, logger),
                         this,
@@ -1183,8 +1350,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         owner,
                         aborter,
                         logger);
-                // new Item2_button(the_browser,folder_path, color, tmp, icon_height, false,
-                // false, image_properties_RAM_cache,logger);
                 all_items_map.put(folder_path, folder_item);
             }
 
@@ -1652,7 +1817,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 virtual_landscape_height = item.get_javafx_y() + h;
         }
 
-        if (get_iconized_sorted("compute_bounding_rectangle").isEmpty()) {
+        if (paths_holder.iconized_paths.isEmpty()) {
             // when there is no iconized items in the folder
             // it may happen that the height of the last row of buttons at the bottom is
             // underestimated
@@ -2467,10 +2632,20 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         paths_holder.folders.clear();
         iconized_sorted_queue.clear();
 
-        get_image_properties_ram_cache();
+        get_image_properties_cache();
         scan_list();
 
-        all_image_properties_acquired_4(start, progress_window);
+        if (System.currentTimeMillis() - start > 5_000) {
+            if (Booleans.get_boolean_defaults_to_false(Feature.Play_ding_after_long_processes.name())) {
+                Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
+            }
+        }
+        get_path_comparator();
+        // logger.log("all_image_properties_acquired, going to refresh");
+        refresh_UI("all_image_properties_acquired", progress_window);
+
+        if (dbg)
+            logger.log("✅ Virtual_landscape::refresh_UI done");
 
     }
 
@@ -2499,7 +2674,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             if ( image_file_comparator==null)
             {
                 image_file_comparator = Sort_files_by.get_image_comparator(path_list_provider, this,
-                        get_image_properties_ram_cache(),
+                        get_image_properties_cache(),
                         owner, x, y, aborter, logger);
                 if ( image_file_comparator instanceof Similarity_comparator local) {
                     Browsing_caches.similarity_comparator_cache.put(path_list_provider.get_name(), local);
@@ -2517,7 +2692,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
     private void scan_list()
     //**********************************************************
     {
-        try (Perf p = new Perf("scan_list")) {
+        try (Perf p = new Perf("scan_list"))
+        {
             boolean show_icons = Feature_cache.get(Feature.Show_icons_for_files);
             if (Feature_cache.get(Feature.Show_single_column_with_details)) show_icons = false;
 
@@ -2535,6 +2711,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                 final int[] count = { 0 };
                 int icon_size = Non_booleans_properties.get_icon_size(owner);
 
+                // show some empty icons, fast
                 Image_found imgfnd = new Image_found() {
                     @Override
                     public void image_found() {
@@ -2585,8 +2762,8 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
                         return;
                     }
                     paths_holder.add_file(path, show_icons, owner);
-                    // this will start one virtual thread per image to prefill the image property
-                    // cache
+                    // this will start one virtual thread per image
+                    // to prefill the image property cache
                 }
             } catch (InvalidPathException e) {
                 logger.log("❗ Browsing error: " + e);
@@ -2604,28 +2781,6 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         }
     }
 
-    //**********************************************************
-    private void all_image_properties_acquired_4(long start, Hourglass progress_window)
-    //**********************************************************
-    {
-        if (dbg)
-            logger.log("✅ Virtual_landscape: looking at path Virtual_landscape::all_image_properties_acquired_4() ");
-        Actor_engine.execute(() -> get_image_properties_ram_cache().save_whole_cache_to_disk(),
-                "Save whole image property cache", logger);
-
-        if (System.currentTimeMillis() - start > 5_000) {
-            if (Booleans.get_boolean_defaults_to_false(Feature.Play_ding_after_long_processes.name())) {
-                Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
-            }
-        }
-        get_path_comparator();
-        // logger.log("all_image_properties_acquired, going to refresh");
-        refresh_UI("all_image_properties_acquired", progress_window);
-
-        if (dbg)
-            logger.log("✅ Virtual_landscape::all_image_properties_acquired_4() done");
-
-    }
 
     //**********************************************************
     private void refresh_UI(String from, Hourglass progress_window)
@@ -2854,17 +3009,17 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
         Comparator<Path> local_file_comparator = null;
         switch (Sort_files_by.get_sort_files_by(path_list_provider.get_folder_path(), owner)) {
             case ASPECT_RATIO:
-                local_file_comparator = new Aspect_ratio_comparator(get_image_properties_ram_cache(), aborter, owner);
+                local_file_comparator = new Aspect_ratio_comparator(get_image_properties_cache(), aborter, owner);
                 break;
             case RANDOM_ASPECT_RATIO:
-                local_file_comparator = new Aspect_ratio_comparator_random(get_image_properties_ram_cache(), aborter,
+                local_file_comparator = new Aspect_ratio_comparator_random(get_image_properties_cache(), aborter,
                         owner);
                 break;
             case IMAGE_WIDTH:
-                local_file_comparator = new Image_width_comparator(get_image_properties_ram_cache(), aborter, owner);
+                local_file_comparator = new Image_width_comparator(get_image_properties_cache(), aborter, owner);
                 break;
             case IMAGE_HEIGHT:
-                local_file_comparator = new Image_height_comparator(get_image_properties_ram_cache(), aborter, owner,
+                local_file_comparator = new Image_height_comparator(get_image_properties_cache(), aborter, owner,
                         logger);
                 break;
             case RANDOM:

@@ -12,6 +12,7 @@ package klikr.machine_learning.feature_vector;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
+import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
 import klikr.util.execute.actor.Or_aborter;
 import klikr.util.execute.actor.workers.Actor_engine_based_on_workers;
@@ -56,7 +57,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
 
     private final int instance_number;
     private static int instance_number_generator = 0;
-    private final Actor_engine_based_on_workers local_actor_engine;
+    //private final Actor_engine_based_on_workers local_actor_engine;
 
     //**********************************************************
     public Feature_vector_cache(
@@ -78,7 +79,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
 
         // reason to use workers is to limit the number of concurrent HTTP requests
         // to the python servers that are not good at queuing requests
-        local_actor_engine = new Actor_engine_based_on_workers("feature vector cache warmer",aborter,logger);
+        //local_actor_engine = new Actor_engine_based_on_workers("feature vector cache warmer",aborter,logger);
 
     }
 
@@ -125,7 +126,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             if ( x == null) logger.log("❌ PANIC null Feature_vector in cache after blocking call ");
             return x;
         }
-        local_actor_engine.run(feature_vector_creation_actor,imp,tr,logger);
+        Actor_engine.run(feature_vector_creation_actor,imp,tr,logger);
         return null;
     }
 
@@ -145,7 +146,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
 
     //**********************************************************
     @Override
-    public void clear_RAM_cache()
+    public void clear_RAM()
     //**********************************************************
     {
         path_to_feature_vector_cache.clear();

@@ -16,7 +16,7 @@ public class Alphabetical_file_name_comparator_gif_first implements Comparator<P
 {
 
     @Override
-    public void clear_RAM_cache() {}
+    public void clear_RAM() {}
 
     @Override
     public int compare(Path f1, Path f2)

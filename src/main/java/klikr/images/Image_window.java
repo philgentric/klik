@@ -23,13 +23,14 @@ import klikr.Instructions;
 import klikr.Window_type;
 import klikr.browser.classic.Browser;
 import klikr.browser.comparators.Last_access_comparator;
+import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.properties.Sort_files_by;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.images.caching.Image_cache_cafeine;
 import klikr.images.caching.Image_cache_interface;
 import klikr.images.caching.Image_cache_linkedhashmap;
 import klikr.path_lists.Path_list_provider_for_file_system;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.browser.virtual_landscape.Browsing_caches;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
@@ -93,7 +94,7 @@ public class Image_window
     boolean ultim_mode = false;
     boolean is_full_screen = false;
     Path dir;
-    private final Image_properties_RAM_cache image_properties_cache;
+    private final RAM_cache<Path, Image_properties> image_properties_cache;
     private final Supplier<Feature_vector_cache> fv_cache_supplier;
     private Feature_vector_cache fv_cache;
     Path_list_provider path_list_provider;
@@ -198,10 +199,10 @@ public class Image_window
                 }
             }
 
-            Image_properties_RAM_cache tmp = Browsing_caches.image_properties_RAM_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+            RAM_cache<Path, Image_properties> tmp = Browsing_caches.image_properties_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
             if (tmp == null) {
-                tmp = Image_properties_RAM_cache.build(new Path_list_provider_for_file_system(first_image_path.getParent(),owner,logger), owner, logger);
-                Browsing_caches.image_properties_RAM_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), tmp);
+                tmp = Virtual_landscape.make_image_properties_cache(path_list_provider,aborter,owner,logger);
+                Browsing_caches.image_properties_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), tmp);
             }
             image_properties_cache = tmp;
 

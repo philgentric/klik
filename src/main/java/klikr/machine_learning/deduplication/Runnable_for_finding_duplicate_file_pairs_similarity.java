@@ -4,9 +4,10 @@
 package klikr.machine_learning.deduplication;
 
 import javafx.stage.Window;
+import klikr.browser.icons.image_properties_cache.Image_properties;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.path_lists.Path_list_provider_for_file_system;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
@@ -36,7 +37,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	Deduplication_by_similarity_engine deduplication_by_similarity_engine;
 	private final Aborter private_aborter;
 	private final Similarity_engine similarity_engine;
-	private final Image_properties_RAM_cache image_properties_cache;// may be null
+	private final RAM_cache<Path, Image_properties> image_properties_cache;// may be null
 	private final Supplier<Feature_vector_cache> fv_cache_supplier;
 	private final Window owner;
     private final double too_far_away;
@@ -44,15 +45,15 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	public Runnable_for_finding_duplicate_file_pairs_similarity(
             List<Path> paths,
             double too_far_away,
-			Image_properties_RAM_cache image_properties_cache,// maybe null
-			Supplier<Feature_vector_cache> fv_cache_supplier,
-			Path_comparator_source path_comparator_source,
-			Deduplication_by_similarity_engine deduplication_by_similarity_engine_,
-			List<File_with_a_few_bytes> all_files_,
-			BlockingQueue<Similarity_file_pair> output_queue,
-			Window owner,
-			Aborter private_aborter_,
-			Logger logger_)
+			RAM_cache<Path, Image_properties> image_properties_cache,// maybe null
+            Supplier<Feature_vector_cache> fv_cache_supplier,
+            Path_comparator_source path_comparator_source,
+            Deduplication_by_similarity_engine deduplication_by_similarity_engine_,
+            List<File_with_a_few_bytes> all_files_,
+            BlockingQueue<Similarity_file_pair> output_queue,
+            Window owner,
+            Aborter private_aborter_,
+            Logger logger_)
 	//**********************************************************
 	{
         this.too_far_away = too_far_away;

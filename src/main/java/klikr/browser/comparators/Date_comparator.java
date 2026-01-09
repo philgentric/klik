@@ -16,7 +16,7 @@ public record Date_comparator(Logger logger) implements Comparator<Path>, Cleara
 //**********************************************************
 {
     @Override
-    public void clear_RAM_cache() {}
+    public void clear_RAM() {}
 
     //**********************************************************
     @Override

@@ -34,14 +34,15 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
     public static Optional<Double> get_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, List<String> sb, Logger logger)
     //**********************************************************
     {
-        if( sb != null)
-        {
-            sb.add(path.toString());
-        }
         if (Check_remaining_RAM.RAM_running_low(logger)) {
             logger.log("get_aspect_ratio NOT DONE because running low on memory ! ");
             return Optional.empty();
         }
+        if( sb != null)
+        {
+            sb.add(path.toString());
+        }
+
         InputStream is = Full_image_from_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
         if ( is == null)
         {

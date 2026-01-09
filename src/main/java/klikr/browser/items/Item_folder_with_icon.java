@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Window;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.*;
@@ -20,7 +21,6 @@ import klikr.browser.icons.Icon_destination;
 import klikr.browser.icons.Icon_factory_actor;
 import klikr.util.animated_gifs.Animated_gif_from_folder_content;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.browser.icons.image_properties_cache.Rotation;
 import klikr.browser.virtual_landscape.*;
 import klikr.path_lists.Path_list_provider;
@@ -62,7 +62,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     Label label_for_sizes;
     private final int folder_icon_size;
     private final int column_width; // as set by the icon manager
-    private  final Image_properties_RAM_cache image_properties_RAM_cache;
+    private  final RAM_cache<Path, Image_properties> image_properties_cache;
 
     //**********************************************************
     public Item_folder_with_icon(
@@ -76,7 +76,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             double height,
             boolean is_trash_,
             Path is_parent_of,
-            Image_properties_RAM_cache image_properties_RAM_cache,
+            RAM_cache<Path, Image_properties> image_properties_cache,
             Shutdown_target shutdown_target,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
@@ -94,7 +94,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 height,
                 is_trash_,
                 is_parent_of,
-                image_properties_RAM_cache,
+                image_properties_cache,
                 shutdown_target,
                 path_list_provider,
                 path_comparator_source,
@@ -103,7 +103,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 aborter,
                 logger);
         column_width = column_width_;
-        this.image_properties_RAM_cache = image_properties_RAM_cache;
+        this.image_properties_cache = image_properties_cache;
         folder_icon_size = Non_booleans_properties.get_folder_icon_size(owner);
         // launch content icon fabrication:
         text = text_;
@@ -333,7 +333,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 owner,
                 new Path_list_provider_for_file_system(get_item_path(),owner,logger),
                 path_comparator_source,
-                images_in_folder,  image_properties_RAM_cache, aborter,logger);
+                images_in_folder, image_properties_cache, aborter,logger);
         if ( returned != null)
         {
             if (dbg) logger.log("✅ animated gif made");

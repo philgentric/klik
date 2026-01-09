@@ -143,12 +143,17 @@ public class Script_executor
             ProcessBuilder pb;
             if (os == Operating_system.Windows)
             {
-                queue.add("Executing in WINDOWS (powershell) ");
-                pb = new ProcessBuilder("powershell.exe", "-ExecutionPolicy", "Bypass", "-File", script_path.toAbsolutePath().toString());
+                List<String> command = List.of(
+                        "powershell.exe",
+                        "-ExecutionPolicy", "Bypass",
+                        "-File", script_path.toAbsolutePath().toString()
+                );
+                queue.add("Executing Windows script: "+String.join(" ",command));
+                pb = new ProcessBuilder(command);
             }
             else
             {
-                queue.add("Executing in unix");
+                queue.add("Executing 'nix script: "+script_path.toAbsolutePath().toString());
                 pb = new ProcessBuilder(script_path.toAbsolutePath().toString());
             }
 

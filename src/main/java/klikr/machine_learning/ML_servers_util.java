@@ -45,21 +45,8 @@ public class ML_servers_util
             case Windows ->
             {
                 Tmp_file_in_trash.create_copy_in_trash("create_venv_for_windows.ps1",owner,logger);
-                List<String> cmds = List.of("create_venv_for_windows.ps1");
+                List<String> cmds = List.of(".\\"+"create_venv_for_windows.ps1");
                 Script_executor.execute(cmds,trash(owner,logger),owner,logger);
-
-                /*
-                List<String> cmds = new ArrayList<>();
-                cmds.add("winget install -e --id Python.Python.3");
-                // create venv folder
-                cmds.add("New-Item -ItemType Directory -Path \"$env:USERPROFILE\\.klikr\\venv\" -Force");
-                // create the venv
-                cmds.add("python -m venv %USERPROFILE%\\.klikr\\venv");
-                // activate it
-                cmds.add(".\\..klikr\\venv\\Scripts\\Activate.ps1");
-                cmds.add("py -m pip install -r requirements.txt");
-                Execute_windows_command.execute(cmds, true, true, owner, logger);
-                */
             }
             case MacOS, Linux ->
             {
@@ -102,7 +89,7 @@ public class ML_servers_util
                 String script = "launch_image_similarity_servers.ps1";
                 Tmp_file_in_trash.create_copy_in_trash(script,owner,logger);
                 StringBuilder cmd = new StringBuilder();
-                cmd.append(script);
+                cmd.append(".\\").append(script);
                 for ( String s : ports) cmd.append(" ").append(s);
                 Script_executor.execute(List.of(cmd.toString()),trash(owner,logger),owner,logger);
             }
@@ -130,7 +117,7 @@ public class ML_servers_util
             {
                 String cmd = "kill_image_similarity_servers.ps1";
                 Tmp_file_in_trash.create_copy_in_trash(cmd,owner,logger);
-                Script_executor.execute(List.of(cmd),trash(owner,logger),owner,logger);
+                Script_executor.execute(List.of(".\\"+cmd),trash(owner,logger),owner,logger);
             }
         }
 
@@ -165,7 +152,7 @@ public class ML_servers_util
             {
                 String cmd = "launch_face_recognition_servers.ps1";
                 Tmp_file_in_trash.create_copy_in_trash(cmd,owner,logger);
-                Script_executor.execute(List.of(cmd+" "+udp_monitoring_port),trash(owner,logger),owner,logger);
+                Script_executor.execute(List.of(".\\"+cmd+" "+udp_monitoring_port),trash(owner,logger),owner,logger);
             }
         }
         return true;
@@ -192,7 +179,7 @@ public class ML_servers_util
             {
                 String cmd = "kill_image_similarity_servers.ps1";
                 Tmp_file_in_trash.create_copy_in_trash(cmd,owner,logger);
-                Script_executor.execute(List.of(cmd),trash(owner,logger),owner,logger);
+                Script_executor.execute(List.of(".\\"+cmd),trash(owner,logger),owner,logger);
             }
         }
 

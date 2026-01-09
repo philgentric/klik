@@ -18,8 +18,10 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.Shared_services;
+import klikr.browser.virtual_landscape.Browsing_caches;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.properties.Cache_folder;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.virtual_threads.Concurrency_limiter;
 import klikr.util.ui.progress.Progress;
 import klikr.util.execute.actor.Aborter;
@@ -50,6 +52,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 
 //**********************************************************
@@ -69,23 +73,157 @@ public class Playlist
     private final Audio_player_FX_UI the_music_ui;
     File saving_dir = null;
     private final Undo_core undo_core;
+    private final Aborter aborter;
     private final Window owner;
-    Song_duration_RAM_cache duration_cache;
+    public static RAM_cache<Path,Double> duration_cache;
+    public static RAM_cache<Path,Double> bitrate_cache;
 
 
     //**********************************************************
-    public Playlist(Audio_player_FX_UI the_music_ui, Window owner, Logger logger)
+    public Playlist(Audio_player_FX_UI the_music_ui, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
         this.the_music_ui = the_music_ui;
         this.owner = owner;
         this.logger = logger;
+        this.aborter = aborter;
         this.undo_core = new Undo_core("undos_for_music_playlist.properties", owner,logger);
 
-        String cache_file_name = UUID.nameUUIDFromBytes("song_duration_cache".getBytes()) +".properties";
-        Path dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.image_properties_cache.name(), false,owner, logger);
-        Path cache_path = Path.of(dir.toAbsolutePath().toString(), cache_file_name);
-        duration_cache = new Song_duration_RAM_cache(new Path_list_provider_for_file_system(cache_path,owner,logger),"song_duration",owner,logger);
+        BiPredicate<Path, DataOutputStream> key_serializer= new BiPredicate<Path, DataOutputStream>() {
+            @Override
+            public boolean test(Path path, DataOutputStream dos)
+            {
+                String full_path = path.toAbsolutePath().normalize().toString();
+                try {
+                    dos.writeUTF(full_path);
+                    return true;
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+                return false;
+            }
+        };
+
+        Function<DataInputStream, Path> key_deserializer = new Function<DataInputStream, Path>() {
+            @Override
+            public Path apply(DataInputStream dis)
+            {
+                try {
+                    String full_path = dis.readUTF();
+                    return Path.of(full_path);
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+
+                return null;
+            }
+        };
+
+        BiPredicate<Double, DataOutputStream> value_serializer = new BiPredicate<Double, DataOutputStream>() {
+            @Override
+            public boolean test(Double d, DataOutputStream dos) {
+                try {
+                    dos.writeDouble(d);
+                    return true;
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+                return false;
+            }
+        };
+        Function<DataInputStream, Double> value_deserializer = new Function<DataInputStream, Double>() {
+            @Override
+            public Double apply(DataInputStream dis) {
+                try {
+                    return dis.readDouble();
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+                return null;
+            }
+        };
+
+
+        Function<Path,String> string_key_maker = new Function<Path, String>() {
+            @Override
+            public String apply(Path path) {
+                return path.toAbsolutePath().normalize().toString();
+            }
+        };
+        Function<String,Path> object_key_maker = new Function<String, Path>() {
+            @Override
+            public Path apply(String s) {
+                return Path.of(s);
+            }
+        };
+
+        if ( Browsing_caches.song_duration_cache != null)
+        {
+            duration_cache = Browsing_caches.song_duration_cache;
+        }
+        else
+        {
+
+
+
+
+            Function<Path, Double> value_extractor = new Function<Path, Double>() {
+                @Override
+                public Double apply(Path path) {
+                    return Ffmpeg_utils.get_media_duration(path, owner, logger);
+                }
+            };
+
+
+            Path folder_path = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.song_duration_cache.name(), false, owner, logger);
+
+            duration_cache = new RAM_cache<Path,Double>(
+                new Path_list_provider_for_file_system(folder_path, owner, logger),
+                Cache_folder.song_duration_cache.name(),
+                key_serializer, key_deserializer,
+                value_serializer, value_deserializer,
+                value_extractor,
+                string_key_maker,object_key_maker,
+                aborter, owner, logger);
+            duration_cache.reload_cache_from_disk();
+            Browsing_caches.song_duration_cache = duration_cache;
+        }
+
+        if ( Browsing_caches.song_bitrate_cache != null)
+        {
+            bitrate_cache = Browsing_caches.song_bitrate_cache;
+        }
+        else
+        {
+
+            Function<Path, Double> value_extractor = new Function<Path, Double>() {
+                @Override
+                public Double apply(Path path) {
+                    return Ffmpeg_utils.get_audio_bitrate(path, owner, logger);
+                }
+            };
+
+            Path folder_path = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.song_bitrate_cache.name(), false, owner, logger);
+
+            bitrate_cache = new RAM_cache<Path,Double>(
+                    new Path_list_provider_for_file_system(folder_path, owner, logger),
+                    Cache_folder.song_bitrate_cache.name(),
+                    key_serializer, key_deserializer,
+                    value_serializer, value_deserializer,
+                    value_extractor,
+                    string_key_maker,object_key_maker,
+                    aborter, owner, logger);
+
+            Browsing_caches.song_bitrate_cache = bitrate_cache;
+            bitrate_cache.reload_cache_from_disk();
+
+        }
+
+
+
+
+
+
     }
 
 
@@ -99,7 +237,7 @@ public class Playlist
         if ( op.isEmpty()) return;
         Node node = op.get();
         Song local = new Song(file_path,node);
-        local.init(this,owner,logger);
+        local.init(this,aborter,owner,logger);
         path_to_Song.put(file_path, local);
         update_display();
     }
@@ -116,7 +254,7 @@ public class Playlist
             if ( op.isEmpty() ) continue;
             Node node = op.get();
             Song local = new Song(file_path, node);
-            local.init(this,owner,logger);
+            local.init(this,aborter,owner,logger);
             path_to_Song.put(file_path, local);
             //logger.log("added "+file_path);
         }
@@ -144,7 +282,7 @@ public class Playlist
         node.getStyleClass().add("unselected_song");
         // the node active part is set when is becomes visible
         Song local = new Song(file_path, node);
-        local.init(this,owner,logger);
+        local.init(this,aborter,owner,logger);
         path_to_Song.put(file_path, local);
         return Optional.of(node);
     }
@@ -344,7 +482,7 @@ public class Playlist
     //**********************************************************
     {
         double bitrate;
-        bitrate = Ffmpeg_utils.get_audio_bitrate(Path.of(new_song), null,logger);
+        bitrate = bitrate_cache.get(Path.of(new_song),aborter, null,owner);
         if ( dbg) logger.log(  (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
         the_music_ui.set_status("✅ Status: OK for:" + (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
         return bitrate;
@@ -623,27 +761,25 @@ public class Playlist
     private void update_playlist_size_info_in_a_thread()
     //**********************************************************
     {
-        Actor actor = new Song_duration_actor(logger);
-        Aborter cleanup_aborter = new Aborter("actor engine cleanup",logger);
+        Aborter cleanup_aborter = new Aborter("update_playlist_size_info_in_a_thread",logger);
 
-        Actor_engine_based_on_workers local = new Actor_engine_based_on_workers("playlist size",cleanup_aborter, logger);
-
-        LongAdder seconds = new LongAdder();
-        CountDownLatch cdl = new CountDownLatch(the_playlist.size());
+        double seconds[] = {0.0};
         for ( String path: the_playlist)
         {
-            Message m = new Duration_message(Path.of(path),duration_cache, seconds,cdl,new Aborter("dummy",logger));
-            local.run(actor,m,null,logger);
+            bitrate_cache.prefill_cache(Path.of(path),true,cleanup_aborter,owner);
+            duration_cache.prefill_cache(Path.of(path),true,cleanup_aborter,owner);
         }
-        try {
-            cdl.await();
-        } catch (InterruptedException e) {
-            logger.log(e.toString());
+
+        for ( String path: the_playlist)
+        {
+            seconds[0] += duration_cache.get(Path.of(path),cleanup_aborter,null,owner);
         }
+
         duration_cache.save_whole_cache_to_disk();
-        cleanup_aborter.abort("kill actor engine threads");
+        bitrate_cache.save_whole_cache_to_disk();
+
         final String text = My_I18n.get_I18n_string("Songs",owner,logger);
-        Runnable r = () -> the_music_ui.set_total_duration(the_playlist.size() + " "+text+", " + Audio_player_FX_UI.get_nice_string_for_duration(seconds.doubleValue(),owner,logger));
+        Runnable r = () -> the_music_ui.set_total_duration(the_playlist.size() + " "+text+", " + Audio_player_FX_UI.get_nice_string_for_duration(seconds[0],owner,logger));
         Platform.runLater(r);
 
     }
@@ -923,11 +1059,10 @@ public class Playlist
             change_song(song.path, start,false);
         });
 
-        // add a menu to the button!
-        ContextMenu context_menu = Song.get_context_menu_for_a_song(this, song.path, owner, logger);
 
         b.setOnContextMenuRequested((ContextMenuEvent event) -> {
             //logger.log("show context menu of button:"+ song.path);
+            ContextMenu context_menu = Song.get_context_menu_for_a_song(this, song.path, aborter,  owner, logger);
             context_menu.show(b, event.getScreenX(), event.getScreenY());
         });
 
@@ -1092,7 +1227,6 @@ public class Playlist
         double bitrate = get_bitrate(new_song);
         the_song_path = new_song;
         Platform.runLater(() -> the_music_ui.set_title((new File(new_song)).getName() + "       bitrate= " + bitrate + " kb/s"));
-
     }
 
 }

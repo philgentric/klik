@@ -8,6 +8,8 @@
 
 package klikr.browser.items;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -22,6 +24,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Window;
+import klikr.Instructions;
+import klikr.Window_type;
+import klikr.audio.UI_instance_holder;
+import klikr.properties.boolean_features.Booleans;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.Drag_and_drop;
@@ -71,7 +77,6 @@ public class Item_file_with_icon extends Item_file
     Pane image_pane;
     public Double aspect_ratio;
     public static Image default_icon;
-    //private final Image_properties_RAM_cache image_properties_RAM_cache;
     private final Supplier<Feature_vector_cache> fv_cache_supplier;
 
     //**********************************************************
@@ -81,7 +86,6 @@ public class Item_file_with_icon extends Item_file
             Icon_factory_actor icon_factory_actor,
             Color color,
             Double aspect_ratio,
-            //Image_properties_RAM_cache image_properties_RAM_cache,
             Supplier<Feature_vector_cache> fv_cache_supplier,
             Path path_,
             Path_list_provider path_list_provider,
@@ -251,15 +255,22 @@ public class Item_file_with_icon extends Item_file
         double y = owner.getY()+100;
         create_open_exif_frame_menu_item(get_item_path(),context_menu);
 
-        context_menu.getItems().add(create_show_similar_menu_item(
-                get_item_path(),
-                //image_properties_RAM_cache,
-                fv_cache_supplier,
-                path_comparator_source,
-                owner,
-                aborter,
-                logger));
+        if ( Feature_cache.get(Feature.Enable_image_similarity))
+        {
+            context_menu.getItems().add(create_show_similar_menu_item(
+                    get_item_path(),
+                    //image_properties_RAM_cache,
+                    fv_cache_supplier,
+                    path_comparator_source,
+                    owner,
+                    aborter,
+                    logger));
+        }
 
+        {
+            Menu menu = get_open_Menu(get_item_path(),owner,x, y, aborter,logger);
+            context_menu.getItems().add(menu);
+        }
 
         {
             MenuItem menu_item = get_rename_MenuItem(get_item_path(),owner,x, y, aborter,logger);
@@ -269,33 +280,7 @@ public class Item_file_with_icon extends Item_file
         create_delete_menu_item(context_menu);
         create_copy_menu_item(context_menu);
         create_show_file_size_menu_item(context_menu);
-        /*
-        Menu_items.add_menu_item("Delete",
-                    event -> {
-                if (dbg) logger.log("Deleting "+get_item_path());
-                path_list_provider.delete(get_item_path(),owner,x,y, aborter,logger);
-            },context_menu,owner,logger);
-        */
-        Menu_items.add_menu_item_for_context_menu("Edit_File",
-                (new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
-                event -> {
-                if (dbg) logger.log("Editing "+get_item_path());
-                System_open_actor.open_with_system(get_item_path(), owner,aborter,logger);
-            },context_menu,owner,logger);
 
-        Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",null,
-                    event -> {
-                if (dbg) logger.log("Opening with registered app: "+get_item_path());
-                System_open_actor.open_with_click_registered_application(get_item_path(), owner,aborter,logger);
-            },context_menu,owner,logger);
-
-        {
-            create_show_file_size_menu_item(context_menu);
-            /*if (Feature_cache.get(Feature.Enable_tags))
-            {
-                create_edit_tag_menu_item(get_item_path(), context_menu,dbg, owner,aborter,logger);
-            }*/
-        }
 
         if ( this.item_type == Iconifiable_item_type.video)
         {
@@ -305,9 +290,74 @@ public class Item_file_with_icon extends Item_file
 
     }
 
+    private Menu get_open_Menu(Path path, Window owner, double x, double y, Aborter aborter, Logger logger)
+    {
+        String s = My_I18n.get_I18n_string("Open", owner, logger);
+        Menu returned = new Menu(s);
+
+
+        {
+            MenuItem mi = Menu_items.make_menu_item(
+                    "Open_With_Registered_Application",
+            null,
+                    event -> {
+                        if (dbg) logger.log("Opening with registered app: "+get_item_path());
+                        System_open_actor.open_with_click_registered_application(get_item_path(), owner,aborter,logger);
+                    },
+                    owner, logger);
+            returned.getItems().add(mi);
+        }
+
+
+        {
+            MenuItem mi = Menu_items.make_menu_item(
+                    "Open_With_System",
+                    null,
+                    event -> {
+                        if (dbg) logger.log("Opening with system: "+get_item_path());
+                        System_open_actor.open_with_system(get_item_path(), owner,aborter,logger);
+                    },
+                    owner, logger);
+            returned.getItems().add(mi);
+        }
+
+        {
+            MenuItem mi = Menu_items.make_menu_item(
+                    "Edit_File",
+                    (new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
+                    event -> {
+                        if (dbg) logger.log("Editing " + get_item_path());
+                        System_open_actor.open_with_system(get_item_path(), owner, aborter, logger);
+                    },
+                    owner, logger);
+            returned.getItems().add(mi);
+        }
+        {
+            MenuItem mi = Menu_items.make_menu_item(
+                    "Browse_in_new_window",
+                    (new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
+                    (ActionEvent e) ->
+                            Instructions.additional_no_past(Window_type.File_system_2D, new Path_list_provider_for_file_system(get_item_path().getParent(), owner, logger), owner, logger),
+                    owner, logger);
+            returned.getItems().add(mi);
+        }
+        if (Booleans.get_boolean_defaults_to_false(Feature.Enable_3D.name()))
+        {
+            MenuItem mi = Menu_items.make_menu_item(
+                            "Browse_in_new_3D_window",
+                    null,
+                            event -> {
+                                if (dbg) logger.log("Browse in new window!");
+                                Instructions.additional_no_past(Window_type.File_system_3D, new Path_list_provider_for_file_system(get_item_path().getParent(), owner, logger), owner, logger);
+                            }, owner, logger);
+            returned.getItems().add(mi);
+        }
+        return returned;
+    }
+
     //**********************************************************
     public static MenuItem create_show_similar_menu_item(Path image_path,
-                                                         //Image_properties_RAM_cache image_properties_cache,
+                                                         //Image_properties_cache image_properties_cache,
                                                          Supplier<Feature_vector_cache> fv_cache_supplier,
                                                          Path_comparator_source path_comparator_source,
                                                          Window owner,

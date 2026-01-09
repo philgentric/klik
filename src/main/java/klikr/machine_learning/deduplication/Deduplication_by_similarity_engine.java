@@ -10,9 +10,10 @@
 package klikr.machine_learning.deduplication;
 
 import javafx.stage.Window;
+import klikr.browser.icons.image_properties_cache.Image_properties;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
 import klikr.experimental.deduplicate.Abortable;
@@ -27,6 +28,7 @@ import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.ui.Popups;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -52,7 +54,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     public final Aborter private_aborter = new Aborter("Deduplication_engine",logger);
     Stage_with_2_images stage_with_2_images;
     //boolean same_image_size;
-    private final Image_properties_RAM_cache image_properties_RAM_cache; // may be null, if not only image of same size are considered
+    private final RAM_cache<Path, Image_properties> image_properties_cache; // may be null, if not only image of same size are considered
 
     private final boolean looking_for_images;
     private final double too_far_away;
@@ -66,7 +68,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
             Path_comparator_source path_comparator_source,
             double too_far_away,
             File target_dir_,
-            Image_properties_RAM_cache image_properties_RAM_cache,
+            RAM_cache<Path, Image_properties> image_properties_cache,
             Supplier<Feature_vector_cache> fv_cache_supplier,
             Window owner,
             Logger logger_)
@@ -76,7 +78,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
         this.path_list_provider = path_list_provider;
         this.path_comparator_source = path_comparator_source;
         this.too_far_away = too_far_away;
-        this.image_properties_RAM_cache = image_properties_RAM_cache;
+        this.image_properties_cache = image_properties_cache;
         this.fv_cache_supplier = fv_cache_supplier;
         this.owner = owner;
         target_dir = target_dir_;
@@ -162,7 +164,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
                 new Runnable_for_finding_duplicate_file_pairs_similarity(
                         File_with_a_few_bytes.convert_to_paths(files),
                         too_far_away,
-                        image_properties_RAM_cache, // maybe null
+                        image_properties_cache, // maybe null
                         fv_cache_supplier,
                         path_comparator_source,
                         this,
@@ -173,47 +175,6 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
 
         logger.log("Deduplication::runnable_deduplication thread launched");
     }
-
-    /*
-    //**********************************************************
-    private void try_audio()
-    //**********************************************************
-    {
-        List<File_with_a_few_bytes> files = get_all_songs();
-        if ( files.isEmpty())
-        {
-            return;
-        }
-        //for(File_with_a_few_bytes mf : files) logger.log(mf.file.getAbsolutePath());
-        logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
-
-        console_window.set_status_text("Found " + files.size() + " files ... comparison by similarity started...");
-        console_window.total_files_to_be_examined.addAndGet(files.size());
-
-        long pairs = (long)files.size()*((long)files.size()-1L);
-        pairs /= 2L;
-        console_window.total_pairs_to_be_examined.addAndGet(pairs);
-
-        // launch actor (feeder) in another tread
-
-        List<Path> paths = File_with_a_few_bytes.convert_to_paths(files);//path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files));
-
-        Runnable_for_finding_duplicate_file_pairs_similarity duplicate_finder =
-                new Runnable_for_finding_duplicate_file_pairs_similarity(
-                        paths,
-                        too_far_away_song,//0.04, // MAGIC
-                        image_properties_RAM_cache,
-                        fv_cache_supplier,
-                        path_comparator_source,
-                        this,
-                        files,
-                        same_file_pairs_input_queue,
-                        owner, private_aborter, logger);
-        Actor_engine.execute(duplicate_finder,logger);
-
-        logger.log("Deduplication::runnable_deduplication thread launched");
-    }
-*/
 
     //**********************************************************
     private boolean are_threaded_finders_finished()

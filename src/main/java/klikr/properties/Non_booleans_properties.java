@@ -418,33 +418,7 @@ public class Non_booleans_properties
         Shared_services.main_properties().force_reload_from_disk();
     }
 
-/*
-    //**********************************************************
-    public static Path get_absolute_dir_on_user_home(String relative_dir_name, boolean can_fail, Logger logger)
-    //**********************************************************
-    {
-        if (dbg) logger.log("dir_name=" + relative_dir_name);
-        String home = System.getProperty(USER_HOME);
-        if (dbg) logger.log("user home =" + home);
-        Path dir = Paths.get(home, relative_dir_name);
-        if ( !dir.toFile().exists())
-        {
-            try {
-                Files.createDirectory(dir);
-            } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + dir.toAbsolutePath() + "<- failed "+e;
-                if ( can_fail)
-                {
-                    logger.log(err);
-                    return null;
-                }
-                Popups.popup_Exception(e,300,err,logger);
-                return null;
-            }
-        }
-        return dir;
-    }
-*/
+
 
     // returns a directory using that relative name, on the user home, creates it if needed
     //**********************************************************
@@ -739,14 +713,14 @@ public class Non_booleans_properties
     public static void save_java_VM_max_RAM(int value, Window owner, Logger logger)
     //**********************************************************
     {
-        File_based_IProperties f = new File_based_IProperties(PURPOSE, RAM_FILENAME,owner,new Aborter("ram", logger), logger);
+        File_based_IProperties f = new File_based_IProperties(PURPOSE, RAM_FILENAME,true,owner,new Aborter("ram", logger), logger);
         f.set(JAVA_VM_MAX_RAM, "" + value);
     }
     //**********************************************************
     public static int get_java_VM_max_RAM(Window owner, Logger logger)
     //**********************************************************
     {
-        File_based_IProperties f = new File_based_IProperties(PURPOSE, RAM_FILENAME, owner,new Aborter("ram", logger), logger);
+        File_based_IProperties f = new File_based_IProperties(PURPOSE, RAM_FILENAME, true, owner,new Aborter("ram", logger), logger);
         String s = f.get(JAVA_VM_MAX_RAM);
         if (s == null)
         {

@@ -24,19 +24,7 @@ public class UI_instance_holder
     private static Audio_player_FX_UI ui = null;
 
 
-    //**********************************************************
-    public static void start_new_process_to_browse(Path folder, Logger logger)
-    //**********************************************************
-    {
-        List<String> cmds = new ArrayList<>();
-        logger.log("start_new_process_to_browse()");
-        cmds.add("gradle");
-        cmds.add("klikr");
-        String path =  "--args=\""+folder.toAbsolutePath()+"\"";
-        cmds.add(path);
 
-        Execute_command.execute_command_list_no_wait(cmds,new File("."),logger);
-    }
 
 
     //**********************************************************
@@ -122,4 +110,20 @@ public class UI_instance_holder
     {
         ui =null;
     }
+
+    /*
+    //**********************************************************
+    @Deprecated // works only when running from source code
+    public static void start_new_process_to_browse(Path folder, Logger logger)
+    //**********************************************************
+    {
+        List<String> cmds = new ArrayList<>();
+        logger.log("start_new_process_to_browse()");
+        cmds.add("gradle");
+        cmds.add("klikr");
+        String path =  "--args=\""+folder.toAbsolutePath()+"\"";
+        cmds.add(path);
+
+        Execute_command.execute_command_list_no_wait(cmds,new File("."),logger);
+    }*/
 }

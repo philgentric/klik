@@ -7,12 +7,12 @@ package klikr.machine_learning.similarity;
 
 import javafx.geometry.Point2D;
 import javafx.stage.Window;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.Clearable_RAM_cache;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.machine_learning.feature_vector.Feature_vector;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.machine_learning.feature_vector.Feature_vector_double;
@@ -68,7 +68,7 @@ public class Similarity_engine implements Clearable_RAM_cache
 
     //**********************************************************
     @Override
-    public void clear_RAM_cache()
+    public void clear_RAM()
     //**********************************************************
     {
         similarities.clear();
@@ -139,7 +139,7 @@ public class Similarity_engine implements Clearable_RAM_cache
     //**********************************************************
     public List<Most_similar> find_similars_special(
             boolean show_hour_glass,
-            Image_properties_RAM_cache image_properties_cache, // maybe null, if not null will compare only image that have the same size
+            RAM_cache<Path, Image_properties> image_properties_cache, // maybe null, if not null will compare only image that have the same size
             Path reference_item_path,
             List<Path> already_done,//maybe null
             int N,
@@ -316,7 +316,7 @@ public class Similarity_engine implements Clearable_RAM_cache
 
     //**********************************************************
     public List<Most_similar> find_similars_of_special(
-            Image_properties_RAM_cache image_properties_cache,
+            RAM_cache<Path, Image_properties> image_properties_cache,
             Path path0,
             Feature_vector fv0,
             int N,

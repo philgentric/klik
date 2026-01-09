@@ -5,17 +5,18 @@ package klikr.properties;
 
 import javafx.stage.Window;
 import klikr.Shared_services;
+import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.browser.virtual_landscape.Browsing_caches;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
 import klikr.browser.comparators.*;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
 import klikr.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
 import klikr.machine_learning.similarity.Similarity_cache;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
+import klikr.util.cache.RAM_cache;
 import klikr.util.log.Logger;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.log.Stack_trace_getter;
@@ -72,7 +73,7 @@ public enum Sort_files_by {
     public static Comparator<Path> get_image_comparator(
         Path_list_provider path_list_provider,
         Path_comparator_source path_comparator_source,
-        Image_properties_RAM_cache image_properties_cache,
+        RAM_cache<Path, Image_properties> image_properties_cache,
         Window owner,
         double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
@@ -133,7 +134,7 @@ public enum Sort_files_by {
         Feature_vector_source fvs,
         Path_list_provider path_list_provider,
         Path_comparator_source path_comparator_source,
-        Image_properties_RAM_cache image_properties_cache,
+        RAM_cache<Path, Image_properties> image_properties_cache,
         Window owner, double x, double y,
         Aborter aborter, Logger logger)
     //**********************************************************

@@ -11,8 +11,9 @@ package klikr.images;
 import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.stage.Window;
+import klikr.browser.icons.image_properties_cache.Image_properties;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.*;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.path_lists.Path_list_provider;
 import klikr.browser.virtual_landscape.Virtual_landscape;
 import klikr.change.Change_gang;
@@ -309,7 +310,6 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         //logger.log("context menu for image");
                         ContextMenu contextMenu = Menus_for_image_window.make_context_menu(
                                 image_window,
-                                image_properties_cache,
                                 fv_cache_supplier,
                                 logger);
                         contextMenu.show(image_window.stage, event.getScreenX(), event.getScreenY());
@@ -357,8 +357,8 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         fv_cache_supplier = fvCacheSupplier;
     }
 
-    Image_properties_RAM_cache image_properties_cache;
-    public void set_image_properties_cache(Image_properties_RAM_cache imagePropertiesCache) {
+    RAM_cache<Path, Image_properties> image_properties_cache;
+    public void set_image_properties_cache(RAM_cache<Path, Image_properties> imagePropertiesCache) {
         image_properties_cache = imagePropertiesCache;
     }
 
@@ -374,7 +374,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 
     //**********************************************************
     void handle_mouse_clicked_secondary(
-            Image_properties_RAM_cache image_properties_cache,
+            Image_properties_cache image_properties_cache,
             Supplier<Feature_vector_cache> fv_cache_supplier,
             Window window, MouseEvent e, Logger logger)
     //**********************************************************

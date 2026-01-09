@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class Store_engine
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     private static Store_engine instance;
     private static BlockingQueue<Save_job> disk_store_request_queue;
 

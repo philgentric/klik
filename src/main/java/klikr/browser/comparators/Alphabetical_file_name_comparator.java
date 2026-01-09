@@ -23,5 +23,5 @@ public class Alphabetical_file_name_comparator implements Comparator<Path>, Clea
     }
 
     @Override
-    public void clear_RAM_cache() {}
+    public void clear_RAM() {}
 }

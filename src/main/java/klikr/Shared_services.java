@@ -48,7 +48,7 @@ public class Shared_services
         Logger tmp_logger = new Simple_logger();
         aborter = new Aborter("Shared_services", tmp_logger);
         // this properties file holds both the Non-booleans AND the Booleans
-        main_properties = new File_based_IProperties(name+" main properties", "klikr", owner, aborter, tmp_logger);
+        main_properties = new File_based_IProperties(name+" main properties", "klikr", true,owner, aborter, tmp_logger);
         logger = get_logger(name);
     }
 

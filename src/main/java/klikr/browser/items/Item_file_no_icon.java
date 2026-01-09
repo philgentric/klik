@@ -14,6 +14,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
+import klikr.browser.icons.image_properties_cache.Image_properties;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.audio.Audio_player_gradle_start;
@@ -23,7 +25,6 @@ import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.browser.icons.Icon_destination;
 import klikr.browser.icons.Icon_factory_actor;
 import klikr.util.animated_gifs.Animated_gif_from_folder_content;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.browser.virtual_landscape.*;
 import klikr.look.Font_size;
 import klikr.look.Look_and_feel_manager;
@@ -66,7 +67,8 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     public String text;
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    private final Image_properties_RAM_cache image_properties_RAM_cache;
+    private final RAM_cache<Path, Image_properties> image_properties_cache;
+
     private final Shutdown_target shutdown_target;
     private final Top_left_provider top_left_provider;
     private final Path_comparator_source path_comparator_source;
@@ -78,7 +80,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             Icon_factory_actor icon_factory_actor,
             Color color,
             String text_,
-            Image_properties_RAM_cache image_properties_RAM_cache,
+            RAM_cache<Path, Image_properties> image_properties_cache,
             Shutdown_target shutdown_target,
             Path path,
             Path_list_provider path_list_provider,
@@ -90,7 +92,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     //**********************************************************
     {
         super(scene,selection_handler,icon_factory_actor,color, path, path_list_provider,path_comparator_source,owner,aborter, logger);
-        this.image_properties_RAM_cache = image_properties_RAM_cache;
+        this.image_properties_cache = image_properties_cache;
         this.shutdown_target = shutdown_target;
         this.top_left_provider = top_left_provider;
         this.path_comparator_source = path_comparator_source;
@@ -266,7 +268,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
                     new Path_list_provider_for_file_system(local_path,owner,logger),
                     path_comparator_source,
                     images_in_folder,
-                    image_properties_RAM_cache,
+                    image_properties_cache,
                     aborter, logger);
             if ( returned == null)
             {

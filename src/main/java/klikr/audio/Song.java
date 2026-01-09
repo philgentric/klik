@@ -12,6 +12,9 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.*;
 import javafx.stage.Window;
+import klikr.Instructions;
+import klikr.Window_type;
+import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.animated_gifs.Ffmpeg_utils;
@@ -52,7 +55,7 @@ public class Song
         this.node = node;
     }
     //**********************************************************
-    public void init(Playlist playlist, Window owner, Logger logger)
+    public void init(Playlist playlist, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
         //logger.log("is visible: "+ path);
@@ -80,7 +83,7 @@ public class Song
             });
 
         }
-        add_context_menu_to_node(playlist,owner,logger);
+        add_context_menu_to_node(playlist,aborter,owner,logger);
     }
 
     //**********************************************************
@@ -96,12 +99,13 @@ public class Song
     //**********************************************************
     private void add_context_menu_to_node(
             Playlist playlist,
+            Aborter aborter,
             Window owner, Logger logger)
     //**********************************************************
     {
         node.setOnContextMenuRequested((ContextMenuEvent event) ->
                 {
-                    ContextMenu context_menu = get_context_menu_for_a_song(playlist, path,owner,logger);
+                    ContextMenu context_menu = get_context_menu_for_a_song(playlist, path,aborter, owner,logger);
                     context_menu.show(node, event.getScreenX(), event.getScreenY());
                 });
 
@@ -111,6 +115,7 @@ public class Song
     public static ContextMenu get_context_menu_for_a_song(
             Playlist playlist,
             String full_path,
+            Aborter aborter,
             Window owner, Logger logger)
     //**********************************************************
     {
@@ -129,8 +134,8 @@ public class Song
             "Browse_in_new_window",
                 (new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                 (ActionEvent e) ->
-            UI_instance_holder.start_new_process_to_browse(Path.of(full_path).getParent(), logger),
-            context_menu,
+                        Instructions.additional_no_past(Window_type.File_system_2D, new Path_list_provider_for_file_system(Path.of(full_path).getParent(), owner, logger), owner, logger),
+                context_menu,
                 owner, logger);
 
         Menu_items.add_menu_item_for_context_menu(
@@ -164,11 +169,11 @@ public class Song
 
         {
             String info_string = "Info: ";
-            Double dur = Ffmpeg_utils.get_media_duration( Path.of(full_path), owner, logger);
+            Double dur = Playlist.duration_cache.get(Path.of(full_path), aborter,null, owner);
             if ( dur != null) info_string += String.format("Duration %.1f s ", dur);
-            double bitrate = Ffmpeg_utils.get_audio_bitrate( Path.of(full_path), owner, logger);
+            double bitrate = Playlist.bitrate_cache.get(Path.of(full_path), aborter,null, owner);
             if ( bitrate > 0) info_string += String.format(" Bitrate %.0f kb/s", bitrate);
-            MenuItem the_menu_item = new MenuItem("Info : "+info_string);
+            MenuItem the_menu_item = new MenuItem(info_string);
             Look_and_feel_manager.set_menu_item_look(the_menu_item,owner,logger);
             context_menu.getItems().add(the_menu_item);
             the_menu_item.setOnAction(e-> Audio_info_frame.show(Path.of(full_path),owner,logger));

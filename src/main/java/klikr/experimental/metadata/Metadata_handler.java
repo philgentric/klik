@@ -27,7 +27,7 @@ public class Metadata_handler
     {
         described_file = described_file_;
         Path p = make_metadata_path(described_file_);
-        properties_manager = new Properties_manager(p,"metadata for "+described_file,owner,aborter,logger);
+        properties_manager = new Properties_manager(p,"metadata for "+described_file,true,owner,aborter,logger);
     }
 
     //**********************************************************

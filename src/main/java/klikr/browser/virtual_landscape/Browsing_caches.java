@@ -4,10 +4,11 @@
 package klikr.browser.virtual_landscape;
 
 import klikr.browser.comparators.Similarity_comparator;
+import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.images.caching.Image_cache_interface;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.machine_learning.similarity.Similarity_cache;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
+import klikr.util.cache.RAM_cache;
 import klikr.util.log.Logger;
 
 import java.nio.file.Path;
@@ -30,48 +31,56 @@ public class Browsing_caches
 //**********************************************************
 {
 
-
     //long term (process = VM life time) caches
-    // make sure we go again at the same scroll point when we enter a given folder AGAIN
-    // the key is the visited folder, the value is the scroll position,
-    // that is : the path of the top-left item when leaving that folder
-    private final static Map<String, Path> scroll_position_cache = new HashMap<>();
 
-    //public final Image_properties_RAM_cache image_properties_RAM_cache;
+    public static RAM_cache<Path,Double> song_duration_cache;
+    public static RAM_cache<Path,Double> song_bitrate_cache;
 
-    public final static Map<String, Image_properties_RAM_cache> image_properties_RAM_cache_of_caches = new HashMap<>();
+    public final static Map<String, RAM_cache<Path, Image_properties>> image_properties_cache_of_caches = new HashMap<>();
     public final static Map<String, Similarity_cache> similarity_cache_of_caches = new HashMap<>();
     public final static Map<String, Feature_vector_cache> fv_cache_of_caches = new HashMap<>();
     public final static Map<String, Image_cache_interface> image_caches = new HashMap<>();
     public final static Map<String, Similarity_comparator> similarity_comparator_cache = new HashMap<>();
 
+    // make sure we go again at the same scroll point when we enter a given folder AGAIN
+    // the key is the visited folder, the value is the scroll position,
+    // that is : the path of the top-left item when leaving that folder
+    private final static Map<String, Path> scroll_position_cache = new HashMap<>();
 
     //**********************************************************
     public static void clear_all_RAM_caches(Logger logger)
     //**********************************************************
     {
+        if ( song_bitrate_cache != null) song_bitrate_cache.clear_RAM();
+        if ( song_duration_cache != null) song_duration_cache.clear_RAM();
+
         scroll_position_cache.clear();
         logger.log("✅ scroll position RAM cache cleared");
 
-        for ( Image_cache_interface x : image_caches.values())
+        for ( Image_cache_interface ici : image_caches.values())
         {
-            x.clear_RAM_cache();
+            ici.clear_RAM();
         }
-        logger.log("✅ All iage RAM caches cleared");
+        logger.log("✅ All image RAM caches cleared");
         for (Similarity_cache x : similarity_cache_of_caches.values())
         {
-            x.clear_RAM_cache();
+            x.clear_RAM();
         }
+        similarity_cache_of_caches.clear();
         logger.log("✅ All similarity RAM caches cleared");
-        for (Image_properties_RAM_cache x : image_properties_RAM_cache_of_caches.values())
+
+        for (RAM_cache<Path, Image_properties> x : image_properties_cache_of_caches.values())
         {
-            x.clear_RAM_cache();
+            x.clear_RAM();
         }
+        image_properties_cache_of_caches.clear();
         logger.log("✅ All image properties RAM caches cleared");
+
         for (Feature_vector_cache x : fv_cache_of_caches.values())
         {
-            x.clear_RAM_cache();
+            x.clear_RAM();
         }
+        fv_cache_of_caches.clear();
         logger.log("✅ All feature vector RAM caches cleared");
     }
 

@@ -26,7 +26,7 @@ public class Properties_manager
 //**********************************************************
 {
 
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     private static final boolean ultra_dbg = false;
     public static final String AGE = "_age";
     public static final int max = 30;
@@ -36,8 +36,24 @@ public class Properties_manager
     final Logger logger;
     final Aborter aborter;
     final String purpose;
+    final boolean with_age;
 
     // saving to file is done in a separate thread:
+
+    //**********************************************************
+    public Properties_manager(Path f_, String purpose, boolean with_age, Window owner,Aborter aborter,Logger logger)
+    //**********************************************************
+    {
+        Objects.requireNonNull(aborter);
+        this.purpose = purpose;
+        this.aborter = aborter;
+        this.logger = logger;
+        this.with_age = with_age;
+        the_properties_path = f_;
+        the_Properties = new Properties();
+        load_properties(the_Properties, the_properties_path);
+
+    }
 
     //**********************************************************
     public Properties_manager(Path f_, String purpose, Window owner,Aborter aborter,Logger logger)
@@ -47,6 +63,7 @@ public class Properties_manager
         this.purpose = purpose;
         this.aborter = aborter;
         this.logger = logger;
+        this.with_age = false;
         the_properties_path = f_;
         the_Properties = new Properties();
         load_properties(the_Properties, the_properties_path);
@@ -191,7 +208,7 @@ public class Properties_manager
             FileOutputStream fos = new FileOutputStream(the_properties_path.toFile());
             the_Properties.store(fos, "no comment");
             fos.close();
-            if (dbg) logger.log(("ALL properties stored in:" + the_properties_path.toAbsolutePath()));
+            if (dbg) logger.log((the_Properties.size()+"  properties stored in:" + the_properties_path.toAbsolutePath()));
         }
         catch (Exception e)
         {
@@ -261,7 +278,7 @@ public class Properties_manager
     //**********************************************************
     {
         the_Properties.setProperty(key, value);
-        the_Properties.setProperty(key+AGE, LocalDateTime.now().toString());
+        if ( with_age) the_Properties.setProperty(key+AGE, LocalDateTime.now().toString());
         if ( reload_before_save) Store_engine.get_queue(logger).add(new Save_job(reload_before_save,this));
         return true;
     }

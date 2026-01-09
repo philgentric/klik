@@ -165,40 +165,38 @@ public class Results_frame
 			open(path, owner);
 		});
 
-		// add a menu to the button!
-		ContextMenu context_menu = new ContextMenu();
-		Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
-
-
-        Menu_items.create_browse_in_new_window_menu_item(context_menu,path,owner,logger);
-
-		if (! path.toFile().isDirectory())
-		{
-			Menu_items.create_open_with_klik_registered_application_menu_item(context_menu,path,owner,aborter,logger);
-
-            Menu_items.add_menu_item_for_context_menu("Delete",
-                    (new KeyCodeCombination(KeyCode.BACK_SPACE)).getDisplayText(),
-                    e -> {
-                logger.log("Delete");
-                double x = stage.getX()+100;
-                double y = stage.getY()+100;
-                Static_files_and_paths_utilities.move_to_trash(path,stage,x,y, null, aborter, logger);
-                // need to remove the button from the list
-                the_result_vbox.getChildren().remove(b);
-            },context_menu,owner,logger);
-
-			{
-				double x = stage.getX()+100;
-				double y = stage.getY()+100;
-				MenuItem rename = Item_file_with_icon.get_rename_MenuItem(path,stage,x, y, aborter,logger);
-				context_menu.getItems().add(rename);
-			}
-
-		}
-
+		// add a menu to the button
 		b.setOnContextMenuRequested((ContextMenuEvent event) -> {
 			//logger.log("show context menu of button:"+ path.toAbsolutePath());
-			context_menu.show(b, event.getScreenX(), event.getScreenY());
+			ContextMenu context_menu = new ContextMenu();
+			Look_and_feel_manager.set_context_menu_look(context_menu,stage,logger);
+
+
+			Menu_items.create_browse_in_new_window_menu_item(context_menu,path,owner,logger);
+
+			if (! path.toFile().isDirectory())
+			{
+				Menu_items.create_open_with_klik_registered_application_menu_item(context_menu,path,owner,aborter,logger);
+
+				Menu_items.add_menu_item_for_context_menu("Delete",
+						(new KeyCodeCombination(KeyCode.BACK_SPACE)).getDisplayText(),
+						e -> {
+							logger.log("Delete");
+							double x = stage.getX()+100;
+							double y = stage.getY()+100;
+							Static_files_and_paths_utilities.move_to_trash(path,stage,x,y, null, aborter, logger);
+							// need to remove the button from the list
+							the_result_vbox.getChildren().remove(b);
+						},context_menu,owner,logger);
+
+				{
+					double x = stage.getX()+100;
+					double y = stage.getY()+100;
+					MenuItem rename = Item_file_with_icon.get_rename_MenuItem(path,stage,x, y, aborter,logger);
+					context_menu.getItems().add(rename);
+				}
+
+			}context_menu.show(b, event.getScreenX(), event.getScreenY());
 		});
 
 

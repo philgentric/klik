@@ -37,7 +37,7 @@ public class History_engine
     private History_engine(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        IProperties ip = new File_based_IProperties("history","history",owner,aborter,logger);
+        IProperties ip = new File_based_IProperties("history","history",true, owner,aborter,logger);
         properties_for_history = new Properties_for_history(ip,  300, logger);
     }
 

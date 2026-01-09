@@ -41,8 +41,10 @@ public class RAM_and_threads_meters_stage
     //**********************************************************
     {
         Stage stage = new Stage();
-        //stage.initOwner(originator);
-        stage.initOwner(owner);
+        //stage.initOwner(owner); dont do that as the user wants
+        // this one to survive changing folder
+        // and changing folder kills the stage
+
 
         HBox hbox = new HBox();
         int width = 0;
@@ -96,21 +98,21 @@ public class RAM_and_threads_meters_stage
         double context_length = Math.round((double)HEARTH_BEAT*(double)(Graph_for_meters.how_many_rectangles)/100.0)/10.0;
         stage.setTitle("Last "+context_length+" seconds");
 
-        ContextMenu context_menu = new ContextMenu();
-        Menu_items.add_menu_item_for_context_menu("Call_GC",null,
-                    event -> {
-                System.gc();
-                logger.log("Garbage collector was called");
-            },context_menu,stage,logger);
-        Menu_items.add_menu_item_for_context_menu("List_threads",null,
-                event -> {
-                    Actor_engine.list_jobs(logger);
-                },context_menu,stage,logger);
-        //scene.setOnMouseClicked(event -> {
-        //    context_menu.show(stage, event.getScreenX(), event.getScreenY());
-        //});
 
         scene.setOnContextMenuRequested(event -> {
+            ContextMenu context_menu = new ContextMenu();
+            Menu_items.add_menu_item_for_context_menu("Call_GC",null,
+                    event2 -> {
+                        System.gc();
+                        logger.log("Garbage collector was called");
+                    },context_menu,stage,logger);
+            Menu_items.add_menu_item_for_context_menu("List_threads",null,
+                    event3 -> {
+                        Actor_engine.list_jobs(logger);
+                    },context_menu,stage,logger);
+            //scene.setOnMouseClicked(event -> {
+            //    context_menu.show(stage, event.getScreenX(), event.getScreenY());
+            //});
             context_menu.show(stage, event.getScreenX(), event.getScreenY());
         });
 

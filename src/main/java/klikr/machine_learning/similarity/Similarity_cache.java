@@ -193,7 +193,7 @@ public class Similarity_cache implements Clearable_RAM_cache
 
     //**********************************************************
     @Override
-    public void clear_RAM_cache()
+    public void clear_RAM()
     //**********************************************************
     {
         similarities.clear();

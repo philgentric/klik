@@ -99,7 +99,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         this.aborter = aborter;
         this.logger = logger;
         stage = new Stage();
-        this.playlist = new Playlist(this, stage, logger);
+        this.playlist = new Playlist(this, aborter,stage, logger);
 
         pause_string = My_I18n.get_I18n_string(PAUSE, stage, logger);
         play_string = My_I18n.get_I18n_string(PLAY, stage, logger);

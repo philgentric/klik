@@ -7,12 +7,13 @@ package klikr.util.animated_gifs;
 
 import javafx.stage.Window;
 import klikr.External_application;
+import klikr.browser.icons.image_properties_cache.Image_properties;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
 import klikr.browser.comparators.Aspect_ratio_comparator;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.properties.*;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
@@ -56,7 +57,7 @@ public class Animated_gif_from_folder_content
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             List<File> images_in_folder,
-            Image_properties_RAM_cache image_properties_RAM_cache,
+            RAM_cache<Path, Image_properties> image_properties_cache,
             Aborter aborter,Logger logger)
     //**********************************************************
     {
@@ -85,7 +86,7 @@ public class Animated_gif_from_folder_content
         for (File f : images_in_folder) paths.add(f.toPath());
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Comparator<? super Path> local_comp = Sort_files_by.get_image_comparator(path_list_provider,path_comparator_source,image_properties_RAM_cache, owner, x,y,new Aborter("dummy",logger),logger);
+        Comparator<? super Path> local_comp = Sort_files_by.get_image_comparator(path_list_provider,path_comparator_source,image_properties_cache, owner, x,y,new Aborter("dummy",logger),logger);
         Collections.sort(paths, local_comp);
         if ( dbg) if ( local_comp instanceof Aspect_ratio_comparator) logger.log("comparator = Aspect_ratio_comparator");
 

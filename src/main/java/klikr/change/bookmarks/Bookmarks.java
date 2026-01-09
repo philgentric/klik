@@ -36,7 +36,7 @@ public class Bookmarks
     //**********************************************************
     {
         this.logger = logger;
-        ip = new File_based_IProperties("bookmarks","bookmarks",owner, aborter,logger);
+        ip = new File_based_IProperties("bookmarks","bookmarks",true, owner, aborter,logger);
         pb = new Properties_with_base(ip,"bookmark_",30,logger);
     }
 

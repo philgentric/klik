@@ -34,7 +34,7 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
 
     //**********************************************************
     @Override
-    public void clear_RAM_cache()
+    public void clear_RAM()
     //**********************************************************
     {
         disk_foot_prints_cache.clear();

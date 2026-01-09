@@ -21,7 +21,7 @@ public record Last_access_comparator(Logger logger) implements Comparator<Path>,
 {
 
     @Override
-    public void clear_RAM_cache() {}
+    public void clear_RAM() {}
 
 
 

@@ -15,6 +15,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Window;
 import klikr.External_application;
 import klikr.look.Jar_utils;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.*;
 import klikr.util.animated_gifs.Ffmpeg_utils;
@@ -52,17 +53,18 @@ public class Icon_factory_actor implements Actor
     Icon_writer_actor writer;
     private final Window owner;
     private final Aborter aborter;
-    private final Image_properties_RAM_cache image_properties_RAM_cache;
+    private final RAM_cache<Path, Image_properties> image_properties_cache;
 
     private final Path icon_cache_dir;
 
     //**********************************************************
-    public Icon_factory_actor(Image_properties_RAM_cache image_properties_RAM_cache,
-                              Window owner,
-                              Aborter aborter, Logger logger_)
+    public Icon_factory_actor(
+            RAM_cache<Path, Image_properties> image_properties_cache,
+            Window owner,
+            Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        this.image_properties_RAM_cache = image_properties_RAM_cache;
+        this.image_properties_cache = image_properties_cache;
         this.aborter = aborter;
         this.owner = owner;
         logger = logger_;
@@ -135,7 +137,7 @@ public class Icon_factory_actor implements Actor
         Image_properties image_properties = image_and_properties.get().properties();
         if ( image_properties != null)
         {
-            image_properties_RAM_cache.inject(destination.get_item_path(),image_properties,false);
+            image_properties_cache.inject(destination.get_item_path(),image_properties,false);
         }
         //logger.log("Icon_factory_actor: "+ instance.decrementAndGet());
 
@@ -304,11 +306,11 @@ public class Icon_factory_actor implements Actor
                 break;
         }
 
-        Image_properties properties = image_properties_RAM_cache.get(destination.get_path_for_display_icon_destination(),aborter,null,owner);
+        Image_properties properties = image_properties_cache.get(destination.get_path_for_display_icon_destination(),aborter,null,owner);
         if (properties == null)
         {
             properties = new Image_properties(image_from_disk.getWidth(), image_from_disk.getHeight(), Rotation.normal);
-            image_properties_RAM_cache.inject(destination.get_path_for_display_icon_destination(), properties,false);
+            image_properties_cache.inject(destination.get_path_for_display_icon_destination(), properties,false);
             if ( dbg) logger.log("properties computed "+properties.to_string()+ "for path :"+destination.get_path_for_display_icon_destination());
         }
         else {

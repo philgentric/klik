@@ -8,9 +8,10 @@
 package klikr.browser.virtual_landscape;
 
 import javafx.stage.Window;
+import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.properties.Sort_files_by;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
-import klikr.browser.icons.image_properties_cache.Image_properties_RAM_cache;
 import klikr.util.files_and_paths.Extensions;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.files_and_paths.Guess_file_type;
@@ -42,14 +43,14 @@ public class Paths_holder
 
     private static final boolean show_video_as_gif = true;
     public final Aborter aborter;
-    private final Image_properties_RAM_cache image_properties_RAM_cache;
+    private final RAM_cache<Path, Image_properties> image_properties_cache;
 
     //**********************************************************
-    public Paths_holder(Image_properties_RAM_cache image_properties_RAM_cache,
+    public Paths_holder(RAM_cache<Path, Image_properties> image_properties_cache,
                         Aborter aborter_, Logger logger_)
     //**********************************************************
     {
-        this.image_properties_RAM_cache = image_properties_RAM_cache;
+        this.image_properties_cache = image_properties_cache;
         logger = logger_;
         //ID = id_gen.getAndIncrement();
         aborter = aborter_;
@@ -113,9 +114,10 @@ public class Paths_holder
         {
             if ( Sort_files_by.need_image_properties(path.getParent(),owner))
             {
+                if (dbg) logger.log("calling image properties cache prefill from path holder");
                 // calling this will pre-populate the property cache
-                image_properties_RAM_cache.prefill_cache(path, aborter);
-                if (dbg) logger.log("calling image properties cache prefill from path manager do_file()");
+                // if needed
+                image_properties_cache.prefill_cache(path, true,aborter,owner);
             }
             iconized_paths.add(path);
             return;

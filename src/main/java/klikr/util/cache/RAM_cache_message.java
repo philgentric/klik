@@ -1,30 +1,29 @@
-package klikr.audio;
+package klikr.util.cache;
 
+import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Message;
 
 import java.nio.file.Path;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
-public class Duration_message implements Message
+public class RAM_cache_message<K,V> implements Message
 //**********************************************************
 {
-    public final Path path;
-    public final LongAdder seconds;
-    public final CountDownLatch cdl;
+    public final K key;
     public final Aborter aborter;
-    public final Song_duration_RAM_cache cache;
+    public final Window owner;
+    public final RAM_cache<K,V> cache;
+    public final boolean check_if_present;
     //**********************************************************
-    public Duration_message(Path path, Song_duration_RAM_cache cache, LongAdder seconds, CountDownLatch cdl, Aborter aborter)
+    public RAM_cache_message(K key, boolean check_if_present, RAM_cache<K,V> cache, Aborter aborter, Window owner)
     //**********************************************************
     {
         this.cache = cache;
-        this.path = path;
-        this.seconds = seconds;
-        this.cdl = cdl;
+        this.key = key;
         this.aborter = aborter;
+        this.check_if_present = check_if_present;
+        this.owner = owner;
     }
 
     //**********************************************************
@@ -33,8 +32,8 @@ public class Duration_message implements Message
     //**********************************************************
     {
         StringBuilder sb = new StringBuilder();
-        sb.append(" Duration_message: ");
-        sb.append(" path: ").append(path);
+        sb.append(" RAM_cache_message: ");
+        sb.append(" key: ").append(key);
         return sb.toString();
     }
 

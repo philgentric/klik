@@ -289,8 +289,8 @@ public class Static_files_and_paths_utilities
     public static double clear_DISK_cache(Cache_folder cache_folder, boolean show_popup, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path icons = get_cache_dir(cache_folder,owner,logger);
-        return clear_folder(icons, cache_folder.name()+" cache on disk", show_popup, owner, aborter, logger);
+        Path path = get_cache_dir(cache_folder,owner,logger);
+        return clear_folder(path, cache_folder.name()+" cache on disk", show_popup, true, owner, aborter, logger);
     }
     //**********************************************************
     public static void clear_all_DISK_caches(Window owner, Aborter aborter, Logger logger)
@@ -306,7 +306,7 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    public static double clear_folder(Path folder, String tag, boolean show_popup,Window owner, Aborter aborter, Logger logger)
+    public static double clear_folder(Path folder, String tag, boolean show_popup, boolean international,Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         double size = get_size_on_disk(folder, aborter, logger);
@@ -314,7 +314,13 @@ public class Static_files_and_paths_utilities
         {
             if (user_cancel(tag, size, owner, logger)) return 0.0;
         }
-        String text = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(size,owner,logger);
+        String text;
+        if ( international) {
+            text = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(size, owner, logger);
+        }
+        else {
+            text = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size_english(size, owner, logger);
+        }
         logger.log(tag+", folder cleared: "+folder.toAbsolutePath()+" "+text+" bytes");
         delete_for_ever_all_files_in_dir_in_a_thread(folder, true, owner,logger);
         return size;
@@ -537,6 +543,30 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
+    public static String get_1_line_string_for_byte_data_size_english(double size,Window owner,Logger logger)
+    //**********************************************************
+    {
+        String returned;
+        if (size < 1000) {
+            String bytes = "Bytes";
+            returned = size + " "+bytes;
+        } else if (size < 1000_000) {
+            String kBytes = "kBytes";
+            returned = String.format("%.1f", size / 1000.0) + " "+kBytes;
+        } else if (size < 1000_000_000) {
+            String MBytes = "MBytes";
+            returned = String.format("%.1f", size / 1000_000.0) + " "+MBytes;
+        } else if (size < 1000_000_000_000.0) {
+            String GBytes = "GBytes";
+            returned = String.format("%.1f", size / 1000_000_000.0) + " "+GBytes;
+        } else {
+            String TBytes = "TBytes";
+            returned = String.format("%.1f", size / 1000_000_000_000.0) + " "+TBytes;
+        }
+        return returned;
+    }
+
+    //**********************************************************
     public static String get_1_line_string_for_byte_data_size(double size,Window owner,Logger logger)
     //**********************************************************
     {
@@ -559,6 +589,7 @@ public class Static_files_and_paths_utilities
         }
         return returned;
     }
+
 
     //**********************************************************
     public static String get_1_line_string_with_size(Path path, Window owner, Logger logger)
