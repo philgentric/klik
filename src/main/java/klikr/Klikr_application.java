@@ -167,6 +167,7 @@ public class Klikr_application extends Application
         {
             System.setProperty("java.net.debug", "all");
             System.setProperty("java.net.preferIPv4Stack", "true");
+            System.setProperty("java.net.useSystemProxies", "true");
         }
 
         logger.log("classpath="+System.getProperty("java.class.path"));
