@@ -724,8 +724,6 @@ public class Virtual_landscape
         List<Path> returned = iconized_sorted_queue.poll();
         if (returned != null)
         {
-            logger.log("\n\nHAPPENS\n\n");
-
             // OK, icons are sorted
             return returned;
         }

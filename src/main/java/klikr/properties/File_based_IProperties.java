@@ -18,8 +18,8 @@ import java.util.Set;
 public class File_based_IProperties implements IProperties
 //**********************************************************
 {
-    private final static boolean dbg_set= true;
-    private final static boolean dbg_get= true;
+    private final static boolean dbg_set= false;
+    private final static boolean dbg_get= false;
     private final Logger logger;
     private final String purpose;
     private final Properties_manager pm;
