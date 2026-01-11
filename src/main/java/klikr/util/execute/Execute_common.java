@@ -22,6 +22,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 //**********************************************************
+
+@Deprecated
 public class Execute_common
 //**********************************************************
 {

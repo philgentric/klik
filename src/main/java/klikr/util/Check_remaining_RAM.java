@@ -3,8 +3,10 @@
 
 package klikr.util;
 
+import javafx.stage.Window;
 import klikr.browser.virtual_landscape.Browsing_caches;
 import klikr.util.log.Logger;
+import klikr.util.ui.Popups;
 
 //**********************************************************
 public class Check_remaining_RAM
@@ -15,11 +17,12 @@ public class Check_remaining_RAM
 
 
     //**********************************************************
-    public static boolean RAM_running_low(Logger logger)
+    public static boolean RAM_running_low(Window owner, Logger logger)
     //**********************************************************
     {
         if (get_remaining_memory(logger) < MIN_REMAINING_FREE_MEMORY_MB) {
             logger.log("\n\nWARNING: running low on memory ! ");
+            Popups.popup_Exception(null,100,"Your java VM machine is running out of RAM!\nclose some windows and/or try to increase the max in build.gradle.works and restart",owner,logger);
 
             Browsing_caches.clear_all_RAM_caches(logger);
             return true;

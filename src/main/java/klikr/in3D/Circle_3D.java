@@ -564,7 +564,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
                 else 
                 {
                     logger.log("is not folder : "+p);
-                    Image_window image_stage = Image_window.get_Image_window(p, new Path_list_provider_for_file_system(p.getParent(),stage,logger), Optional.empty(),scene.getWindow(),new Aborter("dummy",logger),logger);
+                    Image_window image_stage = Image_window.get_Image_window(p, new Path_list_provider_for_file_system(p.getParent(),stage,logger), null,scene.getWindow(),new Aborter("dummy",logger),logger);
                 }
             }
             else

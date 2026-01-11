@@ -17,6 +17,7 @@ public class Image_decoding_actor_for_cache implements Actor
 //**********************************************************
 {
     private static final boolean dbg = false;
+    private static final boolean ultra_dbg = false;
     Logger logger;
 
 
@@ -42,7 +43,7 @@ public class Image_decoding_actor_for_cache implements Actor
     //**********************************************************
     {
         Image_decode_request_for_cache request = (Image_decode_request_for_cache) m;
-        if (dbg) logger.log("decode request:"+request.get_string());
+        if (ultra_dbg) logger.log("decode request:"+request.get_string());
 
         String key = request.make_key();
         if ( request.cache.get(key) != null)

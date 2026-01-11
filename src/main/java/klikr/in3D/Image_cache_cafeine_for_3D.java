@@ -74,7 +74,7 @@ public class Image_cache_cafeine_for_3D
     {
         if (ultra_dbg) logger.log("preloading request! " + forward_size);
 
-        if (Check_remaining_RAM.RAM_running_low(logger))
+        if (Check_remaining_RAM.RAM_running_low(owner,logger))
         {
             //if (ultra_dbg)
                 logger.log("clearing image cache as RAM is low");

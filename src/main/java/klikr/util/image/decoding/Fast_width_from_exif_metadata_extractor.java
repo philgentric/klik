@@ -8,6 +8,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
@@ -30,10 +31,10 @@ public class Fast_width_from_exif_metadata_extractor
 
     //**********************************************************
     @Deprecated
-    public static Optional<Double> get_width(Path path, boolean report_if_not_found, List<String> sb, Aborter aborter, Logger logger)
+    public static Optional<Double> get_width(Path path, boolean report_if_not_found, List<String> sb, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (Check_remaining_RAM.RAM_running_low(logger)) {
+        if (Check_remaining_RAM.RAM_running_low(owner,logger)) {
             logger.log("get_width NOT DONE because running low on memory ! ");
             return Optional.empty();
         }

@@ -63,7 +63,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
     public int compare(Path p1, Path p2)
     //**********************************************************
     {
-        Path_pair pp = Path_pair.get(p1,p2);
+        Path_pair pp = Path_pair.build(p1,p2);
         Integer d = distances_cache.get(pp);
         if (d != null) return d;
 

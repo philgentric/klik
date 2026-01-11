@@ -95,8 +95,14 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 //**********************************************************
-public class Virtual_landscape implements Scan_show_slave, Selection_reporter, Top_left_provider,
-        Path_comparator_source, Feature_change_target, String_change_target
+public class Virtual_landscape
+        implements
+        Scan_show_slave,
+        Selection_reporter,
+        Top_left_provider,
+        Path_comparator_source,
+        Feature_change_target,
+        String_change_target
 //**********************************************************
 {
     public static final boolean dbg = false;
@@ -1053,7 +1059,7 @@ public class Virtual_landscape implements Scan_show_slave, Selection_reporter, T
             public Image_properties apply(Path path)
             {
 
-                Optional<Image_properties> ip = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter, logger);
+                Optional<Image_properties> ip = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,owner,aborter, logger);
                 if (ip.isPresent()) {
                     return ip.get();
                 }

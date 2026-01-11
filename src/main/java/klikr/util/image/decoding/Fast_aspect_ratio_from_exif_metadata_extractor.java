@@ -8,6 +8,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
@@ -31,10 +32,10 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
     private record Directory_result(Double w, Double h, boolean invert_width_and_height, boolean w_done, boolean h_done, boolean rot_done){}
 
     //**********************************************************
-    public static Optional<Double> get_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, List<String> sb, Logger logger)
+    public static Optional<Double> get_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, List<String> sb, Window owner, Logger logger)
     //**********************************************************
     {
-        if (Check_remaining_RAM.RAM_running_low(logger)) {
+        if (Check_remaining_RAM.RAM_running_low(owner, logger)) {
             logger.log("get_aspect_ratio NOT DONE because running low on memory ! ");
             return Optional.empty();
         }

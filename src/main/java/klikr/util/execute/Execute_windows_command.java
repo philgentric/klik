@@ -23,11 +23,12 @@ import java.util.concurrent.TimeUnit;
 
 
 //**********************************************************
+@Deprecated
 public class Execute_windows_command
 //**********************************************************
 {
 
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     public static final String END = "__END_OF_PROCESS_OUTPUT__";
 
     //**********************************************************

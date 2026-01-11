@@ -8,6 +8,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
@@ -32,10 +33,10 @@ public class Fast_date_from_exif_metadata_extractor
     public static final boolean dbg = false;
 
     //**********************************************************
-    public static LocalDateTime get_date(Path path, Aborter aborter, Logger logger)
+    public static LocalDateTime get_date(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (Check_remaining_RAM.RAM_running_low(logger)) {
+        if (Check_remaining_RAM.RAM_running_low(owner, logger)) {
             logger.log("get_date NOT DONE because running low on memory ! ");
             return LocalDateTime.now();
         }

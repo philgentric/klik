@@ -485,7 +485,7 @@ public class Non_booleans_properties
                 return null;
             }
         }
-        if (dbg) logger.log_stack_trace("directory named->" + returned.toAbsolutePath() + "<- OK");
+        if (dbg) logger.log("from_top_folder returning directory named->" + returned.toAbsolutePath() + "<- OK");
         return returned;
     }
 

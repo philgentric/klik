@@ -204,17 +204,7 @@ public class Item_file_with_icon extends Item_file
             Logger logger)
     //**********************************************************
     {
-        Comparator<Path> x = path_comparator_source.get_path_comparator();
-        Optional<Comparator<Path>> image_comparator = Optional.empty();
-        if ( x == null)
-        {
-            logger.log("❗ WARNING: Comparator is null");
-        }
-        else
-        {
-            image_comparator = Optional.of(x);
-        }
-        Image_window.get_Image_window(path, path_list_provider,image_comparator, owner,new Aborter("Image_viewer",logger),logger);
+        Image_window.get_Image_window(path, path_list_provider,path_comparator_source, owner,new Aborter("Image_viewer",logger),logger);
         if ( dbg) logger.log("\n\n✅ Image_stage opening (same process) for path:" + path.toString());
     }
 
@@ -551,7 +541,7 @@ public class Item_file_with_icon extends Item_file
                         if (dbg) logger.log("✅ PDF or video => rot=0");
                         local_rot = 0;
                     } else {
-                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(get_item_path(), true, aborter, logger).orElse(0.0);
+                        local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(get_item_path(), true, owner, aborter, logger).orElse(0.0);
                     }
                 }
                 else

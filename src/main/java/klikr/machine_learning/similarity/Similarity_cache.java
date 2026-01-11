@@ -7,6 +7,13 @@ package klikr.machine_learning.similarity;
 
 import javafx.stage.Window;
 import klikr.browser.Clearable_RAM_cache;
+import klikr.browser.virtual_landscape.Browsing_caches;
+import klikr.machine_learning.feature_vector.Feature_vector;
+import klikr.path_lists.Path_list_provider_for_file_system;
+import klikr.properties.boolean_features.Feature;
+import klikr.properties.boolean_features.Feature_cache;
+import klikr.util.animated_gifs.Ffmpeg_utils;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
@@ -28,6 +35,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 //**********************************************************
 public class Similarity_cache implements Clearable_RAM_cache
@@ -35,8 +44,11 @@ public class Similarity_cache implements Clearable_RAM_cache
 {
     private final Path_list_provider path_list_provider;
     private final Path similarity_cache_file_path;
+    private final Window owner;
+    private final Aborter aborter;
     private final Logger logger;
-    private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
+    //private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
+    private RAM_cache<Path_pair, Double> similarities;
 
     //**********************************************************
     public Similarity_cache(
@@ -44,11 +56,13 @@ public class Similarity_cache implements Clearable_RAM_cache
             List<Path> paths,
             Path_list_provider path_list_provider,
             Window owner, double x, double y,
-            Aborter browser_aborter, Logger logger)
+            Aborter aborter, Logger logger)
     //**********************************************************
     {
         this.path_list_provider = path_list_provider;
+        this.owner = owner;
         this.logger = logger;
+        this.aborter = aborter;
         String cache_name = "similarity";
         String local = cache_name + path_list_provider.get_folder_path();
         String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
@@ -59,26 +73,158 @@ public class Similarity_cache implements Clearable_RAM_cache
         }
         similarity_cache_file_path = Path.of(dir.toAbsolutePath().toString(), cache_file_name);
 
-        if ( !reload_similarity_cache_from_disk(browser_aborter))
-        {
-            // no cache on disk, have to recalculate and save
-            // in a thread!
+        Feature_vector_cache fv_cache = Browsing_caches.fv_cache_of_caches.get(path_list_provider.get_name());
+        if ( fv_cache == null) {
+            Feature_vector_cache.Paths_and_feature_vectors result = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter, logger);
 
-            Feature_vector_cache.Paths_and_feature_vectors result = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs,paths,path_list_provider, owner, x, y, browser_aborter, logger);
-            if (result == null)
-            {
+            if (result == null) {
                 logger.log(Stack_trace_getter.get_stack_trace("ERROR: cannot preload all feature vectors"));
                 return;
             }
-            Feature_vector_cache fv_cache = result.fv_cache();
-            fill_cache_and_save_to_disk(result.paths(),fv_cache, owner, x,y,browser_aborter, logger);
-
-            //logger.log("similarities min_similarity="+Similarity_cache_warmer_actor.min_similarity+" max_similarity="+Similarity_cache_warmer_actor.max_similarity);
+            fv_cache = result.fv_cache();
         }
+        make_similarity_cache(dir,fv_cache);
+        // prefill the matrix with all 'close pairs'
+
+        fill_cache_and_save_to_disk(
+                path_list_provider.only_image_paths(Feature_cache.get(Feature.Show_hidden_files)),
+                fv_cache,
+                x,y);
+    }
+
+
+    //**********************************************************
+    @Override
+    public void clear_RAM()
+    //**********************************************************
+    {
+        similarities.clear_RAM();
     }
 
     //**********************************************************
-    private void fill_cache_and_save_to_disk(List<Path> paths, Feature_vector_cache fv_cache, Window owner, double x, double y, Aborter browser_aborter, Logger logger)
+    private void make_similarity_cache(Path folder_path, Feature_vector_cache fv_cache)
+    //**********************************************************
+    {
+        BiPredicate<Path_pair, DataOutputStream> key_serializer= new BiPredicate<Path_pair, DataOutputStream>() {
+            @Override
+            public boolean test(Path_pair path_pair, DataOutputStream dos)
+            {
+                try {
+                    String si = path_pair.i().toAbsolutePath().normalize().toString();
+                    dos.writeUTF(si);
+                    String sj = path_pair.j().toAbsolutePath().normalize().toString();
+                    dos.writeUTF(sj);
+                    return true;
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+                return false;
+            }
+        };
+
+        Function<DataInputStream, Path_pair> key_deserializer = new Function<DataInputStream, Path_pair>() {
+            @Override
+            public Path_pair apply(DataInputStream dis)
+            {
+                try {
+                    String si = dis.readUTF();
+                    Path pi = Path.of(si);
+                    String sj = dis.readUTF();
+                    Path pj = Path.of(sj);
+                    return Path_pair.build(pi,pj);
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+
+                return null;
+            }
+        };
+
+        BiPredicate<Double, DataOutputStream> value_serializer = new BiPredicate<Double, DataOutputStream>() {
+            @Override
+            public boolean test(Double d, DataOutputStream dos) {
+                try {
+                    dos.writeDouble(d);
+                    return true;
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+                return false;
+            }
+        };
+        Function<DataInputStream, Double> value_deserializer = new Function<DataInputStream, Double>() {
+            @Override
+            public Double apply(DataInputStream dis) {
+                try {
+                    return dis.readDouble();
+                } catch (IOException e) {
+                    logger.log(""+e);
+                }
+                return null;
+            }
+        };
+
+
+        Function<Path_pair,String> string_key_maker = new Function<Path_pair, String>() {
+            @Override
+            public String apply(Path_pair path_pair) {return path_pair.to_string_key();}
+        };
+        Function<String,Path_pair> object_key_maker = new Function<String, Path_pair>() {
+            @Override
+            public Path_pair apply(String s) {return Path_pair.from_string_key(s);}
+        };
+
+        Function<Path_pair, Double> value_extractor = new Function<Path_pair, Double>() {
+            @Override
+            public Double apply(Path_pair path_pair)
+            {
+                Feature_vector fvi = fv_cache.get_from_cache_or_make(path_pair.i(),null,true,owner,aborter);
+                if ( fvi == null)
+                {
+                    fvi = fv_cache.get_from_cache_or_make(path_pair.i(),null,true,owner,aborter);
+                    if ( fvi == null)
+                    {
+                        logger.log(" fv == null for "+path_pair.i());
+                        return null;
+                    }
+                }
+                Feature_vector fvj = fv_cache.get_from_cache_or_make(path_pair.j(),null,true,owner,aborter);
+                if ( fvj == null)
+                {
+                    fvj = fv_cache.get_from_cache_or_make(path_pair.j(),null,true,owner,aborter);
+                    if ( fvj == null)
+                    {
+                        logger.log(" fv == null for "+path_pair.j());
+                        return null;
+                    }
+                }
+                return  fvi.distance(fvj);
+            }
+        };
+
+        similarities = new RAM_cache<Path_pair, Double>(
+                new Path_list_provider_for_file_system(folder_path, owner, logger),
+                Cache_folder.song_duration_cache.name(),
+                key_serializer, key_deserializer,
+                value_serializer, value_deserializer,
+                value_extractor,
+                string_key_maker,object_key_maker,
+                aborter, owner, logger
+        );
+
+    }
+
+    public Double get(Path_pair path_pair)
+    {
+        return similarities.get(path_pair,aborter,null,owner);
+    }
+
+
+    //**********************************************************
+    private void fill_cache_and_save_to_disk(
+            List<Path> paths,
+            Feature_vector_cache fv_cache,
+            double x, double y)
     //**********************************************************
     {
         AtomicInteger in_flight = new AtomicInteger(paths.size());
@@ -90,7 +236,7 @@ public class Similarity_cache implements Clearable_RAM_cache
                 y,
                 owner,
                 logger);
-        Aborter local = new Or_aborter(progress_window.aborter,browser_aborter,logger);
+        Aborter local = new Or_aborter(progress_window.aborter,aborter,logger);
         Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(paths, fv_cache, similarities, logger);
         CountDownLatch cdl = new CountDownLatch(paths.size());
         for (Path p1 : paths)
@@ -116,10 +262,10 @@ public class Similarity_cache implements Clearable_RAM_cache
             progress_window.close();
             logger.log("similarity cache interrupted" + e);
         }
-        save_similarity_cache_to_disk();
+        similarities.save_whole_cache_to_disk();
         progress_window.close();
     }
-
+/*
     //**********************************************************
     public boolean reload_similarity_cache_from_disk(Aborter local)
     //**********************************************************
@@ -142,8 +288,8 @@ public class Similarity_cache implements Clearable_RAM_cache
                 double val = dis.readDouble();
                 Path p1 = path_list_provider.resolve(path1_string);
                 Path p2 = path_list_provider.resolve(path2_string);
-                Path_pair p = Path_pair.get(p1,p2);
-                similarities.put(p,val);
+                Path_pair p = Path_pair.build(p1,p2);
+                similarities.put(p.to_String(),val);
                 if ( k%10000 == 0) logger.log("wait: already "+k +" similarities loaded from disk ....");
                 reloaded++;
             }
@@ -192,17 +338,9 @@ public class Similarity_cache implements Clearable_RAM_cache
     }
 
     //**********************************************************
-    @Override
-    public void clear_RAM()
-    //**********************************************************
-    {
-        similarities.clear();
-    }
-
-    //**********************************************************
     public Double get(Path_pair pathPair)
     //**********************************************************
     {
         return similarities.get(pathPair);
-    }
+    }*/
 }

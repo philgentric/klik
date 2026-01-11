@@ -279,7 +279,7 @@ public class Properties_manager
     {
         the_Properties.setProperty(key, value);
         if ( with_age) the_Properties.setProperty(key+AGE, LocalDateTime.now().toString());
-        if ( reload_before_save) Store_engine.get_queue(logger).add(new Save_job(reload_before_save,this));
+        Store_engine.get_queue(logger).add(new Save_job(reload_before_save,this));
         return true;
     }
 

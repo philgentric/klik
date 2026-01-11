@@ -25,18 +25,21 @@ import java.util.concurrent.ConcurrentMap;
 public class Image_cache_cafeine implements Image_cache_interface
 //**********************************************************
 {
+    private static final boolean dbg = false;
     private static final boolean ultra_dbg = false;
     private final Image_decoding_actor_for_cache image_decoding_actor;
     Logger logger;
     Cache<String, Image_context> cache;
     private final int forward_size;
     private final Aborter aborter;
+    private final Window owner;
 
     //**********************************************************
-    public Image_cache_cafeine(int forward_size_, Aborter aborter, Logger logger_)
+    public Image_cache_cafeine(int forward_size_, Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         this.aborter = aborter;
+        this.owner = owner;
         forward_size = forward_size_;
         cache = Caffeine.newBuilder()
                 .maximumSize(2*forward_size+1)
@@ -66,7 +69,7 @@ public class Image_cache_cafeine implements Image_cache_interface
     public void put(String key, Image_context value)
     //**********************************************************
     {
-        if (ultra_dbg) logger.log("writing in Caffeine:" + value.path.getFileName());
+        if (dbg) logger.log("writing in Caffeine:" + value.path.getFileName());
         cache.put(key, value);
     }
 
@@ -78,7 +81,7 @@ public class Image_cache_cafeine implements Image_cache_interface
     {
         if (ultra_dbg) logger.log("preloading request! " + forward_size);
 
-        if (Check_remaining_RAM.RAM_running_low(logger))
+        if (Check_remaining_RAM.RAM_running_low(owner,logger))
         {
             //if (ultra_dbg)
                 logger.log("Clearing image cache as RAM is low");
@@ -101,7 +104,7 @@ public class Image_cache_cafeine implements Image_cache_interface
                     this,
                     image_display_handler.image_window,
                     aborter);
-            if (ultra_dbg)
+            if (dbg)
                 logger.log("preloading request: " + idr.get_string());
             Actor_engine.run(image_decoding_actor,idr,null,logger);
         }

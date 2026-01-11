@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 public class Properties_engine<V> implements Disk_engine<String, V>
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     private final String name;
     private final Logger logger;
     private final Function<String,V> string_deserializer;

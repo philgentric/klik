@@ -4,7 +4,6 @@
 //SOURCES ./Simple_logger.java
 package klikr.util.log;
 
-import klikr.util.execute.Execute_common;
 import klikr.util.execute.actor.Actor_engine;
 
 import java.io.FileWriter;

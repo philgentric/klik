@@ -4,6 +4,7 @@
 //SOURCES ./State.java
 package klikr.path_lists;
 
+import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.log.Logger;
@@ -60,19 +61,23 @@ public class Indexer
     private final State state;
 
     //**********************************************************
-    public static Indexer get_Image_indexer(Type type, Path_list_provider path_list_provider, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
+    public static Indexer get_Image_indexer(
+            Type type,
+            Path_list_provider path_list_provider,
+            Path_comparator_source path_comparator_source,
+            Aborter aborter, Logger logger_)
     //**********************************************************
     {
-        return new Indexer(type, path_list_provider, file_comparator, aborter, logger_);
+        return new Indexer(type, path_list_provider, path_comparator_source, aborter, logger_);
     }
 
     //**********************************************************
-    private Indexer(Type type, Path_list_provider path_list_provider, Comparator<? super Path> fileComparator, Aborter aborter, Logger l)
+    private Indexer(Type type, Path_list_provider path_list_provider, Path_comparator_source path_comparator_source, Aborter aborter, Logger l)
     //**********************************************************
     {
         logger = l;
         //current_dir = dir_;
-        state = new State(type, path_list_provider,fileComparator, aborter,logger);
+        state = new State(type, path_list_provider,path_comparator_source, aborter,logger);
     }
 
     //**********************************************************

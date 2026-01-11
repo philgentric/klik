@@ -8,6 +8,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.browser.icons.image_properties_cache.Rotation;
@@ -31,10 +32,10 @@ public class Fast_image_property_from_exif_metadata_extractor
     private record Directory_result(Double w, Double h, Rotation rotation, boolean w_done, boolean h_done, boolean rot_done){}
 
     //**********************************************************
-    public static Optional<Image_properties> get_image_properties(Path path, boolean report_if_not_found, Aborter aborter, Logger logger)
+    public static Optional<Image_properties> get_image_properties(Path path, boolean report_if_not_found, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (Check_remaining_RAM.RAM_running_low(logger)) {
+        if (Check_remaining_RAM.RAM_running_low(owner, logger)) {
             logger.log("get_image_properties NOT DONE because running low on memory ! ");
             return Optional.empty();
         }

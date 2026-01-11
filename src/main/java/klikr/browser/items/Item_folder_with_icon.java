@@ -241,7 +241,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             {
                 logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
                 Path local = get_path_for_display(false);
-                local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, aborter, logger).orElse(0.0);
+                local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(local, dbg, owner, aborter, logger).orElse(0.0);
                 the_image_pane.setRotate(local_rot);
             }
             else

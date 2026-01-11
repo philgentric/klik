@@ -4,6 +4,7 @@
 package klikr.machine_learning.similarity;
 
 import javafx.stage.Window;
+import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor;
 import klikr.util.execute.actor.Message;
@@ -25,17 +26,21 @@ public class Similarity_cache_warmer_actor implements Actor
     public static final double SIMILARITY_THRESHOLD = 0.14;
 
     private final List<Path> paths;
-    private final ConcurrentHashMap<Path_pair, Double> similarities_hashtable;
+    private final RAM_cache<Path_pair, Double> similarities;
     private final Feature_vector_cache cache;
     private final Logger logger;
 
     //**********************************************************
-    public Similarity_cache_warmer_actor(List<Path> paths, Feature_vector_cache cache, ConcurrentHashMap<Path_pair, Double> similarities, Logger logger)
+    public Similarity_cache_warmer_actor(
+            List<Path> paths, 
+            Feature_vector_cache cache,
+            RAM_cache<Path_pair, Double> similarities, 
+            Logger logger)
     //**********************************************************
     {
         this.paths = paths;
         this.cache = cache;
-        this.similarities_hashtable = similarities;
+        this.similarities = similarities;
         this.logger = logger;
     }
 
@@ -63,9 +68,9 @@ public class Similarity_cache_warmer_actor implements Actor
         {
             if ( p2.getFileName().toString().equals(scwm.p1.getFileName().toString())) continue;
 
-            Path_pair pp = Path_pair.get(scwm.p1, p2);
+            Path_pair pp = Path_pair.build(scwm.p1, p2);
             // already in cache?
-            if ( similarities_hashtable.get(pp) != null)
+            if ( similarities.get(pp,browser_aborter,null,owner) != null)
             {
                 //logger.log("not computed: similarity already in cache "+p1+" vs "+p2);
                 continue;
@@ -89,7 +94,7 @@ public class Similarity_cache_warmer_actor implements Actor
 
             // to avoid 'OutOfMemoryError: Java heap space'
             // we limit the number of entries
-            if ( diff < SIMILARITY_THRESHOLD) similarities_hashtable.put(pp, diff);
+            if ( diff < SIMILARITY_THRESHOLD) similarities.inject(pp, diff,false);
         }
 
         return "Done";

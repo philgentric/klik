@@ -170,11 +170,11 @@ public class Image_context
 
 
     //**********************************************************
-    public double get_rotation(Aborter aborter)
+    public double get_rotation(Window owner, Aborter aborter)
     //**********************************************************
     {
         if ( rotation != null) return rotation;
-        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, aborter, logger).orElse(0.0);
+        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, owner, aborter, logger).orElse(0.0);
         return rotation;
     }
 

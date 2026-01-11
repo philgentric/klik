@@ -828,29 +828,40 @@ public class Audio_player_FX_UI implements Media_callbacks
     private void define_equalizer()
     // **********************************************************
     {
-        if (equalizer_created) {
+        if (equalizer_created)
+        {
             for (int i = 0; i < sliders.size(); i++) {
                 Slider s = sliders.get(i);
-                equalizer_bands.get(i).setGain(s.getValue());
+                double value = Non_booleans_properties.get_equalizer_value_for_band(i, stage, logger);
+                s.setValue(value);
+                equalizer_bands.get(i).setGain(value);
+
                 int finalI = i;
                 ChangeListener<? super Number> listener = listeners.get(i);
                 s.valueProperty().removeListener((ChangeListener<? super Number>) listener);
 
                 listener = (ov, old_val_, new_val_) -> {
                     double slider_value = new_val_.doubleValue();
+                    logger.log("slider_value="+ slider_value);
                     equalizer_bands.get(finalI).setGain(slider_value);
                     Non_booleans_properties.save_equalizer_value_for_band(finalI, slider_value, stage);
                 };
                 s.valueProperty().addListener(listener);
                 listeners.add(listener);
             }
-        } else {
+        }
+        else
+        {
 
             double MIN = -24;
             double MAX = 12;
             int how_many_rectangles = equalizer_bands.size();
-            for (int i = 0; i < how_many_rectangles; i++) {
+            for (int i = 0; i < how_many_rectangles; i++)
+            {
                 double value = Non_booleans_properties.get_equalizer_value_for_band(i, stage, logger);
+                logger.log(i+" value="+ value);
+                equalizer_bands.get(i).setGain(value);
+
                 Slider s = new Slider(MIN, MAX, value);
                 s.setMinHeight(100);
                 s.setMinWidth(30);
@@ -859,7 +870,9 @@ public class Audio_player_FX_UI implements Media_callbacks
                 int finalI = i;
                 ChangeListener<? super Number> listener = (ov, old_val_, new_val_) -> {
                     double slider = new_val_.doubleValue();
+                    logger.log("slider="+ slider);
                     equalizer_bands.get(finalI).setGain(slider);
+                    Non_booleans_properties.save_equalizer_value_for_band(finalI, slider, stage);
                 };
                 listeners.add(listener);
                 s.valueProperty().addListener(listener);

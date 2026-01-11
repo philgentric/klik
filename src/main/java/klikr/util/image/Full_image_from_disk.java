@@ -110,7 +110,7 @@ public class Full_image_from_disk
     //**********************************************************
     {
         if (dbg) logger.log("\n\nIcons_from_disk determine_width "+path);
-        double returned = Fast_width_from_exif_metadata_extractor.get_width(path,report_if_not_found, null,aborter, logger).orElse(0.0);
+        double returned = Fast_width_from_exif_metadata_extractor.get_width(path,report_if_not_found, null,owner,aborter, logger).orElse(0.0);
         // the only other way is to load the image!
         if ( returned > 0) return returned;
         if (aborter.should_abort())
@@ -142,7 +142,7 @@ public class Full_image_from_disk
     //**********************************************************
     {
         if (dbg) logger.log("\n\nIcons_from_disk get_aspect_ratio "+path);
-        double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter, null, logger).orElse(1.0);
+        double returned = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter, null, owner, logger).orElse(1.0);
         // the only other way is to load the image!
         if ( returned > 0) return returned;
         if (aborter.should_abort())
@@ -176,7 +176,7 @@ public class Full_image_from_disk
     //**********************************************************
     {
         //logger.log("load_native_resolution_image_from_disk");
-        if (Check_remaining_RAM.RAM_running_low(logger)) {
+        if (Check_remaining_RAM.RAM_running_low(owner,logger)) {
             logger.log("load_native_resolution_image_from_disk NOT DONE because running low on memory ! ");
             return Optional.of(Jar_utils.get_broken_icon(300,owner,logger));
         }

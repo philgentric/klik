@@ -82,6 +82,7 @@ public class Image_window
     public final Logger logger;
     public final Image_display_handler image_display_handler;
     public final Mouse_handling_for_Image_window mouse_handling_for_image_window;
+    public final Window owner;
     public final Aborter aborter;
     public String title_optional_addendum;
 
@@ -104,19 +105,19 @@ public class Image_window
     public Image_cache_interface image_cache;
 
     //**********************************************************
-    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Optional<Comparator<Path>> image_comparator,Window owner, Aborter aborter, Logger logger_)
+    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,Window owner, Aborter aborter, Logger logger_)
     //**********************************************************
     {
         try ( Perf p = new Perf("get_Image_window")) {
             Last_access_comparator.set_last_access(path,logger_);
-            Image_window returned = on_same_screen(path, path_list_provider, image_comparator, owner, aborter, logger_);
+            Image_window returned = on_same_screen(path, path_list_provider, path_comparator_source, owner, aborter, logger_);
 
             return returned;
         }
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Optional<Comparator<Path>> image_comparator,Window owner,Aborter aborter, Logger logger_)
+    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Path_comparator_source path_comparator_source,Window owner,Aborter aborter, Logger logger_)
     //**********************************************************
     {
 
@@ -127,7 +128,7 @@ public class Image_window
         double h = bounds.getHeight();
 
 
-        Image_window returned = new Image_window(path, null,x, y,w, h, null, true,path_list_provider,image_comparator,aborter,logger_);
+        Image_window returned = new Image_window(path, null,x, y,w, h, null, true,path_list_provider,path_comparator_source,aborter,logger_);
         returned.stage.setX(x);
         returned.stage.setY(y);
         return returned;
@@ -143,7 +144,7 @@ public class Image_window
             String title_optional_addendum, // this is used to display image similarity
             boolean save_window_bounds,
             Path_list_provider path_list_provider,
-            Optional<Comparator<Path>> image_comparator,
+            Path_comparator_source path_comparator_source,
             Aborter aborter,
             Logger logger_)
     //**********************************************************
@@ -151,9 +152,9 @@ public class Image_window
         try (Perf p = new Perf("Image_window creation"))
         {
             this.aborter = aborter;
+            this.owner = owner;
             this.path_list_provider = path_list_provider;
             this.title_optional_addendum = title_optional_addendum;
-            path_comparator_source = () -> image_comparator.orElse(null);
             logger = logger_;
             dir = first_image_path.getParent();
             stage = new Stage();
@@ -181,7 +182,7 @@ public class Image_window
                     {
                         image_cache = new Image_cache_linkedhashmap(forward_size, aborter, logger);
                     } else {
-                        image_cache = new Image_cache_cafeine(forward_size, aborter, logger);
+                        image_cache = new Image_cache_cafeine(forward_size, owner, aborter, logger);
                     }
                     Browsing_caches.image_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), image_cache);
                 }
@@ -239,9 +240,11 @@ public class Image_window
                         keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, keyEvent, logger));
             }
 
-            Comparator<Path> local_comp = null;
-            if (image_comparator.isPresent()) {
-                local_comp = image_comparator.get();
+            Comparator<Path> local_comp = path_comparator_source.get_path_comparator();
+            if (local_comp != null)
+            {
+                logger.log("path_comparator from browser " +local_comp);
+
             } else {
                 // this is going to take possibly a long time !!!
                 long start = System.currentTimeMillis();
@@ -249,7 +252,7 @@ public class Image_window
                 long now = System.currentTimeMillis();
                 logger.log("get_image_comparator took " + (now - start) + " ms");
             }
-            Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider, first_image_path, this, local_comp, aborter, owner, logger);
+            Optional<Image_display_handler> option = Image_display_handler.get_Image_display_handler_instance(path_list_provider, first_image_path, this, path_comparator_source, aborter, owner, logger);
             if (option.isEmpty()) {
                 image_display_handler = null;
                 mouse_handling_for_image_window = null;
@@ -914,7 +917,7 @@ public class Image_window
 
                 local_image_context.the_image_view.setPreserveRatio(true);
                 //local_image_context.the_image_view.setSmooth(true);
-                double rot = local_image_context.get_rotation(aborter);
+                double rot = local_image_context.get_rotation(owner, aborter);
 
                 // there is a bug with imageView rotate
                 // see: https://stackoverflow.com/questions/53109791/fitting-rotated-imageview-into-application-window-scene

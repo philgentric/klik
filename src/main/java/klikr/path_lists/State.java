@@ -3,6 +3,7 @@
 
 package klikr.path_lists;
 
+import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
@@ -24,17 +25,17 @@ class State
     private final Logger logger;
     private final Aborter aborter;
     private final Path_list_provider path_list_provider;
-    private final Comparator<? super Path> file_comparator;
+    private final Path_comparator_source path_comparator_source;
     private final Type type;
     //**********************************************************
-    public State(Type type, Path_list_provider path_list_provider, Comparator<? super Path> fileComparator, Aborter aborter,Logger logger)
+    public State(Type type, Path_list_provider path_list_provider, Path_comparator_source path_comparator_source, Aborter aborter,Logger logger)
     //**********************************************************
     {
         this.logger = logger;
         this.aborter = aborter;
         this.path_list_provider = path_list_provider;
         this.type = type;
-        file_comparator = fileComparator;
+        this.path_comparator_source = path_comparator_source;
         path_to_index = new HashMap<>();
         index_to_path = new HashMap<>();
         Actor_engine.execute(()->rescan("constructor"),"Indexer rescan",logger);
@@ -68,7 +69,7 @@ class State
             }
 
             try {
-                path_list.sort(file_comparator);
+                path_list.sort(path_comparator_source.get_path_comparator());
             } catch (IllegalArgumentException e) {
                 logger.log("" + e);
             }

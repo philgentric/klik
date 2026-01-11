@@ -23,7 +23,7 @@ public record Closest_neighbor(Path p1, Path closest, double dist)
         for (Path p2 : images)
         {
             if (p1.equals(p2)) continue;
-            Double d = similarity_cache.get(Path_pair.get(p1, p2));
+            Double d = similarity_cache.get(Path_pair.build(p1, p2));
             if (d == null) {
                 // typically means the similarity is above the THRESHOLD
                 //logger.log(" no similarity for "+p1+" and "+p2);

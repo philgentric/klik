@@ -12,6 +12,7 @@ import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.stage.Window;
 import klikr.browser.icons.image_properties_cache.Image_properties;
+import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.*;
 import klikr.path_lists.Path_list_provider;
@@ -59,7 +60,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             Path_list_provider path_list_provider,
             Path path,
             Image_window image_window,
-            Comparator<? super Path> file_comparator,
+            Path_comparator_source path_comparator_source,
             Aborter aborter, Window owner, Logger logger_)
     //**********************************************************
     {
@@ -71,13 +72,18 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             return Optional.empty();
         }
 
-        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), image_window, file_comparator,aborter, logger_));
+        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), image_window, path_comparator_source,aborter, logger_));
         return returned;
     }
 
 
     //**********************************************************
-    private Image_display_handler(Path_list_provider path_list_provider, Image_context image_context_, Image_window v_, Comparator<? super Path> file_comparator, Aborter aborter, Logger logger_)
+    private Image_display_handler(
+            Path_list_provider path_list_provider,
+            Image_context image_context_,
+            Image_window v_,
+            Path_comparator_source path_comparator_source,
+            Aborter aborter, Logger logger_)
     //**********************************************************
     {
         this.aborter = aborter;
@@ -88,7 +94,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         {
             // get the indexer in the background
             image_indexer = null;
-            Runnable r = () -> image_indexer = Optional.of(Indexer.get_Image_indexer(Type.images, path_list_provider, file_comparator, aborter, logger)).orElse(null);
+            Runnable r = () -> image_indexer = Optional.of(Indexer.get_Image_indexer(Type.images, path_list_provider, path_comparator_source, aborter, logger)).orElse(null);
             Actor_engine.execute(r, "Get image indexer", logger);
         }
 

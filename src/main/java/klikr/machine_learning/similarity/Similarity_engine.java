@@ -247,7 +247,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         String s = String.format("%.4f",ms.similarity());
         Image_window returned = new Image_window(
                 ms.path(), owner, x, y, W, H, s, false,path_list_provider,
-                Optional.of(path_comparator_source.get_path_comparator()),
+                path_comparator_source,
                 new Aborter("dummy34",logger),logger);
         returned.stage.setX(x);
         returned.stage.setY(y);

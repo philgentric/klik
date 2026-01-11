@@ -60,7 +60,7 @@ public class Exif_metadata_extractor
     {
         if ( exif_metadata != null ) return rotation;
         logger.log(Stack_trace_getter.get_stack_trace("WARNING"));
-        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, report_if_not_found, aborter, logger).orElse(0.0);
+        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, report_if_not_found, owner, aborter, logger).orElse(0.0);
         return rotation;
     }
 
@@ -109,11 +109,11 @@ public class Exif_metadata_extractor
             list_of_strings = new ArrayList<>();
         }
 
-        Image_properties image_properties = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,aborter,logger).orElse(new Image_properties(0,0, Rotation.normal));
+        Image_properties image_properties = Fast_image_property_from_exif_metadata_extractor.get_image_properties(path,true,owner,aborter,logger).orElse(new Image_properties(0,0, Rotation.normal));
         exif_metadata.add("EXIF width="+image_properties.get_image_width());
         exif_metadata.add("EXIF height="+image_properties.get_image_height());
         exif_metadata.add("EXIF aspect_ratio="+image_properties.get_aspect_ratio());
-        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter,list_of_strings,logger).orElse(1.0);
+        double aspect_ratio = Fast_aspect_ratio_from_exif_metadata_extractor.get_aspect_ratio(path,report_if_not_found,aborter,list_of_strings,owner,logger).orElse(1.0);
         exif_metadata.add("Alternative aspect_ratio="+aspect_ratio);
 
 
@@ -151,7 +151,7 @@ public class Exif_metadata_extractor
 
         image_is_damaged = false;
 
-        if (Check_remaining_RAM.RAM_running_low(logger)) {
+        if (Check_remaining_RAM.RAM_running_low(owner, logger)) {
             logger.log("get_exif_metadata NOT DONE because running low on memory ! ");
             return exif_metadata;
         }
