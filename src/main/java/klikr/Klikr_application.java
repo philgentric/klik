@@ -116,6 +116,8 @@ import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Booleans;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
+import klikr.util.execute.Guess_OS;
+import klikr.util.execute.Operating_system;
 import klikr.util.ui.Github_stars;
 import klikr.util.cache_auto_clean.Disk_usage_and_caches_monitor;
 import klikr.util.log.Exceptions_in_threads_catcher;
@@ -159,6 +161,13 @@ public class Klikr_application extends Application
         application = this;
         Shared_services.init(name,primary_stage_);
         Logger logger = Shared_services.logger();
+
+
+        if (Guess_OS.guess(primary_stage_,logger) == Operating_system.Windows)
+        {
+            System.setProperty("java.net.debug", "all");
+            System.setProperty("java.net.preferIPv4Stack", "true");
+        }
 
         logger.log("classpath="+System.getProperty("java.class.path"));
         StackTraceElement[] xx = Thread.currentThread().getStackTrace();
