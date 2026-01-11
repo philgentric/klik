@@ -2,3 +2,11 @@ netsh advfirewall firewall add rule name="Allow JavaFX Outbound" dir=out action=
 Files\Java\jre1.8.0_301\bin\java.exe" enable=yes
 netsh advfirewall firewall add rule name="Allow JavaFX Outbound" dir=out action=allow program="C:\Program
 Files\klikr\klikr.exe" enable=yes
+
+check if a server is listening on a port:
+
+netstat -ano | findstr :8000
+
+list python processes:
+
+ztasklist | findstr python

@@ -19,6 +19,8 @@ prerequisites:
    6. Installs the rest of the Python ML deps
  ------------------------------------ #>
 
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+
 # ──────── 0 Utility helpers ────────
 function Confirm-Command {
     param([string]$cmd)
@@ -53,8 +55,12 @@ Confirm-Command "python -m venv $venvDir"
 python -m venv $venvDir
 
 # ─────── 3 Activate it ────────
-& "$venvDir\Scripts\Activate.ps1"
+. "$venvDir\Scripts\Activate.ps1"
 
+if (-not (Test-Path env:VIRTUAL_ENV)) {
+    Write-Error "Failed to activate virtual environment"
+    exit 1
+}
 # ─────── Upgrade pip ────────
 Confirm-Command "pip install -U pip"
 pip install -U pip
