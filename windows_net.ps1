@@ -1,0 +1,1 @@
+netsh advfirewall firewall add rule name="Allow JavaFX Outbound" dir=out action=allow program="C:\Program Files\Java\jre1.8.0_301\bin\java.exe" enable=yes
