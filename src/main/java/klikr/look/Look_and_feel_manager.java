@@ -23,7 +23,7 @@ import javafx.stage.Window;
 import klikr.Launcher;
 import klikr.Shared_services;
 import klikr.browser.Drag_and_drop;
-import klikr.look.styles.Look_and_feel_material;
+import klikr.look.styles.Look_and_feel_materiol;
 import klikr.look.styles.Look_and_feel_light;
 import klikr.look.styles.Look_and_feel_modena;
 import klikr.properties.Non_booleans_properties;
@@ -113,7 +113,7 @@ public class Look_and_feel_manager
             default -> new Look_and_feel_light(owner,logger);
             case dark -> new klikr.look.styles.Look_and_feel_dark(owner,logger);
             case wood ->new klikr.look.styles.Look_and_feel_wood(owner,logger);
-            case material -> new Look_and_feel_material(owner,logger);
+            case materiol -> new Look_and_feel_materiol(owner,logger);
             case modena -> new Look_and_feel_modena(owner, logger);
         };
     }
@@ -899,7 +899,7 @@ public class Look_and_feel_manager
          */
         //item.getStyleClass().clear();
         item.getStyleClass().add("my_context_menu");
-        //Font_size.apply_global_font_size_to_MenuItem(item,owner,logger);
+        Font_size.apply_global_font_size_to_MenuItem(item,owner,logger);
     }
 
     //**********************************************************

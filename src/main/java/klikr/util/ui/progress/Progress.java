@@ -19,7 +19,7 @@ public record Progress(Pane pane, ImageView iv, Progress_spinner spinner, Window
     public static Progress start(Pane pane, Window owner, Logger logger)
     //**********************************************************
     {
-        if ( Look_and_feel_manager.get_instance(owner,logger).get_look_and_feel_style() == Look_and_feel_style.material)
+        if ( Look_and_feel_manager.get_instance(owner,logger).get_look_and_feel_style() == Look_and_feel_style.materiol)
         {
             logger.log("Progress: starting a spinner");
             Progress_spinner spinner = new Progress_spinner();

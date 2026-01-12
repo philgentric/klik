@@ -126,12 +126,15 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
 
 from functools import partial
 
-def run_server(port, config_name,monitor_udp_port):
+class ReliableHTTPServer(HTTPServer):
+    allow_reuse_address = True  # Solves "Address already in use" on restart
+    request_queue_size = 1024   # Sets the listen backlog correctly from the start
+
+def run_server(tcp_port, config_name,monitor_udp_port):
     global MONITOR_PORT
     MONITOR_PORT = monitor_udp_port
-
-    print("Starting local HAARS FACE DETECTION server on port "+str(port)+ " with config: "+config_name)
-    server_address = ('127.0.0.1', port)
+    print("Starting local HAARS FACE DETECTION server on port "+str(tcp_port)+ " with config: "+config_name)
+    server_address = ('127.0.0.1', tcp_port)
     handler = partial(FaceDetectionHandler, config_name)
-    httpd = HTTPServer(server_address, handler)
+    httpd = ReliableHTTPServer(server_address, handler)
     httpd.serve_forever()

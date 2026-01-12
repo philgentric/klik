@@ -133,7 +133,7 @@ public class Progress_window implements Hourglass
                 vbox.getChildren().add(iv);
                 break;
             case modena:
-            case material:
+            case materiol:
             default:
                 spinner = new Progress_spinner();
                 Pane pane = spinner.start();

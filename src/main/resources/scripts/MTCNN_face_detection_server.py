@@ -13,7 +13,6 @@ from functools import partial
 SERVER_UUID = str(uuid.uuid4())  # Generate a unique ID for this server instance
 MONITOR_PORT = None
 
-#https://github.com/ipazc/mtcnn/blob/master/example.py
 
 class MTCNN_FaceDetectionHandler(SimpleHTTPRequestHandler):
 
@@ -79,6 +78,7 @@ class MTCNN_FaceDetectionHandler(SimpleHTTPRequestHandler):
 
 from functools import partial
 
+
 def run_server(port, config_number, monitor_udp_port):
     global MONITOR_PORT
     MONITOR_PORT = monitor_udp_port
@@ -87,4 +87,20 @@ def run_server(port, config_number, monitor_udp_port):
     server_address = ('127.0.0.1', port)
     handler = partial(MTCNN_FaceDetectionHandler, config_number)
     httpd = HTTPServer(server_address, handler)
+    httpd.serve_forever()
+
+
+
+
+class ReliableHTTPServer(HTTPServer):
+    allow_reuse_address = True  # Solves "Address already in use" on restart
+    request_queue_size = 1024   # Sets the listen backlog correctly from the start
+
+def run_server(tcp_port, config_number, monitor_udp_port):
+    global MONITOR_PORT
+    MONITOR_PORT = monitor_udp_port
+    print("Starting local MTCNN FACE DETECTION server on port "+str(tcp_port)+ " with config: "+str(config_number))
+    server_address = ('127.0.0.1', tcp_port)
+    handler = partial(MTCNN_FaceDetectionHandler, config_number)
+    httpd = ReliableHTTPServer(server_address, handler)
     httpd.serve_forever()

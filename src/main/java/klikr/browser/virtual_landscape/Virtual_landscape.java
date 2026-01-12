@@ -708,7 +708,7 @@ public class Virtual_landscape
     {
 
         Text t = new Text(text);
-        t.setStyle("-fx-font: 70 arial;");
+        t.setStyle("-fx-font-size: 70;");
         Scene dummy_scene = new Scene(new VBox(t));
         WritableImage wi = dummy_scene.snapshot(null);
         Paint ppp = new ImagePattern(wi);

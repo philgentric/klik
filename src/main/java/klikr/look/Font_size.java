@@ -4,6 +4,8 @@
 package klikr.look;
 
 import javafx.scene.Node;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.log.Logger;
@@ -23,6 +25,41 @@ public class Font_size
     //**********************************************************
     {
         return FX_FONT_SIZE + Non_booleans_properties.get_font_size(owner,logger) + PX;
+    }
+
+
+    //**********************************************************
+    public static void apply_global_font_size_to_MenuItem(MenuItem menu_item, Window owner, Logger logger)
+    //**********************************************************
+    {
+        double size = Non_booleans_properties.get_font_size(owner,logger);
+        init(logger);
+        String style = menu_item.getStyle();
+        if ( style == null)
+        {
+            menu_item.setStyle(append_to_old_style(style,size,font_family,logger));
+            logger.log("1 applying font size to MenuItem " + size+ " "+menu_item.getText());
+            return;
+        }
+        if ( style.isEmpty())
+        {
+            menu_item.setStyle(append_to_old_style(style,size,font_family,logger));
+            logger.log("2 applying font size to MenuItem " + size+ " "+menu_item.getText());
+            return;
+        }
+        if ( dbg) logger.log("\nfound node style->" + style + "<-");
+
+        if ( style.contains(FX_FONT_SIZE))
+        {
+            String new_style = style.replaceAll("-fx-font-style:\\s*[^;]+",FX_FONT_SIZE+size+PX);
+            menu_item.setStyle(new_style);
+            logger.log("3 applying font size to MenuItem " + size+ " "+menu_item.getText());
+            return;
+        }
+
+        menu_item.setStyle(append_to_old_style(style,size,font_family,logger));
+        logger.log("4 applying font size to MenuItem " + size+ " "+menu_item.getText());
+
     }
 
 

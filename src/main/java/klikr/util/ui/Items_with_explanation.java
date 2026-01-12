@@ -10,10 +10,13 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klikr.look.Font_size;
 import klikr.look.Look_and_feel;
 import klikr.look.Look_and_feel_manager;
+import klikr.look.Look_and_feel_style;
 import klikr.look.my_i18n.My_I18n;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
@@ -111,12 +114,46 @@ public class Items_with_explanation
         VBox vb = new VBox();
 
         TextArea tf = new TextArea(explanation);
-        Look_and_feel_manager.set_region_look(tf,owner,logger);
+
+
+
         tf.setEditable(false);
         tf.setWrapText(true);
         vb.getChildren().add(tf);
 
         Scene scene = new Scene(vb);
+
+        if (
+                ( Look_and_feel_manager.get_instance(owner,logger).get_look_and_feel_style() == Look_and_feel_style.dark)
+                        ||( Look_and_feel_manager.get_instance(owner,logger).get_look_and_feel_style() == Look_and_feel_style.wood)
+        ) {
+            tf.setStyle(
+                "-fx-background-color: #1a1f2c;" +
+                "-fx-font-family: 'Atkinson Hyperlegible';" +
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white;" +
+                "-fx-control-inner-background: #1a1f2c;" +  // Important for the inner background
+                "-fx-background-insets: 0;" +                // Remove default padding/background
+                "-fx-prompt-text-fill: white;" +             // For prompt text
+                "-fx-highlight-fill: #4a8aaf;" +             // For selection highlight
+                "-fx-highlight-text-fill: white;"            // For selected text
+            );
+
+            scene.getRoot().setStyle(
+                "-fx-background-color: #1a1f2c;" +
+                "-fx-font-family: 'Atkinson Hyperlegible';" +
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: white;"
+            );
+            Font_size.apply_global_font_size_to_Node(tf,owner,logger);
+
+        }
+        else
+        {
+            Look_and_feel_manager.set_region_look(tf,owner,logger);
+        }
+
+
         explanation_stage.setScene(scene);
         explanation_stage.setWidth(500);
         explanation_stage.setHeight(300);

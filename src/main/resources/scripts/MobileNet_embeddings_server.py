@@ -1,5 +1,4 @@
 import json
-#import re
 import socket
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -8,8 +7,6 @@ import tensorflow as tf
 import numpy as np
 import keras
 from tensorflow.keras.models import Model
-#from keras.applications import MobileNetV2
-#from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from keras.applications import MobileNetV3Large
 from tensorflow.keras.applications.mobilenet_v3 import preprocess_input
 
@@ -20,9 +17,7 @@ import uuid
 SERVER_UUID = str(uuid.uuid4())  # Generate a unique ID for this server instance
 MONITOR_PORT = None
 
-#base_model = MobileNetV2(include_top=False, pooling='avg', input_shape=(224, 224, 3),weights='imagenet')
 base_model = MobileNetV3Large(include_top=False, pooling='avg', input_shape=(224, 224, 3),weights='imagenet')
-#model = Model(inputs=base_model.input, outputs=base_model.get_layer('block4_pool').output)
 model = Model(inputs=base_model.input, outputs=base_model.output)
 
 class EmbeddingGenerator(SimpleHTTPRequestHandler):
@@ -78,13 +73,14 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         pass
 
 
-def run_server(tcp_port,udp_port):
-    global MONITOR_PORT  # Need to modify the global variable
-    MONITOR_PORT = udp_port
+class ReliableHTTPServer(HTTPServer):
+    allow_reuse_address = True  # Solves "Address already in use" on restart
+    request_queue_size = 1024   # Sets the listen backlog correctly from the start
 
-    print("Starting local MobileNet EMBEDDINGS server on TCP port: "+str(tcp_port))
+def run_server(tcp_port, udp_port):
+    global MONITOR_PORT
+    MONITOR_PORT = udp_port
+    print("Starting local MobileNet EMBEDDINGS server on TCP port: " + str(tcp_port))
     server_address = ('127.0.0.1', tcp_port)
-    httpd = HTTPServer(server_address, EmbeddingGenerator)
-    httpd.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
-    httpd.socket.listen(1024)
+    httpd = ReliableHTTPServer(server_address, EmbeddingGenerator)
     httpd.serve_forever()

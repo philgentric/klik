@@ -1,195 +1,469 @@
+/*
+Enhanced "Dark Aqua" Glossy Effect
+The magic comes from 4 stacked gradients:
+
+Outer frame - linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%) - darker metallic edge
+Middle layer - linear-gradient(#000000, #1a1a1a) - deep black core
+Inner shine - linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%) - bright to dark glossy highlight
+Combined with increased dropshadow for that premium glow. ✨🖤
+*/
+
+/* ============================================
+   BASE / GENERAL STYLES
+   ============================================ */
 
 .look_and_feel_general {
-    -fx-text-fill:white;
-    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
-    -fx-font-family: Helvetica;
-    -fx-font:20 Helvetica; 
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.3), 2, 0.0, 0, 1);
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-background-color: linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%), linear-gradient(#020b02, #3a3a3a), linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%);
-    -fx-background-insets: 0,1,4,4;
-    -fx-background-radius: 9,8,5,3;
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
     -fx-alignment: top-left;
-//    -fx-padding: -1 -1 -1 -1;
-//    -fx-padding: 15 30 15 30;
 }
 
+/* ============================================
+   BUTTONS
+   ============================================ */
+
 .my_button {
-    -fx-text-fill:white;
-    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
-    -fx-font-family: Helvetica;
-    -fx-font:20 Helvetica; 
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.3), 2, 0.0, 0, 1);
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-background-color: linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%), linear-gradient(#020b02, #3a3a3a), linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%);
-    -fx-background-insets: 0,1,4,4;
-    -fx-background-radius: 9,8,5,3;
-    -fx-padding: 0 2 0 2; //-fx-padding: -1 -1 -1 -1;
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-padding: 0 2 0 2;
     -fx-alignment: top-left;
 }
 
 .my_button:hover {
-    -fx-text-fill:white;
-    -fx-font-family: Helvetica;
-    //-fx-font-weight: bold;
-    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
-    -fx-background-color: #1a1f2c;
-    -fx-background-insets: 0,1,4;
-    -fx-background-radius: 9,8,5;
+    -fx-text-fill: white;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.5), 4, 0.0, 0, 1);
+    -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
+    linear-gradient(#0a0a0a, #2a2a2a),
+    linear-gradient(#c0c0c0 0%, #686868 15%, #2a2a2a 60%, #151515 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
 }
 
-
 .my_button_highlight {
-    -fx-text-fill:white;
-    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
-    -fx-font-family: Helvetica;
-    -fx-font:20 Helvetica;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.4), 3, 0.0, 0, 1);
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-background-color: #1a1f2c;
-    -fx-background-insets: 0,1,4;
-    -fx-background-radius: 9,8,5;
+    -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
+    linear-gradient(#0a0a0a, #2a2a2a),
+    linear-gradient(#c0c0c0 0%, #686868 15%, #2a2a2a 60%, #151515 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
     -fx-alignment: top-left;
 }
 
 .my_button_highlight:hover {
-    -fx-text-fill:orange;
-    -fx-font-family: Helvetica;
-    //-fx-font-weight: bold;
-    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
-    -fx-background-color: #1a1f2c;
-    -fx-background-insets: 0,1,4;
-    -fx-background-radius: 9,8,5;
+    -fx-text-fill: #ffcc00;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-effect: dropshadow(three-pass-box, rgba(255,200,0,0.6), 5, 0.0, 0, 1);
+    -fx-background-color: linear-gradient(#787878 0%, #353535 25%, #404040 75%, #888888 100%),
+    linear-gradient(#151515, #353535),
+    linear-gradient(#d0d0d0 0%, #787878 15%, #353535 60%, #202020 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
 }
 
-
-
 .my_button_with_border {
-    -fx-text-fill:white;
-    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
-    -fx-font-family: Helvetica;
-    -fx-font:20 Helvetica;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.3), 2, 0.0, 0, 1);
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-background-color: linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%), linear-gradient(#020b02, #3a3a3a), linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%);
-    -fx-background-insets: 0,1,4,4;
-    -fx-background-radius: 9,8,5,3;
-    -fx-padding: 0 2 0 2; //-fx-padding: -1 -1 -1 -1;
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-padding: 0 2 0 2;
     -fx-alignment: top-left;
-
-    -fx-border-color: white;
+    -fx-border-color: linear-gradient(#909090, #e0e0e0, #909090);
     -fx-border-style: solid;
-    -fx-border-width: 2px;
-    -fx-border-radius: 5px;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
 }
 
 .my_button_with_border:hover {
-    -fx-text-fill:white;
-    -fx-font-family: Helvetica;
-    //-fx-font-weight: bold;
-    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
-    -fx-background-color: #1a1f2c;
-    -fx-background-insets: 0,1,4;
-    -fx-background-radius: 9,8,5;
+    -fx-text-fill: white;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.5), 4, 0.0, 0, 1);
+    -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
+    linear-gradient(#0a0a0a, #2a2a2a),
+    linear-gradient(#c0c0c0 0%, #686868 15%, #2a2a2a 60%, #151515 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
 }
 
+/* ============================================
+   CONTEXT MENU - AQUA GLOSSY STYLE
+   ============================================ */
 
+.my_context_menu {
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 12, 0.0, 0, 3);
+}
+
+.my_context_menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 6 12 6 12;
+}
+
+.my_context_menu .menu-item .label {
+    -fx-text-fill: white;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 1, 0.0, 0, 1);
+}
+
+.my_context_menu .menu-item:hover,
+.my_context_menu .menu-item:focused {
+    -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
+    linear-gradient(#0a0a0a, #2a2a2a),
+    linear-gradient(#c0c0c0 0%, #686868 15%, #2a2a2a 60%, #151515 100%);
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 5, 4, 3;
+}
+
+.my_context_menu .menu-item:hover .label,
+.my_context_menu .menu-item:focused .label {
+    -fx-text-fill: white;
+}
+
+/* Separator in context menu */
+.my_context_menu .separator {
+    -fx-background-color: transparent;
+    -fx-padding: 4 0 4 0;
+}
+
+.my_context_menu .separator .line {
+    -fx-border-color: #404040 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* Submenu arrow - glossy style */
+.my_context_menu .menu > .right-container > .arrow,
+.context-menu .menu > .right-container > .arrow {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 1, 0.0, 0, 1);
+    -fx-scale-shape: true;
+    -fx-padding: 0.4em 0.25em 0.4em 0.25em;
+}
+
+/* ============================================
+   GENERAL CONTEXT MENU (non-custom)
+   ============================================ */
+
+.context-menu {
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 12, 0.0, 0, 3);
+}
+
+.context-menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 6 12 6 12;
+}
+
+.context-menu .menu-item .label {
+    -fx-text-fill: white;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.context-menu .menu-item:hover,
+.context-menu .menu-item:focused {
+    -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
+    linear-gradient(#0a0a0a, #2a2a2a),
+    linear-gradient(#c0c0c0 0%, #686868 15%, #2a2a2a 60%, #151515 100%);
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 5, 4, 3;
+}
+
+.context-menu .menu-item:hover .label,
+.context-menu .menu-item:focused .label {
+    -fx-text-fill: white;
+}
+
+/* ============================================
+   MENU BAR - AQUA GLOSSY STYLE
+   ============================================ */
+
+.menu-bar {
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 0;
+    -fx-padding: 2 4 2 4;
+}
+
+.menu-bar .menu {
+    -fx-background-color: transparent;
+}
+
+.menu-bar .menu .label {
+    -fx-text-fill: white;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.menu-bar .menu:hover,
+.menu-bar .menu:showing {
+    -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
+    linear-gradient(#0a0a0a, #2a2a2a),
+    linear-gradient(#c0c0c0 0%, #686868 15%, #2a2a2a 60%, #151515 100%);
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 5, 4, 3;
+}
+
+/* ============================================
+   IMAGE WINDOW
+   ============================================ */
 
 .image-window {
     -fx-text-fill: white;
-    -fx-font:20 Helvetica;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
-    //-fx-alignment: center;
-    -fx-background-color: #1a1f2c;
-    //-fx-background-color: linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%), linear-gradient(#020b02, #3a3a3a), linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%);
-//    -fx-padding: -1 -1 -1 -1;
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
 }
 
+/* ============================================
+   DIALOGS - AQUA GLOSSY STYLE
+   ============================================ */
 
+.my_dialog {
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 16, 0.0, 0, 5);
+}
 
-.my_context_menu {
+.my_dialog > *.button-bar > *.container {
+    -fx-background-color: transparent;
+}
+
+.my_dialog > *.label.content {
+    -fx-background-color: transparent;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
     -fx-text-fill: white;
-    -fx-background-color: darkgrey;//#1a1f2c;
 }
 
-.my_context_menu > .label {
-    -fx-text-fill: #fefcff;
+.my_dialog:header *.header-panel {
+    -fx-background-color: transparent;
 }
-.my_context_menu:focused {
-    -fx-background: #606060;
-    -fx-background-color: -fx-background;
-    -fx-border-color: -fx-background;
+
+.my_dialog:header *.header-panel *.label {
+    -fx-background-color: transparent;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
+    -fx-font-style: italic;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 1, 0.0, 0, 1);
 }
-.my_context_menu:focused > .label {
-    -fx-text-fill: #fefcff;
+
+/* Dialog buttons get the glossy treatment too */
+.my_dialog .button {
+    -fx-text-fill: white;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.3), 2, 0.0, 0, 1);
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-padding: 6 16 6 16;
 }
-.my_context_menu:hover {
-    -fx-background: #606060;
-    -fx-background-color: -fx-background;
-    -fx-border-color: -fx-background;
+
+.my_dialog .button:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.5), 4, 0.0, 0, 1);
+    -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
+    linear-gradient(#0a0a0a, #2a2a2a),
+    linear-gradient(#c0c0c0 0%, #686868 15%, #2a2a2a 60%, #151515 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
 }
-.my_context_menu:hover > .label {
-    -fx-text-fill: #fefcff;
+
+/* ============================================
+   CHECK BOXES - AQUA GLOSSY STYLE
+   ============================================ */
+
+.check-box {
+    -fx-text-fill: white;
+    -fx-font-family: "Atkinson Hyperlegible";
 }
-.my_context_menu:selected {
-    -fx-background: #606060;
-    -fx-background-color: -fx-background;
-    -fx-border-color: -fx-background;
+
+.check-box .box {
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 4, 3, 2;
+    -fx-border-color: #606060;
+    -fx-border-radius: 3;
+    -fx-border-width: 1;
 }
-.my_context_menu:selected > .label {
+
+.check-box:selected .box {
+    -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
+    linear-gradient(#0a0a0a, #2a2a2a),
+    linear-gradient(#c0c0c0 0%, #686868 15%, #2a2a2a 60%, #151515 100%);
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 4, 3, 2;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+.check-box:hover .box {
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.4), 3, 0.0, 0, 0);
+}
+
+
+.menu-item {
+    -fx-font-size: 24px;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-weight: bold;
     -fx-text-fill: #fefcff;
 }
 
+/* Check menu item */
+.check-menu-item:checked {
+    -fx-mark-color: white;
+}
+
+/* ============================================
+   SCROLL BARS - AQUA GLOSSY STYLE
+   ============================================ */
+
+.scroll-bar {
+    -fx-background-color: linear-gradient(#252525, #0a0a0a);
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 5, 4, 3;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
+    linear-gradient(#0a0a0a, #2a2a2a),
+    linear-gradient(#c0c0c0 0%, #686868 15%, #2a2a2a 60%, #151515 100%);
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 5, 4, 3;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 5, 4, 3;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: white;
+}
+
+/* ============================================
+   SPECIAL STATE INDICATORS
+   ============================================ */
 
 .look_and_feel_drag {
-    -fx-background-color: orange;
+    -fx-background-color: linear-gradient(#e69500 0%, #995200 25%, #804000 75%, #e6a633 100%),
+    linear-gradient(#4d2600, #995200),
+    linear-gradient(#ffb84d 0%, #e69500 15%, #995200 60%, #663300 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,165,0,0.6), 6, 0.0, 0, 2);
 }
-
 
 .look_and_feel_all_files {
-    -fx-background-color: red;
+    -fx-background-color: linear-gradient(#e64d4d 0%, #990000 25%, #660000 75%, #e62e2e 100%),
+    linear-gradient(#330000, #990000),
+    linear-gradient(#ff8080 0%, #e62e2e 15%, #990000 60%, #660000 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,0,0,0.6), 6, 0.0, 0, 2);
 }
-
 
 .look_and_feel_all_dirs {
-    -fx-background-color: blue;
+    -fx-background-color: linear-gradient(#4d4de6 0%, #000099 25%, #000066 75%, #2e2ee6 100%),
+    linear-gradient(#000033, #000099),
+    linear-gradient(#8080ff 0%, #2e2ee6 15%, #000099 60%, #000066 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,255,0.6), 6, 0.0, 0, 2);
 }
-
 
 .look_and_feel_image_playlist {
-    -fx-background-color: pink;
+    -fx-background-color: linear-gradient(#e6a0b0 0%, #e6509a 25%, #cc1177 75%, #e6b0c0 100%),
+    linear-gradient(#993366, #e6509a),
+    linear-gradient(#ffc0d0 0%, #e6a0b0 15%, #e6509a 60%, #cc1177 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,105,180,0.6), 6, 0.0, 0, 2);
 }
 
+/* ============================================
+   TOOLTIPS - AQUA GLOSSY STYLE
+   ============================================ */
 
-my_dialog{
-    -fx-background-color: #1a1f2c;
-    -fx-text-fill:white;
-}
-.my_dialog > *.button-bar > *.container{
-    -fx-background-color: #1a1f2c;
-    -fx-text-fill:white;
-}
-.my_dialog > *.label.content{
-    -fx-background-color: #1a1f2c;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-text-fill:white;
-}
-.my_dialog:header *.header-panel{
-    -fx-background-color: #1a1f2c;
-    -fx-text-fill:white;
-}
-.my_dialog:header *.header-panel *.label{
-    -fx-background-color: #1a1f2c;
-    -fx-font-size: 18px;
-    -fx-font-style: italic;
-    -fx-text-fill:white;
-}
-
-
-/* make the arrow size follow the font, for context menus */
-.context-menu .menu > .right-container > .arrow {
-    -fx-scale-shape: true;
-
-    /* 2. Define the size using 'em' so it scales with font size.
-       Format: top right bottom left.
-       Increase these numbers to make the arrow larger relative to text. */
-    -fx-padding: 0.4em 0.25em 0.4em 0.25em;
-    -fx-background-color: white;
+.tooltip {
+    -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
+    linear-gradient(#000000, #1a1a1a),
+    linear-gradient(#a8a8a8 0%, #505050 15%, #1a1a1a 60%, #0a0a0a 100%);
+    -fx-background-insets: 0, 1, 4;
+    -fx-background-radius: 9, 8, 5;
+    -fx-text-fill: white;
+    -fx-font-family: "Atkinson Hyperlegible";
+    -fx-font-size: 24px;
+    -fx-padding: 6 10 6 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.7), 8, 0.0, 0, 3);
 }

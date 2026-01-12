@@ -97,7 +97,6 @@ public class Menu_items
         if (dbg) logger.log("File size");
         String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_with_size(path,owner,logger);
         String message = My_I18n.get_I18n_string("File_size_for", owner,logger) +"\n"+ path.getFileName().toString();
-        //Popups.popup_warning(error_message, file_size, false,logger);
         Stage local_stage = new Stage();
         local_stage.setHeight(200);
         local_stage.setWidth(600);

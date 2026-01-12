@@ -5,10 +5,7 @@ package klikr.audio;
 
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.media.EqualizerBand;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaException;
-import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.*;
 import javafx.stage.Window;
 import javafx.util.Duration;
 import klikr.util.execute.actor.Aborter;
@@ -86,8 +83,9 @@ public class Media_instance
     //**********************************************************
     {
         if ( the_media_player == null) return null;
-        return the_media_player.getAudioEqualizer().getBands();
-
+        AudioEqualizer audio_equalizer = the_media_player.getAudioEqualizer();
+        if ( audio_equalizer == null) return null;
+        return audio_equalizer.getBands();
     }
 
     //**********************************************************
