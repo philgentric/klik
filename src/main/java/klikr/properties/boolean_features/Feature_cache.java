@@ -7,6 +7,7 @@ import javafx.stage.Window;
 import klikr.Klikr_application;
 import klikr.Launcher;
 import klikr.Shared_services;
+import klikr.util.http.Klikr_communicator;
 import klikr.util.log.Logger;
 import klikr.util.tcp.TCP_client;
 
@@ -158,12 +159,10 @@ public class Feature_cache
     public static void send_UI_changed(String msg, String new_lang, Logger logger)
     //**********************************************************
     {
-        logger.log("\n\nFeature_cache::sending "+msg+" on port 'ui_change_report_port_at_launcher': "+ Klikr_application.ui_change_report_port_at_launcher);
-        if (Klikr_application.ui_change_report_port_at_launcher != null)
-        {
-            // when klik is started "standalone" (not from the launcher), this port is null
-            TCP_client.send_in_a_thread("127.0.0.1", Klikr_application.ui_change_report_port_at_launcher, msg+" "+new_lang, logger);
-        }
+        logger.log("\n\nFeature_cache::send_UI_changed "+msg+" " +new_lang);
+
+        Klikr_application.klikr_communicator.broadcast(msg+" "+new_lang);
+
     }
 
 }

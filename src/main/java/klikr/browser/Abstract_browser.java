@@ -7,13 +7,14 @@ package klikr.browser;
 //SOURCES ./virtual_landscape/Path_list_provider.java
 //SOURCES ../Window_provider.java
 //SOURCES ./Title_target.java
-//SOURCES ../UI_change.java
+//SOURCES ../UI_change_target.java
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.*;
+import klikr.look.my_i18n.My_I18n;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.virtual_landscape.*;
 import klikr.change.Change_gang;
@@ -25,12 +26,12 @@ import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
 import klikr.util.log.Logger;
-import klikr.util.tcp.TCP_client;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 //**********************************************************
-public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider, UI_change, Background_provider
+public abstract class Abstract_browser implements Change_receiver, Shutdown_target, Title_target, Full_screen_handler, Window_provider, UI_change_target, Background_provider
 //**********************************************************
 {
 
@@ -98,19 +99,18 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
 
         my_Stage = new My_Stage(new Stage(), logger);
 
-
-        // when starting each browser instance will REGISTER a port
-        // on which it will LISTEN for UI_CHANGE messages
-        // it will report this port to the launcher (if any)
-        // so that the launcher can forward UI_CHANGE messages to all browsers
-        int ui_change_receiver_port = UI_change.start_UI_change_server(
-                null, this, "Klik-browser ",
-                        //+get_Path_list_provider().get_name(),
-                aborter, my_Stage.the_Stage, logger);
-        if ( Klikr_application.ui_change_report_port_at_launcher !=null) // is null when launched from ther audio player
-        {
-            TCP_client.send_in_a_thread("127.0.0.1", Klikr_application.ui_change_report_port_at_launcher, UI_change.THIS_IS_THE_PORT_I_LISTEN_TO_FOR_UI_CHANGES + " " + ui_change_receiver_port, logger);
-        }
+        Consumer<String> xx = new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                Non_booleans_properties.force_reload_from_disk(my_Stage.the_Stage);
+                String new_ui_option = s.split(" ")[1];
+                logger.log("Klikr UI_CHANGED RECEIVED, msg is "+new_ui_option);
+                My_I18n.reset();
+                Look_and_feel_manager.reset();
+                Platform.runLater(() -> define_UI());
+            }
+        };
+        Klikr_application.klikr_communicator.set_on_appearance_changed(xx);
 
         my_Stage.the_Stage.setOnCloseRequest(event -> {
             //System.out.println("Klik browser window exit");
@@ -188,7 +188,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     }
 
     //**********************************************************
-    @Override // UI_change signaled by launcher
+    @Override // UI_change_target signaled by launcher
     public void define_UI()
     //**********************************************************
     {

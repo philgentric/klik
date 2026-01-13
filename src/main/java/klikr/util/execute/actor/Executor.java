@@ -16,7 +16,7 @@ public class Executor
     // if someone wants to try going back to an old JDK
     // that does not have virtual threads, one can disable here
     public static final boolean use_virtual_threads = true;
-    private static ExecutorService executor;
+    public static ExecutorService executor;
 
     // used only for non-virtual threads
     private final static int pool_max = 500;

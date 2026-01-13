@@ -113,6 +113,7 @@ import klikr.path_lists.Path_list_provider_for_playlist;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.cache_auto_clean.Disk_usage_and_caches_monitor;
 import klikr.util.files_and_paths.Guess_file_type;
+import klikr.util.http.Klikr_communicator;
 import klikr.util.log.Exceptions_in_threads_catcher;
 import klikr.util.log.Logger;
 import klikr.util.tcp.TCP_client;
@@ -131,7 +132,7 @@ public class Song_playlist_app extends Application
     public static long start_time; // used to compute the time since the application started
     private final static String name = "Song_playlist_app (song playlists)";
 
-    public static Integer ui_change_report_port_at_launcher; // port on which the launcher will LISTEN for UI_CHANGED messages
+    //public static Integer ui_change_report_port_at_launcher; // port on which the launcher will LISTEN for UI_CHANGED messages
     public static Stage primary_stage;
 
 
@@ -167,16 +168,7 @@ public class Song_playlist_app extends Application
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
 
-        ui_change_report_port_at_launcher = extract_ui_change_report_port(logger);
-        if ( ui_change_report_port_at_launcher == null)
-        {
-            // probably launcher was not started
-            logger.log("Klik_application: ui_change_report_port_at_launcher=null ");
-        }
-        else
-        {
-            logger.log("Klik_application ui_change_report_port_at_launcher= " + ui_change_report_port_at_launcher);
-        }
+
         Path path = context.extract_path();
         if ( path == null)
         {
@@ -192,54 +184,13 @@ public class Song_playlist_app extends Application
         Instructions.additional_no_past(Window_type.Song_playlist_1D,new Path_list_provider_for_playlist(path,  primary_stage, logger),primary_stage_,logger);
         new Disk_usage_and_caches_monitor(()-> primary_stage, logger).start();
 
-        Integer reply_port = extract_started_reply_port(logger);
-        if ( reply_port != null) // is null when launched from the audio player
+        Klikr_communicator klikr_communicator = new Klikr_communicator("Song playlist app",primary_stage,logger);
+        klikr_communicator.start_as_singleton();
+        Integer reply_port = context.extract_reply_port();
+        if ( reply_port != null)
         {
-            TCP_client.send_in_a_thread("127.0.0.1", reply_port, Launcher.STARTED, logger);
+            klikr_communicator.send_request(reply_port,"/started","POST","started");
         }
-    }
-
-    //**********************************************************
-    private Integer extract_started_reply_port(Logger logger)
-    //**********************************************************
-    {
-        // going to read a file in the conf dir i.e. '.klik' folder
-        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
-        try {
-            if (Files.exists(p)) {
-                List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
-                if (lines.size() > 0) {
-                    String s = lines.get(0).trim();
-                    return Integer.parseInt(s);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            logger.log("Klik_application: cannot read reply_port from " + p + " exception: " + e);
-        }
-        return null;
-    }
-
-    //**********************************************************
-    private Integer extract_ui_change_report_port(Logger logger)
-    //**********************************************************
-    {
-        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER);
-        try {
-            if (Files.exists(p)) {
-                List<String> lines = Files.readAllLines(p,StandardCharsets.UTF_8);
-                if (lines.size() > 0) {
-                    String s = lines.get(0).trim();
-                    return Integer.parseInt(s);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            logger.log("Klik_application: cannot read ui_change_report_port_at_launcher from " + p + " exception: " + e);
-        }
-        return null;
     }
 
 

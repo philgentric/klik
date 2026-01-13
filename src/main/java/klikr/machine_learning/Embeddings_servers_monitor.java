@@ -90,9 +90,9 @@ public class Embeddings_servers_monitor implements AutoCloseable
         while (running) {
             try {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                //logger.log("Waiting for UDP packet...");
+                logger.log("Waiting for UDP packet...");
                 socket.receive(packet);
-                //logger.log("UDP packet received");
+                logger.log("UDP packet received");
                 String message = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8);
                 process_message(message);
             } catch (Exception e) {

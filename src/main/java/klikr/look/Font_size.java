@@ -38,13 +38,13 @@ public class Font_size
         if ( style == null)
         {
             menu_item.setStyle(append_to_old_style(style,size,font_family,logger));
-            logger.log("1 applying font size to MenuItem " + size+ " "+menu_item.getText());
+            //logger.log("1 applying font size to MenuItem " + size+ " "+menu_item.getText());
             return;
         }
         if ( style.isEmpty())
         {
             menu_item.setStyle(append_to_old_style(style,size,font_family,logger));
-            logger.log("2 applying font size to MenuItem " + size+ " "+menu_item.getText());
+            //logger.log("2 applying font size to MenuItem " + size+ " "+menu_item.getText());
             return;
         }
         if ( dbg) logger.log("\nfound node style->" + style + "<-");
@@ -53,12 +53,12 @@ public class Font_size
         {
             String new_style = style.replaceAll("-fx-font-style:\\s*[^;]+",FX_FONT_SIZE+size+PX);
             menu_item.setStyle(new_style);
-            logger.log("3 applying font size to MenuItem " + size+ " "+menu_item.getText());
+            //logger.log("3 applying font size to MenuItem " + size+ " "+menu_item.getText());
             return;
         }
 
         menu_item.setStyle(append_to_old_style(style,size,font_family,logger));
-        logger.log("4 applying font size to MenuItem " + size+ " "+menu_item.getText());
+        //logger.log("4 applying font size to MenuItem " + size+ " "+menu_item.getText());
 
     }
 

@@ -87,7 +87,7 @@ public record Start_context(List<String> args, String bet_full)
     public Path extract_path()
     //**********************************************************
     {
-        // the chalenge is to support
+        // the challenge is to support
         //Warning: argument contains spaces ->/Users/philippegentric/Desktop/help/misc/not_dangerous/valuable/Music/PG_music_oldies/Queen Greatests Hits<-
         if ( args().isEmpty() ) return null;
 
@@ -108,7 +108,7 @@ public record Start_context(List<String> args, String bet_full)
         }
         return null;
     }
-/*
+
     //**********************************************************
     public Integer extract_reply_port()
     //**********************************************************
@@ -130,25 +130,4 @@ public record Start_context(List<String> args, String bet_full)
         return null;
     }
 
-
-    public Integer extract_ui_change_report_port()
-    {
-        if ( args().size() < 2)
-        {
-            System.out.println("no change port looking at ->" + args()+"<-");
-            return null;
-        }
-        String arg = args().get(1);
-        try {
-            return Integer.parseInt(arg);
-        }
-        catch (NumberFormatException e)
-        {
-
-        }
-        System.out.println("no reply port found in ->" + args()+"<-");
-        return null;
-    }
-
-*/
 }

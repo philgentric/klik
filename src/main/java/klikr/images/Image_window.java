@@ -239,13 +239,17 @@ public class Image_window
                 stage.addEventHandler(KeyEvent.KEY_PRESSED,
                         keyEvent -> Keyboard_handling_for_Image_window.handle_keyboard(local, keyEvent, logger));
             }
-
-            Comparator<Path> local_comp = path_comparator_source.get_path_comparator();
+            Comparator<Path> local_comp = null;
+            if (path_comparator_source != null)
+            {
+                local_comp = path_comparator_source.get_path_comparator();
+            }
             if (local_comp != null)
             {
                 logger.log("path_comparator from browser " +local_comp);
-
-            } else {
+            }
+            else
+            {
                 // this is going to take possibly a long time !!!
                 long start = System.currentTimeMillis();
                 local_comp = Sort_files_by.get_image_comparator(new Path_list_provider_for_file_system(first_image_path.getParent(),owner,logger), path_comparator_source, image_properties_cache, stage, x + 100, y + 100, aborter, logger);

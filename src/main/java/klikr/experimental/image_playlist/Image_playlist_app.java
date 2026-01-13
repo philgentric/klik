@@ -130,7 +130,7 @@ public class Image_playlist_app extends Application
     public static long start_time; // used to compute the time since the application started
     private final static String name = "Image_playlist_app (image playlists)";
 
-    public static Integer ui_change_report_port_at_launcher; // port on which the launcher will LISTEN for UI_CHANGED messages
+    //public static Integer ui_change_report_port_at_launcher; // port on which the launcher will LISTEN for UI_CHANGED messages
     public static Stage primary_stage;
 
 
@@ -166,6 +166,7 @@ public class Image_playlist_app extends Application
 
         Exceptions_in_threads_catcher.set_exceptions_in_threads_catcher(logger);
 
+        /*
         ui_change_report_port_at_launcher = extract_ui_change_report_port(logger);
         if ( ui_change_report_port_at_launcher == null)
         {
@@ -175,7 +176,7 @@ public class Image_playlist_app extends Application
         else
         {
             logger.log("Klik_application ui_change_report_port_at_launcher= " + ui_change_report_port_at_launcher);
-        }
+        }*/
         Path path = context.extract_path();
         if ( path == null)
         {
@@ -191,13 +192,15 @@ public class Image_playlist_app extends Application
         Instructions.additional_no_past(Window_type.Image_playlist_2D,new Path_list_provider_for_playlist(path,primary_stage_,logger),primary_stage_,logger);
         new Disk_usage_and_caches_monitor(()->primary_stage, logger).start();
 
+        /*
         Integer reply_port = extract_started_reply_port(logger);
         if ( reply_port != null) // is null when launched from the audio player
         {
             TCP_client.send_in_a_thread("127.0.0.1", reply_port, Launcher.STARTED, logger);
-        }
+        }*/
     }
 
+    /*
     //**********************************************************
     private Integer extract_started_reply_port(Logger logger)
     //**********************************************************
@@ -220,6 +223,7 @@ public class Image_playlist_app extends Application
         return null;
     }
 
+
     //**********************************************************
     private Integer extract_ui_change_report_port(Logger logger)
     //**********************************************************
@@ -239,7 +243,7 @@ public class Image_playlist_app extends Application
             logger.log("Klik_application: cannot read ui_change_report_port_at_launcher from " + p + " exception: " + e);
         }
         return null;
-    }
+    }*/
 
 
 }

@@ -1,6 +1,7 @@
 <#  ================================================================
     Usage:
-    powershell -ExecutionPolicy Bypass -File .\launch_image_similarity_servers.ps1 8000 5000 5001 5002 ...
+    powershell -ExecutionPolicy Bypass -File .\launch_image_similarity_servers.ps1 65432 8200
+
     ================================================================ #>
 
 param(
@@ -28,11 +29,10 @@ else {
 
 python --version
 foreach ($Port in $EMBEDDINGS_PORTS) {
-    $job = Start-Job -ScriptBlock {
-        param($p, $udp)
-        python -c "import MobileNet_embeddings_server;
-MobileNet_embeddings_server.run_server($p, $udp)" `  | Out-Null
-    } -ArgumentList $Port, $UDP_PORT
-
     Write-Host "Started MobileNet server on port $Port"
+
+    $PyCode = "import MobileNet_embeddings_server;MobileNet_embeddings_server.run_server($Port,$UDP_PORT)"
+
+    Start-Process cmd -ArgumentList "/k python -c `"$PyCode`""
 }
+

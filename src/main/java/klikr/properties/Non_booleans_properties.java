@@ -57,6 +57,7 @@ public class Non_booleans_properties
     public static final String USER_HOME = "user.home";
     public static final String CONF_DIR = ".klikr";
 
+    /*
 
     // when launcher starts, it creates a server to listen to UI_CHANGED messages
     // this is the port on which the launcher listens
@@ -77,7 +78,7 @@ public class Non_booleans_properties
     // the other implementation is to pass the port as a command line argument
     // but this is complicated to support for jvm/native with multiple OS
     public static final String FILENAME_FOR_PORT_TO_REPLY_ABOUT_START = "port_to_reply_about_start.txt";
-
+*/
 
     public static final String PROPERTIES_FILENAME = "klikr.properties";
     public static final String TRASH_DIR = "trash";

@@ -10,7 +10,6 @@ package klikr;
 //SOURCES ./util/execute/Execute_via_script_in_tmp_file.java
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
@@ -27,18 +26,14 @@ import klikr.look.Look_and_feel_manager;
 import klikr.look.Look_and_feel_manager.Icon_type;
 import klikr.look.my_i18n.My_I18n;
 import klikr.properties.Non_booleans_properties;
+import klikr.util.http.Klikr_communicator;
 import klikr.util.log.Logger;
-import klikr.util.log.Stack_trace_getter;
-import klikr.util.tcp.*;
 import klikr.util.ui.progress.Hourglass;
-import klikr.util.ui.Popups;
 import klikr.util.ui.progress.Progress_window;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 
 // the launcher can start applications (the image browser klik, the audio player)
 // they are started as new processes
@@ -65,7 +60,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 // which then propagates them to the audio player, on the audio player port
 
 //**********************************************************
-public class Launcher extends Application implements UI_change
+public class Launcher extends Application implements UI_change_target
 //**********************************************************
 {
     // set gluon to true to compile native with gluon
@@ -82,8 +77,10 @@ public class Launcher extends Application implements UI_change
     private Logger logger;
     private HBox  main = new HBox();
 
-    private static ConcurrentLinkedQueue<Integer> propagate_to = new ConcurrentLinkedQueue<>();
-
+    //private static ConcurrentLinkedQueue<Integer> propagate_to = new ConcurrentLinkedQueue<>();
+    private Klikr_communicator com;
+    Hourglass hourglass;
+    Runnable on_started_received;
 
     //**********************************************************
     public static void main(String[] args)
@@ -105,7 +102,19 @@ public class Launcher extends Application implements UI_change
         logger.log("Launcher starting");
         System_info.print(stage,logger);
 
-
+        Consumer<String> on_appearance_changed = msg -> {
+            define_UI();
+        };
+        com = new Klikr_communicator("Launcher",stage,logger);
+        com.set_on_appearance_changed(on_appearance_changed);
+        com.start_as_singleton();
+        on_started_received = () ->
+        {
+            logger.log("started received from newly started app");
+            hourglass.close();
+            com.deregister_on_started_received(on_started_received);
+        };
+        com.register_on_started_received(on_started_received);
 
         String launcher = My_I18n.get_I18n_string(Look_and_feel_manager.LAUNCHER,stage,logger);
         Look_and_feel_manager.set_icon_for_main_window(stage, launcher, Icon_type.LAUNCHER,stage,logger);
@@ -113,18 +122,10 @@ public class Launcher extends Application implements UI_change
         Scene scene = new Scene(main);
         define_UI();
 
-
-        int ui_change_listening_port = UI_change.start_UI_change_server(propagate_to,this,"Launcher",aborter,stage,logger);
-
-
-        write_UI_change_listening_port_to_file(ui_change_listening_port,logger);
         stage.setTitle("Klik "+launcher);
         stage.setScene(scene);
         stage.show();
         stage.requestFocus(); // trying to make sure it comes on top
-
-
-
 
         long current = Non_booleans_properties.get_java_VM_max_RAM(stage,logger);
 
@@ -139,19 +140,8 @@ public class Launcher extends Application implements UI_change
         {
             // stupid default
             use_default_max_RAM(stage,logger);
-            return;
         }
-        /*
-        if (Booleans.get_boolean_defaults_to_false(Feature.Max_RAM_is_defined_by_user.name()))
-        {
-            logger.log("Using the max RAM defined by the user: "+current+" GBytes");
-        }
-        else
-        {
-            use_default_max_RAM(stage,logger);
-        }
-        */
-
+        
     }
 
     //**********************************************************
@@ -166,7 +156,7 @@ public class Launcher extends Application implements UI_change
     }
 
     //**********************************************************
-    @Override // UI_change
+    @Override // UI_change_target
     public void define_UI()
     //**********************************************************
     {
@@ -183,7 +173,7 @@ public class Launcher extends Application implements UI_change
 
         {
             {
-                Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klik_Application", stage, logger));
+                Button b = new Button(My_I18n.get_I18n_string("Launch_1_New_Klikr_Application", stage, logger));
                 left.getChildren().add(b);
                 look_and_feel.set_Button_look(b, WIDTH, icon_size, Icon_type.IMAGE, stage, logger);
                 b.setOnAction(event -> {
@@ -200,7 +190,7 @@ public class Launcher extends Application implements UI_change
                 look_and_feel.set_Button_look(b, WIDTH, icon_size, Icon_type.MUSIC, stage, logger);
                 b.setOnAction(event -> {
                     start_app_with_gradle_and_listen("audio_player", stage, logger);
-                    propagate_to.add(Audio_player_gradle_start.AUDIO_PLAYER_PORT);
+                    //propagate_to.add(Audio_player_gradle_start.AUDIO_PLAYER_PORT);
                 });
             }
 
@@ -229,12 +219,12 @@ public class Launcher extends Application implements UI_change
 
 
     //**********************************************************
-    private static void start_app_with_gradle_and_listen(
+    private void start_app_with_gradle_and_listen(
             String app_name,
             Stage stage, Logger logger)
     //**********************************************************
     {
-        Hourglass local_hourglass = Progress_window.show(
+        hourglass = Progress_window.show(
                 false,
                 "Please wait ... starting "+app_name,
                 30*60,
@@ -243,124 +233,10 @@ public class Launcher extends Application implements UI_change
                 stage,
                 logger);
 
-        int port_to_reply_about_start = start_launch_status_server(app_name, local_hourglass, stage,logger);
-        write_port_to_reply_about_start(port_to_reply_about_start,logger);
-
-        String cmd = "gradle "+app_name;
+        String cmd = "gradle "+app_name+ " "+com.get_port();
         Script_executor.execute(List.of(cmd),Path.of("."),stage,logger);
 
     }
 
 
-
-    //**********************************************************
-    private static int start_launch_status_server(String app_name, Hourglass local_hourglass, Window owner, Logger logger)
-    //**********************************************************
-    {
-        // start the server to receive the "started" or "not_started" error_message
-        // and in any case, stop the hourglass
-
-        logger.log("Launcher: start_server_and_wait_for_reply for: "+app_name);
-        Session_factory session_factory = () -> new Session() {
-            @Override
-            public boolean on_client_connection(DataInputStream dis, DataOutputStream dos)
-            {
-                try {
-                    close_hourglass(local_hourglass);
-                    String msg = TCP_util.read_string(dis);
-                    if ( msg.equals(STARTED))
-                    {
-                        logger.log("Launcher: STARTED RECEIVED from: "+app_name);
-                        return false; // and stop the server
-                    }
-                    if ( msg.equals(NOT_STARTED))
-                    {
-                        logger.log("Launcher: NOT_STARTED RECEIVED from: "+app_name);
-                        if ( app_name.equals("audio_player"))
-                        {
-                            Platform.runLater(()->Popups.popup_warning("❗ Warning",app_name+" could not be started.\n" +
-                                    "Since there is already another instance playing", false,owner, logger));
-
-                        }
-                        else
-                        {
-                            logger.log("❌ Launcher: NOT_STARTED received for "+app_name+", this should not happen");
-                        }
-                        return false; // and stop the server
-                    }
-                }
-                catch (IOException e)
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace(""+e));
-                }
-
-                return false; // and stop the server
-            }
-
-            @Override
-            public String name() {
-                return "launcher for app: "+app_name;
-            }
-        };
-        TCP_server tcp_server = new TCP_server(session_factory,new Aborter(app_name, logger), logger);
-        int local_port = tcp_server.start_zero("(ephemeral) listening for 'started' or 'not started' application reply upon launch",false);
-        if (local_port < 1)
-        {
-            logger.log("Launcher: ERROR starting TCP server for "+app_name);
-            close_hourglass(local_hourglass);
-        }
-
-        return local_port;
-    }
-
-    //**********************************************************
-    private static void close_hourglass(Hourglass local_hourglass)
-    //**********************************************************
-    {
-        if ( local_hourglass != null)
-        {
-            local_hourglass.close();
-            local_hourglass = null;
-        }
-    }
-
-    //**********************************************************
-    private void write_UI_change_listening_port_to_file(int ui_change_listening_port, Logger logger)
-    //**********************************************************
-    {
-        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR,Non_booleans_properties.FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER);
-        try
-        {
-            try ( BufferedWriter writer = java.nio.file.Files.newBufferedWriter(p, StandardCharsets.UTF_8))
-            {
-                logger.log("ui change port is :"+ui_change_listening_port);
-                writer.write(""+ui_change_listening_port);
-                writer.newLine();
-            }
-        }
-        catch (IOException e)
-        {
-            logger.log("❗Warning: Launcher::write_UI_change_listening_port_to_file: cannot write to file "+p);
-        }
-    }
-
-
-    //**********************************************************
-    private static void write_port_to_reply_about_start(int port_to_reply_about_start, Logger logger)
-    //**********************************************************
-    {
-        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR,Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
-        try
-        {
-            try ( BufferedWriter writer = java.nio.file.Files.newBufferedWriter(p,StandardCharsets.UTF_8))
-            {
-                writer.write(""+port_to_reply_about_start);
-                writer.newLine();
-            }
-        }
-        catch (IOException e)
-        {
-            logger.log("❗Warning: Launcher::port_to_reply_about_start: cannot write to file "+p);
-        }
-    }
 }
