@@ -360,7 +360,7 @@ public class More_settings_stage
         for (Node n : hb.getChildren()) {
             if (n instanceof Button b) {
                 if (!b.getText().equals("?")) {
-                    logger.log("button: " + b.getText());
+                    //logger.log("button: " + b.getText());
                     b.setDisable(true);
                 }
             }

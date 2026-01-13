@@ -110,10 +110,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
             self.send_error(500, f"Internal server error: {str(e)}")
             print(f"Error processing request: {e}")
             traceback.print_exc()
-        finally:
-            # Ensure we always close the UDP socket
-            if hasattr(self, 'udp_socket'):
-                self.udp_socket.close()
+
 
     def _handle_health_check(self):
         """Handle health check requests."""
@@ -123,6 +120,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         )
 
         response = {
+            "UUID": SERVER_UUID,
             "status": "healthy" if is_healthy else "critical_failure",
             "diagnostics": STARTUP_DIAGNOSTICS
         }
@@ -172,7 +170,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
             # Send UDP monitoring message
             try:
-                bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('127.0.0.1', MONITOR_PORT))
+                bytes_sent = EmbeddingGenerator.udp_socket.sendto(monitor_data.encode(), ('127.0.0.1', MONITOR_PORT))
             except Exception as e:
                 print(f"Failed to send UDP message: {e}")
 
@@ -218,4 +216,5 @@ def run_server(tcp_port=None, udp_port=None):
         traceback.print_exc()
     finally:
         httpd.server_close()
+        EmbeddingGenerator.udp_socket.close()
         print("Server stopped")

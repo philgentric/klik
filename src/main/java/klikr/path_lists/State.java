@@ -68,10 +68,28 @@ class State
                 return;
             }
 
-            try {
-                path_list.sort(path_comparator_source.get_path_comparator());
-            } catch (IllegalArgumentException e) {
-                logger.log("" + e);
+            if ( path_comparator_source == null)
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("path_comparator_source == null"));
+            }
+            else
+            {
+                Comparator<Path> comp = path_comparator_source.get_path_comparator();
+                if ( comp ==null)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("comp == null"));
+                }
+                else
+                {
+                    try
+                    {
+                        path_list.sort(comp);
+                    }
+                    catch (IllegalArgumentException e)
+                    {
+                        logger.log("" + e);
+                    }
+                }
             }
 
             index_to_path.clear();

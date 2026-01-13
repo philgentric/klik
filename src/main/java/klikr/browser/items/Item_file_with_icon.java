@@ -249,7 +249,6 @@ public class Item_file_with_icon extends Item_file
         {
             context_menu.getItems().add(create_show_similar_menu_item(
                     get_item_path(),
-                    //image_properties_RAM_cache,
                     fv_cache_supplier,
                     path_comparator_source,
                     owner,
@@ -347,7 +346,6 @@ public class Item_file_with_icon extends Item_file
 
     //**********************************************************
     public static MenuItem create_show_similar_menu_item(Path image_path,
-                                                         //Image_properties_cache image_properties_cache,
                                                          Supplier<Feature_vector_cache> fv_cache_supplier,
                                                          Path_comparator_source path_comparator_source,
                                                          Window owner,
