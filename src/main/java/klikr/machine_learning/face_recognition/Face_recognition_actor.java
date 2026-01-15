@@ -484,7 +484,7 @@ public class Face_recognition_actor implements Actor
     public static Face_recognition_results detect_and_recognize(Face_recognition_service service,Path tested, Face_detection_type face_detection_type, boolean display_face_reco_window, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
-        Face_detector.Face_detection_result face_detection_result = Face_detector.detect_face(tested, face_detection_type, display_face_reco_window,logger);
+        Face_detector.Face_detection_result face_detection_result = Face_detector.detect_face(tested, face_detection_type, owner,logger);
         if (face_detection_result.status() == Face_recognition_in_image_status.server_not_reacheable)
         {
             logger.log("face detection server unreachable");
@@ -597,7 +597,7 @@ public class Face_recognition_actor implements Actor
         if (check_this_is_a_face)
         {
             //make a last check: but is this a face ????
-            Face_detector.Face_detection_result face_detection_result = Face_detector.detect_face(Face_recognition_results.image_path(), Face_detection_type.haars_alt1, false,service.logger);
+            Face_detector.Face_detection_result face_detection_result = Face_detector.detect_face(Face_recognition_results.image_path(), Face_detection_type.alt1, service.owner, service.logger);
 
             if (face_detection_result.status() != Face_recognition_in_image_status.face_detected)
             {

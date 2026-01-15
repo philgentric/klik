@@ -1,5 +1,4 @@
 import sys
-import os
 import json
 import socket
 import time
@@ -9,6 +8,7 @@ import traceback
 import urllib.parse
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
+# Server configuration
 SERVER_UUID = str(uuid.uuid4())
 MONITOR_PORT = None
 TCP_PORT = None  # Default port, can be changed when calling run_server()
@@ -29,52 +29,6 @@ STARTUP_DIAGNOSTICS = {
     "gpu_info": "Not checked"
 }
 
-# Store runtime diagnostics
-RUNTIME_DIAGNOSTICS = {
-    "request_count": 0,
-    "error_count": 0,
-    "last_error": None,
-    "last_error_time": None
-}
-
-def register_server(port, uuid_str):
-    """Register server in ~/.klikr/.privacy_screen/image_similarity_server_registry."""
-    try:
-        print("register_server")
-
-        home = os.path.expanduser("~")
-        registry_dir = os.path.join(home, ".klikr", ".privacy_screen", "image_similarity_server_registry")
-        os.makedirs(registry_dir, exist_ok=True)
-
-        filename = f"MobileNet_{uuid_str}.json"
-        filepath = os.path.join(registry_dir, filename)
-
-        data = {
-            "name": "MobileNet",
-            "port": port,
-            "uuid": uuid_str
-        }
-
-        with open(filepath, 'w') as f:
-            json.dump(data, f)
-
-        print(f"Registered server in {filepath}")
-        return filepath
-    except Exception as e:
-        print(f"Failed to register server: {e}")
-        return None
-
-def unregister_server(filepath):
-    """Remove registration file."""
-    if filepath and os.path.exists(filepath):
-        try:
-            os.remove(filepath)
-            print(f"Unregistered server (removed {filepath})")
-        except Exception as e:
-            print(f"Failed to unregister server: {e}")
-
-REGISTRY_FILE = None
-
 def attempt_load_ml_libraries():
     """
     Attempts to import ML libraries and load the model.
@@ -87,15 +41,9 @@ def attempt_load_ml_libraries():
         print("Loading TensorFlow/Keras libraries...")
         import tensorflow as tf_local
         import numpy as np_local
-
-        # import keras as keras_local # OLD: compatibility issues
-        from tensorflow import keras as keras_local
-
+        import keras as keras_local
         from tensorflow.keras.models import Model
-
-        # from keras.applications import MobileNetV3Large # OLD: compatibility issues
-        from tensorflow.keras.applications import MobileNetV3Large
-
+        from keras.applications import MobileNetV3Large
         from tensorflow.keras.applications.mobilenet_v3 import preprocess_input as pre_local
 
         # Assign to global variables
@@ -172,11 +120,9 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         )
 
         response = {
-            "server_name": "MobileNet Embeddings Server",
             "UUID": SERVER_UUID,
             "status": "healthy" if is_healthy else "critical_failure",
-            "diagnostics": STARTUP_DIAGNOSTICS,
-            "runtime": RUNTIME_DIAGNOSTICS
+            "diagnostics": STARTUP_DIAGNOSTICS
         }
 
         self.send_response(200)
@@ -186,7 +132,6 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
     def _process_image_request(self):
         """Process image embedding requests."""
-        RUNTIME_DIAGNOSTICS["request_count"] += 1
         start_time = time.time()
 
         # Extract and validate image URL
@@ -198,17 +143,6 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         try:
             # Decode URL and load image
             decoded_url = urllib.parse.unquote_plus(image_raw_url)
-
-            # Explicit file check
-            if not os.path.exists(decoded_url):
-                 error_msg = f"File not found: {decoded_url}"
-                 print(f"ERROR: {error_msg}")
-                 RUNTIME_DIAGNOSTICS["error_count"] += 1
-                 RUNTIME_DIAGNOSTICS["last_error"] = error_msg
-                 RUNTIME_DIAGNOSTICS["last_error_time"] = time.time()
-                 self.send_error(404, error_msg)
-                 return
-
             img = keras.preprocessing.image.load_img(
                 decoded_url,
                 target_size=(224, 224)
@@ -242,12 +176,7 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
 
 
         except Exception as e:
-            error_msg = str(e)
-            RUNTIME_DIAGNOSTICS["error_count"] += 1
-            RUNTIME_DIAGNOSTICS["last_error"] = error_msg
-            RUNTIME_DIAGNOSTICS["last_error_time"] = time.time()
-
-            self.send_error(400, f"Error processing image: {error_msg}")
+            self.send_error(400, f"Error processing image: {str(e)}")
             print(f"Image processing error: {e}")
 
     def do_POST(self):
@@ -264,26 +193,19 @@ def run_server(tcp_port=None, udp_port=None):
     Run the server on the specified ports.
 
     Args:
-        tcp_port: Port for HTTP traffic. Use 0 to request an OS-assigned ephemeral port.
+        tcp_port: Port for HTTP traffic
         udp_port: Port for monitoring messages
     """
-    global MONITOR_PORT, REGISTRY_FILE
+    global MONITOR_PORT
     MONITOR_PORT = udp_port
 
-    print(f"Starting server, requested tcp port {tcp_port}")
+    print(f"Starting server on port {tcp_port}")
     if udp_port:
         print(f"Monitoring messages will be sent to UDP port {udp_port}")
     print("Diagnostics available at /health")
 
-    # Bind to an ephemeral port to avoid fragile fixed port assignments
-    server_address = ('127.0.0.1', 0)
+    server_address = ('127.0.0.1', tcp_port)
     httpd = ReliableHTTPServer(server_address, EmbeddingGenerator)
-    chosen_port = httpd.server_address[1]
-
-    print(f"Bound MobileNet embeddings server to TCP port: {chosen_port}")
-
-    # Register server using the real bound port
-    REGISTRY_FILE = register_server(chosen_port, SERVER_UUID)
 
     try:
         httpd.serve_forever()
@@ -292,29 +214,7 @@ def run_server(tcp_port=None, udp_port=None):
     except Exception as e:
         print(f"Server crashed: {e}")
         traceback.print_exc()
-        sys.exit(1)
     finally:
-        if REGISTRY_FILE:
-            unregister_server(REGISTRY_FILE)
         httpd.server_close()
         EmbeddingGenerator.udp_socket.close()
         print("Server stopped")
-
-if __name__ == '__main__':
-    # Parse command line arguments
-    if len(sys.argv) < 2:
-        print("Usage: python MobileNet_embeddings_server.py <tcp_port> [udp_port]")
-        # Keep the process alive for a moment to allow reading the error
-        time.sleep(1)
-        sys.exit(1)
-
-    try:
-        tcp_port = int(sys.argv[1])
-        udp_port = int(sys.argv[2]) if len(sys.argv) > 2 else None
-        print("starting MobileNet_embeddings_server.py")
-
-        run_server(tcp_port, udp_port)
-    except ValueError:
-        print("Error: Ports must be integers")
-        sys.exit(1)
-

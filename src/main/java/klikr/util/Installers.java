@@ -9,6 +9,7 @@ import klikr.External_application;
 import klikr.Klikr_application;
 import klikr.look.Look_and_feel;
 import klikr.machine_learning.ML_servers_util;
+import klikr.properties.Non_booleans_properties;
 import klikr.util.execute.Execute_command;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.Nix_execute_via_script_in_tmp_file;
@@ -35,7 +36,9 @@ public class Installers
     //**********************************************************
     {
         String key = "Start_Image_Similarity_Servers";
-        EventHandler<ActionEvent> handler = e -> ML_servers_util.start_image_similarity_servers(owner, logger);
+        int num_servers = Non_booleans_properties.get_number_of_image_similarity_servers(owner);
+
+        EventHandler<ActionEvent> handler = e -> Actor_engine.execute(()->ML_servers_util.start_some_image_similarity_servers(num_servers,owner, logger), "Starting image similarity servers", logger);
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(
                 key,
                 handler,

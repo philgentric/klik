@@ -211,6 +211,7 @@ public class More_settings_stage
                     disable_button(hb);
                 }
             }
+            add_one_line(Feature.Enable_ML_server_debug, box);
             add_one_line(Feature.Enable_feature_vector_monitoring, box);
             add_one_line(Feature.Display_image_distances, box);
             {

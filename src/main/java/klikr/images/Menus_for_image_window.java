@@ -322,7 +322,7 @@ public class Menus_for_image_window
         if ( Mouse_handling_for_Image_window.cropped_image_path != null) image_path = Mouse_handling_for_Image_window.cropped_image_path;
         Face_recognition_message msg = new Face_recognition_message(
                 image_path.toFile(),
-                Face_detection_type.haars_high_precision,// ignored
+                Face_detection_type.alt_default,// ignored!
                 do_face_detection,
                 null, // this recognition ONLY i.e. no training will happen
                 true,
@@ -553,22 +553,32 @@ public class Menus_for_image_window
 
         fr_context_menu.getItems().add(get_perform_face_recognition_service_no_face_detection_menu_item(image_window));
 
+
         fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                 "Perform_face_recognition_service_with_high_precision_face_detector",
                 null,
                 event -> face_rec(Face_detection_type.MTCNN, image_window), image_window.stage, image_window.logger));
+
+
         fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                 "Perform_face_recognition_service_with_optimistic_face_detector",
                 null,
-                event -> face_rec(Face_detection_type.haars_false_positioves, image_window), image_window.stage, image_window.logger));
+                event -> face_rec(Face_detection_type.alt_default, image_window), image_window.stage, image_window.logger));
+
+        fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
+                "Perform_face_recognition_service_with_tree_face_detector",
+                null,
+                event -> face_rec(Face_detection_type.alt_tree, image_window), image_window.stage, image_window.logger));
+
         fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                 "Perform_face_recognition_service_with_ALT1_face_detector",
                 null,
-                event -> face_rec(Face_detection_type.haars_alt1, image_window), image_window.stage, image_window.logger));
+                event -> face_rec(Face_detection_type.alt1, image_window), image_window.stage, image_window.logger));
+
         fr_context_menu.getItems().add(Items_with_explanation.make_menu_item_with_explanation(
                 "Perform_face_recognition_service_with_ALT2_face_detector",
                 null,
-                event -> face_rec(Face_detection_type.haars_alt2, image_window), image_window.stage, image_window.logger));
+                event -> face_rec(Face_detection_type.alt2, image_window), image_window.stage, image_window.logger));
         return fr_context_menu;
     }
     //**********************************************************

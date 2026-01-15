@@ -30,14 +30,12 @@ import java.util.concurrent.atomic.LongAdder;
 public abstract class Feature_vector_source_server implements Feature_vector_source
 //**********************************************************
 {
-    private static final boolean dbg = false;
+    private static final boolean dbg = true;
     private static final boolean ultra_dbg = false;
 
-    protected abstract int get_random_port(Logger logger);
+    // get_random_port is actually going to start servers, when needed
+    protected abstract int get_random_port(Window owner, Logger logger);
     protected abstract String get_server_python_name();
-    protected abstract boolean server_started();
-    protected abstract boolean start_servers(Window owner, Logger logger);
-    protected abstract void set_server_started(boolean b);
     public static long start = System.nanoTime();
     static LongAdder tx_count = new LongAdder();
     static LongAdder SUM_dur_us = new LongAdder(); // microseconds
@@ -51,23 +49,6 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         if ( monitoring_on)
         {
             start_monitoring();
-        }
-        if (server_started()) return;
-
-        if ( check(owner,logger))
-        {
-            set_server_started(true);
-        }
-        else
-        {
-            if ( start_servers(owner,logger))
-            {
-                set_server_started(true);
-            }
-            else
-            {
-                logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source::get_feature_vector_from_server_generic SERVER NOT STARTED.."));
-            }
         }
     }
     //**********************************************************
@@ -100,11 +81,6 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
             logger.log("aborting Feature_vector_source::get_feature_vector_from_server, reason: "+aborter.reason());
             return Optional.empty();
         }
-        if ( !server_started())
-        {
-            return Optional.empty();
-        }
-
 
         long local_start = System.nanoTime();
         if ( path == null)
@@ -112,14 +88,23 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
             logger.log(Stack_trace_getter.get_stack_trace("BAD!"));
             return Optional.empty();
         }
-        int random_port = get_random_port(logger);
+        int random_port = get_random_port(owner,logger);
+
+        logger.log("random_port="+random_port);
+        if (random_port == -1) {
+            logger.log("No valid port from registry");
+            return Optional.empty();
+        }
+
         Optional<Feature_vector> op = Feature_vector_source_server.get_feature_vector_from_server_generic(path, random_port, owner, aborter,logger);
 
         if ( op.isEmpty())
         {
             if ( path.toFile().exists())
             {
-                logger.log("get_feature_vector_from_server_generic: FAILED. File exists, it has "+path.toFile().length()+"bytes, but feature vector is null");
+                logger.log("SERVERS FAILED TO START ?? get_feature_vector_from_server_generic: FAILED. File exists, it has "+path.toFile().length()+"bytes, but feature vector is null");
+                // The server failed to return a vector. It might be down.
+                // Triggers a check and potentially a restart
             }
             else
             {
@@ -262,7 +247,6 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         } catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
             logger.log((url_string+": get_feature_vector_from_server_generic (Error#5): "+e));
-            //server_started.set(false);
             return Optional.empty();
         }
         try {
@@ -275,7 +259,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         }
         try {
             String response_message = connection.getResponseMessage();
-            //logger.log("response message="+response_message);
+            logger.log("response message="+response_message);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(url_string+": get_feature_vector_from_server_generic (Error#7): "+e));
             return Optional.empty();
@@ -312,64 +296,6 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
 
         return Optional.of(fv);
     }
-    Semaphore limit = new Semaphore(1);
-    //**********************************************************
-    public boolean check(Window owner,Logger logger)
-    //**********************************************************
-    {
-        try {
-            limit.acquire();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        List<String> list = new ArrayList<>();
-        if (Guess_OS.guess(owner,logger)== Operating_system.Windows)
-        {
-            list.add("powershell.exe");
-            list.add("-Command");
-            list.add("Get-Process | Where-Object {$_.ProcessName -like '*"+get_server_python_name()+"*'}");
-        }
-        else
-        {
-            // ps aux | grep MobileNet_embeddings_server
-            list.add("sh");
-            list.add("-c");
-            list.add("pgrep -af "+get_server_python_name());
-        }
-        StringBuilder sb = new StringBuilder();
-        File wd = new File (".");
-        Execute_result er = Execute_command.execute_command_list(list, wd, 2000, sb, logger);
-        if (!er.status())
-        {
-            logger.log("WARNING, checking if servers are running => failed(1)" );
-            set_server_started(false);
-            limit.release();
-            return false;
-        }
-        String result = er.output();
-        logger.log("checking if servers are running check():->" + result+"<-");
-        String[] parts = result.split("\\r?\\n"); // Split on new lines
-        int count = 0;
-        for ( String p : parts)
-        {
-            try {
-                int port = Integer.parseInt(p);
-                logger.log("found port:" + port);
-                count++;
-            }
-            catch (NumberFormatException e)
-            {
-                logger.log("❌ WARNING, checking if servers named like "+get_server_python_name()+" are running => failed, non integer found in pgrep reply:"+p );
-                set_server_started(false);
-                limit.release();
-                return false;
-            }
-        }
-        logger.log("✅  OK, found "+count+" PIDs for servers named like "+get_server_python_name());
-        set_server_started(true);
-        limit.release();
-        return true;
 
-    }
 
 }

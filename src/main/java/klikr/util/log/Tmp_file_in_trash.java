@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,11 +17,14 @@ import java.util.UUID;
 public class Tmp_file_in_trash
 //**********************************************************
 {
-
     //**********************************************************
     public static Path create_copy_in_trash(String cmd,Window owner, Logger logger)
     //**********************************************************
     {
+        Path tmp_path = get_path_in_trash(cmd,owner, logger);
+        if ( tmp_path == null) return null;
+        if (Files.exists(tmp_path)) return tmp_path;
+
         String name = "/scripts/"+cmd;
         InputStream input_stream =  Application_jar.get_jar_InputStream_by_name(name);
         if ( input_stream == null)
@@ -29,8 +33,6 @@ public class Tmp_file_in_trash
             return null;
         }
         // create a temporary copy of this file:
-        Path tmp_path = get_path_in_trash(cmd,owner, logger);
-        if ( tmp_path == null) return null;
 
         try
         {

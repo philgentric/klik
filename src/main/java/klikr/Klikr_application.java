@@ -6,7 +6,7 @@
 //FILES ../../resources/klik/denied.png
 //FILES ../../resources/klik/ding.mp3
 //FILES ../../resources/klik/dummy.png
-//FILES ../../resources/haarcascade_frontalface_default.xml
+//FILES ../../resources/haarcascade_frontalface_alt_default.xml
 //FILES ../../resources/klik/lazy.png
 //FILES ../../resources/klik/not-found.png
 //FILES ../../resources/klik/speaker.png

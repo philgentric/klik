@@ -5,6 +5,10 @@ package klikr.machine_learning.face_recognition;
 
 import javafx.scene.image.Image;
 import javafx.stage.Window;
+import klikr.machine_learning.ML_registry_discovery;
+import klikr.machine_learning.ML_server_type;
+import klikr.machine_learning.ML_service_type;
+import klikr.properties.Non_booleans_properties;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
 import klikr.util.log.Stack_trace_getter;
@@ -14,6 +18,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /*
@@ -28,51 +34,32 @@ the selector is the port number see below
 public class Face_detector
 //**********************************************************
 {
-    private static final boolean dbg = false;
-
-    // MTCNN face detector servers
-    static int[] port_MTCNN = {8040, 8041, 8042, 8043, 8044, 8045, 8046, 8047, 8048, 8049};
-
-    // haarcascade_frontalface_alt_tree.xml has higher precision, detects less faces
-    static int[] port_haars_high_precision = {8080, 8081};
-
-    // haarcascade_frontalface_default.xml has higher recall,  more false positives
-    static int[] port_haars_false_positives = {8090, 8091};
-
-    // haarcascade_frontalface_alt.xml
-    static int[] port_haars_alt1 = {8100, 8101};
-
-    // haarcascade_frontalface_alt2.xml
-    static int[] port_haars_alt2 = {8110, 8111};
+    private static final boolean dbg = true;
     static Random  random = new Random();
-
     static final int MINIMUM_ACCEPTABLE_FACE_SIZE = 200;
 
     //**********************************************************
-    public static int get_random_port(Face_detection_type config)
+    public static int get_random_port(Face_detection_type face_detection_type, Window owner, Logger logger)
     //**********************************************************
     {
-        int[] port_array = null;
-        switch (config)
+        ML_server_type ml_server_type = ML_server_type.MTCNN_face_detection_server;
+        switch (face_detection_type)
         {
-            case haars_false_positioves:
-                port_array = port_haars_false_positives;
+            case alt_default, alt1, alt2, alt_tree:
+                ml_server_type = ML_server_type.Haars_face_detection_server;
                 break;
-            case haars_alt1:
-                port_array = port_haars_alt1;
-                break;
-            case haars_alt2:
-                port_array = port_haars_alt2;
-                break;
-            case haars_high_precision:
-                port_array = port_haars_high_precision;
-                break;
-            case MTCNN:
-                port_array = port_MTCNN;
         }
-        int returned = random.nextInt(port_array[0],port_array[0]+port_array.length);
-        return returned;
+        List<Integer> list = ML_registry_discovery.find_active_servers(new ML_service_type(ml_server_type, face_detection_type), owner,logger);
+        if ( list.isEmpty())
+        {
+            logger.log("No active face detection servers found for :"+face_detection_type);
+            return -1;
+        }
+
+        ML_registry_discovery.print_all(logger);
+        return list.get(random.nextInt(list.size()));
     }
+
 
     record Face_detection_result(Image image, Face_recognition_in_image_status status){}
 
@@ -82,11 +69,11 @@ public class Face_detector
     static long count =0;
 
     //**********************************************************
-    public static Face_detection_result detect_face(Path path, Face_detection_type face_detection_type, boolean verbose, Logger logger)
+    public static Face_detection_result detect_face(Path path, Face_detection_type face_detection_type, Window owner, Logger logger)
     //**********************************************************
     {
         start = System.nanoTime();
-        int port = get_random_port(face_detection_type);
+        int port = get_random_port(face_detection_type,owner,logger);
         String url_string = null;
         try {
             String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");
@@ -122,17 +109,16 @@ public class Face_detector
         boolean done = false;
         long effectively_slept =0;
         long sleep_time = 100;
-        for(;;)
+        //for(;;)
         {
             try {
                 connection.connect();
                 done = true;
-                break;
+                //break;
             } catch (IOException e) {
-                //logger.log(Stack_trace_getter.get_stack_trace("" + e));
                 if ( dbg) logger.log(("                         Face detector: " + e));
-                //Popups.popup_warning(null,"ohoh","connection to face detection server failed, did you start it?",false,logger);
             }
+            /*
             if ( dbg) logger.log(" connection to face detection server: going to sleep: "+sleep_time);
             try {
                 effectively_slept += sleep_time;
@@ -146,7 +132,7 @@ public class Face_detector
             {
                 logger.log("Face detection: giving up, server not reachable");
                 break;
-            }
+            }*/
         }
 
 

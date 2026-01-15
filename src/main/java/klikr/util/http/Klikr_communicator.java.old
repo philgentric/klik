@@ -249,68 +249,13 @@ public class Klikr_communicator
     private void write_registry_file(Path path)
     //**********************************************************
     {
-        String json = "{\"name\": \"" + app_name + "\", \"port\": " + the_port + ", \"uuid\": \"" + my_UUID + "\"}";
+        String json = "{\"port\": " + the_port + ", \"uuid\": \"" + my_UUID + "\"}";
         try {
             Files.writeString(path, json);
         } catch (IOException e) {
             logger.log(""+e);
         }
         this.registry_file = path;
-    }
-
-    //**********************************************************
-    private String read_name(Path path)
-    //**********************************************************
-    {
-        try {
-            String content = Files.readString(path);
-            String[] s1 = content.split("\"name\"");
-            if ( s1.length < 2) return null;
-            String[] s2 = s1[1].split(":");
-            if ( s2.length < 2) return null;
-            String[] s3 = s2[1].split("\"");
-            if ( s3.length < 2) return null;
-            return s3[1];
-        }
-        catch (Exception e)
-        {
-            //logger.log(""+e);
-            return null;
-        }
-    }
-
-    // scans the registry for active servers with this name
-    //**********************************************************
-    public List<Integer> find_active_servers(String target_app_name)
-    //**********************************************************
-    {
-        List<Integer> list = new ArrayList<>();
-        if ( REGISTRY_DIR == null) return list;
-        File folder = REGISTRY_DIR.toFile();
-        File[] files = folder.listFiles((d, name) -> name.endsWith(".json"));
-
-        if (files == null) return list;
-
-        for (File f : files) {
-            String name = read_name(f.toPath());
-            if ( name != null && name.equals(target_app_name))
-            {
-                int port = read_port(f.toPath());
-                if ( port > 0)
-                {
-                    if ( is_port_alive(port))
-                    {
-                        list.add(port);
-                    }
-                    else
-                    {
-                        // clean up dead registry file
-                         try { Files.delete(f.toPath()); } catch (IOException e) {}
-                    }
-                }
-            }
-        }
-        return list;
     }
 
     //**********************************************************

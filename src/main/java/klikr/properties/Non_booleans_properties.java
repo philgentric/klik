@@ -11,6 +11,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.Shared_services;
+import klikr.System_info;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.virtual_landscape.Virtual_landscape;
 import klikr.util.log.Logger;
@@ -24,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 
 //**********************************************************
@@ -57,28 +59,7 @@ public class Non_booleans_properties
     public static final String USER_HOME = "user.home";
     public static final String CONF_DIR = ".klikr";
 
-    /*
 
-    // when launcher starts, it creates a server to listen to UI_CHANGED messages
-    // this is the port on which the launcher listens
-    // the launcher will then broadcast UI_CHANGED messages to all running
-    // applications (klik browsers and audio player)
-    // the port on which apps listen for UI_CHANGED messages is NOT stored in a file
-    // it is sent back to the Launcher for registration
-    public static final String FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER = "ui_change_report_port_at_launcher.txt";
-
-
-    // When the launcher starts an application,
-    // it creates a server to listen to a message from the application
-    // to know that the application has started
-    // this is the port on which the launcher listens
-    // it is written in a file by the launcher
-    // it means that there could be race conditions
-    // if multiple applications are started simultaneously
-    // the other implementation is to pass the port as a command line argument
-    // but this is complicated to support for jvm/native with multiple OS
-    public static final String FILENAME_FOR_PORT_TO_REPLY_ABOUT_START = "port_to_reply_about_start.txt";
-*/
 
     public static final String PROPERTIES_FILENAME = "klikr.properties";
     public static final String TRASH_DIR = "trash";
@@ -91,6 +72,8 @@ public class Non_booleans_properties
     public static final String PURPOSE = "Java VM max ram";
     public static final String RAM_FILENAME = "ram";
     private static final String PRIVACY_SCREEN = ".privacy_screen";
+    private static final String NUMBER_OF_IMAGE_SIMILARITY_SERVERS = "NUMBER_OF_IMAGE_SIMILARITY_SERVERS";
+    private static final int DEFAULT_NUMBER_OF_IMAGE_SIMILARITY_SERVERS = 2*System_info.how_many_cores();
 
     // cached values
 
@@ -100,6 +83,137 @@ public class Non_booleans_properties
     private static int video_length = -1;
     private static int column_width = -1;
     private static Color custom_color = null;
+
+
+    //**********************************************************
+    public static int get_number_of_image_similarity_servers(Window owner)
+    //**********************************************************
+    {
+        return get_int(NUMBER_OF_IMAGE_SIMILARITY_SERVERS,DEFAULT_NUMBER_OF_IMAGE_SIMILARITY_SERVERS,owner);
+    }
+
+    //**********************************************************
+    public static void set_number_of_image_similarity_servers(int value, Window owner)
+    //**********************************************************
+    {
+        icon_size = value;
+        set_int(value,NUMBER_OF_IMAGE_SIMILARITY_SERVERS, owner);
+    }
+
+
+    //**********************************************************
+    public static int get_icon_size(Window owner)
+    //**********************************************************
+    {
+        if (icon_size > 0) return icon_size;
+        icon_size = get_int(ICON_SIZE,DEFAULT_ICON_SIZE,owner);
+        return icon_size;
+    }
+
+
+    //**********************************************************
+    public static void set_icon_size(int value, Window owner)
+    //**********************************************************
+    {
+        icon_size = value;
+        set_int(value,ICON_SIZE, owner);
+    }
+
+    //**********************************************************
+    public static int get_column_width(Window owner)
+    //**********************************************************
+    {
+        if (column_width > 0) return column_width;
+        column_width = get_int(COLUMN_WIDTH, Virtual_landscape.MIN_COLUMN_WIDTH,owner);
+        return column_width;
+    }
+
+    //**********************************************************
+    public static void set_column_width(int l, Window owner)
+    //**********************************************************
+    {
+        column_width = l;
+        set_int(l,COLUMN_WIDTH, owner);
+    }
+
+    //**********************************************************
+    public static int get_animated_gif_duration_for_a_video(Window owner)
+    //**********************************************************
+    {
+        if (video_length > 0) return video_length;
+        // first time, we look it up on disk
+        video_length = get_int(VIDEO_SAMPLE_LENGTH,DEFAULT_VIDEO_LENGTH,owner);
+        return video_length;
+    }
+
+    //**********************************************************
+    public static void set_animated_gif_duration_for_a_video(int l,Window owner)
+    //**********************************************************
+    {
+        video_length = l;
+        set_int(l,VIDEO_SAMPLE_LENGTH, owner);
+    }
+
+
+    //**********************************************************
+    public static Integer get_int(
+            String ID,
+            Integer default_value,
+            Window owner)
+    //**********************************************************
+    {
+        Integer returned;
+        // first time, we look it up on disk
+        String video_length_s = Shared_services.main_properties().get(ID);
+        if (video_length_s == null)
+        {
+            return default_value; // may be null
+        }
+        else
+        {
+            double d_video_length = Double.parseDouble(video_length_s);
+            returned  = (int) d_video_length;
+        }
+        Shared_services.main_properties().set(ID, String.valueOf(returned));
+        return returned;
+    }
+
+    //**********************************************************
+    public static void set_int(int val, String ID, Window owner)
+    //**********************************************************
+    {
+        Shared_services.main_properties().set(ID, String.valueOf(val));
+    }
+
+    //**********************************************************
+    public static Double get_double(
+            String ID,
+            Double default_value,
+            Window owner)
+    //**********************************************************
+    {
+        Double returned;
+        // first time, we look it up on disk
+        String s = Shared_services.main_properties().get(ID);
+        if (s == null)
+        {
+            return default_value; // maybe null
+        }
+        else
+        {
+            returned = Double.parseDouble(s);
+        }
+        Shared_services.main_properties().set(ID, String.valueOf(returned));
+        return returned;
+    }
+
+    //**********************************************************
+    public static void set_double(double val, String ID, Window owner)
+    //**********************************************************
+    {
+        Shared_services.main_properties().set(ID, String.valueOf(val));
+    }
+
 
 
 
@@ -212,57 +326,6 @@ public class Non_booleans_properties
         return new Rectangle2D(0, 0, 800, 600);
     }
 
-    //**********************************************************
-    public static int get_animated_gif_duration_for_a_video(Window owner)
-    //**********************************************************
-    {
-        if (video_length > 0) return video_length;
-        // first time, we look it up on disk
-        String video_length_s = Shared_services.main_properties().get(VIDEO_SAMPLE_LENGTH);
-        if (video_length_s == null) {
-            video_length = DEFAULT_VIDEO_LENGTH;
-        } else {
-            double d_video_length = Double.parseDouble(video_length_s);
-            video_length = (int) d_video_length;
-        }
-        Shared_services.main_properties().set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
-        //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
-        return video_length;
-    }
-
-    //**********************************************************
-    public static void set_animated_gif_duration_for_a_video(int l,Window owner)
-    //**********************************************************
-    {
-        video_length = l;
-        Shared_services.main_properties().set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
-    }
-
-
-    //**********************************************************
-    public static int get_column_width(Window owner)
-    //**********************************************************
-    {
-        if (column_width > 0) return column_width;
-        // first time, we look it up on disk
-        String column_width_s = Shared_services.main_properties().get(COLUMN_WIDTH);
-        if (column_width_s == null) {
-            column_width = Virtual_landscape.MIN_COLUMN_WIDTH;
-        } else {
-            double local = Double.parseDouble(column_width_s);
-            column_width = (int) local;
-        }
-        Shared_services.main_properties().set(COLUMN_WIDTH, String.valueOf(column_width));
-        return column_width;
-    }
-
-    //**********************************************************
-    public static void set_column_width(int l, Window owner)
-    //**********************************************************
-    {
-        column_width = l;
-        Shared_services.main_properties().set(COLUMN_WIDTH, String.valueOf(column_width));
-    }
 
 /*
     //**********************************************************
@@ -292,41 +355,16 @@ public class Non_booleans_properties
         Shared_services.main_properties().set(CUSTOM_COLOR, custom_color.toString());
     }
 */
-    //**********************************************************
-    public static int get_icon_size(Window owner)
-    //**********************************************************
-    {
-        if (icon_size > 0) return icon_size;
-        // first time, we look it up on disk
-        String icon_size_s = Shared_services.main_properties().get(ICON_SIZE);
-        if (icon_size_s == null) {
-            icon_size = DEFAULT_ICON_SIZE;
-        } else {
-            double d_icon_size = Double.parseDouble(icon_size_s);
-            icon_size = (int) d_icon_size;
-        }
-        Shared_services.main_properties().set(ICON_SIZE, String.valueOf(icon_size));
-        //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
-        return icon_size;
-    }
 
     //**********************************************************
     public static int get_folder_icon_size(Window owner)
     //**********************************************************
     {
         if (folder_icon_size > 0) return folder_icon_size;
-        // first time, we look it up on disk
-        String folder_icon_size_s = Shared_services.main_properties().get(FOLDER_ICON_SIZE);
-        if (folder_icon_size_s == null) {
-            folder_icon_size = DEFAULT_FOLDER_ICON_SIZE;
-        } else {
-            double d_icon_size = Double.parseDouble(folder_icon_size_s);
-            folder_icon_size = (int) d_icon_size;
-        }
-        Shared_services.main_properties().set(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
-        //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
+        folder_icon_size = get_int(FOLDER_ICON_SIZE,DEFAULT_FOLDER_ICON_SIZE,owner);
         return folder_icon_size;
     }
+
 
 
     //**********************************************************
@@ -340,31 +378,17 @@ public class Non_booleans_properties
     public static int get_folder_warning_size(Window owner)
     //**********************************************************
     {
-        int warning_megabytes = DEFAULT_SIZE_WARNING_MEGABYTES;
-        String warning_bytes_s = Shared_services.main_properties().get(DISK_CACHE_SIZE_WARNING_MEGABYTES);
-        if (warning_bytes_s != null) {
-            warning_megabytes = (int) Double.parseDouble(warning_bytes_s);
-        }
-        Shared_services.main_properties().set(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
-        return warning_megabytes;
+        return get_int(DISK_CACHE_SIZE_WARNING_MEGABYTES,DEFAULT_SIZE_WARNING_MEGABYTES,owner);
     }
 
 
-    //**********************************************************
-    public static void set_icon_size(int target_size, Window owner)
-    //**********************************************************
-    {
-        icon_size = target_size;
-        Shared_services.main_properties().set(ICON_SIZE, String.valueOf(icon_size));
-    }
-
 
     //**********************************************************
-    public static void set_folder_icon_size(int target_size, Window owner)
+    public static void set_folder_icon_size(int value, Window owner)
     //**********************************************************
     {
-        folder_icon_size = target_size;
-        Shared_services.main_properties().set(FOLDER_ICON_SIZE, String.valueOf(folder_icon_size));
+        folder_icon_size = value;
+        set_int(value,FOLDER_ICON_SIZE,owner);
     }
 
 
@@ -375,29 +399,16 @@ public class Non_booleans_properties
     //**********************************************************
     {
         if (font_size_cache > 0) return font_size_cache;
-        double font_size = 16; // this is the default immediately after installing or after erasing properties
-        // first time, we look it up on disk
-        String font_size_s = Shared_services.main_properties().get(FONT_SIZE);
-        if (font_size_s != null) {
-            try {
-                font_size = Double.parseDouble(font_size_s);
-            } catch (NumberFormatException e) {
-                logger.log(Stack_trace_getter.get_stack_trace_for_throwable(e));
-                font_size = 16;
-            }
-        }
-        //Shared_services.main_properties().set(FONT_SIZE, String.valueOf(font_size));
-        font_size_cache = font_size;
-        return font_size;
+        font_size_cache = get_double(FONT_SIZE,16.0,owner);
+        return font_size_cache;
     }
 
 
     //**********************************************************
-    public static void set_font_size(double target_size, Window owner)
+    public static void set_font_size(double value, Window owner)
     //**********************************************************
     {
-        font_size_cache = target_size;
-        Shared_services.main_properties().set(FONT_SIZE, String.valueOf(target_size));
+        set_double(value,FONT_SIZE,owner);
     }
 
 
@@ -415,7 +426,10 @@ public class Non_booleans_properties
 
 
 
-    public static void force_reload_from_disk(Window owner) {
+    //**********************************************************
+    public static void force_reload_from_disk(Window owner)
+    //**********************************************************
+    {
         Shared_services.main_properties().force_reload_from_disk();
     }
 
@@ -621,16 +635,16 @@ public class Non_booleans_properties
         return pm.get(AUDIO_PLAYER_CURRENT_SONG);
     }
 
-    static int previous = -1;
+    static int previous_current_time_in_song = -1;
 
     //**********************************************************
     public static void save_current_time_in_song(int time, Window owner)
     //**********************************************************
     {
-        if (previous > 0) {
-            if (previous / 10 == time / 10) return;
+        if (previous_current_time_in_song > 0) {
+            if (previous_current_time_in_song / 10 == time / 10) return;
         }
-        previous = time;
+        previous_current_time_in_song = time;
         //logger.log("save_current_time_in_song "+time);
         IProperties pm = Shared_services.main_properties();
         pm.set(AUDIO_PLAYER_CURRENT_TIME, "" + time);
@@ -688,25 +702,14 @@ public class Non_booleans_properties
     public static void save_audio_volume(double value, Window owner)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
-        pm.set(AUDIO_PLAYER_VOLUME, "" + value);
+        set_double(value,AUDIO_PLAYER_VOLUME,owner);
     }
 
     //**********************************************************
     public static double get_audio_volume(Window owner,Logger logger)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
-        String s = pm.get(AUDIO_PLAYER_VOLUME);
-        if (s == null) return 0.5;
-
-        double value = 0;
-        try {
-            value = Double.valueOf(s);
-        } catch (NumberFormatException e) {
-            logger.log("WARNING: cannot parse volume->" + s + "<-");
-        }
-        return value;
+        return get_double(AUDIO_PLAYER_VOLUME,0.5,owner);
     }
 
 
@@ -740,4 +743,81 @@ public class Non_booleans_properties
         }
         return value;
     }
+
+
+
+/*
+    //**********************************************************
+    public static int get_animated_gif_duration_for_a_video(Window owner)
+    //**********************************************************
+    {
+        if (video_length > 0) return video_length;
+        // first time, we look it up on disk
+        String video_length_s = Shared_services.main_properties().get(VIDEO_SAMPLE_LENGTH);
+        if (video_length_s == null) {
+            video_length = DEFAULT_VIDEO_LENGTH;
+        } else {
+            double d_video_length = Double.parseDouble(video_length_s);
+            video_length = (int) d_video_length;
+        }
+        Shared_services.main_properties().set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
+        //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
+        return video_length;
+    }
+
+    //**********************************************************
+    public static void set_animated_gif_duration_for_a_video(int l,Window owner)
+    //**********************************************************
+    {
+        video_length = l;
+        Shared_services.main_properties().set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
+    }
+
+
+    //**********************************************************
+    public static int get_column_width(Window owner)
+    //**********************************************************
+    {
+        if (column_width > 0) return column_width;
+        // first time, we look it up on disk
+        String column_width_s = Shared_services.main_properties().get(COLUMN_WIDTH);
+        if (column_width_s == null) {
+            column_width = Virtual_landscape.MIN_COLUMN_WIDTH;
+        } else {
+            double local = Double.parseDouble(column_width_s);
+            column_width = (int) local;
+        }
+        Shared_services.main_properties().set(COLUMN_WIDTH, String.valueOf(column_width));
+        return column_width;
+    }
+
+    //**********************************************************
+    public static void set_column_width(int l, Window owner)
+    //**********************************************************
+    {
+        column_width = l;
+        Shared_services.main_properties().set(COLUMN_WIDTH, String.valueOf(column_width));
+    }
+
+
+     //**********************************************************
+    public static int get_icon_size(Window owner)
+    //**********************************************************
+    {
+        if (icon_size > 0) return icon_size;
+        // first time, we look it up on disk
+        String icon_size_s = Shared_services.main_properties().get(ICON_SIZE);
+        if (icon_size_s == null) {
+            icon_size = DEFAULT_ICON_SIZE;
+        } else {
+            double d_icon_size = Double.parseDouble(icon_size_s);
+            icon_size = (int) d_icon_size;
+        }
+        Shared_services.main_properties().set(ICON_SIZE, String.valueOf(icon_size));
+        //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
+        return icon_size;
+    }
+
+*/
+
 }

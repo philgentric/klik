@@ -64,7 +64,7 @@ haars_face_detection_server.run_server($port,$FaceDetectorId,$UDP_PORT)" `
 }
 
 $FaceDetectionPorts  = @(8090, 8091)
-$FaceDetectorId      = "'haarcascade_frontalface_default.xml'"
+$FaceDetectorId      = "'haarcascade_frontalface_alt_default.xml'"
 
 foreach ($port in $FaceDetectionPorts) {
     Start-Process -FilePath python3 `
@@ -74,7 +74,7 @@ haars_face_detection_server.run_server($port,$FaceDetectorId,$UDP_PORT)" `
 }
 
 $FaceDetectionPorts  = @(8100, 8101)
-$FaceDetectorId      = "'haarcascade_frontalface_alt.xml'"
+$FaceDetectorId      = "'haarcascade_frontalface_alt1.xml'"
 
 foreach ($port in $FaceDetectionPorts) {
     Start-Process -FilePath python3 `

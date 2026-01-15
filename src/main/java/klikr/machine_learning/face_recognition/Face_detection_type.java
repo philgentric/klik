@@ -5,10 +5,26 @@ package klikr.machine_learning.face_recognition;
 
 public enum Face_detection_type
 {
-    haars_high_precision,
-    haars_false_positioves,
-    haars_alt1,
-    haars_alt2,
-    MTCNN,
+    alt_default,
+    alt_tree,
+    alt1,
+    alt2,
+    MTCNN;
+
+    String get_xml_file_name()
+    {
+        switch(this)
+        {
+            case alt_default:
+                return "haarscascade_frontalface_alt_default.xml";
+            case alt_tree:
+                return "haarscascade_frontalface_alt_tree.xml";
+            case alt1:
+                return "haarscascade_frontalface_alt_1.xml";
+            case alt2:
+                return "haarscascade_frontalface_alt_2.xml";
+        }
+        return "";
+    }
 }
 

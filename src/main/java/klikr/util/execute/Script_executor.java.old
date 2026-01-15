@@ -5,8 +5,6 @@ import javafx.application.Platform;
 import javafx.stage.Window;
 import klikr.Klikr_application;
 import klikr.properties.Non_booleans_properties;
-import klikr.properties.boolean_features.Feature;
-import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job;
 import klikr.util.log.Logger;
@@ -69,26 +67,23 @@ public class Script_executor
                                          Window owner, Logger logger)
     //**********************************************************
     {
-        boolean debug_mode = Feature_cache.get(Feature.Enable_ML_server_debug);
 
         LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
         CountDownLatch ui_latch = new CountDownLatch(1);
-        if ( debug_mode) {
-            Platform.runLater(() -> {
-                try {
-                    Text_frame.show("Script_executor", queue, logger);
-                    logger.log("Script_executor window open");
-                } finally {
-                    ui_latch.countDown();
-                }
-            });
-
+        Platform.runLater(() -> {
             try {
-                ui_latch.await();
-            } catch (InterruptedException e) {
-                logger.log("Interrupted while waiting for UI: " + e.getMessage());
-                return;
+                Text_frame.show("Script_executor", queue, logger);
+                logger.log("Script_executor window open");
+            } finally {
+                ui_latch.countDown();
             }
+        });
+
+        try {
+            ui_latch.await();
+        } catch (InterruptedException e) {
+            logger.log("Interrupted while waiting for UI: " + e.getMessage());
+            return;
         }
 
 
@@ -112,14 +107,12 @@ public class Script_executor
             if (os == Operating_system.Windows)
             {
                 // PowerShell
-                script_content.append("$ErrorActionPreference = 'Stop'\n");
                 script_content.append(String.join(" ", cmds));
             }
             else
             {
                 // Bash (Mac/Linux)
                 script_content.append("#!/bin/bash\n");
-                script_content.append("set -e\n");
                 for ( String s : cmds)
                 {
                     script_content.append(s).append("\n");
@@ -144,7 +137,7 @@ public class Script_executor
 
             queue.add("Generated script: " + script_path);
             queue.add("Content:");
-            for (String s : cmds) queue.add(s);
+            for ( String s : cmds) queue.add(s);
 
 
             ProcessBuilder pb;
@@ -191,28 +184,8 @@ public class Script_executor
 
             int exit_code = process.waitFor();
 
-
             queue.add("Process exited with code: " + exit_code);
             job.cancel();
-
-            if ( exit_code != 0 )
-            {
-                logger.log("\nWARNING: Script_executor: process exited with code " + exit_code);
-                logger.log("Script_executor: log file is at: " + log_path.toAbsolutePath());
-                try {
-                    List<String> content = Files.readAllLines(log_path);
-                    logger.log("******************** script: ************************");
-                    logger.log(script_content.toString());
-                    logger.log("***************** log file CONTENT: *****************");
-                    for (String s : content)
-                    {
-                        logger.log("          "+s);
-                    }
-                    logger.log("*****************************************************");
-                } catch (IOException e) {
-                    logger.log("Script_executor: could not read log file: "+e);
-                }
-            }
 
         } catch (Exception e)
         {
@@ -221,7 +194,6 @@ public class Script_executor
             for (StackTraceElement ste : e.getStackTrace()) {
                 queue.add(ste.toString());
             }
-            logger.log("Script execution failed: "+e);
         }
     }
 
