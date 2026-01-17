@@ -43,9 +43,9 @@ public enum External_application
         EventHandler<ActionEvent> handler =  e ->
         {
             boolean enable_install_debug = Feature_cache.get(Feature.Enable_install_debug);
-            String cmd = get_command_string_to_install(owner,logger);
-            if ( cmd == null) return;
-            Script_executor.execute(List.of(cmd),Path.of("."),enable_install_debug, owner,logger);
+            String line = get_command_string_to_install(owner,logger);
+            if ( line == null) return;
+            Script_executor.execute(List.of(line),Path.of("."),enable_install_debug, owner,logger);
         };
 
         return Items_with_explanation.make_hbox_with_button_and_explanation(
