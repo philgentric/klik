@@ -76,16 +76,16 @@ public class UDP_traffic_monitoring_stage
     }
 
     private long hit_count =0;
-    private double total_duration   =0;
+    private double total_duration_ms =0;
     private double max_hit_for_a_server = 0;
     //**********************************************************
     private void inject_report(UDP_report report)
     //**********************************************************
     {
         hit_count++;
-        total_duration += report.processing_time();
-        double average_duration = total_duration / hit_count;
-        duration_label.setText("Average embeddings processing time: " + String.format("%.2f", average_duration) + " ms");
+        total_duration_ms += report.processing_time();
+        double average_duration_ms = total_duration_ms / hit_count;
+        duration_label.setText("Average embeddings processing time: " + String.format("%.2f", average_duration_ms) + " ms");
         // Update rate
         double rate = calculate_rate();
         rate_label.setText(String.format("Rate: %.1f embeddings/s on last 10s", rate));
@@ -148,13 +148,13 @@ public class UDP_traffic_monitoring_stage
     private double calculate_rate()
     //**********************************************************
     {
-        long currentTime = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
 
         // Remove timestamps older than 10 seconds
-        while (!time_window.isEmpty() && currentTime - time_window.peekFirst() > WINDOW_SIZE_MS) {
+        while (!time_window.isEmpty() && now - time_window.peekFirst() > WINDOW_SIZE_MS) {
             time_window.removeFirst();
         }
-        time_window.addLast(currentTime);
+        time_window.addLast(now);
         return time_window.size() / WINDOW_SIZE_S;
     }
 

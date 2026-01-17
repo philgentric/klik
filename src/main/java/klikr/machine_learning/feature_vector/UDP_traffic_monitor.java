@@ -115,12 +115,12 @@ public class UDP_traffic_monitor implements AutoCloseable
             String server_uuid = parts[0];
             String model_name = parts[1];
             String image_path = URLDecoder.decode(parts[2], StandardCharsets.UTF_8);
-            double processing_time = Double.parseDouble(parts[3]);
+            double processing_time_ms = Double.parseDouble(parts[3]);
 
-            UDP_report report = new UDP_report(server_uuid, model_name, image_path, processing_time);
+            UDP_report report = new UDP_report(server_uuid, model_name, image_path, processing_time_ms);
 
             if ( monitoring_frame!=null) monitoring_frame.inject(report);
-            logger.log("Server: "+server_uuid+" Model: "+model_name+" processed "+image_path+" in "+processing_time+" seconds%n");
+            if (dbg) logger.log("Server: "+server_uuid+" Model: "+model_name+" processed "+image_path+" in "+processing_time_ms+" milliseconds");
         }
         else
         {
