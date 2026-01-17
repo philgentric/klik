@@ -13,6 +13,9 @@ package klikr.machine_learning.face_recognition;
 
 import javafx.scene.image.Image;
 import javafx.stage.Window;
+import klikr.machine_learning.ML_registry_discovery;
+import klikr.machine_learning.ML_server_type;
+import klikr.machine_learning.ML_service_type;
 import klikr.util.execute.actor.*;
 import klikr.machine_learning.feature_vector.Feature_vector;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
@@ -318,7 +321,8 @@ public class Face_recognition_actor implements Actor
         Optional<Feature_vector> op = feature_vector_source.get_feature_vector(face, service.owner, aborter,service.logger);
         if ( op.isEmpty())
         {
-            service.logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC: embeddings failed ! are the servers started ?"));
+            service.logger.log("Warning: FaceNet embeddings failed ! are the servers started ?");
+            ML_registry_discovery.find_active_servers(new ML_service_type(ML_server_type.FaceNet,null), service.owner, service.logger);
             return new Eval_results("error",null,Eval_situation.nothing_found,false,"error",new ArrayList<>());
         }
         Feature_vector the_feature_vector_to_be_identified = op.get();
@@ -505,15 +509,15 @@ public class Face_recognition_actor implements Actor
             return new Face_recognition_results(null,null,null,null, Face_recognition_in_image_status.no_face_detected);
         }
 
-        logger.log("Face detected");
+        if ( dbg) logger.log("Face detected");
 
         // write the image to disk, the tmp path will be passed to the embedding server
         Path face_reco_cache_folder = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.face_reco_cache,owner,logger);
-        logger.log("face_reco_folder = "+face_reco_cache_folder);
+        if ( dbg) logger.log("face_reco_folder = "+face_reco_cache_folder);
 
         String file_name_base = "tmp_unknown_face_"+ UUID.randomUUID();
         Path tmp_path_to_face = Face_recognition_service.write_tmp_image(image_face, face_reco_cache_folder,file_name_base,logger);
-        logger.log("tmp_path_to_face = "+tmp_path_to_face);
+        if ( dbg) logger.log("tmp_path_to_face = "+tmp_path_to_face);
 
         Eval_results eval_result = eval_a_face(tmp_path_to_face,service, aborter);
         if (display_face_reco_window) service.show_face_recognition_window(image_face,eval_result, owner,aborter);

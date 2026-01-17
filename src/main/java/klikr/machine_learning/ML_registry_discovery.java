@@ -5,6 +5,9 @@ package klikr.machine_learning;
 
 import javafx.stage.Window;
 import klikr.machine_learning.face_recognition.Face_detection_type;
+import klikr.properties.boolean_features.Feature;
+import klikr.properties.boolean_features.Feature_cache;
+import klikr.util.Simple_json_parser;
 import klikr.util.execute.Execute_command;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.Guess_OS;
@@ -22,40 +25,45 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //**********************************************************
 public class ML_registry_discovery
 //**********************************************************
 {
     private final static boolean dbg = false;
-    private static final Random random = new Random();
+    private final Random random = new Random();
+    private static ML_registry_discovery instance;
 
-    private static final AtomicBoolean server_pump_started = new AtomicBoolean(false);
+    private final AtomicBoolean server_pump_started = new AtomicBoolean(false);
+    private final BlockingQueue<ML_service_type> request_queue = new LinkedBlockingQueue<>();
+    private final Map<String,Set<ML_server>> servers_from_file = new ConcurrentHashMap<>();
+    private Aborter pump_aborter;
+    private final Map<String,Integer> running = new ConcurrentHashMap<>();
 
-    private static final BlockingQueue<ML_service_type> request_queue = new ArrayBlockingQueue<>(1);
-    private static final Map<String,Set<Integer>> server_ports= new ConcurrentHashMap<>();
 
     //**********************************************************
-    public static void print_all(Logger logger)
+    private static String all_servers_from_file_to_string()
     //**********************************************************
     {
-        for ( Map.Entry<String, Set<Integer>> entry : server_ports.entrySet() )
+        if (instance == null) return null;
+        StringBuilder sb = new StringBuilder();
+        for ( Map.Entry<String, Set<ML_server>> entry : instance.servers_from_file.entrySet() )
         {
-            logger.log("server:" + entry.getKey());
-            for ( Integer port : entry.getValue() )
+            sb.append("server (key) :").append(entry.getKey()).append("\n");
+            for ( ML_server ml_server : entry.getValue() )
             {
-                logger.log("   port:" + port);
+                sb.append(ml_server.to_string()).append("\n");
             }
         }
-
+        return sb.toString();
     }
 
     //**********************************************************
-    public static void invalidate(ML_service_type st)
+    public static void all_servers_killed(ML_service_type st)
     //**********************************************************
     {
-        server_ports.remove(get_key(st));
+        if (instance == null) return;
+        instance.servers_from_file.remove(get_key(st));
     }
 
     //**********************************************************
@@ -63,41 +71,47 @@ public class ML_registry_discovery
     //**********************************************************
     {
         if ( t.face_detection_type() == null) return t.ml_server_type().name();
-        return t.ml_server_type().name() + "_" + t.face_detection_type().name();
+        return t.ml_server_type().name() + "_with_" + t.face_detection_type().name();
     }
     //**********************************************************
-    private static Set<Integer> get_ports(ML_service_type st)
+    private Set<ML_server> get_from_registry_file_count_of_servers_of_type(ML_service_type st)
     //**********************************************************
     {
-        return server_ports.computeIfAbsent(get_key(st), k -> new HashSet<>());
+        return servers_from_file.computeIfAbsent(get_key(st), k -> new HashSet<>());
     }
 
     //**********************************************************
     public static List<Integer> find_active_servers(ML_service_type st, Window owner, Logger logger)
     //**********************************************************
     {
-        Set<Integer> active_ports = get_ports(st);
-        int missing = st.ml_server_type().target_server_count(owner) - active_ports.size();
-        if (missing > 0) {
-            // new items are discarded if the queue already has one
-            request_queue.offer(st);
-            if  (!server_pump_started.get()) start_server_pump(owner, logger);
-        }
-        return new ArrayList<>(active_ports);
+        if ( instance == null ) instance = new ML_registry_discovery();
+        return instance.find_active_servers_internal(st, owner, logger);
     }
 
-    private static Aborter pump_aborter;
-    private static AtomicInteger in_flight = new AtomicInteger(0);
     //**********************************************************
-    private static void start_server_pump(Window owner, Logger logger)
+    private List<Integer> find_active_servers_internal(ML_service_type st, Window owner, Logger logger)
     //**********************************************************
     {
+        Set<ML_server> servers_of_type = get_from_registry_file_count_of_servers_of_type(st);
+        // send of request
+        request_queue.offer(st);
+        if  (!server_pump_started.get()) start_server_pump(owner, logger);
+        List<Integer> active_servers = new ArrayList<>();
+        for ( ML_server ml_server : servers_of_type ) active_servers.add(ml_server.port());
+        return active_servers;
+    }
+
+    //**********************************************************
+    private void start_server_pump(Window owner, Logger logger)
+    //**********************************************************
+    {
+        boolean live_dbg = Feature_cache.get(Feature.Enable_ML_server_debug);
         pump_aborter = new Aborter("server_pump_aborter",logger);
         server_pump_started.set(true);
         Runnable r = () -> {
             for(;;) {
                 try {
-                    ML_service_type st = request_queue.poll(20, TimeUnit.SECONDS);
+                    ML_service_type st = request_queue.poll(60, TimeUnit.SECONDS);
                     if (st == null) {
                         // timeout
                         if (pump_aborter.should_abort()) {
@@ -106,28 +120,36 @@ public class ML_registry_discovery
                         }
                         continue;
                     }
-
                     // try to find some server that would be already running (this is fast)
-                    int new_servers_found = scan_registry(st, owner, logger);
+                    scan_file_registry(st, owner, logger);
+                    if ( dbg) logger.log("After scanning the file registry:\n:"+ all_servers_from_file_to_string());
 
-                    logger.log("We found " + new_servers_found + " active ports for " + st.ml_server_type().name());
-
-                    Set<Integer> active_ports = get_ports(st);
-
-                    if (active_ports.size() >= st.ml_server_type().target_server_count(owner)) {
-                        server_pump_started.set(false);
-                        return;
-                    }
-                    // need to launch some servers
-                    int revised_target_count = st.ml_server_type().target_server_count(owner) - active_ports.size();
-                    if ( in_flight.get() > revised_target_count)
+                    Set<ML_server> servers_of_type = get_from_registry_file_count_of_servers_of_type(st);
+                    if (servers_of_type.size() >= st.ml_server_type().quota(owner))
                     {
-                        Thread.sleep(1000);
+                        if ( live_dbg) logger.log("No need to start servers of type: "+st.ml_server_type().name()+ " running: "+servers_of_type.size()+ " quota: "+st.ml_server_type().quota(owner));
                         continue;
                     }
-                    in_flight.addAndGet(revised_target_count);
-                    logger.log("Going to spawn " + revised_target_count + " new servers of type: " + st.ml_server_type().name());
-                    start_some_server(st.ml_server_type(), revised_target_count, owner, logger);
+                    // need to launch some servers
+                    int full_quota = st.ml_server_type().quota(owner);
+                    Integer running_i = running.get(get_key(st));
+                    if ( running_i == null)
+                    {
+                        running.put(get_key(st),0);
+                        running_i = 0;
+                    }
+                    int more = full_quota - running_i;
+                    if ( more > 0) {
+                        // launched ones are considered already running to avoid the fork bomb
+                        running.put(get_key(st), full_quota);
+                        logger.log("Going to spawn " + more + " new servers of type: " + st.ml_server_type().name());
+                        ML_servers_monitor.make_faster_network_scans();
+                        start_some_server(st.ml_server_type(), more, owner, logger);
+                    }
+                    else
+                    {
+                        logger.log("Not going to spawn new servers of type: " + st.ml_server_type().name()+ " full_quota = " + full_quota + " 'running' = " + running_i);
+                    }
                 } catch (InterruptedException e) {
                     logger.log("Interrupted while waiting for servers to start");
                 }
@@ -137,66 +159,54 @@ public class ML_registry_discovery
     }
 
 
-    //**********************************************************
-    public static int wait_for_at_least_N_servers_started(ML_service_type st, int target_count, int timeout_ms, Window owner, Logger logger)
-    //**********************************************************
-    {
-        long start = System.currentTimeMillis();
-        int poll_interval_ms = 2000;
-
-        logger.log("Waiting for at least " + target_count + " " + st.ml_server_type().name()+ " server(s) to register...");
-        Set<Integer> active_ports = get_ports(st);
-        while (System.currentTimeMillis() - start < timeout_ms)
-        {
-            try {
-                Thread.sleep(poll_interval_ms);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return active_ports.size();
-            }
-
-            int new_servers_found = ML_registry_discovery.scan_registry(st, owner, logger);
-
-            if ( new_servers_found >= target_count) break;
-
-            if (active_ports.size() >= st.ml_server_type().target_server_count(owner)) {
-                logger.log("✅ Found " + active_ports.size() + " active " + st.ml_server_type().name() + " server(s) " );
-                return active_ports.size();
-            }
-
-        }
-
-        logger.log("❌ Timeout waiting for " + st.ml_server_type().name() + " servers");
-        return active_ports.size();
-    }
 
     //**********************************************************
-    private static void start_some_server(ML_server_type type, int target_count, Window owner, Logger logger)
+    private int start_some_server(ML_server_type type, int target_count, Window owner, Logger logger)
     //**********************************************************
     {
         switch( type)
         {
-            case MobileNet_image_similarity_embeddings_server:
-                ML_servers_util.start_some_image_similarity_servers(target_count,owner, logger);
-                break;
-            case FaceNet_similarity_embeddings_server:
-                ML_servers_util.start_face_embeddings_servers(owner, logger);
-                break;
-            case Haars_face_detection_server:
-                ML_servers_util.start_haars_face_detection_servers(owner, logger);
-                break;
-            case MTCNN_face_detection_server:
-                ML_servers_util.start_MTCNN_face_detection_servers(owner, logger);
-                break;
+            case MobileNet:
+                return ML_servers_util.start_some_image_similarity_servers(target_count,owner, logger);
+            case FaceNet:
+                return ML_servers_util.start_face_embeddings_servers(owner, logger);
+            case Haars:
+                return ML_servers_util.start_haars_face_detection_servers(owner, logger);
+            case MTCNN:
+                return ML_servers_util.start_MTCNN_face_detection_servers(owner, logger);
         }
+        return 0;
     }
 
-    // returns NEW servers
     //**********************************************************
-    static int scan_registry(ML_service_type st, Window owner, Logger logger)
+    public static Map<String,Set<ML_server>> scan_all_registry(Window owner, Logger logger)
     //**********************************************************
     {
-        logger.log("for " + st.ml_server_type().name() + " SCANNING registry: "+st.ml_server_type().registry_path(owner, logger));
+        if ( instance == null ) return null;
+        return instance.scan_all_registry_internal(owner, logger);
+    }
+    //**********************************************************
+    private Map<String,Set<ML_server>> scan_all_registry_internal(Window owner, Logger logger)
+    //**********************************************************
+    {
+        for (ML_server_type st : ML_server_type.values())
+        {
+            for (Face_detection_type std : Face_detection_type.values())
+            {
+                ML_service_type mst = new ML_service_type(st,std);
+                scan_file_registry(mst,owner,logger);
+            }
+        }
+        return servers_from_file;
+    }
+
+    // returns 'new servers' count
+    //**********************************************************
+    private int scan_file_registry(ML_service_type st, Window owner, Logger logger)
+    //**********************************************************
+    {
+        boolean live_dbg = Feature_cache.get(Feature.Enable_ML_server_debug);
+        if ( dbg) logger.log("for " + st.ml_server_type().name() + " SCANNING registry: "+st.ml_server_type().registry_path(owner, logger));
         int returned = 0;
         try
         {
@@ -213,60 +223,54 @@ public class ML_registry_discovery
             }
             for ( File f : files )
             {
-                logger.log("considering registry file: " + f.getAbsolutePath());
+                if ( dbg) logger.log("considering registry FILE: " + f.getAbsolutePath());
                 // the file content is like this:
                 // {"name": "MobileNet_embeddings_server",
                 // "port": 54225,
                 // "uuid": "072ff019-5884-44f9-8b40-fe4ea967d4f8"}
                 String content = Files.readString(f.toPath());
 
-                String name = read_key(content,"name");
-                logger.log("looking for " + st.ml_server_type().name() + " found instance name: " + name);
+                String name = Simple_json_parser.read_key(content,"name",logger);
+                if ( dbg) logger.log("looking for " + st.ml_server_type().name() + " found instance name: " + name);
                 if ( !st.ml_server_type().name().contains(name))
                 {
-                    logger.log("->"+name+ "<- does not contain ->" + st.ml_server_type().name()+ "<-");
+                    // not what we are looking for
+                    if ( dbg) logger.log("->"+st.ml_server_type().name()+ "<- does not contain ->" + name+ "<-");
                     continue;
                 }
 
-                if ( st.face_detection_type() == null)
+                String sub_type = Simple_json_parser.read_key(content, "sub-type",logger);
+                if ( dbg) logger.log("sub-type=" + sub_type);
+                if ( sub_type != null)
                 {
-                    logger.log("st.face_detection_type() == null " );
+                    if ( dbg) logger.log(" found sub-type: " + sub_type);
                 }
-                else
-                {
-                    if ( st.face_detection_type() != Face_detection_type.MTCNN)
-                    {
-                        String sub_type = read_key(content, "sub_type");
-                        logger.log("looking for " + st.face_detection_type().name() + " found  sub_type: " + sub_type);
-                        if (!sub_type.equals(st.face_detection_type().name())) {
-                            logger.log("->"+sub_type + "<- does not match ->" + st.face_detection_type().name()+ "<-");
-                            continue;
-                        }
 
-                    }
-                }
-                String port_s = read_key(content,"port");
-                logger.log("PORT PORT !!! for " + st.ml_server_type().name() + " found PORT: " + port_s);
+                String port_s = Simple_json_parser.read_key(content,"port",logger);
+                if ( dbg) logger.log("for " + st.ml_server_type().name() + " found PORT: " + port_s);
                 int port = Integer.parseInt(port_s);
 
-                String uuid = read_key(content,"uuid");
-                logger.log("for " + st.ml_server_type().name() + " found uuid: " + uuid);
+                String uuid = Simple_json_parser.read_key(content,"uuid",logger);
+                if ( dbg) logger.log("for " + st.ml_server_type().name() + " found uuid: " + uuid);
 
-                Set<Integer> set = server_ports.computeIfAbsent(get_key(st), k -> new HashSet<>());
+                Set<ML_server> set = servers_from_file.computeIfAbsent(get_key(st), k -> new HashSet<>());
                 // is this server alive?
-                if ( is_port_alive(port, logger))
+                ML_server ml_server = new ML_server(port,uuid,name,sub_type);
+                if ( is_server_alive(port, logger))
                 {
-                    boolean was_new = set.add(port);
+                    boolean was_new = set.add(ml_server);
+                    ML_servers_monitor.refresh_add(ml_server,owner, logger);
                     if ( was_new) returned++;
-                    logger.log("✅ " + st.ml_server_type().name() + " server is alive at port " + port);
+                    if ( dbg) logger.log("✅ " + st.ml_server_type().name() + " server is alive at port " + port);
                 }
                 else
                 {
-                    set.remove(port);
+                    set.remove(ml_server);
+                    ML_servers_monitor.refresh_remove(ml_server, owner, logger);
                     logger.log("❌ " + st.ml_server_type().name() + " server at port " + port + " is not responding to health check.");
                     try {
                         Files.delete(f.toPath());
-                        logger.log("Deleted stale registry file: " + f.getAbsolutePath());
+                        if ( live_dbg) logger.log("Deleted stale registry file: " + f.getAbsolutePath());
                     } catch (IOException e) {
                         logger.log("Failed to delete stale registry file: " + f.getAbsolutePath() + " Error: " + e);
                     }
@@ -283,42 +287,28 @@ public class ML_registry_discovery
     public static int get_random_active_port(ML_service_type st, Window owner, Logger logger)
     //**********************************************************
     {
+        if ( instance == null) instance = new ML_registry_discovery();
+        return instance.get_random_active_port_internal(st, owner, logger);
+    }
+    //**********************************************************
+    private int get_random_active_port_internal(ML_service_type st, Window owner, Logger logger)
+    //**********************************************************
+    {
+        boolean live_dbg = Feature_cache.get(Feature.Enable_ML_server_debug);
         List<Integer> active_ports = find_active_servers(st, owner, logger);
         if (active_ports.isEmpty()) {
             logger.log("No active servers found for: " + st.ml_server_type().name());
             return -1;
         }
-        if ( dbg) logger.log("Found "+active_ports.size()+" active servers for: " + st.ml_server_type().name());
-        if (active_ports.size() >= st.ml_server_type().target_server_count(owner))
-        {
-            if ( pump_aborter != null) pump_aborter.abort("Enough active servers found for: " + st.ml_server_type().name());
-        }
+        if ( live_dbg) logger.log("Found "+active_ports.size()+" active servers for: " + st.ml_server_type().name());
 
         // Return a random port for load balancing
         return active_ports.get(random.nextInt(active_ports.size()));
     }
 
+    
     //**********************************************************
-    private static String read_key(String content, String key)
-    //**********************************************************
-    {
-        // the file content is like this:
-        // {"name": "MobileNet_embeddings_server",
-        // "port": 54225,
-        // "uuid": "072ff019-5884-44f9-8b40-fe4ea967d4f8"}
-        try {
-            String value = content.split("\"" + key + "\"")[1]
-                                  .split(":")[1]
-                                  .split(",")[0]
-                                  .replaceAll("[\", ]", "");
-            return value;
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    //**********************************************************
-    private static boolean is_port_alive(int port, Logger logger)
+    private static boolean is_server_alive(int port, Logger logger)
     //**********************************************************
     {
         if (port == -1)
@@ -337,7 +327,7 @@ public class ML_registry_discovery
             if (responseCode == 200)
             {
                 String content = connection.getContent().toString();
-                logger.log("Health check response code: " + responseCode + ", content: " + content);
+                if ( dbg) logger.log("Health check response code: " + responseCode + ", content: " + content);
                 connection.disconnect();
                 return true;
             }
@@ -349,6 +339,9 @@ public class ML_registry_discovery
     }
 
     static Semaphore limit = new Semaphore(1);
+
+
+
     //**********************************************************
     public int check_processes(String server_python_name, Window owner, Logger logger)
     //**********************************************************

@@ -31,20 +31,12 @@ public class Feature_vector_source_for_face_recognition extends Feature_vector_s
     public int get_random_port(Window owner, Logger logger)
     //**********************************************************
     {
-        int port = ML_registry_discovery.get_random_active_port(new ML_service_type(ML_server_type.FaceNet_similarity_embeddings_server,null),owner,logger);
+        int port = ML_registry_discovery.get_random_active_port(new ML_service_type(ML_server_type.FaceNet,null),owner,logger);
         if (port == -1) {
             logger.log("Registry discovery failed for FaceNet, falling back to legacy port range");
         }
         logger.log("face recognition embeddings, get_random_port: " + port);
         return port;
-    }
-
-    //**********************************************************
-    @Override
-    protected String get_server_python_name()
-    //**********************************************************
-    {
-        return "FaceNet_embeddings_server";
     }
 
 

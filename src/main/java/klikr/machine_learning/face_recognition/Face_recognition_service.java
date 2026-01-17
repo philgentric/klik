@@ -226,7 +226,7 @@ public class Face_recognition_service
                         return;
                     }
                 }
-                logger.log("auto_internal skipping1 " + target + " as it does not contain a file named .folder_name_is_recognition_label");
+                logger.log("auto_internal skipping1 " + target + " as it does not contain a file named '.folder_name_is_recognition_label'");
             });
             return;
         }

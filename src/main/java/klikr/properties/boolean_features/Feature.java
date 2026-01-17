@@ -52,6 +52,7 @@ public enum Feature
     Show_mediainfo_install_warning,
     Show_ytdlp_install_warning,
     Enable_feature_vector_monitoring,
+    Enable_install_debug,
     Enable_ML_server_debug
     //Max_RAM_is_defined_by_user
 

@@ -73,7 +73,7 @@ public class Non_booleans_properties
     public static final String RAM_FILENAME = "ram";
     private static final String PRIVACY_SCREEN = ".privacy_screen";
     private static final String NUMBER_OF_IMAGE_SIMILARITY_SERVERS = "NUMBER_OF_IMAGE_SIMILARITY_SERVERS";
-    private static final int DEFAULT_NUMBER_OF_IMAGE_SIMILARITY_SERVERS = 2*System_info.how_many_cores();
+    private static final int DEFAULT_NUMBER_OF_IMAGE_SIMILARITY_SERVERS = System_info.how_many_cores();
 
     // cached values
 

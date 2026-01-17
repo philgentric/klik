@@ -14,22 +14,24 @@ from functools import partial
 
 SERVER_UUID = str(uuid.uuid4())
 MONITOR_PORT = None
+TCP_PORT = None
+CONFIG_NAME = None
 
-def register_server(config_name, port, uuid_str):
+def register_server():
     """Register server in ~/.klikr/.privacy_screen/face_recognition_server_registry."""
     try:
         home = os.path.expanduser("~")
         registry_dir = os.path.join(home, ".klikr", ".privacy_screen", "face_recognition_server_registry")
         os.makedirs(registry_dir, exist_ok=True)
 
-        filename = f"{config_name}_{uuid_str}.json"
+        filename = f"{CONFIG_NAME}_{SERVER_UUID}.json"
         filepath = os.path.join(registry_dir, filename)
 
         data = {
-            "name": "haars",
-            "sub_type": config_name,
-            "port": port,
-            "uuid": uuid_str
+            "name": "Haars",
+            "sub-type": CONFIG_NAME,
+            "port": TCP_PORT,
+            "uuid": SERVER_UUID
         }
 
         with open(filepath, 'w') as f:
@@ -57,13 +59,28 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
         pass
 
-    def __init__(self, config_name, *args, **kwargs):
-        print("HAARS: "+config_name)
-        self.config_name = config_name
-        self.face_cascade = cv2.CascadeClassifier(config_name)
-        super().__init__(*args, **kwargs)
+    def __init__(self, request, client_address, server):
+        print("Haars: "+CONFIG_NAME)
+        self.face_cascade = cv2.CascadeClassifier(CONFIG_NAME)
+        super().__init__(request, client_address, server)
 
     def do_GET(self):
+
+        # Health check endpoint
+        if self.path == '/health':
+            response = {
+                "name": "Haars",
+                "sub-type": CONFIG_NAME,
+                "port": TCP_PORT,
+                "uuid": SERVER_UUID,
+                "status": "healthy"
+            }
+
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response, indent=2).encode('utf-8'))
+            return
 
         start_time = time.time()
         image_raw_url = self.path[1:]
@@ -155,7 +172,7 @@ class FaceDetectionHandler(SimpleHTTPRequestHandler):
                 pass
         processing_time = (time.time() - start_time)*1000  # Convert to milliseconds
         # Send monitoring data
-        monitor_data = f"{SERVER_UUID},haar_face_detection,{self.config_name},{processing_time:.3f}"
+        monitor_data = f"{SERVER_UUID},haar_face_detection,{CONFIG_NAME},{processing_time:.3f}"
         try:
             bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('127.0.0.1', MONITOR_PORT))
             print(f"UDP sent {bytes_sent} bytes to 127.0.0.1:{MONITOR_PORT}: {monitor_data}")
@@ -169,21 +186,19 @@ class ReliableHTTPServer(HTTPServer):
     allow_reuse_address = True  # Solves "Address already in use" on restart
     request_queue_size = 1024   # Sets the listen backlog correctly from the start
 
-def run_server(config_name,monitor_udp_port):
-    global MONITOR_PORT, REGISTRY_FILE
-    MONITOR_PORT = monitor_udp_port
-    print("Starting local HAARS FACE DETECTION server with config: "+config_name)
+def run_server():
+    global REGISTRY_FILE, TCP_PORT
+    print("Starting local HAARS FACE DETECTION server with config: "+CONFIG_NAME)
 
     # Bind to ephemeral port to avoid fragile fixed port assignments
     server_address = ('127.0.0.1', 0)
-    handler = partial(FaceDetectionHandler, config_name)
-    httpd = ReliableHTTPServer(server_address, handler)
-    chosen_port = httpd.server_address[1]
+    httpd = ReliableHTTPServer(server_address, FaceDetectionHandler)
+    TCP_PORT = httpd.server_address[1]
 
-    print(f"Bound HAARS face detection server to TCP port: {chosen_port}")
+    print(f"Bound HAARS face detection server to TCP port: {TCP_PORT}")
 
     # Register server using the real bound port
-    REGISTRY_FILE = register_server(config_name , chosen_port, SERVER_UUID)
+    REGISTRY_FILE = register_server()
 
     try:
         httpd.serve_forever()
@@ -207,10 +222,10 @@ if __name__ == '__main__':
         sys.exit(1)
 
     try:
-        config_name = sys.argv[1].replace("'", "")
-        udp_port = int(sys.argv[2])
+        CONFIG_NAME = sys.argv[1].replace("'", "")
+        MONITOR_PORT = int(sys.argv[2])
 
-        run_server(config_name, udp_port)
+        run_server()
     except ValueError:
         print("Error: Ports must be integers")
         sys.exit(1)

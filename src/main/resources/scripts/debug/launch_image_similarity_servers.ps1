@@ -33,6 +33,7 @@ foreach ($Port in $EMBEDDINGS_PORTS) {
 
     $PyCode = "import MobileNet_embeddings_server;MobileNet_embeddings_server.run_server($Port,$UDP_PORT)"
 
+    //`/K` keeps the command prompt open, preventing the JVM from sending a termination signal to the child.
     Start-Process cmd -ArgumentList "/k python -c `"$PyCode`""
 }
 

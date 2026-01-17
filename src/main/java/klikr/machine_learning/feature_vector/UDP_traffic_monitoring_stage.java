@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.machine_learning;
+package klikr.machine_learning.feature_vector;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -22,22 +22,22 @@ import java.util.Map;
 import java.util.Random;
 
 //**********************************************************
-public class Embeddings_servers_monitoring_stage
+public class UDP_traffic_monitoring_stage
 //**********************************************************
 {
-    private Stage stage;
-    //private final Map<String, List<Report>> uuid_to_record= new HashMap<>();
-    private final Map<String, VBox> uuid_to_vbox= new HashMap<>();
-    private HBox hits_hbox;
-    private final Logger logger;
+    private static final boolean dbg = false;
     private static final double DISPLAY_PIXEL_HEIGHT = 800;
     private static final double SMALL_WIDTH = 20;
     private static double SMALL_HEIGHT = 20;
-    private Label rate_label;
-    private Label duration_label;
-    //private double LAST_X = 3;
+
+    private final Stage stage;
+    private final Map<String, VBox> uuid_to_vbox= new HashMap<>();
+    private final HBox hits_hbox;
+    private final Logger logger;
+    private final Label rate_label;
+    private final Label duration_label;
     //**********************************************************
-    public Embeddings_servers_monitoring_stage(Window owner, Logger logger)
+    public UDP_traffic_monitoring_stage(Window owner, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
@@ -65,7 +65,7 @@ public class Embeddings_servers_monitoring_stage
     }
 
     //**********************************************************
-    public void inject(Report report)
+    public void inject(UDP_report report)
     //**********************************************************
     {
         Runnable r = () -> {
@@ -79,7 +79,7 @@ public class Embeddings_servers_monitoring_stage
     private double total_duration   =0;
     private double max_hit_for_a_server = 0;
     //**********************************************************
-    private void inject_report(Report report)
+    private void inject_report(UDP_report report)
     //**********************************************************
     {
         hit_count++;
@@ -96,14 +96,14 @@ public class Embeddings_servers_monitoring_stage
         VBox vbox = uuid_to_vbox.get(server_uuid);
         if ( vbox == null )
         {
-            logger.log("First record for server UUID: " + server_uuid);
+            if ( dbg) logger.log("First record for server UUID: " + server_uuid);
             vbox = new VBox();
             hits_hbox.getChildren().add(vbox);
             uuid_to_vbox.put(server_uuid, vbox);
         }
         else
         {
-            logger.log("Adding record for server UUID: " + server_uuid+ vbox.getChildren().size());
+            if ( dbg) logger.log("Adding record for server UUID: " + server_uuid+ vbox.getChildren().size());
         }
 
         Rectangle r = new Rectangle(SMALL_WIDTH, SMALL_HEIGHT);
@@ -160,7 +160,7 @@ public class Embeddings_servers_monitoring_stage
 
     public void show()
     {
-        logger.log(" Embeddings_servers_monitoring_stage show");
+        if ( dbg) logger.log(" UDP_traffic_monitoring_stage show");
         stage.show();
     }
 }

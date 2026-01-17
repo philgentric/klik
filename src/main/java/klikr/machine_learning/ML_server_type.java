@@ -10,10 +10,11 @@ import java.nio.file.Path;
 public enum ML_server_type
 //**********************************************************
 {
-    MobileNet_image_similarity_embeddings_server,
-    FaceNet_similarity_embeddings_server,
-    MTCNN_face_detection_server,
-    Haars_face_detection_server;
+    // Convolutional Neural Network = CNN
+    MobileNet, // feature vectors (CNN embeddings) for general purpose image similarity
+    FaceNet, //  feature vectors (CNN embeddings) specialized for face similarity (=> recognition assuming faces with labels are recorded)
+    MTCNN, // Convolutional Neural Network for face detection
+    Haars; // "old tech" face detector
 
     //**********************************************************
     Path registry_path(Window owner, Logger logger)
@@ -21,11 +22,11 @@ public enum ML_server_type
     {
         switch(this)
         {
-            case FaceNet_similarity_embeddings_server, Haars_face_detection_server, MTCNN_face_detection_server:
+            case FaceNet, Haars, MTCNN:
             {
                 return Non_booleans_properties.get_absolute_hidden_dir_on_user_home("face_recognition_server_registry", false, owner, logger);
             }
-            case MobileNet_image_similarity_embeddings_server:
+            case MobileNet:
             {
                 return Non_booleans_properties.get_absolute_hidden_dir_on_user_home("image_similarity_server_registry", false, owner, logger);
             }
@@ -33,24 +34,21 @@ public enum ML_server_type
         return null;
     }
     //**********************************************************
-    int target_server_count(Window owner)
+    int quota(Window owner)
     //**********************************************************
     {
+        // for the face recog servers we count '1' for a call to start ... which may start more than one
         switch(this)
         {
-            case FaceNet_similarity_embeddings_server:
+            case FaceNet, MTCNN:
             {
-                return 2;
+                return 1;
             }
-            case Haars_face_detection_server:
+            case Haars:
             {
-                return 2;
+                return 4; // one of each sub type
             }
-            case MTCNN_face_detection_server:
-            {
-                return 2;
-            }
-            case MobileNet_image_similarity_embeddings_server:
+            case MobileNet:
             {
                 return Non_booleans_properties.get_number_of_image_similarity_servers(owner);
             }
@@ -64,19 +62,19 @@ public enum ML_server_type
     {
         switch(this)
         {
-            case FaceNet_similarity_embeddings_server:
+            case FaceNet:
             {
             return "FaceNet_embeddings_server.py";
             }
-            case Haars_face_detection_server:
+            case Haars:
             {
             return "haars_face_detection_server.py";
             }
-            case MTCNN_face_detection_server:
+            case MTCNN:
             {
             return "MTCNN_face_detection_server.py";
             }
-            case MobileNet_image_similarity_embeddings_server:
+            case MobileNet:
             {
                 return "MobileNet_embeddings_server.py";
             }

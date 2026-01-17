@@ -18,7 +18,6 @@ import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.look.Look_and_feel_manager;
 import klikr.properties.Non_booleans_properties;
-import klikr.util.execute.Nix_execute_via_script_in_tmp_file;
 import klikr.util.files_and_paths.modifications.Filesystem_item_modification_watcher;
 import klikr.util.files_and_paths.modifications.Filesystem_modification_reporter;
 import klikr.util.log.Logger;
@@ -76,17 +75,17 @@ public class Text_frame
 
     // is like a console output window
     //**********************************************************
-    public static void show(String command, LinkedBlockingQueue<String> queue, Logger logger)
+    public static void show(String command, LinkedBlockingQueue<String> queue, double x, double y, Logger logger)
     //**********************************************************
     {
-        new Text_frame(command,queue,logger);
+        new Text_frame(command,queue,x,y,logger);
     }
 
     //**********************************************************
     private Text_frame(
             String command,
             LinkedBlockingQueue<String> queue,
-            Logger logger)
+            Double x, Double y, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
@@ -94,7 +93,8 @@ public class Text_frame
         this.the_lines = null;
         this.the_queue = queue;
 
-        init(command);
+
+        init(command,x,y);
 
         Runnable r = () -> {
             try {
@@ -146,7 +146,7 @@ public class Text_frame
         this.the_path = null;
         this.the_lines = the_lines;
 
-        init("");
+        init("",null,null);
     }
 
     //**********************************************************
@@ -159,7 +159,7 @@ public class Text_frame
         this.the_path = the_path;
         this.the_lines =null;
 
-        init(the_path.toAbsolutePath().toString());
+        init(the_path.toAbsolutePath().toString(), null,null);
 
         Filesystem_item_modification_watcher watcher = new Filesystem_item_modification_watcher();
         Filesystem_modification_reporter reporter = () -> {
@@ -172,7 +172,7 @@ public class Text_frame
 
 
     //**********************************************************
-    private void init(String title_header)
+    private void init(String title_header, Double x, Double y)
     //**********************************************************
     {
         web_view.setFontScale(2.0);
@@ -237,20 +237,26 @@ public class Text_frame
         
         stage = new Stage();
 
-        Rectangle2D r = Non_booleans_properties.get_window_bounds(TEXT_FRAME,stage);
-        if ( r == null)
+        if ( x!= null && y!=null)
         {
-            stage.setX(100);
-            stage.setY(100);
+            stage.setX(x);
+            stage.setY(y);
             stage.setWidth(800);
             stage.setHeight(600);
         }
-        else
-        {
-            stage.setX(r.getMinX());
-            stage.setY(r.getMinY());
-            stage.setWidth(r.getWidth());
-            stage.setHeight(r.getHeight());
+        else {
+            Rectangle2D r = Non_booleans_properties.get_window_bounds(TEXT_FRAME, stage);
+            if (r == null) {
+                stage.setX(100);
+                stage.setY(100);
+                stage.setWidth(800);
+                stage.setHeight(600);
+            } else {
+                stage.setX(r.getMinX());
+                stage.setY(r.getMinY());
+                stage.setWidth(r.getWidth());
+                stage.setHeight(r.getHeight());
+            }
         }
         String title = title_header;//+" / Select text and press s,k or m to highlight all instances, then d or n to jump down and u or p to jump up";
         stage.setTitle(title);

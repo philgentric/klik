@@ -12,6 +12,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import klikr.look.Look_and_feel;
 import klikr.look.Look_and_feel_manager;
+import klikr.properties.boolean_features.Feature;
+import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.execute.Guess_OS;
 import klikr.util.execute.Script_executor;
 import klikr.util.log.Logger;
@@ -40,9 +42,10 @@ public enum External_application
     {
         EventHandler<ActionEvent> handler =  e ->
         {
+            boolean enable_install_debug = Feature_cache.get(Feature.Enable_install_debug);
             String cmd = get_command_string_to_install(owner,logger);
             if ( cmd == null) return;
-            Script_executor.execute(List.of(cmd),Path.of("."),owner,logger);
+            Script_executor.execute(List.of(cmd),Path.of("."),enable_install_debug, owner,logger);
         };
 
         return Items_with_explanation.make_hbox_with_button_and_explanation(

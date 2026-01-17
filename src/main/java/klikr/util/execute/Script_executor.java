@@ -56,28 +56,28 @@ public class Script_executor
     //**********************************************************
     public static void execute(List<String> cmd,
                                Path tmp_folder,
+                               boolean debug_mode,
                                Window owner, Logger logger)
     //**********************************************************
     {
-        Actor_engine.execute(()->execute_internal(cmd,tmp_folder, owner,logger),"Script_executor "+String.join(" ",cmd),logger);
+        Actor_engine.execute(()->execute_internal(cmd,tmp_folder, debug_mode, owner,logger),"Script_executor "+String.join(" ",cmd),logger);
     }
 
 
     //**********************************************************
     private static void execute_internal(List<String> cmds,
                                          Path tmp_folder,
+                                         boolean debug_mode,
                                          Window owner, Logger logger)
     //**********************************************************
     {
-        boolean debug_mode = Feature_cache.get(Feature.Enable_ML_server_debug);
 
         LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
         CountDownLatch ui_latch = new CountDownLatch(1);
         if ( debug_mode) {
             Platform.runLater(() -> {
                 try {
-                    Text_frame.show("Script_executor", queue, logger);
-                    logger.log("Script_executor window open");
+                    Text_frame.show("Script_executor", queue, 100,100, logger);
                 } finally {
                     ui_latch.countDown();
                 }

@@ -857,16 +857,17 @@ public class Virtual_landscape
                     }
                 }
             }
-            if (image_properties_in_flight > 1) {
+            if (image_properties_in_flight > 1)
+            {
                 // wait for all properties to become available
-                logger.log("going to wait");
+                if (dbg) logger.log("going to wait");
                 long start2 = System.nanoTime();
                 try {
                     wait_for_end.await();
                 } catch (InterruptedException e) {
                     logger.log("" + e);
                 }
-                logger.log("wait terminated " + (System.nanoTime() - start2) + " ns");
+                if (dbg) logger.log("wait terminated " + (System.nanoTime() - start2) + " ns");
             }
             if (dbg)
                 logger.log("✅ getting image properties took " + (System.currentTimeMillis() - start) + " milliseconds");

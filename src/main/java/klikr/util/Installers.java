@@ -10,9 +10,10 @@ import klikr.Klikr_application;
 import klikr.look.Look_and_feel;
 import klikr.machine_learning.ML_servers_util;
 import klikr.properties.Non_booleans_properties;
+import klikr.properties.boolean_features.Feature;
+import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.execute.Execute_command;
 import klikr.util.execute.Execute_result;
-import klikr.util.execute.Nix_execute_via_script_in_tmp_file;
 import klikr.util.execute.Script_executor;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
@@ -175,7 +176,8 @@ public class Installers
             if ( app==External_application.Ffprobe) continue; // installs with ffmpeg
             String cmd = app.get_command_string_to_install(owner, logger);
             if (cmd == null) continue;
-            Script_executor.execute(List.of(cmd),Path.of("."), owner, logger);
+            boolean dbg = Feature_cache.get(Feature.Enable_install_debug);
+            Script_executor.execute(List.of(cmd),Path.of("."), dbg,owner, logger);
         }
     }
 

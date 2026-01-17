@@ -30,12 +30,11 @@ import java.util.concurrent.atomic.LongAdder;
 public abstract class Feature_vector_source_server implements Feature_vector_source
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
     private static final boolean ultra_dbg = false;
 
     // get_random_port is actually going to start servers, when needed
     protected abstract int get_random_port(Window owner, Logger logger);
-    protected abstract String get_server_python_name();
     public static long start = System.nanoTime();
     static LongAdder tx_count = new LongAdder();
     static LongAdder SUM_dur_us = new LongAdder(); // microseconds
@@ -90,7 +89,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         }
         int random_port = get_random_port(owner,logger);
 
-        logger.log("random_port="+random_port);
+        if ( dbg) logger.log("random_port="+random_port);
         if (random_port == -1) {
             logger.log("No valid port from registry");
             return Optional.empty();
@@ -259,7 +258,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         }
         try {
             String response_message = connection.getResponseMessage();
-            logger.log("response message="+response_message);
+            //logger.log("response message="+response_message);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(url_string+": get_feature_vector_from_server_generic (Error#7): "+e));
             return Optional.empty();

@@ -76,12 +76,10 @@ public class More_settings_stage
     public static final Feature[] debugging_features ={
             Feature.Log_to_file,
             Feature.Log_performances,
-            //Feature.Enable_detailed_cache_cleaning_options,
             Feature.Fusk_is_on,
             Feature.Show_ffmpeg_install_warning,
             Feature.Show_graphicsmagick_install_warning,
             //Feature.Show_can_use_ESC_to_close_windows,
-            //Feature.Enable_feature_vector_monitoring
     };
 
     private final Window owner;
@@ -190,7 +188,9 @@ public class More_settings_stage
             accordion.getPanes().add(pane);
         }
         {
+            // INSTALL
             VBox box = new VBox(10);
+            add_one_line(Feature.Enable_install_debug, box);
             Installers.make_ui_to_install_everything(false,w,icon_size,look_and_feel,box,owner,logger);
             Installers.make_ui_to_install_all_apps(w,icon_size,look_and_feel,box,owner,logger);
             ScrollPane sp = new ScrollPane(box);
@@ -204,6 +204,9 @@ public class More_settings_stage
             VBox box = new VBox(10);
             Installers.make_ui_to_install_python_libs_for_ML(w, icon_size, look_and_feel,box, owner, logger);
 
+            add_one_line(Feature.Enable_ML_server_debug, box);
+            add_one_line(Feature.Display_image_distances, box);
+
             add_one_line(Feature.Enable_image_similarity,box);
             {
                 HBox hb = Installers.make_ui_to_start_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
@@ -211,9 +214,7 @@ public class More_settings_stage
                     disable_button(hb);
                 }
             }
-            add_one_line(Feature.Enable_ML_server_debug, box);
-            add_one_line(Feature.Enable_feature_vector_monitoring, box);
-            add_one_line(Feature.Display_image_distances, box);
+
             {
                 HBox hb = Installers.make_ui_to_stop_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
                 if (!Feature_cache.get(Feature.Enable_image_similarity)) {

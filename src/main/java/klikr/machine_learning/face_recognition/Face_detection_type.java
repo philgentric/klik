@@ -5,11 +5,12 @@ package klikr.machine_learning.face_recognition;
 
 public enum Face_detection_type
 {
+    MTCNN, // a CNN face detector
+    // the next 4 are configs/variants (XML files) for the Haars Cascade algorithm
     alt_default,
     alt_tree,
     alt1,
-    alt2,
-    MTCNN;
+    alt2;
 
     String get_xml_file_name()
     {

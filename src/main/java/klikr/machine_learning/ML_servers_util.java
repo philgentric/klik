@@ -5,10 +5,10 @@ package klikr.machine_learning;
 
 import javafx.stage.Window;
 import klikr.machine_learning.face_recognition.Face_detection_type;
-import klikr.machine_learning.face_recognition.Face_detector;
-import klikr.machine_learning.face_recognition.Feature_vector_source_for_face_recognition;
-import klikr.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
+import klikr.machine_learning.feature_vector.UDP_traffic_monitor;
 import klikr.properties.Non_booleans_properties;
+import klikr.properties.boolean_features.Feature;
+import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.execute.*;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
@@ -17,9 +17,7 @@ import klikr.util.log.Tmp_file_in_trash;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static klikr.properties.Non_booleans_properties.CONF_DIR;
 import static klikr.properties.Non_booleans_properties.USER_HOME;
@@ -43,6 +41,7 @@ public class ML_servers_util
     public static void install_python_libs_for_ML(Window owner, Logger logger)
     //**********************************************************
     {
+        boolean dbg = Feature_cache.get(Feature.Enable_ML_server_debug);
         Tmp_file_in_trash.create_copy_in_trash("requirements.txt",owner,logger);
 
         Operating_system os = Guess_OS.guess(owner,logger);
@@ -52,7 +51,7 @@ public class ML_servers_util
             {
                 Tmp_file_in_trash.create_copy_in_trash("create_venv_for_windows.ps1",owner,logger);
                 List<String> cmds = List.of(".\\"+"create_venv_for_windows.ps1");
-                Script_executor.execute(cmds,trash(owner,logger),owner,logger);
+                Script_executor.execute(cmds,trash(owner,logger),dbg, owner,logger);
             }
             case MacOS, Linux ->
             {
@@ -64,18 +63,20 @@ public class ML_servers_util
                         macOS_commands_to_install_tensorflow,
                         macOS_commands_to_install_requirements
                 );
-                Script_executor.execute(cmds,trash(owner,logger),owner,logger);
+                Script_executor.execute(cmds,trash(owner,logger),dbg, owner,logger);
             }
         }
     }
 
 
     //**********************************************************
-    public static void start_some_image_similarity_servers(int num_servers, Window owner, Logger logger)
+    public static int start_some_image_similarity_servers(int num_servers, Window owner, Logger logger)
     //**********************************************************
     {
+        boolean dbg = Feature_cache.get(Feature.Enable_ML_server_debug);
+
         Tmp_file_in_trash.create_copy_in_trash("MobileNet_embeddings_server.py",owner,logger);
-        int udp_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(owner, logger);
+        int udp_port = UDP_traffic_monitor.get_servers_monitor_udp_port(owner, logger);
         Operating_system os = Guess_OS.guess(owner,logger);
 
         // Launch multiple servers, each will bind to an ephemeral port (0)
@@ -88,22 +89,21 @@ public class ML_servers_util
                         List<String> cmds = new ArrayList<>();
                         cmds.add(macOS_commands_to_activate_venv);
                         // Pass 0 for TCP port - server will bind to ephemeral port
-                        cmds.add("python3 MobileNet_embeddings_server.py 0 " + udp_port);
-                        Script_executor.execute(cmds, trash(owner, logger), owner, logger);
+                        cmds.add("nohup python3 MobileNet_embeddings_server.py " + udp_port+ " &");
+                        Script_executor.execute(cmds, trash(owner, logger), dbg,owner, logger);
                     }
                     case Windows -> {
                         List<String> cmds = new ArrayList<>();
                         Path venv_path = venv();
                         Path activate_script = venv_path.resolve("Scripts").resolve("Activate.ps1");
                         cmds.add("& " + "\"" + activate_script.toAbsolutePath() + "\"");
-                        // Pass 0 for TCP port - server will bind to ephemeral port
-                        cmds.add("python MobileNet_embeddings_server.py 0 " + udp_port);
-                        Script_executor.execute(cmds, trash(owner, logger), owner, logger);
+                        cmds.add("cmd /k python MobileNet_embeddings_server.py " + udp_port);
+                        Script_executor.execute(cmds, trash(owner, logger), dbg, owner, logger);
                     }
                 }
             },"launching image similarity server #" + i, logger);
         }
-
+        return num_servers;
     }
 
 
@@ -113,6 +113,7 @@ public class ML_servers_util
     public static void stop_image_similarity_servers(Window owner, Logger logger)
     //**********************************************************
     {
+        boolean dbg = Feature_cache.get(Feature.Enable_ML_server_debug);
         Operating_system os = Guess_OS.guess(owner,logger);
         switch ( os)
         {
@@ -121,7 +122,7 @@ public class ML_servers_util
                 // kill every “MobileNet_embeddings_server” process
                 String cmd1 = "pids=$(pgrep -f MobileNet_embeddings_server  || true)";
                 String cmd2 = "if [[ -n $pids ]]; then kill -9 $pids; fi";
-                Script_executor.execute(List.of(cmd1, cmd2),trash(owner,logger),owner,logger);
+                Script_executor.execute(List.of(cmd1, cmd2),trash(owner,logger),dbg, owner,logger);
             }
 
             case Windows ->
@@ -129,11 +130,11 @@ public class ML_servers_util
                  List<String> cmds = new ArrayList<>();
                  cmds.add("$procList = Get-CimInstance -ClassName Win32_Process | Where-Object { $_.CommandLine -match 'MobileNet_embeddings_server' }");
                  cmds.add("if ($procList) { Stop-Process -Id $procList.ProcessId -Force -ErrorAction SilentlyContinue }");
-                 Script_executor.execute(cmds,trash(owner,logger),owner,logger);
+                 Script_executor.execute(cmds,trash(owner,logger),dbg, owner,logger);
             }
         }
 
-        ML_registry_discovery.invalidate(new ML_service_type(ML_server_type.MobileNet_image_similarity_embeddings_server,null));
+        ML_registry_discovery.all_servers_killed(new ML_service_type(ML_server_type.MobileNet,null));
     }
 
     //**********************************************************
@@ -144,6 +145,7 @@ public class ML_servers_util
             Logger logger)
     //**********************************************************
     {
+        boolean dbg = Feature_cache.get(Feature.Enable_ML_server_debug);
         Operating_system os = Guess_OS.guess(owner,logger);
         Actor_engine.execute(() -> {
             List<String> cmds = new ArrayList<>();
@@ -153,8 +155,8 @@ public class ML_servers_util
                 case MacOS, Linux -> {
                     cmds.add(macOS_commands_to_activate_venv);
                     // execute the script directly using python3
-                    cmds.add("python3 " + scriptName + " " + argsStr);
-                    Script_executor.execute(cmds, trash(owner, logger), owner, logger);
+                    cmds.add("nohup python3 " + scriptName + " " + argsStr+" &");
+                    Script_executor.execute(cmds, trash(owner, logger), dbg, owner, logger);
                 }
                 case Windows -> {
                     // Activate venv
@@ -162,15 +164,17 @@ public class ML_servers_util
                     Path activate_script = venv_path.resolve("Scripts").resolve("Activate.ps1");
                     cmds.add("& " + "\"" + activate_script.toAbsolutePath() + "\"");
                     // Run python script
-                    cmds.add("python " + scriptName + " " + argsStr);
-                    Script_executor.execute(cmds, trash(owner, logger), owner, logger);
+                    // `/K` keeps the command prompt open,
+                    // preventing the JVM from sending a termination signal to the child.
+                    cmds.add("cmd /k python " + scriptName + " " + argsStr);
+                    Script_executor.execute(cmds, trash(owner, logger), dbg, owner, logger);
                 }
             }
         }, "launching " + scriptName, logger);
     };
 
     //**********************************************************
-    public static boolean start_haars_face_detection_servers(Window owner, Logger logger)
+    public static int start_haars_face_detection_servers(Window owner, Logger logger)
     //**********************************************************
     {
         Tmp_file_in_trash.create_copy_in_trash("haars_face_detection_server.py",owner,logger);
@@ -178,10 +182,10 @@ public class ML_servers_util
         Tmp_file_in_trash.create_copy_in_trash("haarcascade_frontalface_alt_default.xml",owner,logger);
         Tmp_file_in_trash.create_copy_in_trash("haarcascade_frontalface_alt1.xml",owner,logger);
         Tmp_file_in_trash.create_copy_in_trash("haarcascade_frontalface_alt2.xml",owner,logger);
-        int udp_monitoring_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(owner, logger);
+        int udp_monitoring_port = UDP_traffic_monitor.get_servers_monitor_udp_port(owner, logger);
 
         Operating_system os = Guess_OS.guess(owner,logger);
-        logger.log(os+" starting haars_face_detection servers");
+        logger.log(os+" starting 4 haars_face_detection servers");
 
         //  alt_tree
         launcher(
@@ -213,53 +217,51 @@ public class ML_servers_util
         , owner, logger);
 
 
-        return true;
+        return 4;
     }
 
     //**********************************************************
-    public static boolean start_MTCNN_face_detection_servers(Window owner, Logger logger)
+    public static int start_MTCNN_face_detection_servers(Window owner, Logger logger)
     //**********************************************************
     {
         Tmp_file_in_trash.create_copy_in_trash("MTCNN_face_detection_server.py",owner,logger);
-        int udp_monitoring_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(owner, logger);
+        int udp_monitoring_port = UDP_traffic_monitor.get_servers_monitor_udp_port(owner, logger);
 
         Operating_system os = Guess_OS.guess(owner,logger);
-        logger.log(os+" starting face recognition servers");
+        logger.log(os+" starting 1 MTCNN face recognition server");
 
-        // Launch MTCNN Face Detection Servers
-        for (int i = 0; i < 3; i++) {
-            launcher("MTCNN_face_detection_server.py",
+        launcher("MTCNN_face_detection_server.py",
                     new String[]{String.valueOf(udp_monitoring_port)},
                     owner, logger);
-        }
-
-        return true;
+        return 1;
     }
 
     //**********************************************************
-    public static boolean start_face_embeddings_servers(Window owner, Logger logger)
+    public static int start_face_embeddings_servers(Window owner, Logger logger)
     //**********************************************************
     {
         Tmp_file_in_trash.create_copy_in_trash("FaceNet_embeddings_server.py",owner,logger);
-        int udp_monitoring_port = Embeddings_servers_monitor.get_servers_monitor_udp_port(owner, logger);
+        int udp_monitoring_port = UDP_traffic_monitor.get_servers_monitor_udp_port(owner, logger);
 
         Operating_system os = Guess_OS.guess(owner,logger);
         logger.log(os+" starting FaceNet servers");
 
-        // 1. Launch FaceNet Embeddings Servers
-        for (int i = 0; i < 3; i++) {
+        // Launch FaceNet Embeddings Servers
+        int actual = 3;
+        for (int i = 0; i < actual; i++) {
             launcher("FaceNet_embeddings_server.py",
                     new String[]{String.valueOf(udp_monitoring_port)},
                     owner, logger);
         }
 
-        return true;
+        return actual;
     }
 
     //**********************************************************
     public static void stop_face_recognition_servers(Window owner, Logger logger)
     //**********************************************************
     {
+        boolean dbg = Feature_cache.get(Feature.Enable_ML_server_debug);
         Operating_system os = Guess_OS.guess(owner,logger);
         switch ( os)
         {
@@ -270,7 +272,7 @@ public class ML_servers_util
                      cmds.add("pids=$(pgrep -f " + name + " || true)");
                      cmds.add("if [[ -n $pids ]]; then kill -9 $pids; fi");
                  }
-                 Script_executor.execute(cmds, trash(owner, logger), owner, logger);
+                 Script_executor.execute(cmds, trash(owner, logger), dbg, owner, logger);
            }
 
             case Windows ->
@@ -280,31 +282,31 @@ public class ML_servers_util
                     cmds.add("$procList = Get-CimInstance -ClassName Win32_Process | Where-Object { $_.CommandLine -match '" + name + "' }");
                     cmds.add("if ($procList) { Stop-Process -Id $procList.ProcessId -Force -ErrorAction SilentlyContinue }");
                 }
-                Script_executor.execute(cmds, trash(owner, logger), owner, logger);
+                Script_executor.execute(cmds, trash(owner, logger), dbg, owner, logger);
             }
         }
-        ML_registry_discovery.invalidate(new ML_service_type(ML_server_type.MTCNN_face_detection_server,null));
-        ML_registry_discovery.invalidate(new ML_service_type(ML_server_type.FaceNet_similarity_embeddings_server,null));
-        ML_registry_discovery.invalidate(new ML_service_type(ML_server_type.Haars_face_detection_server,Face_detection_type.alt1));
-        ML_registry_discovery.invalidate(new ML_service_type(ML_server_type.Haars_face_detection_server,Face_detection_type.alt2));
-        ML_registry_discovery.invalidate(new ML_service_type(ML_server_type.Haars_face_detection_server,Face_detection_type.alt_default));
-        ML_registry_discovery.invalidate(new ML_service_type(ML_server_type.Haars_face_detection_server,Face_detection_type.alt_tree));
+        ML_registry_discovery.all_servers_killed(new ML_service_type(ML_server_type.MTCNN,null));
+        ML_registry_discovery.all_servers_killed(new ML_service_type(ML_server_type.FaceNet,null));
+        ML_registry_discovery.all_servers_killed(new ML_service_type(ML_server_type.Haars,Face_detection_type.alt1));
+        ML_registry_discovery.all_servers_killed(new ML_service_type(ML_server_type.Haars,Face_detection_type.alt2));
+        ML_registry_discovery.all_servers_killed(new ML_service_type(ML_server_type.Haars,Face_detection_type.alt_default));
+        ML_registry_discovery.all_servers_killed(new ML_service_type(ML_server_type.Haars,Face_detection_type.alt_tree));
 
     }
 
-    // works on all OSES
     //**********************************************************
     private static Path trash(Window owner,Logger logger)
     //**********************************************************
     {
+        // works on all OSES
         return Non_booleans_properties.get_trash_dir(Path.of(""),owner,logger);
     }
 
-    // works on all OSES
     //**********************************************************
     public static Path venv()
     //**********************************************************
     {
+        // works on all OSES
         return Paths.get(System.getProperty(USER_HOME), CONF_DIR, "venv").toAbsolutePath();
     }
 

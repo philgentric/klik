@@ -246,7 +246,7 @@ public class Image_window
             }
             if (local_comp != null)
             {
-                logger.log("path_comparator from browser " +local_comp);
+                if ( dbg) logger.log("path_comparator from browser " +local_comp);
             }
             else
             {

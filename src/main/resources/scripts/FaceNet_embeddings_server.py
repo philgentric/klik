@@ -16,6 +16,7 @@ from http.server import SimpleHTTPRequestHandler
 # Server configuration
 SERVER_UUID = str(uuid.uuid4())
 MONITOR_PORT = None
+TCP_PORT = None
 
 # ML libraries (initialized later)
 torch = None
@@ -41,20 +42,20 @@ RUNTIME_DIAGNOSTICS = {
     "last_error_time": None
 }
 
-def register_server(port, uuid_str):
+def register_server():
     """Register server in ~/.klikr/.privacy_screen/face_recognition_server_registry."""
     try:
         home = os.path.expanduser("~")
         registry_dir = os.path.join(home, ".klikr", ".privacy_screen", "face_recognition_server_registry")
         os.makedirs(registry_dir, exist_ok=True)
 
-        filename = f"FaceNet_{uuid_str}.json"
+        filename = f"FaceNet_{SERVER_UUID}.json"
         filepath = os.path.join(registry_dir, filename)
 
         data = {
             "name": "FaceNet",
-            "port": port,
-            "uuid": uuid_str
+            "port": TCP_PORT,
+            "uuid": SERVER_UUID
         }
 
         with open(filepath, 'w') as f:
@@ -164,8 +165,9 @@ class Facenet_Embeddings_Generator(SimpleHTTPRequestHandler):
         )
 
         response = {
-            "server_name": "FaceNet Embeddings Server",
-            "UUID": SERVER_UUID,
+            "name": "FaceNet",
+            "port": TCP_PORT,
+            "uuid": SERVER_UUID,
             "status": "healthy" if is_healthy else "critical_failure",
             "diagnostics": STARTUP_DIAGNOSTICS,
             "runtime": RUNTIME_DIAGNOSTICS
@@ -250,22 +252,21 @@ class ReliableHTTPServer(BaseHTTPServer):
     allow_reuse_address = True
     request_queue_size = 1024
 
-def run_server(udp_port):
-    global MONITOR_PORT, REGISTRY_FILE
-    MONITOR_PORT = udp_port
+def run_server():
+    global REGISTRY_FILE, TCP_PORT
     print(f"Starting local FaceNet FACE EMBEDDINGS server")
-    print(f"Monitoring messages will be sent to UDP port {udp_port}")
+    print(f"Monitoring messages will be sent to UDP port {MONITOR_PORT}")
     print("Diagnostics available at /health")
 
     # Bind to an ephemeral port to avoid fragile fixed port assignments
     server_address = ('127.0.0.1', 0)
     httpd = ReliableHTTPServer(server_address, Facenet_Embeddings_Generator)
-    chosen_port = httpd.server_address[1]
+    TCP_PORT = httpd.server_address[1]
 
-    print(f"Bound FaceNet embeddings server to TCP port: {chosen_port}")
+    print(f"Bound FaceNet embeddings server to TCP port: {TCP_PORT}")
 
     # Register server using the real bound port
-    REGISTRY_FILE = register_server(chosen_port, SERVER_UUID)
+    REGISTRY_FILE = register_server()
 
     try:
         httpd.serve_forever()
@@ -290,8 +291,8 @@ if __name__ == '__main__':
         sys.exit(1)
 
     try:
-        udp_port = int(sys.argv[1])
-        run_server(udp_port)
+        MONITOR_PORT = int(sys.argv[1])
+        run_server()
     except ValueError:
         print("Error: Ports must be integers")
         sys.exit(1)

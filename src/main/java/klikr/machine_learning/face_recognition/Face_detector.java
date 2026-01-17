@@ -8,7 +8,9 @@ import javafx.stage.Window;
 import klikr.machine_learning.ML_registry_discovery;
 import klikr.machine_learning.ML_server_type;
 import klikr.machine_learning.ML_service_type;
-import klikr.properties.Non_booleans_properties;
+import klikr.machine_learning.feature_vector.UDP_traffic_monitor;
+import klikr.properties.boolean_features.Feature;
+import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
 import klikr.util.log.Stack_trace_getter;
@@ -18,7 +20,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -34,7 +35,8 @@ the selector is the port number see below
 public class Face_detector
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
+    private static final boolean ultra_dbg = false;
     static Random  random = new Random();
     static final int MINIMUM_ACCEPTABLE_FACE_SIZE = 200;
 
@@ -42,21 +44,20 @@ public class Face_detector
     public static int get_random_port(Face_detection_type face_detection_type, Window owner, Logger logger)
     //**********************************************************
     {
-        ML_server_type ml_server_type = ML_server_type.MTCNN_face_detection_server;
+        ML_server_type ml_server_type = ML_server_type.MTCNN;
         switch (face_detection_type)
         {
             case alt_default, alt1, alt2, alt_tree:
-                ml_server_type = ML_server_type.Haars_face_detection_server;
+                ml_server_type = ML_server_type.Haars;
                 break;
         }
         List<Integer> list = ML_registry_discovery.find_active_servers(new ML_service_type(ml_server_type, face_detection_type), owner,logger);
         if ( list.isEmpty())
         {
-            logger.log("No active face detection servers found for :"+face_detection_type);
+            if (dbg) logger.log("No active face detection servers found for :"+face_detection_type);
             return -1;
         }
 
-        ML_registry_discovery.print_all(logger);
         return list.get(random.nextInt(list.size()));
     }
 
@@ -72,8 +73,26 @@ public class Face_detector
     public static Face_detection_result detect_face(Path path, Face_detection_type face_detection_type, Window owner, Logger logger)
     //**********************************************************
     {
+
+        if ( Feature_cache.get(Feature.Enable_ML_server_debug))
+        {
+            UDP_traffic_monitor.start_servers_monitoring(owner, logger);
+        }
+
         start = System.nanoTime();
         int port = get_random_port(face_detection_type,owner,logger);
+        if ( port == -1 )
+        {
+            logger.log("Warning: could not find 1 active server for "+face_detection_type);
+            ML_server_type ml_server_type = ML_server_type.MTCNN;
+            if ( face_detection_type != Face_detection_type.MTCNN)
+            {
+                ml_server_type = ML_server_type.Haars;
+            }
+            logger.log("PLEASE WAIT ! A Request has been made for "+face_detection_type+" servers to be started");
+            ML_registry_discovery.find_active_servers(new ML_service_type(ml_server_type,face_detection_type), owner,logger);
+            return new Face_detection_result(null, Face_recognition_in_image_status.error);
+        }
         String url_string = null;
         try {
             String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");
@@ -96,7 +115,7 @@ public class Face_detector
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
             return new Face_detection_result(null, Face_recognition_in_image_status.error);
         }
-        logger.log("Face detection client: connection ready: "+connection.toString());
+        if ( dbg) logger.log("Face detection client: connection ready: "+connection.toString());
         // Send a GET request to the server
         try {
             connection.setRequestMethod("GET");
@@ -213,14 +232,14 @@ public class Face_detector
     public static void warn_about_face_detector_server(Window owner, Logger logger)
     //**********************************************************
     {
-        Popups.popup_warning("❗ Face detector server not found","You need to start the servers (face detection & face embbedings)",false,owner,logger);
+        Popups.popup_warning("❗ Face detector server not found","Need to start the servers",true,owner,logger);
     }
 
     //**********************************************************
     public static void warn_about_no_face_detected(Window owner,Logger logger)
     //**********************************************************
     {
-        Popups.popup_warning("❗ No face detected","Could not find a face?",false,owner,logger);
+        Popups.popup_warning("❗ No face detected","Could not find a face?",true,owner,logger);
     }
 
 

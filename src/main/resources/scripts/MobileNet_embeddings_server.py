@@ -11,7 +11,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 SERVER_UUID = str(uuid.uuid4())
 MONITOR_PORT = None
-TCP_PORT = None  # Default port, can be changed when calling run_server()
+TCP_PORT = None
 
 # ML libraries (initialized later)
 tf = None
@@ -37,7 +37,7 @@ RUNTIME_DIAGNOSTICS = {
     "last_error_time": None
 }
 
-def register_server(port, uuid_str):
+def register_server():
     """Register server in ~/.klikr/.privacy_screen/image_similarity_server_registry."""
     try:
         print("register_server")
@@ -46,13 +46,13 @@ def register_server(port, uuid_str):
         registry_dir = os.path.join(home, ".klikr", ".privacy_screen", "image_similarity_server_registry")
         os.makedirs(registry_dir, exist_ok=True)
 
-        filename = f"MobileNet_{uuid_str}.json"
+        filename = f"MobileNet_{SERVER_UUID}.json"
         filepath = os.path.join(registry_dir, filename)
 
         data = {
             "name": "MobileNet",
-            "port": port,
-            "uuid": uuid_str
+            "port": TCP_PORT,
+            "uuid": SERVER_UUID
         }
 
         with open(filepath, 'w') as f:
@@ -172,8 +172,9 @@ class EmbeddingGenerator(SimpleHTTPRequestHandler):
         )
 
         response = {
-            "server_name": "MobileNet Embeddings Server",
-            "UUID": SERVER_UUID,
+            "name": "MobileNet",
+            "port": TCP_PORT,
+            "uuid": SERVER_UUID,
             "status": "healthy" if is_healthy else "critical_failure",
             "diagnostics": STARTUP_DIAGNOSTICS,
             "runtime": RUNTIME_DIAGNOSTICS
@@ -259,31 +260,21 @@ class ReliableHTTPServer(HTTPServer):
     allow_reuse_address = True
     request_queue_size = 1024
 
-def run_server(tcp_port=None, udp_port=None):
-    """
-    Run the server on the specified ports.
+def run_server():
+    global REGISTRY_FILE, TCP_PORT
 
-    Args:
-        tcp_port: Port for HTTP traffic. Use 0 to request an OS-assigned ephemeral port.
-        udp_port: Port for monitoring messages
-    """
-    global MONITOR_PORT, REGISTRY_FILE
-    MONITOR_PORT = udp_port
-
-    print(f"Starting server, requested tcp port {tcp_port}")
-    if udp_port:
-        print(f"Monitoring messages will be sent to UDP port {udp_port}")
+    print(f"Monitoring messages will be sent to UDP port {MONITOR_PORT}")
     print("Diagnostics available at /health")
 
     # Bind to an ephemeral port to avoid fragile fixed port assignments
     server_address = ('127.0.0.1', 0)
     httpd = ReliableHTTPServer(server_address, EmbeddingGenerator)
-    chosen_port = httpd.server_address[1]
+    TCP_PORT = httpd.server_address[1]
 
-    print(f"Bound MobileNet embeddings server to TCP port: {chosen_port}")
+    print(f"Bound MobileNet embeddings server to TCP port: {TCP_PORT}")
 
     # Register server using the real bound port
-    REGISTRY_FILE = register_server(chosen_port, SERVER_UUID)
+    REGISTRY_FILE = register_server()
 
     try:
         httpd.serve_forever()
@@ -303,17 +294,15 @@ def run_server(tcp_port=None, udp_port=None):
 if __name__ == '__main__':
     # Parse command line arguments
     if len(sys.argv) < 2:
-        print("Usage: python MobileNet_embeddings_server.py <tcp_port> [udp_port]")
+        print("Usage: python MobileNet_embeddings_server.py [udp_port]")
         # Keep the process alive for a moment to allow reading the error
-        time.sleep(1)
+        time.sleep(10)
         sys.exit(1)
 
     try:
-        tcp_port = int(sys.argv[1])
-        udp_port = int(sys.argv[2]) if len(sys.argv) > 2 else None
+        MONITOR_PORT = int(sys.argv[1])
         print("starting MobileNet_embeddings_server.py")
-
-        run_server(tcp_port, udp_port)
+        run_server()
     except ValueError:
         print("Error: Ports must be integers")
         sys.exit(1)

@@ -148,7 +148,7 @@ public class Change_image_actor implements Actor
             }
             if (change_image_message.get_aborter().should_abort()) return "aborted";
 
-            change_image_message.logger.log("\nimage NOT found in cache: " + full_path);
+            if (dbg) change_image_message.logger.log("\nimage NOT found in cache: " + full_path);
             Optional<Image_context> option = Image_context.build_Image_context(
                     target_image_path,
                     change_image_message.image_window,

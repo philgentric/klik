@@ -5,8 +5,8 @@ package klikr;
 
 //SOURCES ./audio/Audio_player_access.java
 //SOURCES ./image_ml/ML_servers_util.java
-//SOURCES ./image_ml/Embeddings_servers_monitor.java
-//SOURCES ./image_ml/Embeddings_servers_monitoring_stage.java
+//SOURCES ./image_ml/UDP_traffic_monitor.java
+//SOURCES ./image_ml/UDP_traffic_monitoring_stage.java
 //SOURCES ./util/execute/Execute_via_script_in_tmp_file.java
 
 import javafx.application.Application;
@@ -234,7 +234,7 @@ public class Launcher extends Application implements UI_change_target
                 logger);
 
         String cmd = "gradle "+app_name+ " "+com.get_port();
-        Script_executor.execute(List.of(cmd),Path.of("."),stage,logger);
+        Script_executor.execute(List.of(cmd),Path.of("."),true,stage,logger);
 
     }
 
