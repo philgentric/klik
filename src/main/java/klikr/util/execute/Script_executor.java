@@ -54,18 +54,18 @@ public class Script_executor
 
 
     //**********************************************************
-    public static void execute(List<String> cmd,
+    public static void execute(List<String> lines,
                                Path tmp_folder,
                                boolean debug_mode,
                                Window owner, Logger logger)
     //**********************************************************
     {
-        Actor_engine.execute(()->execute_internal(cmd,tmp_folder, debug_mode, owner,logger),"Script_executor "+String.join(" ",cmd),logger);
+        Actor_engine.execute(()->execute_internal(lines,tmp_folder, debug_mode, owner,logger),"Script_executor "+String.join(" ",lines),logger);
     }
 
 
     //**********************************************************
-    private static void execute_internal(List<String> cmds,
+    private static void execute_internal(List<String> lines,
                                          Path tmp_folder,
                                          boolean debug_mode,
                                          Window owner, Logger logger)
@@ -113,16 +113,19 @@ public class Script_executor
             {
                 // PowerShell
                 script_content.append("$ErrorActionPreference = 'Stop'\n");
-                script_content.append(String.join(" ", cmds));
+                for ( String line : lines)
+                {
+                    script_content.append(line).append("\n");
+                }
             }
             else
             {
                 // Bash (Mac/Linux)
                 script_content.append("#!/bin/bash\n");
                 script_content.append("set -e\n");
-                for ( String s : cmds)
+                for ( String line : lines)
                 {
-                    script_content.append(s).append("\n");
+                    script_content.append(line).append("\n");
                 }
             }
 
@@ -144,7 +147,7 @@ public class Script_executor
 
             queue.add("Generated script: " + script_path);
             queue.add("Content:");
-            for (String s : cmds) queue.add(s);
+            for (String s : lines) queue.add(s);
 
 
             ProcessBuilder pb;
