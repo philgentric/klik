@@ -5,16 +5,36 @@ import numpy as np
 from http.server import HTTPServer
 from http.server import SimpleHTTPRequestHandler
 import urllib.parse
-from mtcnn import MTCNN
 import time
 import socket
 import uuid
 import json
 import os
+import platform
 
 SERVER_UUID = str(uuid.uuid4())  # Generate a unique ID for this server instance
 MONITOR_PORT = None
 TCP_PORT = None
+
+# Global detector
+detector = None
+
+# Store startup diagnostics
+STARTUP_DIAGNOSTICS = {
+    "os": platform.platform(),
+    "python_version": sys.version,
+    "import_error": None,
+    "model_load_error": None,
+    "gpu_info": "Not checked"
+}
+
+# Store runtime diagnostics
+RUNTIME_DIAGNOSTICS = {
+    "request_count": 0,
+    "error_count": 0,
+    "last_error": None,
+    "last_error_time": None
+}
 
 def register_server():
     """Register server in ~/.klikr/.privacy_screen/face_recognition_server_registry."""
@@ -52,10 +72,29 @@ def unregister_server(filepath):
 
 REGISTRY_FILE = None
 
+def attempt_load_ml_libraries():
+    global detector
+    try:
+        print("Loading MTCNN library...")
+        from mtcnn import MTCNN
+
+        print("Loading MTCNN Detector...")
+        detector = MTCNN()
+        print("MTCNN Detector loaded")
+
+    except Exception as e:
+        STARTUP_DIAGNOSTICS["import_error"] = traceback.format_exc()
+        STARTUP_DIAGNOSTICS["model_load_error"] = str(e)
+        print(f"CRITICAL: Failed to load MTCNN: {e}")
+        return False
+    return True
+
+# Initialize ML libraries at startup
+ml_loaded_successfully = attempt_load_ml_libraries()
+
 class MTCNN_FaceDetectionHandler(SimpleHTTPRequestHandler):
 
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    detector = MTCNN()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,74 +103,103 @@ class MTCNN_FaceDetectionHandler(SimpleHTTPRequestHandler):
 
         # Health check endpoint
         if self.path == '/health':
-            response = {
-                "name": "MTCNN",
-                "port": TCP_PORT,
-                "uuid": SERVER_UUID,
-                "status": "healthy"
-            }
-
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response, indent=2).encode('utf-8'))
+            self._handle_health_check()
             return
 
+        if not ml_loaded_successfully:
+             self.send_error(503, "Server improperly configured. Check /health endpoint for details.")
+             return
 
-
-
-
-
-
-
-
-
-
+        RUNTIME_DIAGNOSTICS["request_count"] += 1
         start_time = time.time()
         image_raw_url = self.path[1:]
         #print("going to open image_raw_url:    "+image_raw_url)
 
-        #decoded_url = urllib.parse.unquote(image_raw_url)
-        decoded_url = urllib.parse.unquote_plus(image_raw_url)
+        try:
+            #decoded_url = urllib.parse.unquote(image_raw_url)
+            decoded_url = urllib.parse.unquote_plus(image_raw_url)
 
-        #print("decoded url:"+decoded_url)
-        # Create a dummy image (you can replace this with your own video feed)
-        img = cv2.imread(decoded_url, cv2.IMREAD_COLOR)
-        if img is None:
-                 self.send_error(404, f"Image not found: {decoded_url}")
+            #print("decoded url:"+decoded_url)
+
+            if not os.path.exists(decoded_url):
+                 error_msg = f"File not found: {decoded_url}"
+                 RUNTIME_DIAGNOSTICS["error_count"] += 1
+                 RUNTIME_DIAGNOSTICS["last_error"] = error_msg
+                 RUNTIME_DIAGNOSTICS["last_error_time"] = time.time()
+                 self.send_error(404, error_msg)
                  return
-        #img2 = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        result = self.detector.detect_faces(img)
+            # Create a dummy image (you can replace this with your own video feed)
+            img = cv2.imread(decoded_url, cv2.IMREAD_COLOR)
+            if img is None:
+                 error_msg = f"Failed to load image: {decoded_url}"
+                 RUNTIME_DIAGNOSTICS["error_count"] += 1
+                 RUNTIME_DIAGNOSTICS["last_error"] = error_msg
+                 RUNTIME_DIAGNOSTICS["last_error_time"] = time.time()
+                 self.send_error(404, error_msg)
+                 return
+            #img2 = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        if result:  # Check if at least one face is detected
-            bounding_box = result[0]['box']
-            x, y, w, h = bounding_box
-            roi = img[y:y+h, x:x+w]
-            print("face detected by MTCNN at x: "+str(x)+", y: "+str(y)+", w: "+str(w)+", h: "+str(h))
+            result = detector.detect_faces(img)
 
-            # debug:
-            #cv2.imshow('SERVER SIDE Face Detector DETECTED color Face',roi)
-            #cv2.waitKey(0)
-            #cv2.destroyAllWindows()
+            if result:  # Check if at least one face is detected
+                bounding_box = result[0]['box']
+                x, y, w, h = bounding_box
+                roi = img[y:y+h, x:x+w]
+                print("face detected by MTCNN at x: "+str(x)+", y: "+str(y)+", w: "+str(w)+", h: "+str(h))
 
-            ret, out = cv2.imencode('.png', roi)
-            self.send_response(200)
-            self.send_header('Content-type', 'image/png')
-            self.end_headers()
-            self.wfile.write(out.tobytes())
+                # debug:
+                #cv2.imshow('SERVER SIDE Face Detector DETECTED color Face',roi)
+                #cv2.waitKey(0)
+                #cv2.destroyAllWindows()
 
-            processing_time = (time.time() - start_time)*1000
-            monitor_data = f"{SERVER_UUID},mtcnn_detection,mtcnn,{processing_time:.3f}"
-            try:
-                bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('127.0.0.1', MONITOR_PORT))
-                print(f"UDP sent {bytes_sent} bytes to 127.0.0.1:{MONITOR_PORT}: {monitor_data}")
-            except Exception as e:
-                print(f"UDP send error: {e}")
+                ret, out = cv2.imencode('.png', roi)
+                self.send_response(200)
+                self.send_header('Content-type', 'image/png')
+                self.end_headers()
+                self.wfile.write(out.tobytes())
 
-        else:
-            print("No faces detected by MTCNN")
-            pass
+                processing_time = (time.time() - start_time)*1000
+                monitor_data = f"{SERVER_UUID},mtcnn_detection,mtcnn,{processing_time:.3f}"
+                try:
+                    bytes_sent = self.udp_socket.sendto(monitor_data.encode(), ('127.0.0.1', MONITOR_PORT))
+                    print(f"UDP sent {bytes_sent} bytes to 127.0.0.1:{MONITOR_PORT}: {monitor_data}")
+                except Exception as e:
+                    print(f"UDP send error: {e}")
+
+            else:
+                print("No faces detected by MTCNN")
+                pass
+
+        except Exception as e:
+            error_msg = str(e)
+            RUNTIME_DIAGNOSTICS["error_count"] += 1
+            RUNTIME_DIAGNOSTICS["last_error"] = error_msg
+            RUNTIME_DIAGNOSTICS["last_error_time"] = time.time()
+            self.send_error(500, f"Internal error: {error_msg}")
+            print(f"Error: {e}")
+            traceback.print_exc()
+
+    def _handle_health_check(self):
+        """Handle health check requests."""
+        is_healthy = (
+            STARTUP_DIAGNOSTICS["import_error"] is None and
+            STARTUP_DIAGNOSTICS["model_load_error"] is None
+        )
+
+        response = {
+            "name": "MTCNN",
+            "port": TCP_PORT,
+            "uuid": SERVER_UUID,
+            "status": "healthy" if is_healthy else "critical_failure",
+            "diagnostics": STARTUP_DIAGNOSTICS,
+            "runtime": RUNTIME_DIAGNOSTICS
+        }
+
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(response, indent=2).encode('utf-8'))
 
     def do_POST(self):
         pass

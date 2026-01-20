@@ -3,6 +3,7 @@ package klikr.util.ui;
 import javafx.application.HostServices;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Window;
 import klikr.Shared_services;
 
 
@@ -19,11 +20,12 @@ public class Github_stars
         host_services =  hs;
     }
     //**********************************************************
-    public static void ask_for_github_star()
+    public static void ask_for_github_star(Window owner)
     //**********************************************************
     {
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initOwner(owner);
         alert.setTitle("Enjoying this app?");
         alert.setHeaderText("Star us on GitHub!");
         alert.setContentText("If you find this app useful, please consider giving us a star on GitHub. It helps others discover the project!");
@@ -36,6 +38,11 @@ public class Github_stars
         alert.showAndWait().ifPresent(response -> {
             if (response == starButton) {
                 open_github();
+            }
+            if (response == laterButton)
+            {
+                // reset the counter
+                Shared_services.main_properties().set("HOW_MANY_TIMES",""+0);
             }
         });
     }

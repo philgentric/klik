@@ -254,7 +254,10 @@ public class Klikr_application extends Application
             {
                 already_asked = Boolean.parseBoolean(s);
             }
-            if ( !already_asked)  Github_stars.ask_for_github_star();
+            if ( !already_asked)
+            {
+                Github_stars.ask_for_github_star(primary_stage);
+            }
         }
 
 
