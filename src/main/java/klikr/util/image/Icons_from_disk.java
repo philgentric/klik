@@ -8,7 +8,7 @@
 package klikr.util.image;
 
 import javafx.stage.Window;
-import klikr.External_application;
+import klikr.util.External_application;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.items.Iconifiable_item_type;
 import klikr.look.Jar_utils;

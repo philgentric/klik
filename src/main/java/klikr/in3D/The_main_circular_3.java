@@ -7,7 +7,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import klikr.Window_type;
 import klikr.Instructions;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.util.log.Exceptions_in_threads_catcher;
 import klikr.util.log.Logger;

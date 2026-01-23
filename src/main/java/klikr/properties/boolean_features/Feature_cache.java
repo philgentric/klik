@@ -6,10 +6,8 @@ package klikr.properties.boolean_features;
 import javafx.stage.Window;
 import klikr.Klikr_application;
 import klikr.Launcher;
-import klikr.Shared_services;
-import klikr.util.http.Klikr_communicator;
+import klikr.util.Shared_services;
 import klikr.util.log.Logger;
-import klikr.util.tcp.TCP_client;
 
 import java.util.ArrayList;
 import java.util.HashMap;

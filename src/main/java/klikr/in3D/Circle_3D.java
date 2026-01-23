@@ -26,7 +26,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.Window_type;
 import klikr.Instructions;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.Window_provider;
 import klikr.browser.virtual_landscape.Shutdown_target;
 import klikr.browser.virtual_landscape.Virtual_landscape;

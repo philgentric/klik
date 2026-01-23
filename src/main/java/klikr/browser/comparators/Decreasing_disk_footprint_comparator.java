@@ -5,8 +5,8 @@ package klikr.browser.comparators;
 
 import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
-import klikr.browser.Clearable_RAM_cache;
-import klikr.Shared_services;
+import klikr.util.cache.Clearable_RAM_cache;
+import klikr.util.Shared_services;
 import klikr.util.files_and_paths.Sizes;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;

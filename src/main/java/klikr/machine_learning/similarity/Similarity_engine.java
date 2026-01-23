@@ -7,9 +7,9 @@ package klikr.machine_learning.similarity;
 
 import javafx.geometry.Point2D;
 import javafx.stage.Window;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
-import klikr.browser.Clearable_RAM_cache;
+import klikr.util.cache.Clearable_RAM_cache;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
 import klikr.browser.icons.image_properties_cache.Image_properties;
@@ -139,7 +139,7 @@ public class Similarity_engine implements Clearable_RAM_cache
     //**********************************************************
     public List<Most_similar> find_similars_special(
             boolean show_hour_glass,
-            RAM_cache<Path, Image_properties> image_properties_cache, // maybe null, if not null will compare only image that have the same size
+            Klikr_cache<Path, Image_properties> image_properties_cache, // maybe null, if not null will compare only image that have the same size
             Path reference_item_path,
             List<Path> already_done,//maybe null
             int N,
@@ -316,7 +316,7 @@ public class Similarity_engine implements Clearable_RAM_cache
 
     //**********************************************************
     public List<Most_similar> find_similars_of_special(
-            RAM_cache<Path, Image_properties> image_properties_cache,
+            Klikr_cache<Path, Image_properties> image_properties_cache,
             Path path0,
             Feature_vector fv0,
             int N,

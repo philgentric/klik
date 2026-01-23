@@ -3,6 +3,7 @@ package klikr.util.log;
 import javafx.stage.Window;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.execute.Application_jar;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
@@ -59,7 +60,7 @@ public class Tmp_file_in_trash
     public static Path get_path_in_trash(String file_name, Window owner, Logger logger)
     //**********************************************************
     {
-        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
         if ( klik_trash == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("❌ Fatal "));

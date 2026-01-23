@@ -21,7 +21,8 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.Launcher;
-import klikr.Shared_services;
+import klikr.properties.String_constants;
+import klikr.util.Shared_services;
 import klikr.browser.Drag_and_drop;
 import klikr.look.styles.Look_and_feel_materiol;
 import klikr.look.styles.Look_and_feel_light;
@@ -82,7 +83,7 @@ public class Look_and_feel_manager
     //**********************************************************
     {
         Look_and_feel_style look_and_feel_style = null;
-        String style_s = Shared_services.main_properties().get(Non_booleans_properties.STYLE_KEY);
+        String style_s = Shared_services.main_properties().get(String_constants.STYLE_KEY);
         boolean and_save = false;
         if (style_s == null)
         {
@@ -106,7 +107,7 @@ public class Look_and_feel_manager
             }
         }
 
-        if ( and_save) Shared_services.main_properties().set(Non_booleans_properties.STYLE_KEY, look_and_feel_style.name());
+        if ( and_save) Shared_services.main_properties().set(String_constants.STYLE_KEY, look_and_feel_style.name());
         if (dbg) logger.log("read_look_and_feel_from_properties_file: using style " + look_and_feel_style.name());
         return  switch (look_and_feel_style)
         {
@@ -134,7 +135,7 @@ public class Look_and_feel_manager
     {
         //logger.log(Stack_trace_getter.get_stack_trace("setting style = " + style.name));
         logger.log(("setting style = " + style.name()));
-        Feature_cache.update_string(Non_booleans_properties.STYLE_KEY,style.name(),owner,logger);
+        Feature_cache.update_string(String_constants.STYLE_KEY,style.name(),owner,logger);
         reset();
     }
 

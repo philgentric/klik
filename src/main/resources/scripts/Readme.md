@@ -89,7 +89,7 @@ Since on a per folder base, we need to compute:
 - the 'sort order' for each image
 ...
 
-The first time is quite slow for large folders but thanks to caching the process is super fast for subsequent runs. Caveat: caching has a cost in RAM and DISK space (caches may grow as large as they can, and they are saved to disk)... This is why in the 'Preferences' menu you have cache clearing options.
+The first time is quite slow for large folders but thanks to caching the process is super fast for subsequent runs. Caveat: caching has a cost in RAM and disk space (caches may grow as large as they can, and they are saved to disk)... This is why in the 'Preferences' menu you have cache clearing options.
 
 ### Face recognition ###
 

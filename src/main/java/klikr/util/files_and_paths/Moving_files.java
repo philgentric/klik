@@ -7,7 +7,8 @@
 package klikr.util.files_and_paths;
 
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
+import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Or_aborter;
@@ -16,7 +17,7 @@ import klikr.change.undo.Undo_for_moves;
 import klikr.change.Redo_same_move_engine;
 import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Feature;
-import klikr.properties.Cache_folder;
+import klikr.util.cache.Cache_folder;
 import klikr.experimental.metadata.Metadata_handler;
 import klikr.look.my_i18n.My_I18n;
 import klikr.properties.boolean_features.Booleans;
@@ -133,7 +134,7 @@ public class Moving_files
         // WHY create a copy of the list ?
         List<Old_and_new_Path> l2 = new ArrayList<>();
         for (Old_and_new_Path oanf : l) {
-            Path trash_dir = Non_booleans_properties.get_trash_dir(oanf.old_Path,owner,logger);
+            Path trash_dir = Static_files_and_paths_utilities.get_trash_dir(oanf.old_Path,owner,logger);
             Path new_Path = (Paths.get(trash_dir.toString(), oanf.old_Path.getFileName().toString()));
             Old_and_new_Path oanf2 = new Old_and_new_Path(oanf.old_Path, new_Path, oanf.cmd, oanf.status,false);
             l2.add(oanf2);
@@ -181,7 +182,7 @@ public class Moving_files
             {
                 // we rename the ICON to avoid remaking one
 
-                Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.icon_cache,owner,logger);
+                Path icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache,owner,logger);
                 int icon_size = Non_booleans_properties.get_icon_size(owner);
                 Path current_icon = Icon_caching.path_for_icon_caching(oandn.old_Path,String.valueOf(icon_size), Icon_caching.png_extension,owner,logger);
                 if (Files.exists(current_icon)) {
@@ -374,7 +375,7 @@ public class Moving_files
 
                     // the contents are the same
                     // then the "old" file goes to trash
-                    Path new_path = generate_safe_name(Non_booleans_properties.get_trash_dir(oandn.old_Path, owner, logger), oandn.old_Path.getFileName().toString(), logger);
+                    Path new_path = generate_safe_name(Static_files_and_paths_utilities.get_trash_dir(oandn.old_Path, owner, logger), oandn.old_Path.getFileName().toString(), logger);
                     Old_and_new_Path oandn2 = new Old_and_new_Path(
                             oandn.old_Path,
                             new_path,

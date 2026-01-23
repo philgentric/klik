@@ -5,6 +5,7 @@
 //SOURCES ./Pin_code_getter_stage.java
 package klikr.experimental.fusk;
 
+import klikr.properties.String_constants;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.log.Logger;
@@ -120,8 +121,8 @@ public class Fusk_bytes implements Pin_code_client
 
         // look in .klik for a .passphrase.txt file
         actual_signature_text = default_signature_text;
-        String home = System.getProperty(Non_booleans_properties.USER_HOME);
-        File passphrase_folder = new File (home, Non_booleans_properties.CONF_DIR);
+        String home = System.getProperty(String_constants.USER_HOME);
+        File passphrase_folder = new File (home, String_constants.CONF_DIR);
         File passphrase_file = new File (passphrase_folder, ".passphrase.txt");
         if ( passphrase_file.exists()) {
             try {

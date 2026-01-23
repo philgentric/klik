@@ -3,7 +3,7 @@
 
 package klikr.util.files_and_paths;
 
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.util.log.Logger;
 
 import java.util.UUID;

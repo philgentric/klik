@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Window;
 import klikr.machine_learning.ML_registry_discovery;
 import klikr.machine_learning.ML_server_type;
+import klikr.machine_learning.ML_servers_status;
 import klikr.machine_learning.ML_service_type;
 import klikr.machine_learning.feature_vector.UDP_traffic_monitor;
 import klikr.properties.boolean_features.Feature;
@@ -51,14 +52,14 @@ public class Face_detector
                 ml_server_type = ML_server_type.Haars;
                 break;
         }
-        List<Integer> list = ML_registry_discovery.find_active_servers(new ML_service_type(ml_server_type, face_detection_type), owner,logger);
-        if ( list.isEmpty())
+        ML_servers_status status = ML_registry_discovery.find_active_servers(new ML_service_type(ml_server_type, face_detection_type), owner, logger);
+        if ( status.available_ports().isEmpty())
         {
             if (dbg) logger.log("No active face detection servers found for :"+face_detection_type);
             return -1;
         }
 
-        return list.get(random.nextInt(list.size()));
+        return status.available_ports().get(random.nextInt(status.available_ports().size()));
     }
 
 

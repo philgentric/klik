@@ -4,7 +4,7 @@
 package klikr.experimental.fusk;
 
 import klikr.util.execute.actor.Aborter;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.util.files_and_paths.Extensions;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;

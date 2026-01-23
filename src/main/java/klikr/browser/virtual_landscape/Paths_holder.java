@@ -10,7 +10,7 @@ package klikr.browser.virtual_landscape;
 import javafx.stage.Window;
 import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.properties.Sort_files_by;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.files_and_paths.Extensions;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
@@ -43,10 +43,10 @@ public class Paths_holder
 
     private static final boolean show_video_as_gif = true;
     public final Aborter aborter;
-    private final RAM_cache<Path, Image_properties> image_properties_cache;
+    private final Klikr_cache<Path, Image_properties> image_properties_cache;
 
     //**********************************************************
-    public Paths_holder(RAM_cache<Path, Image_properties> image_properties_cache,
+    public Paths_holder(Klikr_cache<Path, Image_properties> image_properties_cache,
                         Aborter aborter_, Logger logger_)
     //**********************************************************
     {

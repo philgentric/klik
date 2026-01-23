@@ -1,10 +1,10 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.util.cache_auto_clean;
+package klikr.util.disk_cache_auto_clean;
 
 import javafx.stage.Window;
-import klikr.properties.Cache_folder;
+import klikr.util.cache.Cache_folder;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 //**********************************************************
-public class Cache_auto_clean
+public class Disk_cache_auto_clean
 //**********************************************************
 {
     private static final boolean dbg = false;
@@ -33,7 +33,7 @@ public class Cache_auto_clean
 
 
     //**********************************************************
-    public Cache_auto_clean(Window owner, Logger logger_)
+    public Disk_cache_auto_clean(Window owner, Logger logger_)
     //**********************************************************
     {
         logger = logger_;
@@ -55,7 +55,7 @@ public class Cache_auto_clean
             {
                 if ( !warning_issued)
                 {
-                    logger.log("WARNING: Cache_auto_clean not able to list files in "+monitored_folder.path);
+                    logger.log("WARNING: Disk_cache_auto_clean not able to list files in "+monitored_folder.path);
                     warning_issued = true;
                 }
                 continue;
@@ -64,7 +64,7 @@ public class Cache_auto_clean
             {
                 if ( f.isDirectory())
                 {
-                    logger.log("WARNING: Cache_auto_clean not erasing folders "+f);
+                    logger.log("WARNING: Disk_cache_auto_clean not erasing folders "+f);
                     continue;
                 }
                 delete_if_too_old(f);

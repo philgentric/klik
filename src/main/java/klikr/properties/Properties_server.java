@@ -6,7 +6,7 @@ package klikr.properties;
 import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.tcp.*;

@@ -1,15 +1,16 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.util.cache_auto_clean;
+package klikr.util.disk_cache_auto_clean;
 
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.look.my_i18n.My_I18n;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Booleans;
-import klikr.properties.Cache_folder;
+import klikr.util.cache.Cache_folder;
+import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
@@ -49,7 +50,7 @@ public class Disk_usage_monitor
             monitored_folders.add(tt);
         }
 
-        for ( Path t : Non_booleans_properties.get_existing_trash_dirs(owner,logger))
+        for ( Path t : Static_files_and_paths_utilities.get_existing_trash_dirs(owner,logger))
         {
             monitored_folders.add(new Monitored_folder(TRASH_FOLDER, t, false));
         }
@@ -99,7 +100,7 @@ public class Disk_usage_monitor
                     {
                         if (monitored_folder.name.equals(cache_folder.name()))
                         {
-                            Static_files_and_paths_utilities.clear_DISK_cache(cache_folder, false, owner, Shared_services.aborter(), logger);
+                            Clearable_disk_caches.clear_disk_cache(cache_folder, false, owner, Shared_services.aborter(), logger);
                             cleared = true;
                         }
                     }

@@ -4,7 +4,7 @@
 package klikr.machine_learning.similarity;
 
 import javafx.stage.Window;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor;
 import klikr.util.execute.actor.Message;
@@ -14,7 +14,6 @@ import klikr.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 //**********************************************************
@@ -26,7 +25,7 @@ public class Similarity_cache_warmer_actor implements Actor
     public static final double SIMILARITY_THRESHOLD = 0.14;
 
     private final List<Path> paths;
-    private final RAM_cache<Path_pair, Double> similarities;
+    private final Klikr_cache<Path_pair, Double> similarities;
     private final Feature_vector_cache cache;
     private final Logger logger;
 
@@ -34,7 +33,7 @@ public class Similarity_cache_warmer_actor implements Actor
     public Similarity_cache_warmer_actor(
             List<Path> paths, 
             Feature_vector_cache cache,
-            RAM_cache<Path_pair, Double> similarities, 
+            Klikr_cache<Path_pair, Double> similarities,
             Logger logger)
     //**********************************************************
     {

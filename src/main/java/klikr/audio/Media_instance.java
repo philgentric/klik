@@ -8,6 +8,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.media.*;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import klikr.properties.IProperties;
+import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.log.Logger;
@@ -22,6 +24,7 @@ public class Media_instance
     private MediaPlayer the_media_player;
     private final Aborter aborter;
     ChangeListener<Duration> the_change_listener;
+    public static final String AUDIO_PLAYER_CURRENT_TIME = "AUDIO_PLAYER_CURRENT_TIME";
 
 
     //**********************************************************
@@ -239,10 +242,34 @@ public class Media_instance
     {
         if ( song != null)
         {
-            Integer current_time_s = Non_booleans_properties.get_current_time_in_song(owner,logger);
+            Integer current_time_s = get_current_time_in_song(owner,logger);
             if ( current_time_s != null) return current_time_s;
         }
         return Integer.valueOf(0);
     }
+
+
+    //**********************************************************
+    public static Integer get_current_time_in_song(Window owner,Logger logger)
+    //**********************************************************
+    {
+        IProperties pm = Shared_services.main_properties();
+        String s = pm.get(AUDIO_PLAYER_CURRENT_TIME);
+        if (s == null)
+        {
+            logger.log("WARNING: cannot find player current time");
+            return 0;
+        }
+        int returned = 0;
+        try {
+            returned = Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            logger.log("WARNING: cannot parse player current time->" + s + "<-");
+        }
+        //logger.log("player current time = "+returned);
+        return returned;
+    }
+
+
 
 }

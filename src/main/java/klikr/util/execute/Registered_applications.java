@@ -6,6 +6,7 @@ package klikr.util.execute;
 import javafx.application.Platform;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import klikr.properties.String_constants;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.Non_booleans_properties;
 import klikr.properties.Properties_manager;
@@ -53,7 +54,7 @@ public class Registered_applications
         Platform.runLater(() -> {
             FileChooser file_chooser = new FileChooser();
             file_chooser.setTitle("Please select the application to open files with the extension " + finalExtension);
-            Path home = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
+            Path home = Paths.get(System.getProperty(String_constants.USER_HOME));
             file_chooser.setInitialDirectory(home.toFile());
             File selected = file_chooser.showOpenDialog(owner);
             if (selected == null) {
@@ -102,8 +103,8 @@ public class Registered_applications
     {
         if ( properties_manager == null)
         {
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
-            Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, REGISTERED_APPLICATIONS_FILENAME);
+            String home = System.getProperty(String_constants.USER_HOME);
+            Path p = Paths.get(home, String_constants.CONF_DIR, REGISTERED_APPLICATIONS_FILENAME);
             properties_manager = new Properties_manager(p,"Registered applications DB",owner,aborter,logger);
         }
         for (String key : properties_manager.get_all_keys())

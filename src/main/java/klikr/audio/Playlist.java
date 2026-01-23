@@ -17,25 +17,23 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klikr.Shared_services;
-import klikr.browser.virtual_landscape.Browsing_caches;
+import klikr.properties.IProperties;
+import klikr.properties.String_constants;
+import klikr.util.Shared_services;
 import klikr.path_lists.Path_list_provider_for_file_system;
-import klikr.properties.Cache_folder;
-import klikr.util.cache.RAM_cache;
-import klikr.util.execute.actor.virtual_threads.Concurrency_limiter;
+import klikr.util.cache.Cache_folder;
+import klikr.util.cache.Clearable_disk_caches;
+import klikr.util.cache.Clearable_RAM_caches;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.ui.progress.Progress;
 import klikr.util.execute.actor.Aborter;
-import klikr.util.execute.actor.Actor;
 import klikr.util.execute.actor.Actor_engine;
-import klikr.util.execute.actor.Message;
-import klikr.util.execute.actor.workers.Actor_engine_based_on_workers;
 import klikr.browser.Drag_and_drop;
 import klikr.util.animated_gifs.Ffmpeg_utils;
 import klikr.change.undo.Undo_core;
 import klikr.change.undo.Undo_item;
 import klikr.look.Look_and_feel_manager;
 import klikr.look.my_i18n.My_I18n;
-import klikr.properties.Non_booleans_properties;
 import klikr.util.files_and_paths.*;
 import klikr.util.files_and_paths.old_and_new.Command;
 import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
@@ -50,8 +48,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.LongAdder;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
@@ -61,7 +57,9 @@ public class Playlist
 //**********************************************************
 {
     private final static boolean dbg = false;
-     private final Logger logger;
+
+    private final Logger logger;
+    static final String AUDIO_PLAYER_CURRENT_SONG = "AUDIO_PLAYER_CURRENT_SONG";
     static final String PLAYLIST_FILE_NAME = "PLAYLIST_FILE_NAME";
 
     private List<String> the_playlist = new ArrayList<>();
@@ -75,8 +73,8 @@ public class Playlist
     private final Undo_core undo_core;
     private final Aborter aborter;
     private final Window owner;
-    public static RAM_cache<Path,Double> duration_cache;
-    public static RAM_cache<Path,Double> bitrate_cache;
+    public static Klikr_cache<Path,Double> duration_cache;
+    public static Klikr_cache<Path,Double> bitrate_cache;
 
 
     //**********************************************************
@@ -157,27 +155,21 @@ public class Playlist
             }
         };
 
-        if ( Browsing_caches.song_duration_cache != null)
+        //if ( Browsing_caches.song_duration_cache != null)
         {
-            duration_cache = Browsing_caches.song_duration_cache;
+        //    duration_cache = Browsing_caches.song_duration_cache;
         }
-        else
+        //else
         {
-
-
-
-
             Function<Path, Double> value_extractor = new Function<Path, Double>() {
                 @Override
                 public Double apply(Path path) {
                     return Ffmpeg_utils.get_media_duration(path, owner, logger);
                 }
             };
+            Path folder_path = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(Cache_folder.song_duration_cache.name(), false, owner, logger);
 
-
-            Path folder_path = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.song_duration_cache.name(), false, owner, logger);
-
-            duration_cache = new RAM_cache<Path,Double>(
+            duration_cache = new Klikr_cache<Path,Double>(
                 new Path_list_provider_for_file_system(folder_path, owner, logger),
                 Cache_folder.song_duration_cache.name(),
                 key_serializer, key_deserializer,
@@ -186,14 +178,15 @@ public class Playlist
                 string_key_maker,object_key_maker,
                 aborter, owner, logger);
             duration_cache.reload_cache_from_disk();
-            Browsing_caches.song_duration_cache = duration_cache;
+            Clearable_RAM_caches.record(duration_cache);
+            Clearable_disk_caches.record(duration_cache);
         }
 
-        if ( Browsing_caches.song_bitrate_cache != null)
+        //if ( Browsing_caches.song_bitrate_cache != null)
         {
-            bitrate_cache = Browsing_caches.song_bitrate_cache;
+        //    bitrate_cache = Browsing_caches.song_bitrate_cache;
         }
-        else
+        //else
         {
 
             Function<Path, Double> value_extractor = new Function<Path, Double>() {
@@ -203,9 +196,9 @@ public class Playlist
                 }
             };
 
-            Path folder_path = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.song_bitrate_cache.name(), false, owner, logger);
+            Path folder_path = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(Cache_folder.song_bitrate_cache.name(), false, owner, logger);
 
-            bitrate_cache = new RAM_cache<Path,Double>(
+            bitrate_cache = new Klikr_cache<Path,Double>(
                     new Path_list_provider_for_file_system(folder_path, owner, logger),
                     Cache_folder.song_bitrate_cache.name(),
                     key_serializer, key_deserializer,
@@ -214,8 +207,10 @@ public class Playlist
                     string_key_maker,object_key_maker,
                     aborter, owner, logger);
 
-            Browsing_caches.song_bitrate_cache = bitrate_cache;
             bitrate_cache.reload_cache_from_disk();
+
+            Clearable_RAM_caches.record(bitrate_cache);
+            Clearable_disk_caches.record(bitrate_cache);
 
         }
 
@@ -472,7 +467,7 @@ public class Playlist
         selected.set_background_to_selected();
 
         the_music_ui.scroll_to(the_song_path);
-        Non_booleans_properties.save_current_song(the_song_path,owner);
+        save_current_song(the_song_path,owner);
 
         logger.log("✅ elapsed = "+(System.currentTimeMillis()-start)+" ms");
     }
@@ -527,7 +522,7 @@ public class Playlist
             playlist_file = get_playlist_file(owner);
         }
         load_playlist(playlist_file);
-        String song = Non_booleans_properties.get_current_song(owner);
+        String song = get_current_song(owner);
         if (song == null)
         {
             if (the_playlist.isEmpty())
@@ -561,8 +556,8 @@ public class Playlist
         // new empty playlist with default name
         playlist_file_name = "playlist." + Guess_file_type.KLIKR_AUDIO_PLAYLIST_EXTENSION;
         Shared_services.main_properties().set(PLAYLIST_FILE_NAME, playlist_file_name);
-        String home = System.getProperty(Non_booleans_properties.USER_HOME);
-        Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, playlist_file_name);
+        String home = System.getProperty(String_constants.USER_HOME);
+        Path p = Paths.get(home, String_constants.CONF_DIR, playlist_file_name);
         return p.toFile();
     }
 
@@ -611,7 +606,7 @@ public class Playlist
     {
          if (saving_dir == null)
         {
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             saving_dir = new File(home, "playlists");
             if (!saving_dir.exists())
             {
@@ -1227,6 +1222,24 @@ public class Playlist
         double bitrate = get_bitrate(new_song);
         the_song_path = new_song;
         Platform.runLater(() -> the_music_ui.set_title((new File(new_song)).getName() + "       bitrate= " + bitrate + " kb/s"));
+    }
+
+
+    //**********************************************************
+    public static void save_current_song(String path, Window owner)
+    //**********************************************************
+    {
+        IProperties pm = Shared_services.main_properties();
+        pm.set(AUDIO_PLAYER_CURRENT_SONG, path);
+
+    }
+
+    //**********************************************************
+    public static String get_current_song(Window owner)
+    //**********************************************************
+    {
+        IProperties pm = Shared_services.main_properties();
+        return pm.get(AUDIO_PLAYER_CURRENT_SONG);
     }
 
 }

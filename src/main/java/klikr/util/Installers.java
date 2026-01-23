@@ -5,7 +5,6 @@ import javafx.event.EventHandler;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
-import klikr.External_application;
 import klikr.Klikr_application;
 import klikr.look.Look_and_feel;
 import klikr.machine_learning.ML_servers_util;

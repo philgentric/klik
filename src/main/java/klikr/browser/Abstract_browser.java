@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.*;
 import klikr.look.my_i18n.My_I18n;
+import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.virtual_landscape.*;
 import klikr.change.Change_gang;

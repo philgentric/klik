@@ -113,20 +113,20 @@ import klikr.change.history.History_engine;
 import klikr.change.history.History_item;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.properties.Non_booleans_properties;
+import klikr.properties.String_constants;
 import klikr.properties.boolean_features.Booleans;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
+import klikr.util.Shared_services;
 import klikr.util.execute.Guess_OS;
 import klikr.util.execute.Operating_system;
 import klikr.util.http.Klikr_communicator;
 import klikr.util.ui.Github_stars;
-import klikr.util.cache_auto_clean.Disk_usage_and_caches_monitor;
+import klikr.util.disk_cache_auto_clean.Disk_usage_and_caches_monitor;
 import klikr.util.log.Exceptions_in_threads_catcher;
 import klikr.util.log.Logger;
 import klikr.util.perf.Perf;
-import klikr.util.tcp.TCP_client;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -218,7 +218,7 @@ public class Klikr_application extends Application
         }
         if( path == null)
         {
-            path = Paths.get(System.getProperty(Non_booleans_properties.USER_HOME));
+            path = Paths.get(System.getProperty(String_constants.USER_HOME));
         }
         klikr_communicator = new Klikr_communicator("Klikr",primary_stage,logger);
         klikr_communicator.start_as_multi_instance();

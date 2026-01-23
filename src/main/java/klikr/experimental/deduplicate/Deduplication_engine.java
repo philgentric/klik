@@ -226,7 +226,7 @@ public class Deduplication_engine implements Againor, Abortable
                     + "going to delete:\n\t" + to_be_deleted.getAbsolutePath());
 
 
-            Path trash_dir = Non_booleans_properties.get_trash_dir(to_be_deleted.toPath(),owner,logger);
+            Path trash_dir = Static_files_and_paths_utilities.get_trash_dir(to_be_deleted.toPath(),owner,logger);
             Path new_Path = (Paths.get(trash_dir.toString(), to_be_deleted.getName()));
             Old_and_new_Path oanp = new Old_and_new_Path(to_be_deleted.toPath(), new_Path, Command.command_move_to_trash, Status.before_command,false);
             ll.add(oanp);

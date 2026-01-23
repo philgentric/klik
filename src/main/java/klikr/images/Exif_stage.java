@@ -14,7 +14,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klikr.External_application;
+import klikr.properties.String_constants;
+import klikr.util.External_application;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Aborter;
@@ -245,7 +246,7 @@ public class Exif_stage
             List<String> verify = new ArrayList<>();
             verify.add(External_application.GraphicsMagick.get_command(owner,logger));
             verify.add("--version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {

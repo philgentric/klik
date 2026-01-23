@@ -4,6 +4,7 @@
 package klikr.experimental;
 
 import javafx.stage.Window;
+import klikr.properties.String_constants;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.IProperties;
 import klikr.properties.Non_booleans_properties;
@@ -28,9 +29,9 @@ public class Server_based_IProperties implements IProperties
         if (server == null)
         {
 
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             System.out.println("home="+home);
-            Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, Non_booleans_properties.PROPERTIES_FILENAME);
+            Path p = Paths.get(home, String_constants.CONF_DIR, String_constants.PROPERTIES_FILENAME);
             server = new Properties_server(p, "Preferences DB", owner, aborter,logger);
         }
     }

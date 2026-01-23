@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+//**********************************************************
 public class Properties_engine<V> implements Disk_engine<String, V>
+//**********************************************************
 {
     private static final boolean dbg = false;
     private final String name;
@@ -20,6 +22,7 @@ public class Properties_engine<V> implements Disk_engine<String, V>
     private final Function<V,String> string_serializer;
     protected final Properties_manager pm;
 
+    //**********************************************************
     public Properties_engine(
             String name,
             Path folder,
@@ -28,6 +31,7 @@ public class Properties_engine<V> implements Disk_engine<String, V>
             Window owner,
             Aborter aborter,
             Logger logger)
+    //**********************************************************
     {
         this.name = name;
         this.logger = logger;
@@ -39,8 +43,11 @@ public class Properties_engine<V> implements Disk_engine<String, V>
 
     }
 
+    //**********************************************************
     @Override
-    public int load_from_disk(Map<String, V> cache) {
+    public int load_from_disk(Map<String, V> cache)
+    //**********************************************************
+    {
         int reloaded = 0;
         int already_in_RAM = 0;
         List<String> cleanup = new ArrayList<>();
@@ -91,8 +98,11 @@ public class Properties_engine<V> implements Disk_engine<String, V>
     }
 
 
+    //**********************************************************
     @Override
-    public int save_to_disk(Map<String, V> cache) {
+    public int save_to_disk(Map<String, V> cache)
+    //**********************************************************
+    {
         int saved = 0;
         for(Map.Entry<String, V> e : cache.entrySet())
         {
@@ -104,9 +114,11 @@ public class Properties_engine<V> implements Disk_engine<String, V>
         return saved;
     }
 
+    //**********************************************************
     public boolean save_one_to_disk(Path path, V value)
+    //**********************************************************
     {
-        return pm.add(RAM_cache.path_to_key(path), string_serializer.apply(value),false);
+        return pm.add(Klikr_cache.path_to_key(path), string_serializer.apply(value),false);
     }
 
 }

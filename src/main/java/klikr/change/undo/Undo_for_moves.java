@@ -4,7 +4,7 @@
 package klikr.change.undo;
 
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.change.active_list_stage.Active_list_stage;
 import klikr.change.active_list_stage.Datetime_to_signature_source;
 import klikr.util.files_and_paths.Moving_files;
@@ -220,7 +220,6 @@ public class Undo_for_moves implements Datetime_to_signature_source
     boolean add_internal(List<Old_and_new_Path> l)
     //**********************************************************
     {
-        //Path trash = Non_booleans_properties.get_trash_dir(logger);
         for(Old_and_new_Path oan : l)
         {
             if ( oan.is_a_restore )

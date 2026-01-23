@@ -46,11 +46,7 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
     public int get_random_port(Window owner, Logger logger)
     //**********************************************************
     {
-        int port = ML_registry_discovery.get_random_active_port(new ML_service_type(ML_server_type.MobileNet, null), owner,logger);
-        if (port == -1) {
-            logger.log("No active MobileNet servers found in registry. Servers need to be started.");
-        }
-        return port;
+        return ML_registry_discovery.get_random_active_port(new ML_service_type(ML_server_type.MobileNet, null), owner,logger);
     }
 
     //**********************************************************

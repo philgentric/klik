@@ -11,23 +11,22 @@ package klikr.machine_learning.feature_vector;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klikr.util.cache.*;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
 import klikr.util.execute.actor.Or_aborter;
-import klikr.util.execute.actor.workers.Actor_engine_based_on_workers;
-import klikr.browser.Clearable_RAM_cache;
-import klikr.browser.virtual_landscape.Browsing_caches;
 import klikr.path_lists.Path_list_provider;
 import klikr.machine_learning.song_similarity.Feature_vector_for_song;
 import klikr.properties.Non_booleans_properties;
-import klikr.properties.Cache_folder;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.perf.Perf;
 import klikr.util.ui.progress.Progress_window;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
-public class Feature_vector_cache implements Clearable_RAM_cache
+public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk_cache
 //**********************************************************
 {
     private final static boolean ultra_dbg = false;
@@ -47,7 +46,6 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     //private final Aborter aborter;
     protected final String tag;
     protected final Path cache_file_path;
-
 
 
 
@@ -83,12 +81,32 @@ public class Feature_vector_cache implements Clearable_RAM_cache
 
     }
 
+
+    //**********************************************************
+    @Override
+    public void clear_disk(Window owner, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        try {
+            Files.delete(cache_file_path);
+        } catch (IOException e) {
+            logger.log(""+e);
+        }
+    }
+
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "Feature vector cache for: "+tag;
+    }
     //**********************************************************
     public static Path get_feature_vector_cache_dir(Stage owner, Logger logger)
     //**********************************************************
     {
 
-        Path tmp_dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.feature_vectors_cache.name(), false,owner,logger);
+        Path tmp_dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(Cache_folder.feature_vectors_cache.name(), false,owner,logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("Feature vector cache folder=" + tmp_dir.toAbsolutePath());
         }
@@ -308,7 +326,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     {
         try( Perf p = new Perf("preload_all_feature_vector_in_cache"))
         {
-        Feature_vector_cache feature_vector_cache = Browsing_caches.fv_cache_of_caches.get(path_list_provider.get_name());
+        Feature_vector_cache feature_vector_cache = Clearable_shared_caches.fv_cache_of_caches.get(path_list_provider.get_name());
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
 
         if ( feature_vector_cache == null)
@@ -325,7 +343,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             Or_aborter or_aborter = new Or_aborter(browser_aborter,progress_window.aborter,logger);
             feature_vector_cache = new Feature_vector_cache(path_list_provider.get_name(), fvs, or_aborter,logger);
             Paths_and_feature_vectors paths_and_feature_vectors = feature_vector_cache.read_from_disk_and_update(paths,in_flight, owner, or_aborter,logger);
-            Browsing_caches.fv_cache_of_caches.put(path_list_provider.get_name(),feature_vector_cache);
+            Clearable_shared_caches.fv_cache_of_caches.put(path_list_provider.get_name(),feature_vector_cache);
             progress_window.close();
             return paths_and_feature_vectors;
         }
@@ -380,7 +398,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
         Feature_vector_source_server.print_embeddings_stats(logger);
         if (!missing_paths.isEmpty())
         {
-            logger.log(("update: "+missing_paths.size()+" new items added"));
+            logger.log(("feature vector cache update: "+missing_paths.size()+" new items added"));
             save_whole_cache_to_disk();
         }
         return new Paths_and_feature_vectors(this, paths);

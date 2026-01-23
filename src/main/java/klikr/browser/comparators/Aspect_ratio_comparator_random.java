@@ -4,9 +4,9 @@
 package klikr.browser.comparators;
 
 import javafx.stage.Window;
-import klikr.browser.Clearable_RAM_cache;
+import klikr.util.cache.Clearable_RAM_cache;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 
 import java.nio.file.Path;
@@ -22,11 +22,11 @@ public class Aspect_ratio_comparator_random implements Comparator<Path>, Clearab
     private final long seed;
     // make sure the comparator is consistent
     private final HashMap<Path,Long> cache_local = new HashMap<>();
-    private final RAM_cache<Path, Image_properties> image_properties_cache;
+    private final Klikr_cache<Path, Image_properties> image_properties_cache;
     private final Aborter aborter;
     private final Window owner;
     //**********************************************************
-    public Aspect_ratio_comparator_random(RAM_cache<Path, Image_properties> image_properties_cache, Aborter aborter, Window owner)
+    public Aspect_ratio_comparator_random(Klikr_cache<Path, Image_properties> image_properties_cache, Aborter aborter, Window owner)
     //**********************************************************
     {
         this.aborter = aborter;
@@ -42,7 +42,6 @@ public class Aspect_ratio_comparator_random implements Comparator<Path>, Clearab
     //**********************************************************
     {
         cache_local.clear();
-        image_properties_cache.clear_RAM();
     }
     //**********************************************************
     @Override

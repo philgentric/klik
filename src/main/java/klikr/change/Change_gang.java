@@ -6,7 +6,7 @@
 package klikr.change;
 
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.files_and_paths.old_and_new.Command;

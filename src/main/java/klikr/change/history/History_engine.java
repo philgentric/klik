@@ -7,7 +7,7 @@ package klikr.change.history;
 //SOURCES ./Properties_for_history.java
 
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.File_based_IProperties;
 import klikr.properties.IProperties;

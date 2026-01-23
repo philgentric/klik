@@ -5,7 +5,7 @@ package klikr.change.bookmarks;
 //SOURCES ../../properties/Properties_with_base.java
 
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.File_based_IProperties;
 import klikr.properties.IProperties;

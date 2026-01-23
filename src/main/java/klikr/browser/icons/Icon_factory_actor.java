@@ -13,9 +13,11 @@ package klikr.browser.icons;
 
 import javafx.scene.image.Image;
 import javafx.stage.Window;
-import klikr.External_application;
+import klikr.properties.String_constants;
+import klikr.util.External_application;
 import klikr.look.Jar_utils;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Clearable_disk_caches;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.*;
 import klikr.util.animated_gifs.Ffmpeg_utils;
@@ -23,10 +25,9 @@ import klikr.browser.Image_and_properties;
 import klikr.browser.icons.image_properties_cache.*;
 import klikr.browser.items.Iconifiable_item_type;
 import klikr.properties.boolean_features.Booleans;
-import klikr.properties.Cache_folder;
+import klikr.util.cache.Cache_folder;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.image.Icons_from_disk;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.execute.Execute_command;
 import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
@@ -53,13 +54,13 @@ public class Icon_factory_actor implements Actor
     Icon_writer_actor writer;
     private final Window owner;
     private final Aborter aborter;
-    private final RAM_cache<Path, Image_properties> image_properties_cache;
+    private final Klikr_cache<Path, Image_properties> image_properties_cache;
 
     private final Path icon_cache_dir;
 
     //**********************************************************
     public Icon_factory_actor(
-            RAM_cache<Path, Image_properties> image_properties_cache,
+            Klikr_cache<Path, Image_properties> image_properties_cache,
             Window owner,
             Aborter aborter, Logger logger_)
     //**********************************************************
@@ -69,7 +70,7 @@ public class Icon_factory_actor implements Actor
         this.owner = owner;
         logger = logger_;
         if (dbg) logger.log("✅ Icon_factory created");
-        icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir( Cache_folder.icon_cache,owner,logger);
+        icon_cache_dir = Clearable_disk_caches.get_cache_dir( Cache_folder.icon_cache,owner,logger);
         writer = new Icon_writer_actor(icon_cache_dir, owner, logger);
     }
 
@@ -286,7 +287,7 @@ public class Icon_factory_actor implements Actor
                 // no need for folders
                 break;
             default:
-                Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir( Cache_folder.icon_cache,owner,logger);
+                Path icon_cache_dir = Clearable_disk_caches.get_cache_dir( Cache_folder.icon_cache,owner,logger);
                 if (path.getParent().toAbsolutePath().toString().equals(icon_cache_dir.toAbsolutePath().toString()))
                 {
                     // the user is browsing the icon cache. if we save a file for the icon, it will trigger a new icon request...
@@ -520,7 +521,7 @@ public class Icon_factory_actor implements Actor
                 List<String> verify = new ArrayList<>();
                 verify.add(External_application.GraphicsMagick.get_command(owner,logger));
                 verify.add("--version");
-                String home = System.getProperty(Non_booleans_properties.USER_HOME);
+                String home = System.getProperty(String_constants.USER_HOME);
                 Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
                 if ( !res2.status())
                 {

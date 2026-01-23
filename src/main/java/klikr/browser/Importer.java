@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klikr.properties.String_constants;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.look.my_i18n.My_I18n;
@@ -44,7 +45,7 @@ public class Importer
     public static void perform_import(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path home = (new File(System.getProperty(Non_booleans_properties.USER_HOME))).toPath();
+        Path home = (new File(System.getProperty(String_constants.USER_HOME))).toPath();
 
 
         Path target = home.resolve(Path.of("Pictures"));
@@ -142,7 +143,7 @@ public class Importer
     public static void estimate_size(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path home = (new File(System.getProperty(Non_booleans_properties.USER_HOME))).toPath();
+        Path home = (new File(System.getProperty(String_constants.USER_HOME))).toPath();
 
         Path target = home.resolve(Path.of("Pictures"));
 

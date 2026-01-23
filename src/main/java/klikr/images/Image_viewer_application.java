@@ -7,14 +7,13 @@ import javafx.application.Application;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import klikr.util.execute.actor.Aborter;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.util.log.Exceptions_in_threads_catcher;
 import klikr.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 //**********************************************************
 public class Image_viewer_application extends Application

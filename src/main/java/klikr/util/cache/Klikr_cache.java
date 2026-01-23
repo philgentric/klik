@@ -4,9 +4,7 @@
 package klikr.util.cache;
 
 import javafx.stage.Window;
-import klikr.browser.Clearable_RAM_cache;
 import klikr.path_lists.Path_list_provider;
-import klikr.properties.Non_booleans_properties;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
@@ -29,13 +27,15 @@ import java.util.function.Function;
 // get() has 2 mode:
 //      a blocking one,
 //      a fast-return-null mode that will callback when the value is there
-// if you want to warm the cache, call 'prefill_cache' for all the items you want in,
+// if you want to warm the cache, call 'prefill_cache'
+// for all the items you want in,
+//
 // in all cases the threads are hidden
 //
 // can also save itself to disk, and reload of course
 
 //**********************************************************
-public class RAM_cache<K,V> implements Clearable_RAM_cache
+public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cache
 //**********************************************************
 {
 
@@ -51,7 +51,7 @@ public class RAM_cache<K,V> implements Clearable_RAM_cache
 
     // when disk engine is a properties file, keys are Strings
     //**********************************************************
-    public RAM_cache(
+    public Klikr_cache(
             Path_list_provider path_list_provider,
             String cache_name_,
             Function<V, String> string_serializer,
@@ -69,7 +69,7 @@ public class RAM_cache<K,V> implements Clearable_RAM_cache
         if ( dbg) logger.log(name +" local ="+local);
         String cache_file_name = path_list_provider.get_folder_path().getFileName().toString()+"_"+UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
         if ( dbg) logger.log(name +" cache_file_name ="+cache_file_name);
-        Path dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(name, false,owner, logger);
+        Path dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(name, false,owner, logger);
         if ( dbg) logger.log(name +" dir ="+dir.toAbsolutePath().toString());
 
         disk_engine = new Properties_engine<V>(
@@ -93,7 +93,7 @@ public class RAM_cache<K,V> implements Clearable_RAM_cache
     // 2. to get a Object-key from a String-key
 
     //**********************************************************
-    public RAM_cache(
+    public Klikr_cache(
             Path_list_provider path_list_provider,
             String cache_name_,
             BiPredicate<K, DataOutputStream> key_serializer,
@@ -114,7 +114,7 @@ public class RAM_cache<K,V> implements Clearable_RAM_cache
         if ( dbg) logger.log(name +" local ="+local);
         String cache_file_name = path_list_provider.get_folder_path().getFileName().toString()+"_"+UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
         if ( dbg) logger.log(name +" cache_file_name ="+cache_file_name);
-        Path dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(name, false,owner, logger);
+        Path dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(name, false,owner, logger);
         if ( dbg) logger.log(name +" dir ="+dir.toAbsolutePath().toString());
         Path cache_file_path = dir.resolve(cache_file_name);
 
@@ -140,7 +140,7 @@ public class RAM_cache<K,V> implements Clearable_RAM_cache
     public static Path get_cache_dir(String cache_name, Window owner, Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(cache_name, false,owner, logger);
+        Path tmp_dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(cache_name, false,owner, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log(cache_name+", cache folder=" + tmp_dir.toAbsolutePath());
         }
@@ -251,10 +251,20 @@ public class RAM_cache<K,V> implements Clearable_RAM_cache
         //disk_engine.save_one_to_disk(key,value);
     }
 
-    public double clear_DISK(Aborter aborter, Window owner)
+    //**********************************************************
+    @Override
+    public void clear_disk(Window owner, Aborter aborter, Logger logger)
+    //**********************************************************
     {
-        Path path = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(name, false, owner,logger);
+        Path path = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(name, false, owner,logger);
+        Static_files_and_paths_utilities.clear_folder(path, name, false,false,owner, aborter, logger);
+    }
 
-        return Static_files_and_paths_utilities.clear_folder(path, name, false,false,owner, aborter, logger);
+    //**********************************************************
+    @Override
+    public String name()
+    //**********************************************************
+    {
+        return "klikr cache "+name;
     }
 }

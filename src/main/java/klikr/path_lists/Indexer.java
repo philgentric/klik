@@ -5,6 +5,7 @@
 package klikr.path_lists;
 
 import klikr.browser.virtual_landscape.Path_comparator_source;
+import klikr.properties.String_constants;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.log.Logger;
@@ -128,7 +129,7 @@ public class Indexer
             {
                 if (ultimate)
                 {
-                    if (!returned.getFileName().toString().toLowerCase().contains(Non_booleans_properties.ULTIM) )
+                    if (!returned.getFileName().toString().toLowerCase().contains(String_constants.ULTIM) )
                     {
                         target = increment(target);
                         continue;
@@ -197,7 +198,7 @@ public class Indexer
         if (p == null) return;
         if (ultimate)
         {
-            if (!p.getFileName().toString().toLowerCase().contains(Non_booleans_properties.ULTIM)) return;
+            if (!p.getFileName().toString().toLowerCase().contains(String_constants.ULTIM)) return;
         }
         returned.add(p);
     }

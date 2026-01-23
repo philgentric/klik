@@ -6,7 +6,7 @@ package klikr.properties.boolean_features;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.properties.IProperties;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;

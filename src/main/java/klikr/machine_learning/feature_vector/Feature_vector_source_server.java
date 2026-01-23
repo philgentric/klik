@@ -4,26 +4,18 @@
 package klikr.machine_learning.feature_vector;
 
 import javafx.stage.Window;
-import klikr.Shared_services;
-import klikr.util.execute.Execute_result;
-import klikr.util.execute.Guess_OS;
-import klikr.util.execute.Operating_system;
+import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
-import klikr.util.execute.Execute_command;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
@@ -101,9 +93,9 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         {
             if ( path.toFile().exists())
             {
-                logger.log("SERVERS FAILED TO START ?? get_feature_vector_from_server_generic: FAILED. File exists, it has "+path.toFile().length()+"bytes, but feature vector is null");
-                // The server failed to return a vector. It might be down.
-                // Triggers a check and potentially a restart
+                // The server failed to return a vector. the file may be corrupted
+
+                logger.log("❗ WARNING: File MAY BE CORRUPTED: "+path);
             }
             else
             {

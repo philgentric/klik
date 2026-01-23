@@ -7,9 +7,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import klikr.*;
+import klikr.util.Shared_services;
 import klikr.util.http.Klikr_communicator;
 import klikr.util.log.Logger;
-import klikr.util.tcp.*;
 
 import java.util.function.Consumer;
 

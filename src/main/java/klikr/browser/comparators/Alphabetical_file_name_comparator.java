@@ -4,13 +4,13 @@
 //SOURCES ../Clearable_RAM_cache.java
 package klikr.browser.comparators;
 
-import klikr.browser.Clearable_RAM_cache;
+import klikr.util.cache.Clearable_RAM_cache;
 
 import java.nio.file.Path;
 import java.util.Comparator;
 
 //**********************************************************
-public class Alphabetical_file_name_comparator implements Comparator<Path>, Clearable_RAM_cache
+public class Alphabetical_file_name_comparator implements Comparator<Path>
 //**********************************************************
 {
     @Override
@@ -22,6 +22,5 @@ public class Alphabetical_file_name_comparator implements Comparator<Path>, Clea
         return f1.getFileName().toString().compareTo(f2.getFileName().toString());
     }
 
-    @Override
-    public void clear_RAM() {}
+
 }

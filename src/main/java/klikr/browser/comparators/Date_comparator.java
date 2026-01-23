@@ -3,7 +3,7 @@
 
 package klikr.browser.comparators;
 
-import klikr.browser.Clearable_RAM_cache;
+import klikr.util.cache.Clearable_RAM_cache;
 import klikr.util.image.decoding.Fast_date_from_filesystem;
 import klikr.util.log.Logger;
 
@@ -12,12 +12,9 @@ import java.nio.file.attribute.FileTime;
 import java.util.Comparator;
 
 //**********************************************************
-public record Date_comparator(Logger logger) implements Comparator<Path>, Clearable_RAM_cache
+public record Date_comparator(Logger logger) implements Comparator<Path>
 //**********************************************************
 {
-    @Override
-    public void clear_RAM() {}
-
     //**********************************************************
     @Override
     public int compare(Path p1, Path p2)

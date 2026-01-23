@@ -7,7 +7,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Window;
 import klikr.Instructions;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.Window_type;
 import klikr.look.Look_and_feel_manager;
 import klikr.path_lists.Path_list_provider_for_file_system;

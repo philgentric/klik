@@ -18,8 +18,8 @@ import javafx.stage.Stage;
 import klikr.browser.Drag_and_drop;
 import klikr.look.Jar_utils;
 import klikr.look.Look_and_feel_manager;
-import klikr.properties.Cache_folder;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
+import klikr.util.cache.Cache_folder;
+import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.image.Static_image_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
@@ -203,7 +203,7 @@ public class Mouse_handling_for_Image_window
                 (int)view_port.getMinY(),
                 (int)view_port.getWidth(),
                 (int)view_port.getHeight());
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.icon_cache, image_window.stage, logger);
+        Path icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache, image_window.stage, logger);
 
         cropped_image_path = icon_cache_dir.resolve("cropped_image.png");
         Static_image_utilities.write_png_to_disk(cropped_image,cropped_image_path,logger);

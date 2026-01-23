@@ -30,8 +30,8 @@ public class File_based_IProperties implements IProperties
     {
         this.purpose = purpose;
         this.logger = logger;
-        String home = System.getProperty(Non_booleans_properties.USER_HOME);
-        Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, filename+".properties");
+        String home = System.getProperty(String_constants.USER_HOME);
+        Path p = Paths.get(home, String_constants.CONF_DIR, filename+".properties");
         pm = new Properties_manager(p, purpose, with_age, owner, aborter,logger);
     }
 

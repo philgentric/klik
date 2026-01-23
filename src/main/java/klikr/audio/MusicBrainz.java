@@ -228,8 +228,6 @@ public class MusicBrainz
     {
         String name = make_name(artist,release,owner,logger);
         name += ".jpg";
-
-        //Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.icon_cache, owner, logger);
         return new File(icon_folder.toFile(),name);
     }
 

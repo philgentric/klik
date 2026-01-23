@@ -12,7 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Window;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.*;
@@ -62,7 +62,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     Label label_for_sizes;
     private final int folder_icon_size;
     private final int column_width; // as set by the icon manager
-    private  final RAM_cache<Path, Image_properties> image_properties_cache;
+    private  final Klikr_cache<Path, Image_properties> image_properties_cache;
 
     //**********************************************************
     public Item_folder_with_icon(
@@ -76,7 +76,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             double height,
             boolean is_trash_,
             Path is_parent_of,
-            RAM_cache<Path, Image_properties> image_properties_cache,
+            Klikr_cache<Path, Image_properties> image_properties_cache,
             Shutdown_target shutdown_target,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,

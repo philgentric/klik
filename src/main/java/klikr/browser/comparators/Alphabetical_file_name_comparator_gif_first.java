@@ -3,7 +3,7 @@
 
 package klikr.browser.comparators;
 
-import klikr.browser.Clearable_RAM_cache;
+import klikr.util.cache.Clearable_RAM_cache;
 import klikr.util.files_and_paths.Extensions;
 import klikr.util.files_and_paths.Guess_file_type;
 
@@ -11,12 +11,9 @@ import java.nio.file.Path;
 import java.util.Comparator;
 
 //**********************************************************
-public class Alphabetical_file_name_comparator_gif_first implements Comparator<Path>, Clearable_RAM_cache
+public class Alphabetical_file_name_comparator_gif_first implements Comparator<Path>
 //**********************************************************
 {
-
-    @Override
-    public void clear_RAM() {}
 
     @Override
     public int compare(Path f1, Path f2)

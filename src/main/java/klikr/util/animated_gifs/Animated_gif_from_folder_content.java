@@ -6,9 +6,11 @@
 package klikr.util.animated_gifs;
 
 import javafx.stage.Window;
-import klikr.External_application;
+import klikr.util.External_application;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Cache_folder;
+import klikr.util.cache.Clearable_disk_caches;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.virtual_landscape.Path_comparator_source;
@@ -16,7 +18,6 @@ import klikr.path_lists.Path_list_provider;
 import klikr.browser.comparators.Aspect_ratio_comparator;
 import klikr.properties.*;
 import klikr.properties.boolean_features.Booleans;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.execute.Execute_command;
 import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
@@ -57,7 +58,7 @@ public class Animated_gif_from_folder_content
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
             List<File> images_in_folder,
-            RAM_cache<Path, Image_properties> image_properties_cache,
+            Klikr_cache<Path, Image_properties> image_properties_cache,
             Aborter aborter,Logger logger)
     //**********************************************************
     {
@@ -70,7 +71,7 @@ public class Animated_gif_from_folder_content
         int icon_size = Non_booleans_properties.get_icon_size(owner);
 
         String output_animated_gif_name = Icon_caching.make_cache_name(path_list_provider.get_name(), "ANIMATED_FOLDER_" + icon_size, "gif");
-        Path folder_icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.folder_icon_cache,owner,logger);
+        Path folder_icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.folder_icon_cache,owner,logger);
         Path returned_path_of_animated_gif = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(), output_animated_gif_name);
         if (Files.exists(returned_path_of_animated_gif)) {
             if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
@@ -80,7 +81,7 @@ public class Animated_gif_from_folder_content
 
         if ( aborter.should_abort()) return null;
 
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.icon_cache,owner, logger);
+        Path icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache,owner, logger);
         //List<Path> to_be_cleaned_up = new ArrayList<>();
         List<Path> paths = new ArrayList<>();
         for (File f : images_in_folder) paths.add(f.toPath());
@@ -119,7 +120,7 @@ public class Animated_gif_from_folder_content
                 List<String> verify = new ArrayList<>();
                 verify.add(External_application.GraphicsMagick.get_command(owner,logger));
                 verify.add("--version");
-                String home = System.getProperty(Non_booleans_properties.USER_HOME);
+                String home = System.getProperty(String_constants.USER_HOME);
                 Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
                 if ( !res2.status())
                 {
@@ -172,7 +173,7 @@ public class Animated_gif_from_folder_content
             List<String> verify = new ArrayList<>();
             verify.add(External_application.GraphicsMagick.get_command(owner,logger));
             verify.add("--version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {

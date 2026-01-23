@@ -4,9 +4,10 @@
 package klikr.browser.comparators;
 
 import javafx.stage.Window;
-import klikr.browser.Clearable_RAM_cache;
+import klikr.util.cache.Clearable_disk_cache;
+import klikr.util.cache.Clearable_RAM_cache;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 
 import java.nio.file.Path;
@@ -14,20 +15,10 @@ import java.util.Comparator;
 
 //**********************************************************
 public record Aspect_ratio_comparator(
-        RAM_cache<Path, Image_properties> image_properties_cache, Aborter aborter, Window owner) implements Comparator<Path>, Clearable_RAM_cache
+        Klikr_cache<Path, Image_properties> image_properties_cache,
+        Aborter aborter, Window owner) implements Comparator<Path>
 //**********************************************************
 {
-
-
-    //**********************************************************
-    @Override
-    public void clear_RAM()
-    //**********************************************************
-    {
-        image_properties_cache.clear_RAM();
-    }
-
-
     //**********************************************************
     @Override
     public int compare(Path p1, Path p2)
@@ -52,4 +43,6 @@ public record Aspect_ratio_comparator(
         if (diff != 0) return diff;
         return (p1.getFileName().toString().compareTo(p2.getFileName().toString()));
     }
+
+
 }

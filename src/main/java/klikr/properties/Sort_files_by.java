@@ -4,9 +4,8 @@
 package klikr.properties;
 
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.browser.virtual_landscape.Browsing_caches;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
 import klikr.browser.comparators.*;
@@ -16,7 +15,9 @@ import klikr.machine_learning.image_similarity.Feature_vector_source_for_image_s
 import klikr.machine_learning.similarity.Similarity_cache;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Clearable_RAM_caches;
+import klikr.util.cache.Clearable_shared_caches;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.log.Logger;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.log.Stack_trace_getter;
@@ -73,7 +74,7 @@ public enum Sort_files_by {
     public static Comparator<Path> get_image_comparator(
         Path_list_provider path_list_provider,
         Path_comparator_source path_comparator_source,
-        RAM_cache<Path, Image_properties> image_properties_cache,
+        Klikr_cache<Path, Image_properties> image_properties_cache,
         Window owner,
         double x, double y, Aborter aborter, Logger logger)
     //**********************************************************
@@ -134,7 +135,7 @@ public enum Sort_files_by {
         Feature_vector_source fvs,
         Path_list_provider path_list_provider,
         Path_comparator_source path_comparator_source,
-        RAM_cache<Path, Image_properties> image_properties_cache,
+        Klikr_cache<Path, Image_properties> image_properties_cache,
         Window owner, double x, double y,
         Aborter aborter, Logger logger)
     //**********************************************************
@@ -160,11 +161,11 @@ public enum Sort_files_by {
             Path_list_provider path_list_provider, Window owner,double x, double y, Logger logger)
     //**********************************************************
     {
-        Similarity_cache similarity_cache = Browsing_caches.similarity_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+        Similarity_cache similarity_cache = Clearable_shared_caches.similarity_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
         if (similarity_cache == null)
         {
             similarity_cache = new Similarity_cache(fvs, paths, path_list_provider, owner, x, y, Shared_services.aborter(), logger);
-            Browsing_caches.similarity_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), similarity_cache);
+            Clearable_shared_caches.similarity_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), similarity_cache);
         }
         return similarity_cache;
     }

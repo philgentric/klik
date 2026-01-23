@@ -1,6 +1,6 @@
 package klikr.properties;
 
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
 

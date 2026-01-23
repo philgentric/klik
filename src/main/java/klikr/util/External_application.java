@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr;
+package klikr.util;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

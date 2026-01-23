@@ -10,7 +10,7 @@ import javafx.stage.Window;
 import klikr.audio.Song_playlist_browser;
 import klikr.browser.classic.Browser;
 import klikr.browser.comparators.Last_access_comparator;
-import klikr.browser.virtual_landscape.Browsing_caches;
+import klikr.browser.virtual_landscape.Scroll_position_cache;
 import klikr.browser.virtual_landscape.Shutdown_target;
 import klikr.in3D.Circle_3D;
 import klikr.path_lists.Path_list_provider;
@@ -80,7 +80,7 @@ public class Instructions
     //**********************************************************
     {
         // make sure the new window is scrolled at the same position
-        Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
+        Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX()+100,originator.getY()+100,originator.getWidth()-100,originator.getHeight()-100);
 
@@ -126,7 +126,7 @@ public class Instructions
             Logger logger)
     //**********************************************************
     {
-        Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
+        Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
 
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(originator.getX(), originator.getY(), originator.getWidth(), originator.getHeight());
 
@@ -170,7 +170,7 @@ public class Instructions
             Logger logger)
     //**********************************************************
     {
-        Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
+        Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         Instructions context =  new Instructions(

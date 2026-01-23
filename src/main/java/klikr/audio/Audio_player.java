@@ -2,8 +2,7 @@ package klikr.audio;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import klikr.Launcher;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.System_info;
 import klikr.look.Look_and_feel_manager;
 import klikr.look.my_i18n.My_I18n;
@@ -12,13 +11,7 @@ import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.http.Klikr_communicator;
 import klikr.util.log.Logger;
-import klikr.util.log.Stack_trace_getter;
-import klikr.util.tcp.*;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 //**********************************************************

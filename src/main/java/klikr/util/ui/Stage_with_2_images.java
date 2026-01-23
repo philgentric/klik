@@ -214,7 +214,7 @@ public class Stage_with_2_images
 		delete_button.setOnAction(event -> {
             List<Old_and_new_Path> l = new ArrayList<>();
 			Path p = file.toPath();
-			Path trash_dir = Non_booleans_properties.get_trash_dir(p,owner,logger);
+			Path trash_dir = Static_files_and_paths_utilities.get_trash_dir(p,owner,logger);
 			Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
 
 			l.add(new Old_and_new_Path(p, new_Path, Command.command_move_to_trash, Status.before_command,false));

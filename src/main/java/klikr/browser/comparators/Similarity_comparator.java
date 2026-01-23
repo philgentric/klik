@@ -6,7 +6,7 @@ package klikr.browser.comparators;
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 //SOURCES ../../image_ml/image_similarity/Path_pair.java;
 
-import klikr.browser.Clearable_RAM_cache;
+import klikr.util.cache.Clearable_RAM_cache;
 import klikr.path_lists.Path_list_provider;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.machine_learning.similarity.Path_pair;

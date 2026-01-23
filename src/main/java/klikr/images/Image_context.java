@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klikr.properties.String_constants;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.items.Item_file_with_icon;
@@ -555,13 +556,13 @@ public class Image_context
     //**********************************************************
     {
         String old_file_name = path.getFileName().toString().toLowerCase();
-        if (old_file_name.contains(Non_booleans_properties.ULTIM))
+        if (old_file_name.contains(String_constants.ULTIM))
         {
-            logger.log("no vote, name already contains " + Non_booleans_properties.ULTIM);
+            logger.log("no vote, name already contains " + String_constants.ULTIM);
             return Optional.empty();
         }
 
-        Path new_path = Moving_files.generate_new_candidate_name(path,"", Non_booleans_properties.ULTIM, logger);
+        Path new_path = Moving_files.generate_new_candidate_name(path,"", String_constants.ULTIM, logger);
         return image_stage.change_name_of_file(new_path);
     }
 

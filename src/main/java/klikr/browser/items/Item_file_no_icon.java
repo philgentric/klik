@@ -15,7 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.audio.Audio_player_gradle_start;
@@ -67,7 +67,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     public String text;
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    private final RAM_cache<Path, Image_properties> image_properties_cache;
+    private final Klikr_cache<Path, Image_properties> image_properties_cache;
 
     private final Shutdown_target shutdown_target;
     private final Top_left_provider top_left_provider;
@@ -80,7 +80,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             Icon_factory_actor icon_factory_actor,
             Color color,
             String text_,
-            RAM_cache<Path, Image_properties> image_properties_cache,
+            Klikr_cache<Path, Image_properties> image_properties_cache,
             Shutdown_target shutdown_target,
             Path path,
             Path_list_provider path_list_provider,

@@ -6,14 +6,11 @@ package klikr.machine_learning.similarity;
 //SOURCES ./Similarity_cache_warmer_message.java
 
 import javafx.stage.Window;
-import klikr.browser.Clearable_RAM_cache;
-import klikr.browser.virtual_landscape.Browsing_caches;
+import klikr.util.cache.*;
 import klikr.machine_learning.feature_vector.Feature_vector;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
-import klikr.util.animated_gifs.Ffmpeg_utils;
-import klikr.util.cache.RAM_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
@@ -21,8 +18,7 @@ import klikr.util.execute.actor.Or_aborter;
 import klikr.path_lists.Path_list_provider;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
-import klikr.properties.Cache_folder;
-import klikr.properties.Non_booleans_properties;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.progress.Progress_window;
@@ -30,16 +26,14 @@ import klikr.util.ui.progress.Progress_window;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 //**********************************************************
-public class Similarity_cache implements Clearable_RAM_cache
+public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cache
 //**********************************************************
 {
     private final Path_list_provider path_list_provider;
@@ -47,8 +41,8 @@ public class Similarity_cache implements Clearable_RAM_cache
     private final Window owner;
     private final Aborter aborter;
     private final Logger logger;
-    //private final ConcurrentHashMap<Path_pair, Double> similarities = new ConcurrentHashMap<>();
-    private RAM_cache<Path_pair, Double> similarities;
+    private Klikr_cache<Path_pair, Double> similarities;
+    private final String name;
 
     //**********************************************************
     public Similarity_cache(
@@ -65,15 +59,15 @@ public class Similarity_cache implements Clearable_RAM_cache
         this.aborter = aborter;
         String cache_name = "similarity";
         String local = cache_name + path_list_provider.get_folder_path();
-        String cache_file_name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
-        Path dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.similarity_cache.name(), false, owner,logger);
+        name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
+        Path dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(Cache_folder.similarity_cache.name(), false, owner,logger);
         if (dir != null)
         {
             logger.log("similarity cache folder=" + dir.toAbsolutePath());
         }
-        similarity_cache_file_path = Path.of(dir.toAbsolutePath().toString(), cache_file_name);
+        similarity_cache_file_path = Path.of(dir.toAbsolutePath().toString(), name);
 
-        Feature_vector_cache fv_cache = Browsing_caches.fv_cache_of_caches.get(path_list_provider.get_name());
+        Feature_vector_cache fv_cache = Clearable_shared_caches.fv_cache_of_caches.get(path_list_provider.get_name());
         if ( fv_cache == null) {
             Feature_vector_cache.Paths_and_feature_vectors result = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter, logger);
 
@@ -202,7 +196,7 @@ public class Similarity_cache implements Clearable_RAM_cache
             }
         };
 
-        similarities = new RAM_cache<Path_pair, Double>(
+        similarities = new Klikr_cache<Path_pair, Double>(
                 new Path_list_provider_for_file_system(folder_path, owner, logger),
                 Cache_folder.song_duration_cache.name(),
                 key_serializer, key_deserializer,
@@ -265,82 +259,14 @@ public class Similarity_cache implements Clearable_RAM_cache
         similarities.save_whole_cache_to_disk();
         progress_window.close();
     }
-/*
-    //**********************************************************
-    public boolean reload_similarity_cache_from_disk(Aborter local)
-    //**********************************************************
-    {
-        logger.log("reloading similarities from disk");
 
-        int reloaded = 0;
-        try(DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(similarity_cache_file_path.toFile()))))
-        {
-            int number_of_items = dis.readInt();
-            for ( int k = 0; k < number_of_items; k++)
-            {
-                if ( local.should_abort())
-                {
-                    logger.log("aborting : Similarity_cache::reload_similarity_cache_from_disk "+local.reason());
-                    return false;
-                }
-                String path1_string = dis.readUTF();
-                String path2_string = dis.readUTF();
-                double val = dis.readDouble();
-                Path p1 = path_list_provider.resolve(path1_string);
-                Path p2 = path_list_provider.resolve(path2_string);
-                Path_pair p = Path_pair.build(p1,p2);
-                similarities.put(p.to_String(),val);
-                if ( k%10000 == 0) logger.log("wait: already "+k +" similarities loaded from disk ....");
-                reloaded++;
-            }
-            logger.log("Done: "+reloaded+" similarities reloaded from disk");
-            return true;
-        }
-        catch (FileNotFoundException e)
-        {
-            logger.log("first time in this folder: "+e);
-        }
-        catch (IOException e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
-        }
-        return false;
+    @Override
+    public void clear_disk(Window owner, Aborter aborter, Logger logger) {
+        similarities.clear_disk(owner, aborter, logger);
     }
 
-    //**********************************************************
-    public void save_similarity_cache_to_disk()
-    //**********************************************************
-    {
-
-        int saved = 0;
-        try(DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(similarity_cache_file_path.toFile()))))
-        {
-            dos.writeInt(similarities.size());
-            for(Map.Entry<Path_pair, Double> e : similarities.entrySet())
-            {
-                Path_pair pp = e.getKey();
-                Path pi1 = pp.i();
-                Path pi2 = pp.j();
-                dos.writeUTF(pi1.getFileName().toString());
-                dos.writeUTF(pi2.getFileName().toString());
-                dos.writeDouble(e.getValue());
-                saved++;
-                //logger.log("to disk similarity "+e.getValue()+" for "+pi1.getFileName().toString()+" "+pi2.getFileName().toString());
-            }
-        }
-        catch (IOException e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
-        }
-
-        //if (dbg)
-        logger.log(saved +" similarities from cache saved to file");
+    @Override
+    public String name() {
+        return "Image similarity cache for: "+name;
     }
-
-    //**********************************************************
-    public Double get(Path_pair pathPair)
-    //**********************************************************
-    {
-        return similarities.get(pathPair);
-    }*/
 }

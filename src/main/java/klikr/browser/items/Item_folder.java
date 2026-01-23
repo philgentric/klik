@@ -15,7 +15,7 @@ import javafx.stage.Window;
 import klikr.Window_type;
 import klikr.Instructions;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.*;
@@ -57,7 +57,7 @@ public class Item_folder extends Item implements Icon_destination
     public String text;
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    private final RAM_cache<Path, Image_properties> image_properties_cache;
+    private final Klikr_cache<Path, Image_properties> image_properties_cache;
     private final Shutdown_target shutdown_target;
     private final Top_left_provider top_left_provider;
 
@@ -72,7 +72,7 @@ public class Item_folder extends Item implements Icon_destination
             double height,
             boolean is_trash_,
             Path is_parent_of,
-            RAM_cache<Path, Image_properties> image_properties_cache,
+            Klikr_cache<Path, Image_properties> image_properties_cache,
             Shutdown_target shutdown_target,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
@@ -401,7 +401,7 @@ public class Item_folder extends Item implements Icon_destination
                 if ( dbg) logger.log("is_up_button");
                 old_folder_path = is_parent_of();
             }
-            Browsing_caches.scroll_position_cache_write(old_folder_path,top_left_provider.get_top_left());
+            Scroll_position_cache.scroll_position_cache_write(old_folder_path,top_left_provider.get_top_left());
 
             Instructions.replace_different_folder(
                     shutdown_target,

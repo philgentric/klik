@@ -3,7 +3,7 @@
 
 package klikr.browser.comparators;
 
-import klikr.browser.Clearable_RAM_cache;
+import klikr.util.cache.Clearable_RAM_cache;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
@@ -16,14 +16,9 @@ import java.nio.file.attribute.FileTime;
 import java.util.Comparator;
 
 //**********************************************************
-public record Last_access_comparator(Logger logger) implements Comparator<Path>, Clearable_RAM_cache
+public record Last_access_comparator(Logger logger) implements Comparator<Path>
 //**********************************************************
 {
-
-    @Override
-    public void clear_RAM() {}
-
-
 
     //**********************************************************
     @Override

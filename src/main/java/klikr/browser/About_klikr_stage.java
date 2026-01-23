@@ -8,6 +8,7 @@ import javafx.stage.Window;
 import klikr.look.Jar_utils;
 import klikr.look.Look_and_feel_manager;
 import klikr.properties.Non_booleans_properties;
+import klikr.properties.String_constants;
 import klikr.util.info_stage.Info_stage;
 import klikr.util.info_stage.Line_for_info_stage;
 import klikr.util.log.Logger;
@@ -89,7 +90,7 @@ public class About_klikr_stage
         l.add(new Line_for_info_stage(false,"    Time consuming operations are performed asynchronously so that the UI remains fluid"));
         l.add(new Line_for_info_stage(true,"The little features that make Klikr great:"));
         l.add(new Line_for_info_stage(false,"     You can easily rename things (folders and files)"));
-        l.add(new Line_for_info_stage(false,"     Klikr remembers all settings (in a human readable file called "+ Non_booleans_properties.PROPERTIES_FILENAME +")"));
+        l.add(new Line_for_info_stage(false,"     Klikr remembers all settings (in a human readable file called "+ String_constants.PROPERTIES_FILENAME +")"));
         l.add(new Line_for_info_stage(false,"     You can visualise how much room a folder takes on disk (folder size = everything including all sub-folder's content)"));
         l.add(new Line_for_info_stage(false,"     Klikr tells you how many pictures a folder contains"));
         l.add(new Line_for_info_stage(false,"     Klikr history remembers the folders you visited, so you can shortcut. It can be cleared."));

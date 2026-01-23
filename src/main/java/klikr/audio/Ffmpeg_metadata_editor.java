@@ -6,7 +6,8 @@ package klikr.audio;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Window;
-import klikr.External_application;
+import klikr.properties.String_constants;
+import klikr.util.External_application;
 import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.execute.Execute_result;
@@ -100,7 +101,7 @@ public class Ffmpeg_metadata_editor
                 List<String> verify = new ArrayList<>();
                 verify.add(External_application.Ffmpeg.get_command(owner,logger));
                 verify.add("-version");
-                String home = System.getProperty(Non_booleans_properties.USER_HOME);
+                String home = System.getProperty(String_constants.USER_HOME);
                 Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
                 if ( !res2.status())
                 {

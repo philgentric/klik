@@ -5,13 +5,15 @@ package klikr.util.animated_gifs;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klikr.External_application;
+import klikr.properties.String_constants;
+import klikr.util.External_application;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.files_and_paths.Moving_files;
 import klikr.images.Image_context;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.execute.Execute_command;
 import klikr.util.log.Logger;
@@ -45,7 +47,7 @@ public class Gif_repair
         Path target = image_context.path;
         Path this_dir = target.getParent();
 
-        Path tmp_dir = Non_booleans_properties.get_trash_dir(this_dir,owner,logger);
+        Path tmp_dir = Static_files_and_paths_utilities.get_trash_dir(this_dir,owner,logger);
         if ( tmp_dir == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("Weird! could not use tmp directory:"));
@@ -76,7 +78,7 @@ public class Gif_repair
             List<String> verify = new ArrayList<>();
             verify.add(External_application.GraphicsMagick.get_command(owner,logger));
             verify.add("--version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {
@@ -113,7 +115,7 @@ public class Gif_repair
                 List<String> verify = new ArrayList<>();
                 verify.add(External_application.GraphicsMagick.get_command(owner,logger));
                 verify.add("--version");
-                String home = System.getProperty(Non_booleans_properties.USER_HOME);
+                String home = System.getProperty(String_constants.USER_HOME);
                 Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
                 if ( !res2.status())
                 {

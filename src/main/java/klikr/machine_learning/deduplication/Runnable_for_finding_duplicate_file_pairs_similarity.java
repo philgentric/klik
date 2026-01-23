@@ -5,7 +5,7 @@ package klikr.machine_learning.deduplication;
 
 import javafx.stage.Window;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.browser.virtual_landscape.Path_comparator_source;
@@ -37,7 +37,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	Deduplication_by_similarity_engine deduplication_by_similarity_engine;
 	private final Aborter private_aborter;
 	private final Similarity_engine similarity_engine;
-	private final RAM_cache<Path, Image_properties> image_properties_cache;// may be null
+	private final Klikr_cache<Path, Image_properties> image_properties_cache;// may be null
 	private final Supplier<Feature_vector_cache> fv_cache_supplier;
 	private final Window owner;
     private final double too_far_away;
@@ -45,7 +45,7 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
 	public Runnable_for_finding_duplicate_file_pairs_similarity(
             List<Path> paths,
             double too_far_away,
-			RAM_cache<Path, Image_properties> image_properties_cache,// maybe null
+            Klikr_cache<Path, Image_properties> image_properties_cache,// maybe null
             Supplier<Feature_vector_cache> fv_cache_supplier,
             Path_comparator_source path_comparator_source,
             Deduplication_by_similarity_engine deduplication_by_similarity_engine_,

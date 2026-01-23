@@ -4,8 +4,6 @@ import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Message;
 
-import java.nio.file.Path;
-
 //**********************************************************
 public class RAM_cache_message<K,V> implements Message
 //**********************************************************
@@ -13,10 +11,10 @@ public class RAM_cache_message<K,V> implements Message
     public final K key;
     public final Aborter aborter;
     public final Window owner;
-    public final RAM_cache<K,V> cache;
+    public final Klikr_cache<K,V> cache;
     public final boolean check_if_present;
     //**********************************************************
-    public RAM_cache_message(K key, boolean check_if_present, RAM_cache<K,V> cache, Aborter aborter, Window owner)
+    public RAM_cache_message(K key, boolean check_if_present, Klikr_cache<K,V> cache, Aborter aborter, Window owner)
     //**********************************************************
     {
         this.cache = cache;

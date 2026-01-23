@@ -111,15 +111,14 @@ import javafx.stage.Stage;
 import klikr.*;
 import klikr.path_lists.Path_list_provider_for_playlist;
 import klikr.properties.Non_booleans_properties;
-import klikr.util.cache_auto_clean.Disk_usage_and_caches_monitor;
+import klikr.properties.String_constants;
+import klikr.util.Shared_services;
+import klikr.util.disk_cache_auto_clean.Disk_usage_and_caches_monitor;
 import klikr.util.log.Exceptions_in_threads_catcher;
 import klikr.util.log.Logger;
-import klikr.util.tcp.TCP_client;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 //**********************************************************
 public class Image_playlist_app extends Application
@@ -180,7 +179,7 @@ public class Image_playlist_app extends Application
         Path path = context.extract_path();
         if ( path == null)
         {
-            path = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, "default."+ Path_list_provider_for_playlist.KLIKR_IMAGE_PLAYLIST_EXTENSION);
+            path = Path.of(System.getProperty("user.home"), String_constants.CONF_DIR, "default."+ Path_list_provider_for_playlist.KLIKR_IMAGE_PLAYLIST_EXTENSION);
             logger.log("trying default playlist");
             if (!Files.exists(path))
             {
@@ -192,58 +191,7 @@ public class Image_playlist_app extends Application
         Instructions.additional_no_past(Window_type.Image_playlist_2D,new Path_list_provider_for_playlist(path,primary_stage_,logger),primary_stage_,logger);
         new Disk_usage_and_caches_monitor(()->primary_stage, logger).start();
 
-        /*
-        Integer reply_port = extract_started_reply_port(logger);
-        if ( reply_port != null) // is null when launched from the audio player
-        {
-            TCP_client.send_in_a_thread("127.0.0.1", reply_port, Launcher.STARTED, logger);
-        }*/
+
     }
-
-    /*
-    //**********************************************************
-    private Integer extract_started_reply_port(Logger logger)
-    //**********************************************************
-    {
-        // going to read a file in the conf dir i.e. '.klik' folder
-        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_PORT_TO_REPLY_ABOUT_START);
-        try {
-            if (java.nio.file.Files.exists(p)) {
-                List<String> lines = java.nio.file.Files.readAllLines(p, StandardCharsets.UTF_8);
-                if (lines.size() > 0) {
-                    String s = lines.get(0).trim();
-                    return Integer.parseInt(s);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            logger.log("Klik_application: cannot read reply_port from " + p + " exception: " + e);
-        }
-        return null;
-    }
-
-
-    //**********************************************************
-    private Integer extract_ui_change_report_port(Logger logger)
-    //**********************************************************
-    {
-        Path p = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, Non_booleans_properties.FILENAME_FOR_UI_CHANGE_REPORT_PORT_AT_LAUNCHER);
-        try {
-            if (java.nio.file.Files.exists(p)) {
-                List<String> lines = java.nio.file.Files.readAllLines(p,StandardCharsets.UTF_8);
-                if (lines.size() > 0) {
-                    String s = lines.get(0).trim();
-                    return Integer.parseInt(s);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            logger.log("Klik_application: cannot read ui_change_report_port_at_launcher from " + p + " exception: " + e);
-        }
-        return null;
-    }*/
-
 
 }

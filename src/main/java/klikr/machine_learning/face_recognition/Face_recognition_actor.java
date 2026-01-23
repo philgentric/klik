@@ -16,11 +16,11 @@ import javafx.stage.Window;
 import klikr.machine_learning.ML_registry_discovery;
 import klikr.machine_learning.ML_server_type;
 import klikr.machine_learning.ML_service_type;
+import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.execute.actor.*;
 import klikr.machine_learning.feature_vector.Feature_vector;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
-import klikr.properties.Cache_folder;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
+import klikr.util.cache.Cache_folder;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
@@ -512,7 +512,7 @@ public class Face_recognition_actor implements Actor
         if ( dbg) logger.log("Face detected");
 
         // write the image to disk, the tmp path will be passed to the embedding server
-        Path face_reco_cache_folder = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.face_reco_cache,owner,logger);
+        Path face_reco_cache_folder = Clearable_disk_caches.get_cache_dir(Cache_folder.face_recognition_cache,owner,logger);
         if ( dbg) logger.log("face_reco_folder = "+face_reco_cache_folder);
 
         String file_name_base = "tmp_unknown_face_"+ UUID.randomUUID();
@@ -527,7 +527,7 @@ public class Face_recognition_actor implements Actor
         {
             display_label = "not recognized";
         }
-        logger.log("face reco result = "+display_label);
+        logger.log("face recognition result = "+display_label);
 
         if ( eval_result.label() == null)
         {

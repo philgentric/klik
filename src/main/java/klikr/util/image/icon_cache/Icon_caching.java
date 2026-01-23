@@ -4,8 +4,8 @@
 package klikr.util.image.icon_cache;
 
 import javafx.stage.Window;
-import klikr.properties.Cache_folder;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
+import klikr.util.cache.Cache_folder;
+import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.log.Logger;
 
 import java.io.File;
@@ -34,7 +34,7 @@ public class Icon_caching
     {
         if ( original_image_file == null) return null;
 
-        if (icon_cache_dir == null) icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.icon_cache,owner,logger);
+        if (icon_cache_dir == null) icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache,owner,logger);
         //int icon_size = Non_booleans_properties.get_icon_size(owner);
         //String tag = String.valueOf(icon_size);
         return icon_cache_dir.resolve(make_cache_name(original_image_file.toAbsolutePath().toString(), tag, extension));
@@ -51,7 +51,7 @@ public class Icon_caching
     {
         if ( original_image_file == null) return null;
 
-        if (icon_cache_dir == null) icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.icon_cache,owner,logger);
+        if (icon_cache_dir == null) icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache,owner,logger);
         //int icon_size = Non_booleans_properties.get_icon_size(owner);
         //String tag = String.valueOf(icon_size);
         return new File(icon_cache_dir.toFile(), make_cache_name(original_image_file.toAbsolutePath().toString(), tag, extension));

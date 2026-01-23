@@ -10,7 +10,8 @@
 package klikr.util.animated_gifs;
 
 import javafx.stage.Window;
-import klikr.External_application;
+import klikr.properties.String_constants;
+import klikr.util.External_application;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Aborter;
@@ -57,7 +58,7 @@ public class Ffmpeg_utils
             List<String> verify = new ArrayList<>();
             verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {
@@ -109,7 +110,7 @@ public class Ffmpeg_utils
             List<String> verify = new ArrayList<>();
             verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {
@@ -195,7 +196,7 @@ public class Ffmpeg_utils
             List<String> verify = new ArrayList<>();
             verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {
@@ -260,7 +261,7 @@ public class Ffmpeg_utils
             List<String> verify = new ArrayList<>();
             verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {

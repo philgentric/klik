@@ -7,6 +7,7 @@ import javafx.scene.image.*;
 import javafx.stage.Window;
 import klikr.Klikr_application;
 import klikr.util.execute.Application_jar;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.image.Static_image_utilities;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.log.Logger;
@@ -105,7 +106,7 @@ public class Jar_utils
             y2++;
         }
 
-        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
         String tmp_icon_file_name = klik_trash.resolve("tmp_klik_icon.png").toString();
 
         // create a conformant png file from the bytes

@@ -27,12 +27,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Window;
-import klikr.External_application;
+import klikr.util.External_application;
 import klikr.Klikr_application;
 import klikr.Window_type;
 import klikr.Instructions;
 import klikr.audio.Audio_player;
 import klikr.path_lists.Path_list_provider;
+import klikr.util.cache.Clearable_disk_caches;
+import klikr.util.cache.Clearable_RAM_caches;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.Icon_size;
@@ -393,7 +395,7 @@ public class Virtual_landscape_menus
             List<String> verify = new ArrayList<>();
             verify.add(External_application.GraphicsMagick.get_command(owner,logger));
             verify.add("--version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {
@@ -437,7 +439,7 @@ public class Virtual_landscape_menus
                 try {
                     Path new_dir = virtual_landscape.path_list_provider.resolve(new_name);
                     Files.createDirectory(new_dir);
-                    Browsing_caches.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(), new_dir);
+                    Scroll_position_cache.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(), new_dir);
                     virtual_landscape.redraw_fx("created new empty dir");
                     break;
                 }
@@ -463,8 +465,10 @@ public class Virtual_landscape_menus
     }
 
     //**********************************************************
-    public void clear_scroll_position_cache() {
-        Browsing_caches.scroll_position_cache_clear();
+    public void clear_scroll_position_cache()
+    //**********************************************************
+    {
+        Scroll_position_cache.scroll_position_cache_clear();
     }
 
     //**********************************************************
@@ -558,10 +562,15 @@ public class Virtual_landscape_menus
                 event -> Static_files_and_paths_utilities.clear_trash(true,owner, virtual_landscape.aborter, logger),
                 context_menu,owner,logger);
 
-        Menu_items.add_menu_item_for_context_menu("Clear_All_Caches",null,
+        Menu_items.add_menu_item_for_context_menu("Clear_All_RAM_Caches",null,
                 event -> {
-                    Browsing_caches.clear_all_RAM_caches(logger);
-                    Static_files_and_paths_utilities.clear_all_DISK_caches(owner,virtual_landscape.aborter,logger);
+                    Clearable_RAM_caches.clear_all_RAM_caches(logger);
+                },
+                context_menu,owner,logger);
+
+        Menu_items.add_menu_item_for_context_menu("Clear_All_Disk_Caches",null,
+                event -> {
+             Clearable_disk_caches.clear_all_disk_caches(owner,virtual_landscape.aborter,logger);
                 },
                 context_menu,owner,logger);
 
@@ -1067,7 +1076,7 @@ public class Virtual_landscape_menus
                 {
                     Path path = Path.of(hi.value);
                     Path old_folder_path = path_list_provider.get_folder_path();
-                    Browsing_caches.scroll_position_cache_write(old_folder_path,top_left);
+                    Scroll_position_cache.scroll_position_cache_write(old_folder_path,top_left);
                     Instructions.replace_different_folder( shutdown_target, window_type,new Path_list_provider_for_file_system(path,owner,logger), owner,logger);
                 });
                 path_already_done.put(hi.value,hi);
@@ -1117,7 +1126,7 @@ public class Virtual_landscape_menus
     //**********************************************************
     {
         Active_list_stage_action action = text -> {
-            Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
+            Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
             Instructions.replace_different_folder( shutdown_target, window_type, new Path_list_provider_for_file_system(Path.of(text),owner,logger), owner, logger);
         };
         Datetime_to_signature_source source = new Datetime_to_signature_source() {
@@ -1154,7 +1163,7 @@ public class Virtual_landscape_menus
             MenuItem item = new MenuItem(hi);
             Look_and_feel_manager.set_menu_item_look(item, owner, logger);
             item.setOnAction(event -> {
-                Browsing_caches.scroll_position_cache_write(path,top_left);
+                Scroll_position_cache.scroll_position_cache_write(path,top_left);
                 Instructions.replace_different_folder( shutdown_target, context_type, new Path_list_provider_for_file_system(Path.of(hi),owner,logger), owner,logger);
             });
             bookmarks_menu.getItems().add(item);
@@ -1200,7 +1209,7 @@ public class Virtual_landscape_menus
             Look_and_feel_manager.set_menu_item_look(item, owner, logger);
 
             item.setOnAction(event -> {
-                Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
+                Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_folder_path(),top_left);
                 Instructions.replace_different_folder( shutdown_target,window_type, new Path_list_provider_for_file_system(f.toPath(),owner,logger),owner,logger);
             });
             roots_menu.getItems().add(item);
@@ -1366,7 +1375,7 @@ public class Virtual_landscape_menus
     public static void create_menu_item_for_one_column_width(Menu menu, int length, List<CheckMenuItem> all_check_menu_items, Virtual_landscape local_virtual_landscape, Window owner, Logger logger)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Non_booleans_properties.COLUMN_WIDTH,owner,logger);
+        String text = My_I18n.get_I18n_string(String_constants.COLUMN_WIDTH,owner,logger);
         CheckMenuItem item = new CheckMenuItem(text + " = " +length);
         Look_and_feel_manager.set_menu_item_look(item, owner, logger);
         int actual_size = Non_booleans_properties.get_column_width(owner);
@@ -1503,7 +1512,7 @@ public class Virtual_landscape_menus
     public static Menu make_column_width_menu(Virtual_landscape local_virtual_landscape, Window owner, Logger logger)
     //**********************************************************
     {
-        String text = My_I18n.get_I18n_string(Non_booleans_properties.COLUMN_WIDTH,owner,logger);
+        String text = My_I18n.get_I18n_string(String_constants.COLUMN_WIDTH,owner,logger);
         Menu menu = new Menu(text);
         Look_and_feel_manager.set_menu_item_look(menu,owner, logger);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();

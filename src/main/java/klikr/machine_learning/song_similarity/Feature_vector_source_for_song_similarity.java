@@ -4,7 +4,8 @@
 package klikr.machine_learning.song_similarity;
 
 import javafx.stage.Window;
-import klikr.External_application;
+import klikr.properties.String_constants;
+import klikr.util.External_application;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Aborter;
@@ -13,6 +14,7 @@ import klikr.machine_learning.feature_vector.Feature_vector_source;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.execute.Execute_command;
 import klikr.util.files_and_paths.Extensions;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 
 import java.io.File;
@@ -91,7 +93,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
             List<String> verify = new ArrayList<>();
             verify.add(External_application.AcousticID_chromaprint_fpcalc.get_command(owner,logger));
             verify.add("-version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {
@@ -107,7 +109,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
     private String call_ffmpeg_to_convert_to_wav(Path path, Window owner, Logger logger)
     //**********************************************************
     {
-        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
         String base = Extensions.get_base_name(path.getFileName().toString());
         String wav_path = klik_trash.resolve(base+".wav").toString();
 
@@ -141,7 +143,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
             List<String> verify = new ArrayList<>();
             verify.add(External_application.Ffmpeg.get_command(owner,logger));
             verify.add("-version");
-            String home = System.getProperty(Non_booleans_properties.USER_HOME);
+            String home = System.getProperty(String_constants.USER_HOME);
             Execute_result res2 = Execute_command.execute_command_list(verify, new File(home), 20 * 1000, null, logger);
             if ( !res2.status())
             {

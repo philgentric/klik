@@ -24,6 +24,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.execute.Application_jar;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
@@ -330,7 +331,7 @@ public abstract class Look_and_feel
     protected URL get_CSS_URL2(String css, Window owner)
     //**********************************************************
     {
-        Path klik_trash = Non_booleans_properties.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
         try {
             Path script_path = klik_trash.resolve("tmp.css");
             Files.write(script_path, css.getBytes());

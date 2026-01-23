@@ -5,6 +5,7 @@ import javafx.stage.Window;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Executor;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
@@ -84,7 +85,7 @@ public class Klikr_communicator
     {
         this.app_name = app_name;
         this.logger = logger;
-        REGISTRY_DIR = Non_booleans_properties.get_absolute_hidden_dir_on_user_home("registry", false,owner, logger);
+        REGISTRY_DIR = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home("registry", false,owner, logger);
         if ( REGISTRY_DIR == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("❌ Fatal REGISTRY_DIR == null"));

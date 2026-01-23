@@ -6,18 +6,18 @@ package klikr.util.image;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Window;
-import klikr.External_application;
-import klikr.browser.virtual_landscape.Browsing_caches;
+import klikr.util.External_application;
+import klikr.util.cache.Clearable_disk_caches;
+import klikr.util.cache.Clearable_RAM_caches;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.experimental.fusk.Fusk_static_core;
 import klikr.look.Jar_utils;
-import klikr.properties.Cache_folder;
+import klikr.util.cache.Cache_folder;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.Check_remaining_RAM;
 import klikr.util.execute.Execute_command;
 import klikr.util.files_and_paths.Extensions;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 //import klik.util.image.decoding.FITS;
 import klikr.util.image.decoding.Fast_aspect_ratio_from_exif_metadata_extractor;
 import klikr.util.image.decoding.Fast_width_from_exif_metadata_extractor;
@@ -209,7 +209,7 @@ public class Full_image_from_disk
         catch (OutOfMemoryError e)
         {
             logger.log("OutOfMemoryError when loading image from disk: "+original_image_file.toAbsolutePath()+" : "+e);
-            Browsing_caches.clear_all_RAM_caches(logger);
+            Clearable_RAM_caches.clear_all_RAM_caches(logger);
             Popups.popup_Exception(null,100,"Your java VM machine is running out of RAM!\nclose some windows and/or try to increase the max in build.gradle.works and restart",owner,logger);
             return Optional.of(Jar_utils.get_broken_icon(300,owner,logger));
         }
@@ -252,7 +252,7 @@ public class Full_image_from_disk
     //**********************************************************
     {
         //logger.log("using GraphicsMagick_for_full_image");
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.icon_cache, owner, logger);
+        Path icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache, owner, logger);
         Path png_path = icon_cache_dir.resolve(original_image_file.getFileName().toString()+"_full.png");
 
         if ( !png_path.toFile().exists())
@@ -289,7 +289,7 @@ public class Full_image_from_disk
     //**********************************************************
     {
         logger.log("using ImageMagick (fallback!) to load image by converting it");
-        Path icon_cache_dir = Static_files_and_paths_utilities.get_cache_dir(Cache_folder.icon_cache, owner, logger);
+        Path icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache, owner, logger);
         Path png_path = icon_cache_dir.resolve(original_image_file.getFileName().toString()+"_full.png");
 
         if ( !png_path.toFile().exists())

@@ -7,10 +7,12 @@ import javafx.stage.Window;
 import klikr.machine_learning.face_recognition.Face_detection_type;
 import klikr.machine_learning.feature_vector.UDP_traffic_monitor;
 import klikr.properties.Non_booleans_properties;
+import klikr.properties.String_constants;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.execute.*;
 import klikr.util.execute.actor.Actor_engine;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Tmp_file_in_trash;
 
@@ -19,8 +21,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static klikr.properties.Non_booleans_properties.CONF_DIR;
-import static klikr.properties.Non_booleans_properties.USER_HOME;
 
 //**********************************************************
 public class ML_servers_util
@@ -299,7 +299,7 @@ public class ML_servers_util
     //**********************************************************
     {
         // works on all OSES
-        return Non_booleans_properties.get_trash_dir(Path.of(""),owner,logger);
+        return Static_files_and_paths_utilities.get_trash_dir(Path.of(""),owner,logger);
     }
 
     //**********************************************************
@@ -307,7 +307,7 @@ public class ML_servers_util
     //**********************************************************
     {
         // works on all OSES
-        return Paths.get(System.getProperty(USER_HOME), CONF_DIR, "venv").toAbsolutePath();
+        return Paths.get(System.getProperty(String_constants.USER_HOME), String_constants.CONF_DIR, "venv").toAbsolutePath();
     }
 
 

@@ -26,7 +26,10 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import klikr.External_application;
+import klikr.properties.IProperties;
+import klikr.properties.String_constants;
+import klikr.util.External_application;
+import klikr.util.Shared_services;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
@@ -49,6 +52,10 @@ public class Audio_player_FX_UI implements Media_callbacks
     private static final boolean dbg = false;
     private static final boolean ultra_dbg = false;
     static final boolean keyword_dbg = false;
+
+
+    static final String AUDIO_PLAYER_EQUALIZER_BAND_ = "AUDIO_PLAYER_EQUALIZER_BAND_";
+    static final String AUDIO_PLAYER_VOLUME = "AUDIO_PLAYER_VOLUME";
 
     public static final int WIDTH = 500;
     public static final String AUDIO_PLAYER = "AUDIO_PLAYER";
@@ -466,14 +473,14 @@ public class Audio_player_FX_UI implements Media_callbacks
         speaker_image_view.setFitWidth(60);
         volume_hbox.getChildren().add(speaker_image_view);
 
-        volume = Non_booleans_properties.get_audio_volume(stage, logger);
+        volume = get_audio_volume(stage, logger);
         Slider volume_slider = new Slider(0, 1, volume);
         volume_slider.setMinWidth(30);
         volume_hbox.getChildren().add(volume_slider);
         volume_slider.valueProperty().addListener((observableValue, number, t1) -> {
             volume = volume_slider.getValue();
             Media_instance_statics.set_volume(volume);
-            Non_booleans_properties.save_audio_volume(volume, stage);
+            save_audio_volume(volume, stage);
             if (volume >= 0.01) {
                 speaker_image_view.setImage(Look_and_feel_manager.get_speaker_on_icon(stage, logger));
             } else {
@@ -745,7 +752,7 @@ public class Audio_player_FX_UI implements Media_callbacks
     public void on_end_of_media()
     // **********************************************************
     {
-        Non_booleans_properties.save_current_time_in_song(0, null);
+        save_current_time_in_song(0, null);
         playlist.jump_to_next_on_end_of_media();
     }
 
@@ -767,7 +774,7 @@ public class Audio_player_FX_UI implements Media_callbacks
             double seconds = newValue.toSeconds();
             the_timeline_slider.setValue(seconds);
             now_value_label.setText((int) seconds + " seconds");
-            Non_booleans_properties.save_current_time_in_song((int) seconds, stage);
+            save_current_time_in_song((int) seconds, stage);
 
         };
 
@@ -832,7 +839,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         {
             for (int i = 0; i < sliders.size(); i++) {
                 Slider s = sliders.get(i);
-                double value = Non_booleans_properties.get_equalizer_value_for_band(i, stage, logger);
+                double value = get_equalizer_value_for_band(i, stage, logger);
                 s.setValue(value);
                 equalizer_bands.get(i).setGain(value);
 
@@ -844,7 +851,7 @@ public class Audio_player_FX_UI implements Media_callbacks
                     double slider_value = new_val_.doubleValue();
                     logger.log("slider_value="+ slider_value);
                     equalizer_bands.get(finalI).setGain(slider_value);
-                    Non_booleans_properties.save_equalizer_value_for_band(finalI, slider_value, stage);
+                    save_equalizer_value_for_band(finalI, slider_value, stage);
                 };
                 s.valueProperty().addListener(listener);
                 listeners.add(listener);
@@ -858,7 +865,7 @@ public class Audio_player_FX_UI implements Media_callbacks
             int how_many_rectangles = equalizer_bands.size();
             for (int i = 0; i < how_many_rectangles; i++)
             {
-                double value = Non_booleans_properties.get_equalizer_value_for_band(i, stage, logger);
+                double value = get_equalizer_value_for_band(i, stage, logger);
                 logger.log(i+" value="+ value);
                 equalizer_bands.get(i).setGain(value);
 
@@ -872,7 +879,7 @@ public class Audio_player_FX_UI implements Media_callbacks
                     double slider = new_val_.doubleValue();
                     logger.log("slider="+ slider);
                     equalizer_bands.get(finalI).setGain(slider);
-                    Non_booleans_properties.save_equalizer_value_for_band(finalI, slider, stage);
+                    save_equalizer_value_for_band(finalI, slider, stage);
                 };
                 listeners.add(listener);
                 s.valueProperty().addListener(listener);
@@ -896,7 +903,7 @@ public class Audio_player_FX_UI implements Media_callbacks
             for (int i = 0; i < equalizer_bands.size(); i++) {
                 equalizer_bands.get(i).setGain(0.0);
                 sliders.get(i).setValue(0.0);
-                Non_booleans_properties.save_equalizer_value_for_band(i, 0.0, stage);
+                save_equalizer_value_for_band(i, 0.0, stage);
             }
         });
         return reset_button;
@@ -1176,7 +1183,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         command_line_for_ytdlp.add(youtube_url);
 
         StringBuilder sb = new StringBuilder();
-        String home = System.getProperty(Non_booleans_properties.USER_HOME);
+        String home = System.getProperty(String_constants.USER_HOME);
         Execute_result res = Execute_command.execute_command_list(command_line_for_ytdlp, new File(home), 20 * 1000, sb,
                 logger);
         if (!res.status()) {
@@ -1264,4 +1271,62 @@ public class Audio_player_FX_UI implements Media_callbacks
         stage.close();
         Media_instance_statics.dispose();
     }
+
+    static int previous_current_time_in_song = -1;
+
+    //**********************************************************
+    public static void save_current_time_in_song(int time, Window owner)
+    //**********************************************************
+    {
+        if (previous_current_time_in_song > 0) {
+            if (previous_current_time_in_song / 10 == time / 10) return;
+        }
+        previous_current_time_in_song = time;
+        //logger.log("save_current_time_in_song "+time);
+        IProperties pm = Shared_services.main_properties();
+        pm.set(Media_instance.AUDIO_PLAYER_CURRENT_TIME, "" + time);
+
+    }
+
+
+
+    //**********************************************************
+    public static double get_equalizer_value_for_band(int i, Window owner,Logger logger)
+    //**********************************************************
+    {
+        IProperties pm = Shared_services.main_properties();
+        String s = pm.get(AUDIO_PLAYER_EQUALIZER_BAND_ + i);
+        if (s == null) return 0;
+
+        double value = 0;
+        try {
+            value = Double.valueOf(s);
+        } catch (NumberFormatException e) {
+            logger.log("WARNING: cannot parse equalizer value for band " + i + "->" + s + "<-");
+        }
+        return value;
+    }
+
+    //**********************************************************
+    public static void save_equalizer_value_for_band(int i, double value, Window owner)
+    //**********************************************************
+    {
+        IProperties pm = Shared_services.main_properties();
+        pm.set(AUDIO_PLAYER_EQUALIZER_BAND_ + i, "" + value);
+    }
+
+    //**********************************************************
+    public static void save_audio_volume(double value, Window owner)
+    //**********************************************************
+    {
+        Non_booleans_properties.set_double(value,AUDIO_PLAYER_VOLUME,owner);
+    }
+
+    //**********************************************************
+    public static double get_audio_volume(Window owner,Logger logger)
+    //**********************************************************
+    {
+        return Non_booleans_properties.get_double(AUDIO_PLAYER_VOLUME,0.5,owner);
+    }
+
 }

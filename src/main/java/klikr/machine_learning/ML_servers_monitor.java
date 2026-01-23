@@ -12,7 +12,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.look.Look_and_feel_manager;
 import klikr.util.Simple_json_parser;
 import klikr.util.execute.actor.Aborter;
@@ -24,8 +24,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //**********************************************************
 public class ML_servers_monitor implements AutoCloseable
@@ -209,13 +209,13 @@ public class ML_servers_monitor implements AutoCloseable
     private void read_registry_files_and_update_UI(Window owner)
     //**********************************************************
     {
-        Map<String, Set<ML_server>> server_ports = ML_registry_discovery.scan_all_registry(owner, logger);
-        //logger.log("\n\n\n\nML_servers_monitor: " + server_ports.size() + " servers TYPES\n\n\n\n");
-        for ( Map.Entry<String, Set<ML_server>> entry : server_ports.entrySet() )
+        Map<String, List<ML_server>> server_ports = ML_registry_discovery.scan_all_registry(owner, logger);
+        if ( server_ports == null ) return;
+        for ( Map.Entry<String, List<ML_server>> entry : server_ports.entrySet() )
         {
-            Set<ML_server> set = entry.getValue();
-            if ( dbg) logger.log("server type :->" + entry.getKey()+ "<- "+set.size()+ " instances");
-            for ( ML_server ml_server : set )
+            List<ML_server> list = entry.getValue();
+            if ( dbg) logger.log("server type :->" + entry.getKey()+ "<- "+list.size()+ " instances");
+            for ( ML_server ml_server : list )
             {
                 if ( dbg) logger.log("query_server_health for:" + ml_server.to_string());
                 if (is_server_alive_2(ml_server,null, aborter,logger))

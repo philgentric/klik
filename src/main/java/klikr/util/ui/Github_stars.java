@@ -4,7 +4,7 @@ import javafx.application.HostServices;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 
 
 //**********************************************************

@@ -40,7 +40,7 @@ import klikr.change.bookmarks.Bookmarks;
 import klikr.change.history.History_engine;
 import klikr.change.undo.Undo_for_moves;
 import klikr.path_lists.Files_and_folders;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.*;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
@@ -173,7 +173,7 @@ public class Virtual_landscape
     private Feature_vector_cache fv_cache;
     private final Background_provider background_provider;
 
-    RAM_cache<Path, Image_properties> image_properties_cache;
+    Klikr_cache<Path, Image_properties> image_properties_cache;
 
     //**********************************************************
     public Virtual_landscape(
@@ -201,8 +201,8 @@ public class Virtual_landscape
         this.logger = logger;
 
         Feature_cache.register_for_all(this);
-        Feature_cache.string_register_for(Non_booleans_properties.LANGUAGE_KEY, this);
-        Feature_cache.string_register_for(Non_booleans_properties.STYLE_KEY, this);
+        Feature_cache.string_register_for(String_constants.LANGUAGE_KEY, this);
+        Feature_cache.string_register_for(String_constants.STYLE_KEY, this);
 
         the_Pane = new Pane();
 
@@ -245,10 +245,10 @@ public class Virtual_landscape
     //**********************************************************
     {
         logger.log("virtual_landscape receiving update_config_string key=" + key + " val=" + new_value);
-        if (key.equals(Non_booleans_properties.LANGUAGE_KEY)) {
+        if (key.equals(String_constants.LANGUAGE_KEY)) {
             Instructions.replace_same_folder(shutdown_target, context_type, path_list_provider, get_top_left(), owner,
                     logger);
-        } else if (key.equals(Non_booleans_properties.STYLE_KEY)) {
+        } else if (key.equals(String_constants.STYLE_KEY)) {
             Instructions.replace_same_folder(shutdown_target, context_type, path_list_provider, get_top_left(), owner,
                     logger);
         }
@@ -635,7 +635,7 @@ public class Virtual_landscape
     public boolean scroll_a_bit(double dy)
     //**********************************************************
     {
-        Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(), get_top_left());
+        Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_folder_path(), get_top_left());
         return vertical_slider.request_scroll_relative(dy);
     }
 
@@ -756,7 +756,7 @@ public class Virtual_landscape
     void scroll_to()
     //**********************************************************
     {
-        Path scroll_to = Browsing_caches.scroll_position_cache_read(path_list_provider.get_folder_path());
+        Path scroll_to = Scroll_position_cache.scroll_position_cache_read(path_list_provider.get_folder_path());
         // logger.log("scroll_to folder=\n"+" "+path_list_provider.get_name()+"\n
         // scroll_to="+scroll_to);
 
@@ -958,7 +958,7 @@ public class Virtual_landscape
     }
 
     //**********************************************************
-    public RAM_cache<Path, Image_properties> get_image_properties_cache()
+    public Klikr_cache<Path, Image_properties> get_image_properties_cache()
     //**********************************************************
     {
         if ( image_properties_cache != null)
@@ -967,7 +967,7 @@ public class Virtual_landscape
             return image_properties_cache;
         }
 
-        RAM_cache<Path, Image_properties> tmp = Browsing_caches.image_properties_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+        Klikr_cache<Path, Image_properties> tmp = Clearable_shared_caches.image_properties_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
         if ( tmp !=null)
         {
             if ( dbg) logger.log("image_properties_cache reloaded from cache of caches");
@@ -980,7 +980,7 @@ public class Virtual_landscape
     }
 
     //**********************************************************
-    public static RAM_cache<Path, Image_properties> make_image_properties_cache(Path_list_provider path_list_provider, Aborter aborter, Window owner, Logger logger)
+    public static Klikr_cache<Path, Image_properties> make_image_properties_cache(Path_list_provider path_list_provider, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
 
@@ -988,7 +988,7 @@ public class Virtual_landscape
 
         String nam = Cache_folder.image_properties_cache.name()+path_list_provider.get_folder_path().getFileName();
         String cache_file_name = UUID.nameUUIDFromBytes(nam.getBytes()) + ".properties";
-        Path dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Cache_folder.image_properties_cache.name(), false, owner, logger);
+        Path dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(Cache_folder.image_properties_cache.name(), false, owner, logger);
         Path cache_path = Path.of(dir.toAbsolutePath().toString(), cache_file_name);
 
         BiPredicate<Path, DataOutputStream> key_serializer= new BiPredicate<Path, DataOutputStream>() {
@@ -1088,7 +1088,7 @@ public class Virtual_landscape
         };
 
 
-        RAM_cache<Path, Image_properties> local = new RAM_cache<Path, Image_properties>(
+        Klikr_cache<Path, Image_properties> local = new Klikr_cache<Path, Image_properties>(
                 new Path_list_provider_for_file_system(cache_path, owner, logger),
                 Cache_folder.image_properties_cache.name(),
                 key_serializer, key_deserializer,
@@ -1103,7 +1103,9 @@ public class Virtual_landscape
         int reloaded = local.reload_cache_from_disk();
         logger.log("✅ image_properties_cache: "+reloaded+" properties reloaded from file");
 
-        Browsing_caches.image_properties_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(),local);
+        Clearable_RAM_caches.record(local);
+        Clearable_disk_caches.record(local);
+        //Browsing_caches.image_properties_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(),local);
 
         return local;
     }
@@ -1898,7 +1900,7 @@ public class Virtual_landscape
             String trash_text = My_I18n.get_I18n_string("Trash", owner, logger);// to: " +
                                                                                 // parent.toAbsolutePath().toString();
             trash = virtual_landscape_menus.make_button_that_behaves_like_a_folder(
-                    Non_booleans_properties.get_trash_dir(path_list_provider.get_folder_path(), owner, logger),
+                    Static_files_and_paths_utilities.get_trash_dir(path_list_provider.get_folder_path(), owner, logger),
                     trash_text,
                     height,
                     MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
@@ -2664,25 +2666,25 @@ public class Virtual_landscape
 
         {
             String cache_key = "other_"+path_list_provider.get_name();
-            other_file_comparator = Browsing_caches.similarity_comparator_cache.get(cache_key);
+            other_file_comparator = Clearable_shared_caches.similarity_comparator_cache.get(cache_key);
             if ( other_file_comparator==null)
             {
                 other_file_comparator = Sort_files_by.get_non_image_comparator(path_list_provider, owner, aborter, logger);
                 if ( other_file_comparator instanceof Similarity_comparator local) {
-                    Browsing_caches.similarity_comparator_cache.put(path_list_provider.get_name(), local);
+                    Clearable_shared_caches.similarity_comparator_cache.put(path_list_provider.get_name(), local);
                 }
             }
         }
         {
             String cache_key = "image_"+path_list_provider.get_name();
-            image_file_comparator = Browsing_caches.similarity_comparator_cache.get(cache_key);
+            image_file_comparator = Clearable_shared_caches.similarity_comparator_cache.get(cache_key);
             if ( image_file_comparator==null)
             {
                 image_file_comparator = Sort_files_by.get_image_comparator(path_list_provider, this,
                         get_image_properties_cache(),
                         owner, x, y, aborter, logger);
                 if ( image_file_comparator instanceof Similarity_comparator local) {
-                    Browsing_caches.similarity_comparator_cache.put(path_list_provider.get_name(), local);
+                    Clearable_shared_caches.similarity_comparator_cache.put(path_list_provider.get_name(), local);
                 }
             }
         }

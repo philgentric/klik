@@ -7,7 +7,7 @@ package klikr.browser.comparators;
 
 import javafx.stage.Window;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
@@ -36,7 +36,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
             Similarity_cache similarity_cache,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
-            RAM_cache<Path, Image_properties> image_properties_cache,
+            Klikr_cache<Path, Image_properties> image_properties_cache,
             Window owner,
             double x, double y,
             Aborter browser_aborter,
@@ -149,7 +149,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
                        List<Path> remaining,
                        int i,
                        int max_friend,
-                       RAM_cache<Path, Image_properties> image_properties_cache,
+                       Klikr_cache<Path, Image_properties> image_properties_cache,
                        Supplier<Feature_vector_cache> fv_cache_supplier,
                        Window owner, Aborter browser_aborter)
     //**********************************************************

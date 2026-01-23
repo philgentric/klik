@@ -5,6 +5,7 @@ package klikr.look.my_i18n;
 
 import javafx.stage.Window;
 import klikr.properties.Non_booleans_properties;
+import klikr.properties.String_constants;
 import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.execute.Application_jar;
 import klikr.util.log.Logger;
@@ -163,7 +164,7 @@ public class My_I18n
     //**********************************************************
     {
         instance = null;
-        Feature_cache.update_string(Non_booleans_properties.LANGUAGE_KEY,language.name(),owner,logger);
+        Feature_cache.update_string(String_constants.LANGUAGE_KEY,language.name(),owner,logger);
     }
 
     //**********************************************************

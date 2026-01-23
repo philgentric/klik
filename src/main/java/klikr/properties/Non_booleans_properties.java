@@ -10,12 +10,11 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.System_info;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.virtual_landscape.Virtual_landscape;
 import klikr.util.log.Logger;
-import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.Popups;
 
 import java.io.File;
@@ -25,7 +24,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 
 //**********************************************************
@@ -33,46 +31,15 @@ public class Non_booleans_properties
 //**********************************************************
 {
     private static final boolean dbg = false;
-    public static final String SCREEN_TOP_LEFT_X = "_SCREEN_TOP_LEFT_X";
-    public static final String SCREEN_TOP_LEFT_Y = "_SCREEN_TOP_LEFT_Y";
-    public static final String SCREEN_WIDTH = "_SCREEN_WIDTH";
-    public static final String SCREEN_HEIGHT = "_SCREEN_HEIGHT";
     private static final int DEFAULT_SIZE_WARNING_MEGABYTES = 500;
-    private static final String DISK_CACHE_SIZE_WARNING_MEGABYTES = "DISK_CACHE_SIZE_WARNING_MEGABYTES";
 
 
     public static final int DEFAULT_ICON_SIZE = 256;
     public static final int DEFAULT_FOLDER_ICON_SIZE = 256;
     public static final int DEFAULT_VIDEO_LENGTH = 1;
-    public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")
-
-
-    public static final String ICON_SIZE = "ICON_SIZE";
-    public static final String FOLDER_ICON_SIZE = "FOLDER_ICON_SIZE";
-    public static final String VIDEO_SAMPLE_LENGTH = "VIDEO_SAMPLE_LENGTH";
-    public static final String LANGUAGE_KEY = "LANGUAGE";
-    public static final String FONT_SIZE = "FONT_SIZE";
-    public static final String COLUMN_WIDTH = "Column_width"; //this must match the resource bundles
-    public static final String STYLE_KEY = "STYLE";
-    public static final String CUSTOM_COLOR = "Custom_color";
-
-    public static final String USER_HOME = "user.home";
-    public static final String CONF_DIR = ".klikr";
 
 
 
-    public static final String PROPERTIES_FILENAME = "klikr.properties";
-    public static final String TRASH_DIR = "trash";
-    public static final String FACE_RECO_DIR = "face_reco";
-    private static final String AUDIO_PLAYER_CURRENT_SONG = "AUDIO_PLAYER_CURRENT_SONG";
-    private static final String AUDIO_PLAYER_CURRENT_TIME = "AUDIO_PLAYER_CURRENT_TIME";
-    private static final String AUDIO_PLAYER_EQUALIZER_BAND_ = "AUDIO_PLAYER_EQUALIZER_BAND_";
-    private static final String AUDIO_PLAYER_VOLUME = "AUDIO_PLAYER_VOLUME";
-    public static final String JAVA_VM_MAX_RAM = "max_RAM_in_GBytes"; // this is the maximum RAM that the Java VM can use, in GBytes
-    public static final String PURPOSE = "Java VM max ram";
-    public static final String RAM_FILENAME = "ram";
-    private static final String PRIVACY_SCREEN = ".privacy_screen";
-    private static final String NUMBER_OF_IMAGE_SIMILARITY_SERVERS = "NUMBER_OF_IMAGE_SIMILARITY_SERVERS";
     private static final int DEFAULT_NUMBER_OF_IMAGE_SIMILARITY_SERVERS = System_info.how_many_cores();
 
     // cached values
@@ -89,7 +56,7 @@ public class Non_booleans_properties
     public static int get_number_of_image_similarity_servers(Window owner)
     //**********************************************************
     {
-        return get_int(NUMBER_OF_IMAGE_SIMILARITY_SERVERS,DEFAULT_NUMBER_OF_IMAGE_SIMILARITY_SERVERS,owner);
+        return get_int(String_constants.NUMBER_OF_IMAGE_SIMILARITY_SERVERS,DEFAULT_NUMBER_OF_IMAGE_SIMILARITY_SERVERS,owner);
     }
 
     //**********************************************************
@@ -97,7 +64,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         icon_size = value;
-        set_int(value,NUMBER_OF_IMAGE_SIMILARITY_SERVERS, owner);
+        set_int(value,String_constants.NUMBER_OF_IMAGE_SIMILARITY_SERVERS, owner);
     }
 
 
@@ -106,7 +73,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         if (icon_size > 0) return icon_size;
-        icon_size = get_int(ICON_SIZE,DEFAULT_ICON_SIZE,owner);
+        icon_size = get_int(String_constants.ICON_SIZE,DEFAULT_ICON_SIZE,owner);
         return icon_size;
     }
 
@@ -116,7 +83,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         icon_size = value;
-        set_int(value,ICON_SIZE, owner);
+        set_int(value,String_constants.ICON_SIZE, owner);
     }
 
     //**********************************************************
@@ -124,7 +91,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         if (column_width > 0) return column_width;
-        column_width = get_int(COLUMN_WIDTH, Virtual_landscape.MIN_COLUMN_WIDTH,owner);
+        column_width = get_int(String_constants.COLUMN_WIDTH, Virtual_landscape.MIN_COLUMN_WIDTH,owner);
         return column_width;
     }
 
@@ -133,7 +100,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         column_width = l;
-        set_int(l,COLUMN_WIDTH, owner);
+        set_int(l,String_constants.COLUMN_WIDTH, owner);
     }
 
     //**********************************************************
@@ -142,7 +109,7 @@ public class Non_booleans_properties
     {
         if (video_length > 0) return video_length;
         // first time, we look it up on disk
-        video_length = get_int(VIDEO_SAMPLE_LENGTH,DEFAULT_VIDEO_LENGTH,owner);
+        video_length = get_int(String_constants.VIDEO_SAMPLE_LENGTH,DEFAULT_VIDEO_LENGTH,owner);
         return video_length;
     }
 
@@ -151,7 +118,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         video_length = l;
-        set_int(l,VIDEO_SAMPLE_LENGTH, owner);
+        set_int(l,String_constants.VIDEO_SAMPLE_LENGTH, owner);
     }
 
 
@@ -222,19 +189,19 @@ public class Non_booleans_properties
     //**********************************************************
     {
         IProperties pm = Shared_services.main_properties();
-        String x_s = pm.get(key + SCREEN_TOP_LEFT_X);
+        String x_s = pm.get(key + String_constants.SCREEN_TOP_LEFT_X);
         if (x_s == null) return default_rectangle();
         double x = Double.parseDouble(x_s);
 
-        String y_s = pm.get(key + SCREEN_TOP_LEFT_Y);
+        String y_s = pm.get(key + String_constants.SCREEN_TOP_LEFT_Y);
         if (y_s == null) return default_rectangle();
         double y = Double.parseDouble(y_s);
 
-        String w_s = pm.get(key + SCREEN_WIDTH);
+        String w_s = pm.get(key + String_constants.SCREEN_WIDTH);
         if (w_s == null) return default_rectangle();
         double w = Double.parseDouble(w_s);
 
-        String h_s = pm.get(key + SCREEN_HEIGHT);
+        String h_s = pm.get(key + String_constants.SCREEN_HEIGHT);
         if (h_s == null) return default_rectangle();
         double h = Double.parseDouble(h_s);
 
@@ -312,10 +279,10 @@ public class Non_booleans_properties
         Rectangle2D r = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
         if (dbg) logger.log("saving bounds=" + r);
         IProperties pm = Shared_services.main_properties();
-        pm.set(key + SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()));
-        pm.set(key + SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
-        pm.set(key + SCREEN_WIDTH, String.valueOf(r.getWidth()));
-        pm.set(key + SCREEN_HEIGHT, String.valueOf(r.getHeight()));
+        pm.set(key + String_constants.SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()));
+        pm.set(key + String_constants.SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
+        pm.set(key + String_constants.SCREEN_WIDTH, String.valueOf(r.getWidth()));
+        pm.set(key + String_constants.SCREEN_HEIGHT, String.valueOf(r.getHeight()));
     }
 
 
@@ -361,7 +328,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         if (folder_icon_size > 0) return folder_icon_size;
-        folder_icon_size = get_int(FOLDER_ICON_SIZE,DEFAULT_FOLDER_ICON_SIZE,owner);
+        folder_icon_size = get_int(String_constants.FOLDER_ICON_SIZE,DEFAULT_FOLDER_ICON_SIZE,owner);
         return folder_icon_size;
     }
 
@@ -371,14 +338,14 @@ public class Non_booleans_properties
     public static void set_cache_size_limit_warning_megabytes_fx(int warning_megabytes, Window owner)
     //**********************************************************
     {
-        Shared_services.main_properties().set(DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
+        Shared_services.main_properties().set(String_constants.DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
     }
 
     //**********************************************************
     public static int get_folder_warning_size(Window owner)
     //**********************************************************
     {
-        return get_int(DISK_CACHE_SIZE_WARNING_MEGABYTES,DEFAULT_SIZE_WARNING_MEGABYTES,owner);
+        return get_int(String_constants.DISK_CACHE_SIZE_WARNING_MEGABYTES,DEFAULT_SIZE_WARNING_MEGABYTES,owner);
     }
 
 
@@ -388,7 +355,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         folder_icon_size = value;
-        set_int(value,FOLDER_ICON_SIZE,owner);
+        set_int(value,String_constants.FOLDER_ICON_SIZE,owner);
     }
 
 
@@ -399,7 +366,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         if (font_size_cache > 0) return font_size_cache;
-        font_size_cache = get_double(FONT_SIZE,16.0,owner);
+        font_size_cache = get_double(String_constants.FONT_SIZE,16.0,owner);
         return font_size_cache;
     }
 
@@ -408,7 +375,7 @@ public class Non_booleans_properties
     public static void set_font_size(double value, Window owner)
     //**********************************************************
     {
-        set_double(value,FONT_SIZE,owner);
+        set_double(value,String_constants.FONT_SIZE,owner);
     }
 
 
@@ -416,10 +383,10 @@ public class Non_booleans_properties
     public static String get_language_key(Window owner)
     //**********************************************************
     {
-        String s = Shared_services.main_properties().get(LANGUAGE_KEY);
+        String s = Shared_services.main_properties().get(String_constants.LANGUAGE_KEY);
         if (s == null) {
             s = "English";
-            Shared_services.main_properties().set(LANGUAGE_KEY, s);
+            Shared_services.main_properties().set(String_constants.LANGUAGE_KEY, s);
         }
         return s;
     }
@@ -434,298 +401,19 @@ public class Non_booleans_properties
     }
 
 
-
-    // returns a directory using that relative name, on the user home, creates it if needed
-    //**********************************************************
-    public static Path get_absolute_hidden_dir_on_user_home(String relative_dir_name, boolean can_fail, Window owner, Logger logger)
-    //**********************************************************
-    {
-        if (dbg) logger.log("get_absolute_hidden_dir_on_user_home relative_dir_name=" + relative_dir_name);
-        String home = System.getProperty(USER_HOME);
-        if (dbg) logger.log("user home =" + home);
-        return from_top_folder(home, relative_dir_name, can_fail, owner, logger);
-    }
-
-
-    //**********************************************************
-    public static Path from_top_folder(String top_folder, String relative_dir_name, boolean can_fail, Window owner, Logger logger)
-    //**********************************************************
-    {
-        Path conf_dir1 = Paths.get(top_folder, CONF_DIR);
-        if (dbg) logger.log("conf_dir1 =" + conf_dir1);
-        if (!conf_dir1.toFile().exists())
-        {
-            try {
-                Files.createDirectory(conf_dir1);
-                if (dbg) logger.log("conf_dir1 =" + conf_dir1+" directory created");
-
-            } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed (1)" + e;
-                if (can_fail) {
-                    logger.log(err);
-                    return null;
-                }
-                Popups.popup_Exception(e, 300, err, owner, logger);
-                return null;
-            }
-        }
-
-        // do it deeper, this way icons don't show up in $home/.klikr to avoid privacy violation when browsing $home
-
-        Path conf_dir2 = Paths.get(conf_dir1.toString(), PRIVACY_SCREEN );
-        if (dbg) logger.log("conf_dir2 =" + conf_dir2);
-
-        if (!conf_dir2.toFile().exists())
-        {
-            try {
-                Files.createDirectory(conf_dir2);
-                if (dbg) logger.log("conf_dir2 =" + conf_dir2+" directory created");
-            } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed (2)";
-                Popups.popup_Exception(e, 300, err, owner, logger);
-                return null;
-            }
-        }
-
-
-        Path returned = Paths.get(conf_dir2.toAbsolutePath().toString(), relative_dir_name);
-        if (dbg) logger.log("privacy screen dir=" + returned.toAbsolutePath());
-        if (!Files.exists(returned)) {
-            try {
-                Files.createDirectory(returned);
-                return returned;
-            } catch (IOException e) {
-                String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed (3)";
-                Popups.popup_Exception(e, 300, err, owner, logger);
-                return null;
-            }
-        }
-        if (dbg) logger.log("from_top_folder returning directory named->" + returned.toAbsolutePath() + "<- OK");
-        return returned;
-    }
-
-    // returns a directory using that relative name
-    //**********************************************************
-    public static Path get_trash_dir(Path for_this, Window owner, Logger logger)
-    //**********************************************************
-    {
-        // the idea of having multiple trash dirs is that when you are moving file to trash,
-        // it is MUCH faster to move them to a trash dir on the same disk,
-        // than to move them to the user home trash dir,
-        // this is especially important on slow/network drives
-
-        Path full_path = for_this.toAbsolutePath();
-        if ((!full_path.toString().equals("/Volumes")) && (full_path.toString().startsWith("/Volumes"))) {
-            // this is MacOS...
-            //logger.log("what is trash_dir for :" + for_this.toAbsolutePath());
-            Path volume = get_MacOS_volume(for_this, logger);
-            if (volume == null) {
-                logger.log("❌ PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");
-            }
-            Path candidate =from_top_folder(volume.toString(), TRASH_DIR, true, owner, logger);
-            if ( candidate != null) return candidate;
-            {
-                // happens for OneDrive, where the real path is
-                // /Volumes/Macintosh HD/Users/<name>/OneDrive -<companyname>/floder... etc
-                // and /Volumes/Macintosh HD is NOT writable, so cannot create a trash dir there
-                // better use the user home
-            }
-        }
-
-        Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
-        if (trash_dir == null) {
-            logger.log("❌ PANIC: trash dir unknown");
-            return null;
-        }
-        if (dbg) logger.log("trash_dir file=" + trash_dir.toAbsolutePath());
-        return trash_dir;
-    }
-
-    //**********************************************************
-    private static Path get_MacOS_volume(Path for_this, Logger logger)
-    //**********************************************************
-    {
-        //logger.log("get_MacOS_volume ENTRY = "+for_this);
-
-        Path volume = for_this.toAbsolutePath();
-        for (; ; ) {
-            Path test = volume.getParent();
-            if (test == null) {
-                //logger.log("get_MacOS_volume test == null ");
-                break;
-            }
-            if (test.getFileName() == null) {
-                //logger.log("get_MacOS_volume test == null ");
-                break;
-            }
-            //logger.log("get_MacOS_volume testing "+test);
-            if (test.toString().equals("/Volumes")) {
-                logger.log("get_MacOS_volume returning " + volume);
-                return volume;
-            }
-            volume = volume.getParent();
-            if (volume.toString().equals("/")) break;
-        }
-        logger.log("get_MacOS_volume FAILED! ");
-        return null;
-
-    }
-
-
-    //**********************************************************
-    public static List<Path> get_existing_trash_dirs(Window owner,Logger logger)
-    //**********************************************************
-    {
-        List<Path> trashes = new ArrayList<>();
-        for (File f : File.listRoots())
-        {
-            logger.log("get_existing_trash_dirs root ->"+f+"<-");
-            if (f.toString().equals("/"))
-            {
-                // unix system...
-                Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
-                trashes.add(trash_dir);
-                // unix system...
-                Path volumes = Path.of("/", "Volumes");
-                File[] files = volumes.toFile().listFiles();
-                if (files == null) continue;
-                for (File ff : files) {
-                    if (ff.isDirectory()) {
-                        Path test = Path.of(ff.toPath().toString(), CONF_DIR);
-                        if (Files.exists(test)) {
-                            trashes.add(test);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (f.getAbsolutePath().startsWith("C:"))
-                {
-                    Path trash_dir = get_absolute_hidden_dir_on_user_home(TRASH_DIR, false, owner, logger);
-                    logger.log("get_existing_trash_dirs, windows , trash for+"+f+" is : "+trash_dir);
-                    trashes.add(trash_dir);
-                }
-                else
-                {
-                    Path trash_dir = from_top_folder(f.toPath().toString(), TRASH_DIR, true, owner, logger);
-                    logger.log("get_existing_trash_dirs, windows , trash for+"+f+" is : "+trash_dir);
-                    trashes.add(trash_dir);
-                }
-            }
-        }
-        return trashes;
-    }
-
-
-    //**********************************************************
-    public static void save_current_song(String path, Window owner)
-    //**********************************************************
-    {
-        IProperties pm = Shared_services.main_properties();
-        pm.set(AUDIO_PLAYER_CURRENT_SONG, path);
-
-    }
-
-    //**********************************************************
-    public static String get_current_song(Window owner)
-    //**********************************************************
-    {
-        IProperties pm = Shared_services.main_properties();
-        return pm.get(AUDIO_PLAYER_CURRENT_SONG);
-    }
-
-    static int previous_current_time_in_song = -1;
-
-    //**********************************************************
-    public static void save_current_time_in_song(int time, Window owner)
-    //**********************************************************
-    {
-        if (previous_current_time_in_song > 0) {
-            if (previous_current_time_in_song / 10 == time / 10) return;
-        }
-        previous_current_time_in_song = time;
-        //logger.log("save_current_time_in_song "+time);
-        IProperties pm = Shared_services.main_properties();
-        pm.set(AUDIO_PLAYER_CURRENT_TIME, "" + time);
-
-    }
-
-
-    //**********************************************************
-    public static Integer get_current_time_in_song(Window owner,Logger logger)
-    //**********************************************************
-    {
-        IProperties pm = Shared_services.main_properties();
-        String s = pm.get(AUDIO_PLAYER_CURRENT_TIME);
-        if (s == null)
-        {
-            logger.log("WARNING: cannot find player current time");
-            return 0;
-        }
-        int returned = 0;
-        try {
-            returned = Integer.parseInt(s);
-        } catch (NumberFormatException e) {
-            logger.log("WARNING: cannot parse player current time->" + s + "<-");
-        }
-        //logger.log("player current time = "+returned);
-        return returned;
-    }
-
-    //**********************************************************
-    public static double get_equalizer_value_for_band(int i, Window owner,Logger logger)
-    //**********************************************************
-    {
-        IProperties pm = Shared_services.main_properties();
-        String s = pm.get(AUDIO_PLAYER_EQUALIZER_BAND_ + i);
-        if (s == null) return 0;
-
-        double value = 0;
-        try {
-            value = Double.valueOf(s);
-        } catch (NumberFormatException e) {
-            logger.log("WARNING: cannot parse equalizer value for band " + i + "->" + s + "<-");
-        }
-        return value;
-    }
-
-    //**********************************************************
-    public static void save_equalizer_value_for_band(int i, double value, Window owner)
-    //**********************************************************
-    {
-        IProperties pm = Shared_services.main_properties();
-        pm.set(AUDIO_PLAYER_EQUALIZER_BAND_ + i, "" + value);
-    }
-
-    //**********************************************************
-    public static void save_audio_volume(double value, Window owner)
-    //**********************************************************
-    {
-        set_double(value,AUDIO_PLAYER_VOLUME,owner);
-    }
-
-    //**********************************************************
-    public static double get_audio_volume(Window owner,Logger logger)
-    //**********************************************************
-    {
-        return get_double(AUDIO_PLAYER_VOLUME,0.5,owner);
-    }
-
-
     //**********************************************************
     public static void save_java_VM_max_RAM(int value, Window owner, Logger logger)
     //**********************************************************
     {
-        File_based_IProperties f = new File_based_IProperties(PURPOSE, RAM_FILENAME,true,owner,new Aborter("ram", logger), logger);
-        f.set(JAVA_VM_MAX_RAM, "" + value);
+        File_based_IProperties f = new File_based_IProperties(String_constants.PURPOSE, String_constants.RAM_FILENAME,true,owner,new Aborter("ram", logger), logger);
+        f.set(String_constants.JAVA_VM_MAX_RAM, "" + value);
     }
     //**********************************************************
     public static int get_java_VM_max_RAM(Window owner, Logger logger)
     //**********************************************************
     {
-        File_based_IProperties f = new File_based_IProperties(PURPOSE, RAM_FILENAME, true, owner,new Aborter("ram", logger), logger);
-        String s = f.get(JAVA_VM_MAX_RAM);
+        File_based_IProperties f = new File_based_IProperties(String_constants.PURPOSE, String_constants.RAM_FILENAME, true, owner,new Aborter("ram", logger), logger);
+        String s = f.get(String_constants.JAVA_VM_MAX_RAM);
         if (s == null)
         {
             logger.log("warning, no java VM max RAM found, defaulting to 1 GBytes");

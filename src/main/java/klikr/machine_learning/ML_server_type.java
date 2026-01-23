@@ -2,6 +2,7 @@ package klikr.machine_learning;
 
 import javafx.stage.Window;
 import klikr.properties.Non_booleans_properties;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 
 import java.nio.file.Path;
@@ -24,11 +25,11 @@ public enum ML_server_type
         {
             case FaceNet, Haars, MTCNN:
             {
-                return Non_booleans_properties.get_absolute_hidden_dir_on_user_home("face_recognition_server_registry", false, owner, logger);
+                return Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home("face_recognition_server_registry", false, owner, logger);
             }
             case MobileNet:
             {
-                return Non_booleans_properties.get_absolute_hidden_dir_on_user_home("image_similarity_server_registry", false, owner, logger);
+                return Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home("image_similarity_server_registry", false, owner, logger);
             }
         }
         return null;

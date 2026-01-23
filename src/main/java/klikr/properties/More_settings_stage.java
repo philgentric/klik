@@ -9,20 +9,21 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.browser.virtual_landscape.Scroll_position_cache;
+import klikr.util.Shared_services;
 import klikr.System_info;
-import klikr.browser.comparators.Similarity_comparator;
-import klikr.browser.virtual_landscape.Browsing_caches;
 import klikr.look.Look_and_feel;
 import klikr.look.Look_and_feel_manager;
 import klikr.look.my_i18n.My_I18n;
-import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.properties.boolean_features.Booleans;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.Installers;
+import klikr.util.cache.Cache_folder;
+import klikr.util.cache.Clearable_disk_caches;
+import klikr.util.cache.Clearable_RAM_caches;
+import klikr.util.cache.Clearable_shared_caches;
 import klikr.util.execute.Debug_console;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.ui.Items_with_explanation;
 import klikr.util.ui.Popups;
@@ -381,28 +382,28 @@ public class More_settings_stage
     {
         {
             add_one_button("Clear_All_RAM_Caches",
-                    event -> Browsing_caches.clear_all_RAM_caches(logger), w, icon_size, look_and_feel, vbox);
+                    event -> Clearable_RAM_caches.clear_all_RAM_caches(logger), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Image_Properties_RAM_Cache",
-                    event -> Browsing_caches.image_properties_cache_of_caches.clear(), w, icon_size, look_and_feel, vbox);
+                    event -> Clearable_shared_caches.image_properties_cache_of_caches.clear(), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Image_Comparators_Caches",
-                    event -> clear_image_comparators_caches(), w, icon_size, look_and_feel, vbox);
+                    event -> Clearable_RAM_caches.clear_image_comparators_caches(), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Scroll_Position_Cache",
-                    event -> Browsing_caches.scroll_position_cache_clear(), w, icon_size, look_and_feel, vbox);
+                    event -> Scroll_position_cache.scroll_position_cache_clear(), w, icon_size, look_and_feel, vbox);
 
         }
         {
             add_one_button("Clear_All_Disk_Caches",
-                    event -> Static_files_and_paths_utilities.clear_all_DISK_caches(owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
+                    event -> Clearable_disk_caches.clear_all_disk_caches(owner,Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Icon_Cache_On_Disk",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.icon_cache, true, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
+                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.icon_cache, true, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Folders_Icon_Cache_Folder",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.folder_icon_cache, false, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Image_Properties_DISK_Cache",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.image_properties_cache, false, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Image_Feature_Vector_DISK_Cache",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.feature_vectors_cache, true, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Image_Similarity_DISK_Cache",
-                    event -> Static_files_and_paths_utilities.clear_DISK_cache(Cache_folder.similarity_cache, true, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
+                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.folder_icon_cache, false, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
+            add_one_button("Clear_Image_Properties_Disk_Cache",
+                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.image_properties_cache, false, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
+            add_one_button("Clear_Image_Feature_Vector_Disk_Cache",
+                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.feature_vectors_cache, true, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
+            add_one_button("Clear_Image_Similarity_Disk_Cache",
+                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.similarity_cache, true, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
 
 
         }
@@ -431,26 +432,6 @@ public class More_settings_stage
     }
 
 
-    //**********************************************************
-    public void clear_image_comparators_caches()
-    //**********************************************************
-    {
-        for ( Similarity_comparator x : Browsing_caches.similarity_comparator_cache.values())
-        {
-            x.clear_RAM();
-        }
-    }
-
-    //**********************************************************
-    public void clear_image_feature_vector_RAM_cache()
-    //**********************************************************
-    {
-        for( Feature_vector_cache x : Browsing_caches.fv_cache_of_caches.values())
-        {
-            x.clear_RAM();
-        }
-        Browsing_caches.fv_cache_of_caches.clear();
-    }
 
     //**********************************************************
     private void show_cache_size_limit_input_dialog()

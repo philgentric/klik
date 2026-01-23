@@ -5,17 +5,14 @@ package klikr.audio;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
-import klikr.util.execute.Execute_command;
 import klikr.util.files_and_paths.Guess_file_type;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 //**********************************************************
 public class UI_instance_holder

@@ -11,12 +11,13 @@ package klikr.util.files_and_paths;
 
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Window;
+import klikr.properties.String_constants;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.icons.Error_type;
 import klikr.look.my_i18n.My_I18n;
 import klikr.properties.Non_booleans_properties;
-import klikr.properties.Cache_folder;
+import klikr.util.cache.Cache_folder;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.files_and_paths.disk_scanner.Dir_payload;
@@ -53,12 +54,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Static_files_and_paths_utilities
 //**********************************************************
 {
-
     private static final boolean dbg = false;
-
-
-
-
 
     //**********************************************************
     private static boolean copy_directory(Path old_path, Path new_path, Logger logger)
@@ -132,7 +128,7 @@ public class Static_files_and_paths_utilities
             logger.log("nothing to delete");
             return;
         }
-        Path trash_dir = Non_booleans_properties.get_trash_dir(paths.get(0),owner,logger);
+        Path trash_dir = get_trash_dir(paths.get(0),owner,logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString()))
         {
             Popups.popup_warning("❗" + My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
@@ -153,7 +149,7 @@ public class Static_files_and_paths_utilities
     public static void move_to_trash(Path path, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = Non_booleans_properties.get_trash_dir(path,owner,logger);
+        Path trash_dir = get_trash_dir(path,owner,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning("❗ "+ My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_explanation", owner,logger), false, owner,logger);
             return;
@@ -216,21 +212,7 @@ public class Static_files_and_paths_utilities
     }
 
 
-    //**********************************************************
-    public static Path get_cache_dir(Cache_folder cache_folder, Window owner,Logger logger)
-    //**********************************************************
-    {
-        Path tmp_dir = Non_booleans_properties.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
-        if (tmp_dir == null)
-        {
-            logger.log("WARNING get_absolute_hidden_dir_on_user_homer=" + null);
-        }
-        else
-        {
-            if (dbg) logger.log("get_absolute_hidden_dir_on_user_home=" + tmp_dir.toAbsolutePath());
-        }
-        return tmp_dir;
-    }
+
 
     /*
     //**********************************************************
@@ -239,7 +221,7 @@ public class Static_files_and_paths_utilities
     {
 
 
-        Path tmp_dir = Non_booleans_properties.get_absolute_dir_on_user_home(Cache_folder.icon_cache.name(), false, logger);
+        Path tmp_dir = get_absolute_dir_on_user_home(Cache_folder.icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("icon cache dir=" + tmp_dir.toAbsolutePath());
         }
@@ -250,7 +232,7 @@ public class Static_files_and_paths_utilities
     public static Path get_folders_icons_cache_dir(Logger logger)
     //**********************************************************
     {
-        Path tmp_dir = Non_booleans_properties.get_absolute_dir_on_user_home(Cache_folder.folder_icon_cache.name(), false, logger);
+        Path tmp_dir = get_absolute_dir_on_user_home(Cache_folder.folder_icon_cache.name(), false, logger);
         if (dbg) if (tmp_dir != null) {
             logger.log("folder icon dir file=" + tmp_dir.toAbsolutePath());
         }
@@ -268,45 +250,16 @@ public class Static_files_and_paths_utilities
     }
 */
 
-    //**********************************************************
-    public static void clear_one_icon_from_cache_on_disk(Path path, Window owner,Logger logger)
-    //**********************************************************
-    {
-        Path icon_cache_dir = get_cache_dir( Cache_folder.icon_cache,owner,logger);
-        int icon_size = Non_booleans_properties.get_icon_size(owner);
 
-        Path icon_path = Icon_caching.path_for_icon_caching(path,String.valueOf(icon_size),Icon_caching.png_extension,owner,logger);
-        try {
-            Files.delete(icon_path);
-            logger.log("one icon deleted from cache:" + icon_path);
 
-        } catch (IOException e) {
-            logger.log(Stack_trace_getter.get_stack_trace("WARNING: deleting one icon FAILED: " + e));
-        }
-    }
 
     //**********************************************************
-    public static double clear_DISK_cache(Cache_folder cache_folder, boolean show_popup, Window owner, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        Path path = get_cache_dir(cache_folder,owner,logger);
-        return clear_folder(path, cache_folder.name()+" cache on disk", show_popup, true, owner, aborter, logger);
-    }
-    //**********************************************************
-    public static void clear_all_DISK_caches(Window owner, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        double size = 0.0;
-        for ( Cache_folder cache_folder : Cache_folder.values()) {
-            size += Static_files_and_paths_utilities.clear_DISK_cache(cache_folder, false,owner,aborter,logger);
-        }
-
-        logger.log(size +" total bytes erased");
-        //Static_files_and_paths_utilities.user_cancel("All disk caches",size,owner,logger);
-    }
-
-    //**********************************************************
-    public static double clear_folder(Path folder, String tag, boolean show_popup, boolean international,Window owner, Aborter aborter, Logger logger)
+    public static double clear_folder(
+            Path folder,
+            String tag,
+            boolean show_popup,
+            boolean english,
+            Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         double size = get_size_on_disk(folder, aborter, logger);
@@ -315,11 +268,13 @@ public class Static_files_and_paths_utilities
             if (user_cancel(tag, size, owner, logger)) return 0.0;
         }
         String text;
-        if ( international) {
-            text = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(size, owner, logger);
-        }
-        else {
+        if ( english)
+        {
             text = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size_english(size, owner, logger);
+        }
+        else
+        {
+            text = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(size, owner, logger);
         }
         logger.log(tag+", folder cleared: "+folder.toAbsolutePath()+" "+text+" bytes");
         delete_for_ever_all_files_in_dir_in_a_thread(folder, true, owner,logger);
@@ -345,7 +300,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         Runnable r = () -> {
-            List<Path> trashes = Non_booleans_properties.get_existing_trash_dirs(owner,logger);
+            List<Path> trashes = get_existing_trash_dirs(owner,logger);
             String s1 = My_I18n.get_I18n_string("Warning_delete", owner,logger);
             double size = 0;
             for (Path trash : trashes)
@@ -634,7 +589,7 @@ public class Static_files_and_paths_utilities
                 Runnable rr = new Runnable() {
                     @Override
                     public void run() {
-                        if ( s.contains("AccessDeniedException") && s.contains(Non_booleans_properties.TRASH_DIR))
+                        if ( s.contains("AccessDeniedException") && s.contains(String_constants.TRASH_DIR))
                         {
                             Popups.popup_warning("❌ There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,owner,logger);
                         }
@@ -1150,12 +1105,198 @@ public class Static_files_and_paths_utilities
 
     public static Path get_cache_folder(Cache_folder cache_folder, Window owner,Logger logger)
     {
-        return Non_booleans_properties.get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
+        return get_absolute_hidden_dir_on_user_home(cache_folder.name(), false, owner,logger);
     }
 
     public static Path get_face_reco_folder(Window owner,Logger logger)
     {
-        return Non_booleans_properties.get_absolute_hidden_dir_on_user_home(Non_booleans_properties.FACE_RECO_DIR, false, owner,logger);
+        return get_absolute_hidden_dir_on_user_home(String_constants.FACE_RECO_DIR, false, owner,logger);
+    }
+
+
+
+
+
+    // returns a directory using that relative name, on the user home, creates it if needed
+    //**********************************************************
+    public static Path get_absolute_hidden_dir_on_user_home(String relative_dir_name, boolean can_fail, Window owner, Logger logger)
+    //**********************************************************
+    {
+        if (dbg) logger.log("get_absolute_hidden_dir_on_user_home relative_dir_name=" + relative_dir_name);
+        String home = System.getProperty(String_constants.USER_HOME);
+        if (dbg) logger.log("user home =" + home);
+        return from_top_folder(home, relative_dir_name, can_fail, owner, logger);
+    }
+
+
+    //**********************************************************
+    public static Path from_top_folder(String top_folder, String relative_dir_name, boolean can_fail, Window owner, Logger logger)
+    //**********************************************************
+    {
+        Path conf_dir1 = Paths.get(top_folder, String_constants.CONF_DIR);
+        if (dbg) logger.log("conf_dir1 =" + conf_dir1);
+        if (!conf_dir1.toFile().exists())
+        {
+            try {
+                Files.createDirectory(conf_dir1);
+                if (dbg) logger.log("conf_dir1 =" + conf_dir1+" directory created");
+
+            } catch (IOException e) {
+                String err = " Attempt to create a directory named->" + conf_dir1.toAbsolutePath() + "<- failed (1)" + e;
+                if (can_fail) {
+                    logger.log(err);
+                    return null;
+                }
+                Popups.popup_Exception(e, 300, err, owner, logger);
+                return null;
+            }
+        }
+
+        // do it deeper, this way icons don't show up in $home/.klikr to avoid privacy violation when browsing $home
+
+        Path conf_dir2 = Paths.get(conf_dir1.toString(), String_constants.PRIVACY_SCREEN );
+        if (dbg) logger.log("conf_dir2 =" + conf_dir2);
+
+        if (!conf_dir2.toFile().exists())
+        {
+            try {
+                Files.createDirectory(conf_dir2);
+                if (dbg) logger.log("conf_dir2 =" + conf_dir2+" directory created");
+            } catch (IOException e) {
+                String err = " Attempt to create a directory named->" + conf_dir2.toAbsolutePath() + "<- failed (2)";
+                Popups.popup_Exception(e, 300, err, owner, logger);
+                return null;
+            }
+        }
+
+
+        Path returned = Paths.get(conf_dir2.toAbsolutePath().toString(), relative_dir_name);
+        if (dbg) logger.log("privacy screen dir=" + returned.toAbsolutePath());
+        if (!Files.exists(returned)) {
+            try {
+                Files.createDirectory(returned);
+                return returned;
+            } catch (IOException e) {
+                String err = " Attempt to create a directory named->" + returned.toAbsolutePath() + "<- failed (3)";
+                Popups.popup_Exception(e, 300, err, owner, logger);
+                return null;
+            }
+        }
+        if (dbg) logger.log("from_top_folder returning directory named->" + returned.toAbsolutePath() + "<- OK");
+        return returned;
+    }
+
+    // returns a directory using that relative name
+    //**********************************************************
+    public static Path get_trash_dir(Path for_this, Window owner, Logger logger)
+    //**********************************************************
+    {
+        // the idea of having multiple trash dirs is that when you are moving file to trash,
+        // it is MUCH faster to move them to a trash dir on the same disk,
+        // than to move them to the user home trash dir,
+        // this is especially important on slow/network drives
+
+        Path full_path = for_this.toAbsolutePath();
+        if ((!full_path.toString().equals("/Volumes")) && (full_path.toString().startsWith("/Volumes"))) {
+            // this is MacOS...
+            //logger.log("what is trash_dir for :" + for_this.toAbsolutePath());
+            Path volume = get_MacOS_volume(for_this, logger);
+            if (volume == null) {
+                logger.log("❌ PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");
+            }
+            Path candidate =from_top_folder(volume.toString(), String_constants.TRASH_DIR, true, owner, logger);
+            if ( candidate != null) return candidate;
+            {
+                // happens for OneDrive, where the real path is
+                // /Volumes/Macintosh HD/Users/<name>/OneDrive -<companyname>/floder... etc
+                // and /Volumes/Macintosh HD is NOT writable, so cannot create a trash dir there
+                // better use the user home
+            }
+        }
+
+        Path trash_dir = get_absolute_hidden_dir_on_user_home(String_constants.TRASH_DIR, false, owner, logger);
+        if (trash_dir == null) {
+            logger.log("❌ PANIC: trash dir unknown");
+            return null;
+        }
+        if (dbg) logger.log("trash_dir file=" + trash_dir.toAbsolutePath());
+        return trash_dir;
+    }
+
+    //**********************************************************
+    private static Path get_MacOS_volume(Path for_this, Logger logger)
+    //**********************************************************
+    {
+        //logger.log("get_MacOS_volume ENTRY = "+for_this);
+
+        Path volume = for_this.toAbsolutePath();
+        for (; ; ) {
+            Path test = volume.getParent();
+            if (test == null) {
+                //logger.log("get_MacOS_volume test == null ");
+                break;
+            }
+            if (test.getFileName() == null) {
+                //logger.log("get_MacOS_volume test == null ");
+                break;
+            }
+            //logger.log("get_MacOS_volume testing "+test);
+            if (test.toString().equals("/Volumes")) {
+                logger.log("get_MacOS_volume returning " + volume);
+                return volume;
+            }
+            volume = volume.getParent();
+            if (volume.toString().equals("/")) break;
+        }
+        logger.log("get_MacOS_volume FAILED! ");
+        return null;
+
+    }
+
+
+    //**********************************************************
+    public static List<Path> get_existing_trash_dirs(Window owner,Logger logger)
+    //**********************************************************
+    {
+        List<Path> trashes = new ArrayList<>();
+        for (File f : File.listRoots())
+        {
+            logger.log("get_existing_trash_dirs root ->"+f+"<-");
+            if (f.toString().equals("/"))
+            {
+                // unix system...
+                Path trash_dir = get_absolute_hidden_dir_on_user_home(String_constants.TRASH_DIR, false, owner, logger);
+                trashes.add(trash_dir);
+                // unix system...
+                Path volumes = Path.of("/", "Volumes");
+                File[] files = volumes.toFile().listFiles();
+                if (files == null) continue;
+                for (File ff : files) {
+                    if (ff.isDirectory()) {
+                        Path test = Path.of(ff.toPath().toString(), String_constants.CONF_DIR);
+                        if (Files.exists(test)) {
+                            trashes.add(test);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (f.getAbsolutePath().startsWith("C:"))
+                {
+                    Path trash_dir = get_absolute_hidden_dir_on_user_home(String_constants.TRASH_DIR, false, owner, logger);
+                    logger.log("get_existing_trash_dirs, windows , trash for+"+f+" is : "+trash_dir);
+                    trashes.add(trash_dir);
+                }
+                else
+                {
+                    Path trash_dir = from_top_folder(f.toPath().toString(), String_constants.TRASH_DIR, true, owner, logger);
+                    logger.log("get_existing_trash_dirs, windows , trash for+"+f+" is : "+trash_dir);
+                    trashes.add(trash_dir);
+                }
+            }
+        }
+        return trashes;
     }
 
 

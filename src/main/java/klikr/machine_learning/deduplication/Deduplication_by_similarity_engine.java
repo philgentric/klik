@@ -11,7 +11,7 @@ package klikr.machine_learning.deduplication;
 
 import javafx.stage.Window;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.virtual_landscape.Path_comparator_source;
@@ -54,7 +54,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     public final Aborter private_aborter = new Aborter("Deduplication_engine",logger);
     Stage_with_2_images stage_with_2_images;
     //boolean same_image_size;
-    private final RAM_cache<Path, Image_properties> image_properties_cache; // may be null, if not only image of same size are considered
+    private final Klikr_cache<Path, Image_properties> image_properties_cache; // may be null, if not only image of same size are considered
 
     private final boolean looking_for_images;
     private final double too_far_away;
@@ -68,7 +68,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
             Path_comparator_source path_comparator_source,
             double too_far_away,
             File target_dir_,
-            RAM_cache<Path, Image_properties> image_properties_cache,
+            Klikr_cache<Path, Image_properties> image_properties_cache,
             Supplier<Feature_vector_cache> fv_cache_supplier,
             Window owner,
             Logger logger_)

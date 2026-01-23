@@ -4,7 +4,8 @@
 package klikr.change.undo;
 
 import javafx.stage.Window;
-import klikr.Shared_services;
+import klikr.properties.String_constants;
+import klikr.util.Shared_services;
 import klikr.change.active_list_stage.Datetime_to_signature_source;
 import klikr.look.my_i18n.My_I18n;
 import klikr.properties.Non_booleans_properties;
@@ -38,8 +39,8 @@ public class Undo_core implements Datetime_to_signature_source
     //**********************************************************
     {
         logger  = logger_;
-        String home = System.getProperty(Non_booleans_properties.USER_HOME);
-        Path p = Paths.get(home, Non_booleans_properties.CONF_DIR, undo_filename);
+        String home = System.getProperty(String_constants.USER_HOME);
+        Path p = Paths.get(home, String_constants.CONF_DIR, undo_filename);
         if( properties_manager == null)
         {
             properties_manager = new Properties_manager(p, "Undo DB", true, owner, Shared_services.aborter(), logger);

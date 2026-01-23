@@ -111,17 +111,16 @@ import javafx.stage.Stage;
 import klikr.*;
 import klikr.path_lists.Path_list_provider_for_playlist;
 import klikr.properties.Non_booleans_properties;
-import klikr.util.cache_auto_clean.Disk_usage_and_caches_monitor;
+import klikr.properties.String_constants;
+import klikr.util.Shared_services;
+import klikr.util.disk_cache_auto_clean.Disk_usage_and_caches_monitor;
 import klikr.util.files_and_paths.Guess_file_type;
 import klikr.util.http.Klikr_communicator;
 import klikr.util.log.Exceptions_in_threads_catcher;
 import klikr.util.log.Logger;
-import klikr.util.tcp.TCP_client;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 //**********************************************************
 public class Song_playlist_app extends Application
@@ -172,7 +171,7 @@ public class Song_playlist_app extends Application
         Path path = context.extract_path();
         if ( path == null)
         {
-            path = Path.of(System.getProperty("user.home"), Non_booleans_properties.CONF_DIR, "default."+ Guess_file_type.KLIKR_AUDIO_PLAYLIST_EXTENSION);
+            path = Path.of(System.getProperty("user.home"), String_constants.CONF_DIR, "default."+ Guess_file_type.KLIKR_AUDIO_PLAYLIST_EXTENSION);
             logger.log("trying default playlist");
             if (!Files.exists(path))
             {

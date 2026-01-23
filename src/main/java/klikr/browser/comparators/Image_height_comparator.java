@@ -4,9 +4,9 @@
 package klikr.browser.comparators;
 
 import javafx.stage.Window;
-import klikr.browser.Clearable_RAM_cache;
+import klikr.util.cache.Clearable_RAM_cache;
 import klikr.browser.icons.image_properties_cache.Image_properties;
-import klikr.util.cache.RAM_cache;
+import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
@@ -16,19 +16,13 @@ import java.util.Comparator;
 
 //**********************************************************
 public record Image_height_comparator(
-        RAM_cache<Path, Image_properties> image_properties_cache,
+        Klikr_cache<Path, Image_properties> image_properties_cache,
         Aborter aborter,
         Window owner,
-        Logger logger) implements Comparator<Path>, Clearable_RAM_cache
+        Logger logger) implements Comparator<Path>
 //**********************************************************
 {
-    //**********************************************************
-    @Override
-    public void clear_RAM()
-    //**********************************************************
-    {
-        image_properties_cache.clear_RAM();
-    }
+
 
     //**********************************************************
     @Override

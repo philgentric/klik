@@ -56,9 +56,9 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 import klikr.Window_type;
 import klikr.Instructions;
+import klikr.browser.virtual_landscape.Scroll_position_cache;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.*;
-import klikr.browser.virtual_landscape.Browsing_caches;
 import klikr.path_lists.Path_list_provider;
 import klikr.change.Change_gang;
 import klikr.properties.boolean_features.Feature;
@@ -229,7 +229,7 @@ public class Browser extends Abstract_browser implements Feature_change_target
                         if (oan.new_Path.startsWith(path_list_provider.get_folder_path()))
                         {
                             // make sure the window will scroll to the landing point of the displaced file
-                            Browsing_caches.scroll_position_cache_write(path_list_provider.get_folder_path(), oan.new_Path);
+                            Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_folder_path(), oan.new_Path);
                         }
                     }
                 }
