@@ -13,11 +13,13 @@ import klikr.machine_learning.similarity.Path_pair;
 import klikr.machine_learning.similarity.Similarity_cache;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
+import klikr.util.cache.Size_;
 import klikr.util.log.Logger;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 
@@ -47,14 +49,31 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
 
     //**********************************************************
     @Override
-    public void clear_RAM()
+    public double clear_RAM()
     //**********************************************************
     {
-        if(fv_cache_supplier.get() != null) fv_cache_supplier.get().clear_RAM();
+        double returned = 0;
+        if(fv_cache_supplier.get() != null)
+        {
+            returned += fv_cache_supplier.get().clear_RAM();
+        }
+
+
+        Function<Path_pair, Long> size_of_Path_pair = pathPair -> 2* Size_.of_Path();
+        returned += Size_.of_Map(distances_cache,size_of_Path_pair, Size_.of_Integer_F());
         distances_cache.clear();
+
+        returned += Size_.of_Map(dummy_names,Size_.of_Path_F(), Size_.of_Integer_F());
         dummy_names.clear();
-        if ( similarity_cache != null) similarity_cache.clear_RAM();
+
+        if ( similarity_cache != null)
+        {
+            returned += similarity_cache.clear_RAM();
+        }
+
+        returned += images.size()* Size_.of_Path();
         images.clear();
+        return returned;
     }
 
 

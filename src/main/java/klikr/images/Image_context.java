@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 //**********************************************************
 public class Image_context
@@ -168,6 +169,12 @@ public class Image_context
         return f.toAbsolutePath().toString();
     }
 
+    //**********************************************************
+    public static Function<Image_context, Long> size_F()
+    //**********************************************************
+    {
+        return ic -> 700L; // super rough estimate ;-)
+    }
 
 
     //**********************************************************

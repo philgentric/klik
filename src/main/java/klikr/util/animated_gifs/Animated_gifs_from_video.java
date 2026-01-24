@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.util.Shared_services;
 import klikr.util.cache.Clearable_disk_caches;
+import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
 import klikr.change.Change_gang;
@@ -33,12 +34,14 @@ import klikr.util.log.Logger;
 import klikr.util.ui.Folder_chooser;
 import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.ui.Popups;
+import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -121,7 +124,7 @@ public class Animated_gifs_from_video
         AtomicInteger in_flight = new AtomicInteger();
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Progress_window progress_window = Progress_window.show(
+        Optional<Hourglass> hourglass = Progress_window.show(
                 in_flight,
                 "Wait for animated gifs to be generated",
                 20*60,
@@ -131,10 +134,14 @@ public class Animated_gifs_from_video
                 logger);
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
         {
-            if (progress_window.aborter.should_abort())
+            Aborter aborter = null;
+            if (hourglass.isPresent())
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning("❗ ABORTING MASSIVE GIF GENERATION for "+video_path, "On abort request",true,owner,logger), logger);
-                return;
+                aborter = ((Progress_window)hourglass.get()).aborter;
+                if (aborter.should_abort()) {
+                    Jfx_batch_injector.inject(() -> Popups.popup_warning("❗ ABORTING MASSIVE GIF GENERATION for " + video_path, "On abort request", true, owner, logger), logger);
+                    return;
+                }
             }
             String name = make_file_name(start);
             Path destination_gif_full_path = Path.of(dir.getAbsolutePath(),name);
@@ -142,7 +149,7 @@ public class Animated_gifs_from_video
             Job_termination_reporter tr = (message, job) -> in_flight.decrementAndGet();
             in_flight.incrementAndGet();
             Actor_engine.run(actor,
-                    new Animated_gif_generation_message(owner,video_path,512,50,destination_gif_full_path,clip_length,start,progress_window.aborter,abort_reported,logger),
+                    new Animated_gif_generation_message(owner,video_path,512,50,destination_gif_full_path,clip_length,start,aborter,abort_reported,logger),
                     tr,
                     logger);
         }

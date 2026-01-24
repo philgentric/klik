@@ -230,7 +230,7 @@ public class Launcher extends Application implements UI_change_target
                 stage.getX()+100,
                 stage.getY()+100,
                 stage,
-                logger);
+                logger).orElse(null);
 
         String cmd = "gradle "+app_name+ " "+com.get_port();
         Script_executor.execute(List.of(cmd),Path.of("."),true,stage,logger);

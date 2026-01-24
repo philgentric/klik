@@ -21,10 +21,7 @@ import klikr.properties.IProperties;
 import klikr.properties.String_constants;
 import klikr.util.Shared_services;
 import klikr.path_lists.Path_list_provider_for_file_system;
-import klikr.util.cache.Cache_folder;
-import klikr.util.cache.Clearable_disk_caches;
-import klikr.util.cache.Clearable_RAM_caches;
-import klikr.util.cache.Klikr_cache;
+import klikr.util.cache.*;
 import klikr.util.ui.progress.Progress;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
@@ -169,6 +166,7 @@ public class Playlist
             };
             Path folder_path = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(Cache_folder.song_duration_cache.name(), false, owner, logger);
 
+            //Function<Double, Long> value_size = d -> 8L;
             duration_cache = new Klikr_cache<Path,Double>(
                 new Path_list_provider_for_file_system(folder_path, owner, logger),
                 Cache_folder.song_duration_cache.name(),
@@ -176,6 +174,7 @@ public class Playlist
                 value_serializer, value_deserializer,
                 value_extractor,
                 string_key_maker,object_key_maker,
+                Size_.of_Double_F(),
                 aborter, owner, logger);
             duration_cache.reload_cache_from_disk();
             Clearable_RAM_caches.record(duration_cache);
@@ -205,6 +204,7 @@ public class Playlist
                     value_serializer, value_deserializer,
                     value_extractor,
                     string_key_maker,object_key_maker,
+                    Size_.of_Double_F(),
                     aborter, owner, logger);
 
             bitrate_cache.reload_cache_from_disk();

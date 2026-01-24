@@ -176,7 +176,8 @@ public class Full_image_from_disk
     //**********************************************************
     {
         //logger.log("load_native_resolution_image_from_disk");
-        if (Check_remaining_RAM.RAM_running_low(owner,logger)) {
+        if (Check_remaining_RAM.RAM_running_low("running low",owner,logger))
+        {
             logger.log("load_native_resolution_image_from_disk NOT DONE because running low on memory ! ");
             return Optional.of(Jar_utils.get_broken_icon(300,owner,logger));
         }
@@ -208,9 +209,8 @@ public class Full_image_from_disk
         }
         catch (OutOfMemoryError e)
         {
+            Check_remaining_RAM.RAM_running_low(""+e,owner, logger);
             logger.log("OutOfMemoryError when loading image from disk: "+original_image_file.toAbsolutePath()+" : "+e);
-            Clearable_RAM_caches.clear_all_RAM_caches(logger);
-            Popups.popup_Exception(null,100,"Your java VM machine is running out of RAM!\nclose some windows and/or try to increase the max in build.gradle.works and restart",owner,logger);
             return Optional.of(Jar_utils.get_broken_icon(300,owner,logger));
         }
         catch (Exception e)
@@ -229,8 +229,7 @@ public class Full_image_from_disk
         {
             if( image.getException().toString().contains("OutOfMemoryError"))
             {
-                logger.log("❌ IMAGE decode Panic :"+image.getException()+" "+original_image_file.toAbsolutePath());
-                Popups.popup_Exception(image.getException(),100,"Your java VM machine is running out of RAM, try to increase the max in build.gradle.works and restart",owner,logger);
+                Check_remaining_RAM.RAM_running_low("image decode error", owner,logger);
             }
             else if( image.getException().toString().contains("No loader for image data"))
             {
@@ -246,6 +245,8 @@ public class Full_image_from_disk
         return Optional.of(image);
 
     }
+
+
 
     //**********************************************************
     private static Optional<Image> use_GraphicsMagick_for_full_image(Path original_image_file, Aborter aborter, Window owner, Logger logger)

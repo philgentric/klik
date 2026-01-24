@@ -7,5 +7,5 @@ package klikr.util.cache;
 public interface Clearable_RAM_cache
 //**********************************************************
 {
-    void clear_RAM();
+    double clear_RAM();
 }

@@ -12,6 +12,7 @@ import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.files_and_paths.*;
 import klikr.util.ui.Jfx_batch_injector;
+import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 import klikr.util.log.Logger;
 import klikr.util.execute.actor.Executor;
@@ -21,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -79,7 +81,7 @@ public class Folders_with_large_images_locator
 
                 double x = owner.getX()+100;
                 double y = owner.getY()+100;
-                Progress_window rf = Progress_window.show(
+                Optional<Hourglass> hourglass = Progress_window.show(
                         true,
                         "Looking for folders with large images",
                         20000,
@@ -87,9 +89,8 @@ public class Folders_with_large_images_locator
                         y,
                         owner,
                         logger);
-                private_aborter = rf.aborter;
+                private_aborter = Progress_window.get_aborter(hourglass, logger);
                 explore(top.toFile());
-
 
                 // wait for exploration to end
                 long start = System.currentTimeMillis();
@@ -114,7 +115,7 @@ public class Folders_with_large_images_locator
                         logger.log(msg);
                         if ( monitor == null)
                         {
-                            monitor = new Monitor(top,locator,rf.aborter,logger);
+                            monitor = new Monitor(top,locator,private_aborter,logger);
                             Jfx_batch_injector.inject(()->monitor.realize(),logger);
                         }
                         else
@@ -125,7 +126,7 @@ public class Folders_with_large_images_locator
                     }
 
                 }
-                rf.close();
+                hourglass.ifPresent(Hourglass::close);
 
                 if ( dbg) print_all_contaminated();
 

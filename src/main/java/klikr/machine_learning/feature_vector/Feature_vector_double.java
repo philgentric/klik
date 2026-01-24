@@ -50,6 +50,14 @@ public class Feature_vector_double implements Feature_vector
     }
 
     //**********************************************************
+    @Override
+    public double size()
+    //**********************************************************
+    {
+        return features.length*Double.SIZE/8.0;
+    }
+
+    //**********************************************************
     private double compare_max(Feature_vector_double feature_vector)
     //**********************************************************
     {

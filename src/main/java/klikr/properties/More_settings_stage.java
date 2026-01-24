@@ -382,7 +382,7 @@ public class More_settings_stage
     {
         {
             add_one_button("Clear_All_RAM_Caches",
-                    event -> Clearable_RAM_caches.clear_all_RAM_caches(logger), w, icon_size, look_and_feel, vbox);
+                    event -> Clearable_RAM_caches.clear_all_RAM_caches(owner, logger), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Image_Properties_RAM_Cache",
                     event -> Clearable_shared_caches.image_properties_cache_of_caches.clear(), w, icon_size, look_and_feel, vbox);
             add_one_button("Clear_Image_Comparators_Caches",

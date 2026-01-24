@@ -40,6 +40,7 @@ import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.execute.Execute_command;
 import klikr.util.log.Logger;
+import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 
 import java.io.File;
@@ -1074,7 +1075,7 @@ public class Audio_player_FX_UI implements Media_callbacks
                     String content = clipboard.getString();
                     System.out.println("Clipboard Content: " + content);
                     Runnable r = () -> {
-                        Progress_window x = Progress_window.show(
+                        Optional<Hourglass> hourglass = Progress_window.show(
                                 true,
                                 "Importing audio tracks",
                                 30 * 60,
@@ -1084,7 +1085,7 @@ public class Audio_player_FX_UI implements Media_callbacks
                                 logger);
 
                         List<String> file_names = import_from_youtube(content);
-                        x.close();
+                        hourglass.ifPresent(Hourglass::close);
                         if (!file_names.isEmpty()) {
                             Platform.runLater(() -> playlist.user_wants_to_add_songs(file_names));
                         }

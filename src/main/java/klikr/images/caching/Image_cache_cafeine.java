@@ -81,7 +81,7 @@ public class Image_cache_cafeine implements Image_cache_interface
     {
         if (ultra_dbg) logger.log("preloading request! " + forward_size);
 
-        if (Check_remaining_RAM.RAM_running_low(owner,logger))
+        if (Check_remaining_RAM.RAM_running_low("full-size image cache preload", owner,logger))
         {
             //if (ultra_dbg)
                 logger.log("Clearing image cache as RAM is low");
@@ -153,11 +153,13 @@ public class Image_cache_cafeine implements Image_cache_interface
 
     @Override
     //**********************************************************
-    public void clear_RAM()
+    public double clear_RAM()
     //**********************************************************
     {
+        double returned = cache.estimatedSize();
         cache.invalidateAll();
         cache.cleanUp();
+        return returned;
     }
 
     //**********************************************************

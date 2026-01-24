@@ -197,7 +197,7 @@ public class Importer
                 x,
                 y,
                 owner,
-                logger);
+                logger).orElse(null);
 
         Runnable r = new Runnable() {
             @Override
@@ -237,7 +237,7 @@ public class Importer
                     if (progress_string[0].length() > 100) progress_string[0] = "Please wait, scanning folders...";
                 }
 
-                hourglass.close();
+                if ( hourglass != null) hourglass.close();
 
 
                 {

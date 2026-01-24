@@ -18,11 +18,11 @@ import klikr.util.execute.actor.Job_termination_reporter;
 import klikr.util.execute.actor.Or_aborter;
 import klikr.path_lists.Path_list_provider;
 import klikr.machine_learning.song_similarity.Feature_vector_for_song;
-import klikr.properties.Non_booleans_properties;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.perf.Perf;
+import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 
 import java.io.*;
@@ -47,15 +47,12 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
     protected final String tag;
     protected final Path cache_file_path;
 
-
-
     public record Paths_and_feature_vectors(Feature_vector_cache fv_cache, List<Path> paths) { }
-    private final Map<String, Feature_vector> path_to_feature_vector_cache = new ConcurrentHashMap<>();
+    private final Map<String, Feature_vector> the_cache = new ConcurrentHashMap<>();
     private final Feature_vector_creation_actor feature_vector_creation_actor;
 
     private final int instance_number;
     private static int instance_number_generator = 0;
-    //private final Actor_engine_based_on_workers local_actor_engine;
 
     //**********************************************************
     public Feature_vector_cache(
@@ -74,24 +71,37 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
         cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(tag +" cache file ="+cache_file_path);
         feature_vector_creation_actor = new Feature_vector_creation_actor(fvs);
-
-        // reason to use workers is to limit the number of concurrent HTTP requests
-        // to the python servers that are not good at queuing requests
-        //local_actor_engine = new Actor_engine_based_on_workers("feature vector cache warmer",aborter,logger);
-
     }
 
 
     //**********************************************************
     @Override
-    public void clear_disk(Window owner, Aborter aborter, Logger logger)
+    public double clear_RAM()
+    //**********************************************************
+    {
+        double returned = 0;
+        for (Feature_vector fv : the_cache.values())
+        {
+            returned += fv.size();
+        }
+        the_cache.clear();
+        if (dbg) logger.log("feature vector cache file cleared");
+        return returned;
+    }
+
+    //**********************************************************
+    @Override
+    public Disk_cleared clear_disk(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         try {
+            long size = Files.size(cache_file_path);
             Files.delete(cache_file_path);
+            return new Disk_cleared(cache_file_path, size);
         } catch (IOException e) {
             logger.log(""+e);
         }
+        return null;
     }
 
     //**********************************************************
@@ -118,7 +128,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
     public Feature_vector get_from_cache_or_make(Path p, Job_termination_reporter tr, boolean wait_if_needed, Window owner, Aborter browser_aborter)
     //**********************************************************
     {
-        Feature_vector feature_vector =  path_to_feature_vector_cache.get(key_from_path(p));
+        Feature_vector feature_vector =  the_cache.get(key_from_path(p));
         if ( feature_vector != null)
         {
             if ( dbg) logger.log("feature_vector found in cache for "+p);
@@ -140,7 +150,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
         if ( wait_if_needed)
         {
             feature_vector_creation_actor.run(imp); // blocking call
-            Feature_vector x = path_to_feature_vector_cache.get(key_from_path(p));
+            Feature_vector x = the_cache.get(key_from_path(p));
             if ( x == null) logger.log("❌ PANIC null Feature_vector in cache after blocking call ");
             return x;
         }
@@ -159,17 +169,9 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
     //**********************************************************
     {
         if(dbg) logger.log(tag +" inject "+path+" value="+fv.to_string()+" components");
-        path_to_feature_vector_cache.put(key_from_path(path), fv);
+        the_cache.put(key_from_path(path), fv);
     }
 
-    //**********************************************************
-    @Override
-    public void clear_RAM()
-    //**********************************************************
-    {
-        path_to_feature_vector_cache.clear();
-        if (dbg) logger.log("feature vector cache file cleared");
-    }
     //**********************************************************
     public synchronized void reload_cache_from_disk(AtomicInteger in_flight, Aborter browser_aborter)
     //**********************************************************
@@ -210,7 +212,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
                     logger.log("❌ Fatal, unknown feature vector type in cache file");
                     return;
                 }
-                path_to_feature_vector_cache.put(path_string, fv);
+                the_cache.put(path_string, fv);
                 in_flight.decrementAndGet();
                 reloaded++;
                 if ( i%1000==0) logger.log(i+" feature vectors loaded from disk");
@@ -235,9 +237,9 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
         if ( dbg)
         {
             logger.log("\n\n\n********************* "+ tag + " CACHE************************");
-            for (String s  : path_to_feature_vector_cache.keySet())
+            for (String s  : the_cache.keySet())
             {
-                logger.log(s+" => "+ path_to_feature_vector_cache.get(s));
+                logger.log(s+" => "+ the_cache.get(s));
             }
             logger.log("****************************************************************\n\n\n");
         }
@@ -251,12 +253,12 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
         try(DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(cache_file_path.toFile()))))
         {
             // extract first feature vector to decide type
-            if ( path_to_feature_vector_cache.size() == 0)
+            if ( the_cache.size() == 0)
             {
                 logger.log("feature vector cache empty, nothing to save");
                 return;
             }
-            Map.Entry<String, Feature_vector> e0 = path_to_feature_vector_cache.entrySet().iterator().next();
+            Map.Entry<String, Feature_vector> e0 = the_cache.entrySet().iterator().next();
             boolean feature_vectors_are_double = false;
             if ( e0.getValue() instanceof Feature_vector_double)
             {
@@ -267,8 +269,8 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
             {
                 dos.writeByte(feature_vector_is_string);
             }
-            dos.writeInt(path_to_feature_vector_cache.size());
-            for(Map.Entry<String, Feature_vector> e : path_to_feature_vector_cache.entrySet())
+            dos.writeInt(the_cache.size());
+            for(Map.Entry<String, Feature_vector> e : the_cache.entrySet())
             {
                 Feature_vector fv = e.getValue();
                 if ( fv == null)
@@ -331,7 +333,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
 
         if ( feature_vector_cache == null)
         {
-            Progress_window progress_window = Progress_window.show(
+            Optional<Hourglass> hourglass = Progress_window.show(
                     in_flight,
                     "Wait, making feature vectors",
                     3600*60,
@@ -340,11 +342,11 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
                     owner,
                     logger);
 
-            Or_aborter or_aborter = new Or_aborter(browser_aborter,progress_window.aborter,logger);
+            Or_aborter or_aborter = new Or_aborter(browser_aborter,Progress_window.get_aborter(hourglass, logger),logger);
             feature_vector_cache = new Feature_vector_cache(path_list_provider.get_name(), fvs, or_aborter,logger);
             Paths_and_feature_vectors paths_and_feature_vectors = feature_vector_cache.read_from_disk_and_update(paths,in_flight, owner, or_aborter,logger);
             Clearable_shared_caches.fv_cache_of_caches.put(path_list_provider.get_name(),feature_vector_cache);
-            progress_window.close();
+            hourglass.ifPresent(Hourglass::close);
             return paths_and_feature_vectors;
         }
         return feature_vector_cache.update(paths, in_flight,owner, browser_aborter,logger);
@@ -356,7 +358,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
     //**********************************************************
     {
         reload_cache_from_disk(in_flight,browser_aborter);
-        logger.log("read_from_disk "+path_to_feature_vector_cache.size()+" fv reloaded from disk");
+        logger.log("read_from_disk "+ the_cache.size()+" fv reloaded from disk");
         return update( paths, in_flight, owner, browser_aborter, logger);
     }
 
@@ -373,7 +375,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
         for (Path p : paths)
         {
             //if ( !Guess_file_type.is_file_an_image(p.toFile())) continue;
-            if ( !path_to_feature_vector_cache.containsKey(p.getFileName().toString()))
+            if ( !the_cache.containsKey(p.getFileName().toString()))
             {
                 if ( ultra_dbg) logger.log("missing FV for :"+p);
                 missing_paths.add(p);

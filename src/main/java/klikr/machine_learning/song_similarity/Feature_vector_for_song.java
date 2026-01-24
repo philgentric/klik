@@ -110,4 +110,12 @@ public class Feature_vector_for_song implements Feature_vector
         return 1 - cosineSimilarity;
     }
 
+
+    //**********************************************************
+    @Override
+    public double size()
+    //**********************************************************
+    {
+        return features.length*Double.SIZE/8.0;
+    }
 }

@@ -151,7 +151,7 @@ public class Exif_metadata_extractor
 
         image_is_damaged = false;
 
-        if (Check_remaining_RAM.RAM_running_low(owner, logger)) {
+        if (Check_remaining_RAM.RAM_running_low("exif read", owner, logger)) {
             logger.log("get_exif_metadata NOT DONE because running low on memory ! ");
             return exif_metadata;
         }

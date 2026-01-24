@@ -1,7 +1,6 @@
 package klikr.util.cache;
 
 import javafx.stage.Window;
-import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.properties.Non_booleans_properties;
 import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
@@ -20,7 +19,7 @@ import java.util.List;
 public class Clearable_disk_caches
 //**********************************************************
 {
-    private static final boolean dbg = true;
+    private static final boolean dbg = false;
 
     private static final List<Clearable_disk_cache> clearable_disk_caches = new ArrayList<>();
 
@@ -32,18 +31,19 @@ public class Clearable_disk_caches
     }
 
     //**********************************************************
-    public static void clear_all_disk_caches(Window owner, Aborter aborter, Logger logger)
+    public static List<Disk_cleared> clear_all_disk_caches(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
+        List<Disk_cleared> cleared_folders = new ArrayList<>();
         for ( Clearable_disk_cache clearable_disk_cache : clearable_disk_caches)
         {
             Shared_services.logger().log("Clearing disk cache:"+clearable_disk_cache.name());
-            clearable_disk_cache.clear_disk(owner,aborter, logger);
+            cleared_folders.add(clearable_disk_cache.clear_disk(owner,aborter, logger));
         }
 
-        Clearable_shared_caches.clear_all_disk_caches(owner, aborter, logger);
+        Clearable_shared_caches.clear_all_disk_caches(cleared_folders, owner, aborter, logger);
 
-
+        return cleared_folders;
     }
 
 

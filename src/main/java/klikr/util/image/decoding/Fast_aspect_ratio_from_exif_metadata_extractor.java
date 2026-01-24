@@ -35,7 +35,7 @@ public class Fast_aspect_ratio_from_exif_metadata_extractor
     public static Optional<Double> get_aspect_ratio(Path path, boolean report_if_not_found, Aborter aborter, List<String> sb, Window owner, Logger logger)
     //**********************************************************
     {
-        if (Check_remaining_RAM.RAM_running_low(owner, logger)) {
+        if (Check_remaining_RAM.RAM_running_low("aspect ratio",owner, logger)) {
             logger.log("get_aspect_ratio NOT DONE because running low on memory ! ");
             return Optional.empty();
         }

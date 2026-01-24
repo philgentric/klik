@@ -14,6 +14,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klikr.look.my_i18n.My_I18n;
+import klikr.util.Check_remaining_RAM;
 import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
@@ -21,6 +23,7 @@ import klikr.look.Look_and_feel_manager;
 import klikr.util.log.Logger;
 import klikr.util.ui.Jfx_batch_injector;
 
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,7 +46,7 @@ public class Progress_window implements Hourglass
 
 
 	//**********************************************************
-	public static Progress_window show(
+	public static Optional<Hourglass> show(
             boolean with_abort_button,
             String wait_message,
             int timeout_s,
@@ -53,13 +56,14 @@ public class Progress_window implements Hourglass
             Logger logger)
 	//**********************************************************
 	{
+		if (Check_remaining_RAM.low_memory.get()) return Optional.empty();
 		Progress_window local = new Progress_window(with_abort_button, timeout_s, logger);
 		launch(local, wait_message,x,y,owner,logger);
-		return local;
+		return Optional.of(local);
 	}
 
 	//**********************************************************
-	public static Progress_window show(
+	public static Optional<Hourglass> show(
             AtomicInteger in_flight,
             String wait_message,
             int timeout_s,
@@ -69,12 +73,26 @@ public class Progress_window implements Hourglass
             Logger logger)
 	//**********************************************************
 	{
-        Progress_window local = new Progress_window(true, timeout_s, logger);
+		if (Check_remaining_RAM.low_memory.get()) return Optional.empty();
+		Progress_window local = new Progress_window(true, timeout_s, logger);
 		launch(local, wait_message,x,y,owner,logger);
 		local.report_progress_and_close_when_finished(in_flight);
-		return local;
+		return Optional.of(local);
 	}
 
+	//**********************************************************
+	public static Aborter get_aborter(Optional<Hourglass> hourglass, Logger logger)
+	//**********************************************************
+	{
+		if ( hourglass.isPresent())
+		{
+			return ((Progress_window)hourglass.get()).aborter;
+		}
+		else
+		{
+			return new Aborter("dummy",logger);
+		}
+	}
 	//**********************************************************
 	private static Hourglass launch(
             Progress_window local,
@@ -153,8 +171,8 @@ public class Progress_window implements Hourglass
 		}
         if ( with_abort_button)
 		{
-			Button abort = new Button("Abort");
-            Look_and_feel_manager.set_button_look(abort,false,stage,logger);
+			Button abort = new Button(My_I18n.get_I18n_string("Abort",owner,logger));
+            Look_and_feel_manager.set_button_look(abort,true,stage,logger);
 			vbox.getChildren().add(abort);
 			abort.setOnAction(e -> aborter.abort("aborted by user"));
 		}

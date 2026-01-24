@@ -129,7 +129,7 @@ public class Image_window
         double h = bounds.getHeight();
 
 
-        Image_window returned = new Image_window(path, null,x, y,w, h, null, true,path_list_provider,path_comparator_source,aborter,logger_);
+        Image_window returned = new Image_window(path, null/*to prevent modality*/,x, y,w, h, null, true,path_list_provider,path_comparator_source,aborter,logger_);
         returned.stage.setX(x);
         returned.stage.setY(y);
         return returned;

@@ -7,6 +7,7 @@ package klikr.machine_learning.similarity;
 
 import javafx.geometry.Point2D;
 import javafx.stage.Window;
+import klikr.util.cache.Size_;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.cache.Clearable_RAM_cache;
@@ -28,6 +29,7 @@ import klikr.util.ui.progress.Progress_window;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 //**********************************************************
@@ -68,10 +70,14 @@ public class Similarity_engine implements Clearable_RAM_cache
 
     //**********************************************************
     @Override
-    public void clear_RAM()
+    public double clear_RAM()
     //**********************************************************
     {
+        double returned = 0;
+        Function<Map<Path, Double>, Long> size_of_V = map -> Size_.of_Map(map, Size_.of_Path_F(), Size_.of_Double_F());
+        returned = Size_.of_Map(similarities, Size_.of_Path_F(),size_of_V);
         similarities.clear();
+        return returned;
     }
 
     //**********************************************************
@@ -98,7 +104,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             return new ArrayList<>();
         }
 
-        Hourglass hourglass = Progress_window.show(
+        Optional<Hourglass> hourglass = Progress_window.show(
                 false,
                 "wait, looking for similar items",
                 20000,
@@ -110,7 +116,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         Feature_vector fv0 = fv_cache.get_from_cache_or_make(reference_item_path, null, true, owner, browser_aborter);
         if ( fv0 ==null)
         {
-            hourglass.close();
+            hourglass.ifPresent(Hourglass::close);
             logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv cannot be acquired"));
             return new ArrayList<>();
         }
@@ -131,7 +137,7 @@ public class Similarity_engine implements Clearable_RAM_cache
                 browser_aborter);
 
         if ( already_done!= null) already_done.add(reference_item_path);
-        hourglass.close();
+        hourglass.ifPresent(Hourglass::close);
         return most_similars;
     }
 
@@ -152,7 +158,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             Aborter browser_aborter)
     //**********************************************************
     {
-        Hourglass hourglass = null;
+        Optional<Hourglass>  hourglass = Optional.empty();
         if ( show_hour_glass) {
             hourglass = Progress_window.show(
                     false,
@@ -166,7 +172,7 @@ public class Similarity_engine implements Clearable_RAM_cache
 
         if (paths.isEmpty())
         {
-            if ( hourglass != null) hourglass.close();
+            hourglass.ifPresent(Hourglass::close);
             return new ArrayList<>();
         }
 
@@ -174,13 +180,13 @@ public class Similarity_engine implements Clearable_RAM_cache
         if ( fv_cache == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv_cache is null"));
-            if ( hourglass != null) hourglass.close();
+            hourglass.ifPresent(Hourglass::close);
             return new ArrayList<>();
         }
         Feature_vector fv0 = fv_cache.get_from_cache_or_make(reference_item_path, null, true, owner, browser_aborter);
         if ( fv0 ==null)
         {
-            if ( hourglass != null) hourglass.close();
+            hourglass.ifPresent(Hourglass::close);
             return new ArrayList<>();
         }
         List<Path> to_be_compared = new ArrayList<>(paths);
@@ -201,7 +207,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         if ( already_done!= null) already_done.add(reference_item_path);
         if ( !display_found_images)
         {
-            if ( hourglass != null) hourglass.close();
+            hourglass.ifPresent(Hourglass::close);
             return most_similars;
         }
         final double xx = x;
@@ -235,7 +241,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             }
         };
         Jfx_batch_injector.inject(rr, logger);
-        if ( hourglass != null) hourglass.close();
+        hourglass.ifPresent(Hourglass::close);
         return most_similars;
     }
 

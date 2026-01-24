@@ -1,6 +1,7 @@
 package klikr.browser.virtual_landscape;
 
 import klikr.util.cache.Clearable_RAM_cache;
+import klikr.util.cache.Size_;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -12,10 +13,12 @@ public class Scroll_position_cache implements Clearable_RAM_cache
 
     //**********************************************************
     @Override
-    public void clear_RAM()
+    public double clear_RAM()
     //**********************************************************
     {
+        double returned = Size_.of_Map(scroll_position_cache,Size_.of_String_F(),Size_.of_Path_F());
         scroll_position_cache.clear();
+        return returned;
     }
 
 

@@ -4,6 +4,7 @@
 package klikr.browser.comparators;
 
 import javafx.stage.Window;
+import klikr.util.cache.Size_;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.cache.Clearable_RAM_cache;
 import klikr.util.Shared_services;
@@ -34,10 +35,12 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
 
     //**********************************************************
     @Override
-    public void clear_RAM()
+    public double clear_RAM()
     //**********************************************************
     {
+        double returned = Size_.of_Map(disk_foot_prints_cache,Size_.of_Path_F(),Size_.of_Long_F());
         disk_foot_prints_cache.clear();
+        return returned;
     }
 
     //**********************************************************

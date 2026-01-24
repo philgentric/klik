@@ -70,7 +70,7 @@ class State
 
             if ( path_comparator_source == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("path_comparator_source == null"));
+                logger.log(Stack_trace_getter.get_stack_trace("path_comparator_source == null, icons are NOT going to be sorted"));
             }
             else
             {

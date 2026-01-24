@@ -45,6 +45,7 @@ import klikr.util.files_and_paths.Extensions;
 import klikr.util.files_and_paths.Guess_file_type;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.ui.Popups;
+import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.log.Logger;
@@ -192,7 +193,7 @@ public class Face_recognition_service
         AtomicInteger files_in_flight = new AtomicInteger();
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Progress_window progress_window = Progress_window.show(
+        Optional<Hourglass> hourglass = Progress_window.show(
                 files_in_flight,
                 "Wait for auto train to complete",
                 3600*60,
@@ -200,8 +201,7 @@ public class Face_recognition_service
                 y,
                 owner,
                 logger);
-        Aborter aborter_for_auto_train = progress_window.aborter;
-
+        Aborter aborter_for_auto_train =  Progress_window.get_aborter(hourglass, logger);
         Face_recognition_actor Face_recognition_actor = new Face_recognition_actor(this);
 
         last_report = System.currentTimeMillis();
@@ -250,7 +250,10 @@ public class Face_recognition_service
             String label = f.getName();
             double percent = 100.0*(double)i/(double)folders.size();
             String done =  String.format("%.1f",percent);
-            progress_window.set_text(label+", "+done+"% of total");
+            if ( hourglass.isPresent() ) {
+                Progress_window progress_window = ((Progress_window)hourglass.get());
+                progress_window.set_text(label + ", " + done + "% of total");
+            }
             i++;
             Integer N = label_to_prototype_count.get(label);
             if ( N == null)
@@ -661,7 +664,7 @@ public class Face_recognition_service
         AtomicInteger in_flight = new AtomicInteger();
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Progress_window progress_window = Progress_window.show(
+        Optional<Hourglass> hourglass = Progress_window.show(
                 in_flight,
                 "Loading face recognition prototypes",
                 3600*60,
@@ -682,6 +685,7 @@ public class Face_recognition_service
                 }
                 return;
             }
+            Aborter aborter = Progress_window.get_aborter(hourglass, logger);
             for (File f: files)
             {
                 if ( f.isDirectory()) continue;
@@ -689,7 +693,7 @@ public class Face_recognition_service
                 Job_termination_reporter tr = (message, job) -> in_flight.decrementAndGet();
 
                 Actor_engine.run(actor,
-                        new Load_one_prototype_message(f,this,progress_window.aborter),
+                        new Load_one_prototype_message(f,this,aborter),
                         tr,
                         logger);
             }
@@ -870,23 +874,7 @@ public class Face_recognition_service
         logger.log("writing tmp image to: "+path+" face="+face.getWidth()+"x"+face.getHeight());
 
         Static_image_utilities.write_png_to_disk(face, path, logger);
-        /*
-        try {
-            BufferedImage bi = JavaFX_to_Swing.fromFXImage(face, null, logger);
-            logger.log("BufferedImage="+bi.getWidth()+"x"+bi.getHeight());
-            boolean status = ImageIO.write(bi, "png", path.toFile());
-            // RICK boolean status = ImageIO.write(bi, "png", new File("/Users/philippegentric/Desktop/toto/titi.png"));//path.toFile());
-            if ( !status)
-            {
-                logger.log("could not write tmp image to: "+path);
-                return null;
-            }
-        }
-        catch (IOException e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            return null;
-        }*/
+
         return path;
     }
 
@@ -900,7 +888,7 @@ public class Face_recognition_service
         AtomicInteger files_in_flight = new AtomicInteger(0);
         double x = owner.getX()+100;
         double y = owner.getY()+100;
-        Progress_window progress_window = Progress_window.show(
+        Optional<Hourglass> hourglass = Progress_window.show(
                 files_in_flight,
                 "Wait for SELF face recognition to complete",
                 3600*60,
@@ -914,7 +902,8 @@ public class Face_recognition_service
         //Path target = face_recognizer_path;
         logger.log("doing SELF on: "+target);
 
-        do_folder(target,null,progress_window.aborter,recognition_stats);
+        Aborter aborter = Progress_window.get_aborter(hourglass, logger);
+        do_folder(target,null,aborter,recognition_stats);
 
 
 

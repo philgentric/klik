@@ -119,14 +119,14 @@ public class Circle_3D implements Window_provider, Shutdown_target
         {
             Shared_services.main_properties().set(Sort_files_by.SORT_FILES_BY, Sort_files_by.FILE_NAME.name());
         }
-        Hourglass hourglass = Circle_3D.get_hourglass(stage,logger);
+        Optional<Hourglass> hourglass = Circle_3D.get_hourglass(stage,logger);
 
         Scene scene = get_scene();
         stage.setScene(scene);
 
         stage.show();
         stage.setTitle(context.path_list_provider.get_folder_path().toAbsolutePath().toString());
-        hourglass.close();
+        hourglass.ifPresent(Hourglass::close);
 
     }
 
@@ -574,8 +574,8 @@ public class Circle_3D implements Window_provider, Shutdown_target
         });
     }
 
-    public static Hourglass get_hourglass(Stage stage, Logger logger) {
-        Hourglass hourglass = Progress_window.show(
+    public static Optional<Hourglass> get_hourglass(Stage stage, Logger logger) {
+        return Progress_window.show(
                 true,
                 "Wait, loading in 3D",
                 20000,
@@ -583,7 +583,6 @@ public class Circle_3D implements Window_provider, Shutdown_target
                 100,
                 stage,
                 logger);
-        return hourglass;
     }
 
     //*******************************************************

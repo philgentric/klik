@@ -11,7 +11,11 @@ import java.nio.file.Paths;
 public record Path_pair(Path i, Path j)
 //**********************************************************
 {
-
+    public static long size()
+    {
+        // shallow size only...
+        return 32L;
+    }
 
     public static Path_pair build(Path i, Path j)
     {

@@ -62,7 +62,7 @@ public class Binary_file_engine<K,V> implements Disk_engine<K,V>
     public int load_from_disk(Map<String, V> cache)
     //**********************************************************
     {
-        logger.log("reloading similarities from disk");
+        long start = System.currentTimeMillis();
 
         int reloaded = 0;
         try(DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(cache_file_path.toFile()))))
@@ -108,6 +108,8 @@ public class Binary_file_engine<K,V> implements Disk_engine<K,V>
         {
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
+        logger.log("reloading "+reloaded+" similarities from disk took "+(System.currentTimeMillis()-start)+" ms");
+
         return reloaded;
     }
 

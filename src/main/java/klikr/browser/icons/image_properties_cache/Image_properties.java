@@ -5,12 +5,20 @@
 package klikr.browser.icons.image_properties_cache;
 
 
+import klikr.util.cache.Size_;
 import klikr.util.log.Stack_trace_getter;
 
 //**********************************************************
 public record Image_properties(double w, double h, Rotation rotation)
 //**********************************************************
 {
+
+    //**********************************************************
+    public static Long size()
+    //**********************************************************
+    {
+        return 2* Size_.of_Double() +Size_.of_enum(); // an enum is 32 or 24 bytes if compressedOops is enabled which depends on the JVM -Xmx (!!)
+    }
 
     //**********************************************************
     public String to_string()

@@ -209,11 +209,6 @@ public class Klikr_communicator
         server.setExecutor(Executor.executor);
         server.start();
 
-        // Ensure cleanup on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try { Files.deleteIfExists(registry_file); } catch (Exception e) {}
-        }));
-
         logger.log(app_name+ " OK, started HTTP Server on port: " + the_port);
     }
 

@@ -71,7 +71,7 @@ public class Finder_frame implements Search_receiver
 	private final Path_list_provider path_list_provider;
 	private final Path_comparator_source path_comparator_source;
 
-    private Hourglass hourglass;
+    private Optional<Hourglass> hourglass;
 
 	//**********************************************************
 	public Finder_frame(
@@ -452,7 +452,7 @@ public class Finder_frame implements Search_receiver
 	public void has_ended(Search_status search_status)
 	//**********************************************************
 	{
-        if( hourglass!=null) hourglass.close();
+        hourglass.ifPresent(Hourglass::close);
 		//logger.log("has_ended() "+search_status);
 		if ( search_status != Search_status.interrupted)
 		{

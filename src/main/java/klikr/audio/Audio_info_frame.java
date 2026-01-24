@@ -44,7 +44,7 @@ public class Audio_info_frame
                 x,
                 y,
                 owner,
-                logger);
+                logger).orElse(null);
         List<Line_for_info_stage> l = new ArrayList<>();
         l.add(new Line_for_info_stage(true,"Information about this file as reported by mediainfo:"));
 
@@ -73,7 +73,7 @@ public class Audio_info_frame
 
         Runnable r = () -> Info_stage.show_info_stage("INFO:",l,icon, null);
         Platform.runLater(r);
-        progress_window.close();
+        if ( progress_window != null) progress_window.close();
 
     }
 

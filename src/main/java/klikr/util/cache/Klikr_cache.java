@@ -47,7 +47,7 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
     // high level, the key is anything i.e. "K" but internally we rely only on Strings
     private final Map<String,V> cache = new ConcurrentHashMap<>();
     private final Disk_engine disk_engine;
-
+    private final Function<V,Long> size_of_V;
 
     // when disk engine is a properties file, keys are Strings
     //**********************************************************
@@ -58,10 +58,12 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
             Function<String, V> string_deserializer,
             Function<String,V> value_extractor,
             Function<K,String> string_key_maker,
+            Function<V,Long> value_size,
             Aborter aborter,
             Window owner, Logger logger_)
     //**********************************************************
     {
+        this.size_of_V = value_size;
         this.string_key_maker = string_key_maker;
         logger = logger_;
         name = cache_name_;
@@ -103,16 +105,18 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
             Function<K,V> value_extractor,
             Function<K,String> string_key_maker,
             Function<String,K> object_key_maker,
+            Function<V,Long> size_of_V,
             Aborter aborter,
             Window owner, Logger logger_)
     //**********************************************************
     {
+        this.size_of_V = size_of_V;
         this.string_key_maker = string_key_maker;
         logger = logger_;
         name = cache_name_;
         String local = name + path_list_provider.get_name();
         if ( dbg) logger.log(name +" local ="+local);
-        String cache_file_name = path_list_provider.get_folder_path().getFileName().toString()+"_"+UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
+        String cache_file_name = path_list_provider.get_folder_path().getFileName().toString()+"_"+UUID.nameUUIDFromBytes(local.getBytes());
         if ( dbg) logger.log(name +" cache_file_name ="+cache_file_name);
         Path dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(name, false,owner, logger);
         if ( dbg) logger.log(name +" dir ="+dir.toAbsolutePath().toString());
@@ -213,7 +217,12 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
     {
         if ( object_key == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL "));
+            logger.log(("WARNING (ignored) "));
+            return;
+        }
+        if ( value == null)
+        {
+            logger.log(("WARNING (ignored) corrupted image ? "+object_key));
             return;
         }
         String real_key = string_key_maker.apply(object_key);
@@ -224,12 +233,14 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
 
     //**********************************************************
     @Override
-    public void clear_RAM()
+    public double clear_RAM()
     //**********************************************************
     {
+        double returned = Size_.of_Map(cache,Size_.of_String_F(),size_of_V);
         cache.clear();
-        if (dbg) logger.log(name +" RAM cache file cleared");
+        return returned;
     }
+
     //**********************************************************
     public int reload_cache_from_disk()
     //**********************************************************
@@ -253,11 +264,12 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
 
     //**********************************************************
     @Override
-    public void clear_disk(Window owner, Aborter aborter, Logger logger)
+    public Disk_cleared clear_disk(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path path = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(name, false, owner,logger);
-        Static_files_and_paths_utilities.clear_folder(path, name, false,false,owner, aborter, logger);
+        double size = Static_files_and_paths_utilities.clear_folder(path, name, false,false,owner, aborter, logger);
+        return new Disk_cleared(path,size);
     }
 
     //**********************************************************

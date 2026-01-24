@@ -35,7 +35,7 @@ public class Fast_image_property_from_exif_metadata_extractor
     public static Optional<Image_properties> get_image_properties(Path path, boolean report_if_not_found, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (Check_remaining_RAM.RAM_running_low(owner, logger)) {
+        if (Check_remaining_RAM.RAM_running_low("Image properties extraction",owner, logger)) {
             logger.log("get_image_properties NOT DONE because running low on memory ! ");
             return Optional.empty();
         }

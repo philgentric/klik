@@ -34,7 +34,7 @@ public class Fast_width_from_exif_metadata_extractor
     public static Optional<Double> get_width(Path path, boolean report_if_not_found, List<String> sb, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (Check_remaining_RAM.RAM_running_low(owner,logger)) {
+        if (Check_remaining_RAM.RAM_running_low("Image width extraction",owner,logger)) {
             logger.log("get_width NOT DONE because running low on memory ! ");
             return Optional.empty();
         }

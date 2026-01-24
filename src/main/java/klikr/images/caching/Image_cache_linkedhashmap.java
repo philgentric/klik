@@ -4,6 +4,7 @@
 package klikr.images.caching;
 
 import javafx.stage.Window;
+import klikr.util.cache.Size_;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.images.Image_context;
@@ -33,7 +34,8 @@ public class Image_cache_linkedhashmap implements Image_cache_interface
         image_decoding_actor = new Image_decoding_actor_for_cache(logger);// need a single instance
 
 
-        cache = new LinkedHashMap<>(2*forward_size+1, 0.75f, true) {;
+        cache = new LinkedHashMap<>(2*forward_size+1, 0.75f, true)
+        {
             @Override
             protected boolean removeEldestEntry(Map.Entry<String, Image_context> eldest) {
                 if (size() > 2 * forward_size + 1)
@@ -103,10 +105,12 @@ public class Image_cache_linkedhashmap implements Image_cache_interface
 
     @Override
     //**********************************************************
-    public void clear_RAM()
+    public double clear_RAM()
     //**********************************************************
     {
+        double returned = Size_.of_Map(cache,Size_.of_String_F(),Image_context.size_F());
         cache.clear();
+        return returned;
     }
 
     //**********************************************************

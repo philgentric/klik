@@ -134,7 +134,7 @@ public class ML_registry_discovery
                     List<ML_server> servers_of_type = get_from_registry_file_count_of_servers_of_type(st);
                     if (servers_of_type.size() >= st.ml_server_type().quota(owner))
                     {
-                        if ( live_dbg) logger.log("No need to start servers of type: "+st.ml_server_type().name()+ " running: "+servers_of_type.size()+ " quota: "+st.ml_server_type().quota(owner));
+                        //logger.log("No need to start servers of type: "+st.ml_server_type().name()+ " running: "+servers_of_type.size()+ " quota: "+st.ml_server_type().quota(owner));
                         continue;
                     }
                     // need to launch some servers
@@ -322,7 +322,7 @@ public class ML_registry_discovery
             logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL for: " + st.ml_server_type().name()));
             return -1;
         }
-        if ( live_dbg) logger.log("✅ Found "+status.available_ports().size()+" active servers for: " + st.ml_server_type().name());
+        //logger.log("✅ Found "+status.available_ports().size()+" active servers for: " + st.ml_server_type().name());
 
         // Return a random port for load balancing
         return status.available_ports().get(random.nextInt(status.available_ports().size()));

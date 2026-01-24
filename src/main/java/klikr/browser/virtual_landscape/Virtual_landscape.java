@@ -1096,6 +1096,7 @@ public class Virtual_landscape
                 value_extractor,
                 string_key_maker,
                 object_key_maker,
+                (d -> Image_properties.size()),
                 aborter, owner, logger);
 
         if ( dbg) logger.log("MADE image_properties_cache");
@@ -1504,7 +1505,7 @@ public class Virtual_landscape
         LongAdder count = new LongAdder();
         double x = owner.getX() + 100;
         double y = owner.getY() + 100;
-        Progress_window progress_window = Progress_window.show(
+        Optional<Hourglass> progress_window = Progress_window.show(
                 true,
                 "Computing file count",
                 20 * 60,
@@ -1568,7 +1569,7 @@ public class Virtual_landscape
         LongAdder count = new LongAdder();
         double x = owner.getX() + 100;
         double y = owner.getY() + 100;
-        Progress_window progress_window = Progress_window.show(
+        Optional<Hourglass> hourglass = Progress_window.show(
                 true,
                 "Computing folder sizes",
                 20 * 60,
@@ -1576,13 +1577,14 @@ public class Virtual_landscape
                 y,
                 owner,
                 logger);
+        Aborter local_aborter = Progress_window.get_aborter(hourglass, logger);
         for (Item i : all_items_map.values()) {
             if (i instanceof Item_folder item2_folder) {
                 if (Files.isDirectory(item2_folder.get_true_path())) {
                     item2_folder.add_total_size_deep_folder(count, item2_folder.get_button(), item2_folder.text,
                             item2_folder.get_true_path(),
                             folder_total_sizes_cache,
-                            progress_window.aborter, logger);
+                            local_aborter, logger);
                 }
             }
         }
@@ -1598,7 +1600,7 @@ public class Virtual_landscape
                 }
                 if (count.doubleValue() == 0) {
                     Jfx_batch_injector.inject(() -> on_geometry_changed(
-                            "sort by folder size on disk", progress_window), logger);
+                            "sort by folder size on disk", hourglass), logger);
                     if (System.currentTimeMillis() - start > 3000) {
                         Ding.play("display all folder sizes", logger);
                     }
@@ -2617,10 +2619,10 @@ public class Virtual_landscape
 
         long start = System.currentTimeMillis();
 
-        Hourglass progress_window = null;
+        Optional<Hourglass> hourglass = Optional.empty();
 
         if (show_progress_window_on_redraw) {
-            progress_window = Progress_window.show(
+            hourglass = Progress_window.show(
                     false,
                     "Scanning folder",
                     20 * 60,
@@ -2649,7 +2651,7 @@ public class Virtual_landscape
         }
         get_path_comparator();
         // logger.log("all_image_properties_acquired, going to refresh");
-        refresh_UI("all_image_properties_acquired", progress_window);
+        refresh_UI("all_image_properties_acquired", hourglass);
 
         if (dbg)
             logger.log("✅ Virtual_landscape::refresh_UI done");
@@ -2790,7 +2792,7 @@ public class Virtual_landscape
 
 
     //**********************************************************
-    private void refresh_UI(String from, Hourglass progress_window)
+    private void refresh_UI(String from, Optional<Hourglass> progress_window)
     //**********************************************************
     {
         sort_iconized_items(from);
@@ -2804,7 +2806,7 @@ public class Virtual_landscape
     }
 
     //**********************************************************
-    private void refresh_UI_on_fx_thread(String from, Hourglass progress_window)
+    private void refresh_UI_on_fx_thread(String from, Optional<Hourglass> progress_window)
     //**********************************************************
     {
 
@@ -2840,7 +2842,7 @@ public class Virtual_landscape
     }
 
     //**********************************************************
-    public void on_geometry_changed(String reason, Hourglass progress_window)
+    public void on_geometry_changed(String reason, Optional<Hourglass> progress_window)
     //**********************************************************
     {
         try (Perf p1 = new Perf("compute_geometry")) {
@@ -2874,8 +2876,7 @@ public class Virtual_landscape
             if (error_type == Error_type.DENIED) {
                 ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size, owner, logger));
                 show_error_icon(iv_denied, top_delta_y);
-                if (progress_window != null)
-                    progress_window.close();
+                progress_window.ifPresent(Hourglass::close);
                 the_guard.set(false);
                 logger.log("✅ on DENIED the_guard =>" + the_guard.get() + " for " + path_list_provider.get_name());
                 return;
@@ -2883,8 +2884,7 @@ public class Virtual_landscape
             if (error_type == Error_type.NOT_FOUND) {
                 ImageView not_found = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size, owner, logger));
                 show_error_icon(not_found, top_delta_y);
-                if (progress_window != null)
-                    progress_window.close();
+                progress_window.ifPresent(Hourglass::close);
                 the_guard.set(false);
                 logger.log("✅ on NOT_FOUND the_guard =>" + the_guard.get() + " for " + path_list_provider.get_name());
                 return;
@@ -2893,8 +2893,7 @@ public class Virtual_landscape
                 ImageView unknown_error = new ImageView(
                         Look_and_feel_manager.get_unknown_error_icon(icon_size, owner, logger));
                 show_error_icon(unknown_error, top_delta_y);
-                if (progress_window != null)
-                    progress_window.close();
+                progress_window.ifPresent(Hourglass::close);
                 the_guard.set(false);
                 logger.log("✅ ON ERROR map_buttons_and_icons_guard =>" + the_guard.get() + " for "
                         + path_list_provider.get_name());
@@ -2949,8 +2948,7 @@ public class Virtual_landscape
                         logger.log("✅ END, the_guard => " + the_guard.get() + " for " + path_list_provider.get_name());
 
                     Jfx_batch_injector.inject(() -> {
-                        if (progress_window != null)
-                            progress_window.close();
+                        progress_window.ifPresent(Hourglass::close);
 
                         for (Item item : future_pane_content) {
                             if (item.visible_in_scene.get()) {

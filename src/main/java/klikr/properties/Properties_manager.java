@@ -242,7 +242,7 @@ public class Properties_manager
 
         } catch (Exception e)
         {
-            logger.log("load_properties Exception: " + e);
+            logger.log(Stack_trace_getter.get_stack_trace("load_properties Exception: " + e));
         }
     }
 

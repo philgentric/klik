@@ -6,6 +6,7 @@ package klikr.machine_learning.similarity;
 //SOURCES ./Similarity_cache_warmer_message.java
 
 import javafx.stage.Window;
+import klikr.util.Check_remaining_RAM;
 import klikr.util.cache.*;
 import klikr.machine_learning.feature_vector.Feature_vector;
 import klikr.path_lists.Path_list_provider_for_file_system;
@@ -21,11 +22,13 @@ import klikr.machine_learning.feature_vector.Feature_vector_source;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
+import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -68,7 +71,8 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
         similarity_cache_file_path = Path.of(dir.toAbsolutePath().toString(), name);
 
         Feature_vector_cache fv_cache = Clearable_shared_caches.fv_cache_of_caches.get(path_list_provider.get_name());
-        if ( fv_cache == null) {
+        if ( fv_cache == null)
+        {
             Feature_vector_cache.Paths_and_feature_vectors result = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter, logger);
 
             if (result == null) {
@@ -89,10 +93,10 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
 
     //**********************************************************
     @Override
-    public void clear_RAM()
+    public double clear_RAM()
     //**********************************************************
     {
-        similarities.clear_RAM();
+        return similarities.clear_RAM();
     }
 
     //**********************************************************
@@ -198,17 +202,19 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
 
         similarities = new Klikr_cache<Path_pair, Double>(
                 new Path_list_provider_for_file_system(folder_path, owner, logger),
-                Cache_folder.song_duration_cache.name(),
+                Cache_folder.similarity_cache.name(),
                 key_serializer, key_deserializer,
                 value_serializer, value_deserializer,
                 value_extractor,
                 string_key_maker,object_key_maker,
-                aborter, owner, logger
-        );
+                Size_.of_Double_F(),
+                aborter, owner, logger);
 
     }
 
+    //**********************************************************
     public Double get(Path_pair path_pair)
+    //**********************************************************
     {
         return similarities.get(path_pair,aborter,null,owner);
     }
@@ -221,8 +227,9 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
             double x, double y)
     //**********************************************************
     {
+        similarities.reload_cache_from_disk();
         AtomicInteger in_flight = new AtomicInteger(paths.size());
-        Progress_window progress_window = Progress_window.show(
+        Optional<Hourglass> hourglass = Progress_window.show(
                 in_flight,
                 "Wait: computing item similarities",
                 3600*60,
@@ -230,7 +237,7 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
                 y,
                 owner,
                 logger);
-        Aborter local = new Or_aborter(progress_window.aborter,aborter,logger);
+        Aborter local = new Or_aborter(aborter,Progress_window.get_aborter(hourglass, logger),logger);
         Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(paths, fv_cache, similarities, logger);
         CountDownLatch cdl = new CountDownLatch(paths.size());
         for (Path p1 : paths)
@@ -245,7 +252,10 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
                 cdl.countDown();
                 in_flight.decrementAndGet();
                 if (cdl.getCount() % 100 == 0)
+                {
                     logger.log(" Remaining to fill similarity cache: " + cdl.getCount());
+                    Check_remaining_RAM.RAM_running_low("Feature vectors",owner,logger);
+                }
             };
             Actor_engine.run(actor, m, tr, logger);
         }
@@ -253,20 +263,26 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
         try {
             cdl.await();
         } catch (InterruptedException e) {
-            progress_window.close();
+            hourglass.ifPresent(Hourglass::close);
             logger.log("similarity cache interrupted" + e);
         }
         similarities.save_whole_cache_to_disk();
-        progress_window.close();
+        hourglass.ifPresent(Hourglass::close);
     }
 
+    //**********************************************************
     @Override
-    public void clear_disk(Window owner, Aborter aborter, Logger logger) {
-        similarities.clear_disk(owner, aborter, logger);
+    public Disk_cleared clear_disk(Window owner, Aborter aborter, Logger logger)
+    //**********************************************************
+    {
+        return similarities.clear_disk(owner, aborter, logger);
     }
 
+    //**********************************************************
     @Override
-    public String name() {
+    public String name()
+    //**********************************************************
+    {
         return "Image similarity cache for: "+name;
     }
 }

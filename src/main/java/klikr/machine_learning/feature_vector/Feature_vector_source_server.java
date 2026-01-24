@@ -203,28 +203,52 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         try {
             String encodedPath = URLEncoder.encode(path.toAbsolutePath().toString(), "UTF-8");
             url_string = "http://127.0.0.1:" + random_port + "/" + encodedPath;
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch( OutOfMemoryError oome)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("OOM"));
+            return Optional.empty();
+        }
+        catch (UnsupportedEncodingException e) {
             logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (Error#1): "+e));
             return Optional.empty();
         }
         URL url = null;
         try {
             url = new URL(url_string);
-        } catch (MalformedURLException e) {
+        }
+        catch( OutOfMemoryError oome)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("OOM"));
+            return Optional.empty();
+        }
+        catch (MalformedURLException e) {
             logger.log(Stack_trace_getter.get_stack_trace(url_string+": get_feature_vector_from_server_generic (Error#2): "+e));
             return Optional.empty();
         }
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) url.openConnection();
-        } catch (IOException e) {
+        }
+        catch( OutOfMemoryError oome)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("OOM"));
+            return Optional.empty();
+        }
+        catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(url_string+": get_feature_vector_from_server_generic (Error#3)"+e));
             return Optional.empty();
         }
         try {
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(0); // infinite
-        } catch (ProtocolException e) {
+        }
+        catch( OutOfMemoryError oome)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("OOM"));
+            return Optional.empty();
+        }
+        catch (ProtocolException e) {
             logger.log(Stack_trace_getter.get_stack_trace(url_string+": get_feature_vector_from_server_generic (Error#4): "+e));
             return Optional.empty();
         }
@@ -235,7 +259,13 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         }
         try {
             connection.connect();
-        } catch (IOException e) {
+        }
+        catch( OutOfMemoryError oome)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("OOM"));
+            return Optional.empty();
+        }
+        catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
             logger.log((url_string+": get_feature_vector_from_server_generic (Error#5): "+e));
             return Optional.empty();
@@ -243,7 +273,13 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         try {
             int response_code = connection.getResponseCode();
             //logger.log("response code="+response_code);
-        } catch (IOException e) {
+        }
+        catch( OutOfMemoryError oome)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("OOM"));
+            return Optional.empty();
+        }
+        catch (IOException e) {
             //logger.log(Stack_trace_getter.get_stack_trace(""+e));
             logger.log((url_string+": get_feature_vector_from_server_generic cannot get response code (Error#6):"+e));
             return Optional.empty();
@@ -251,7 +287,13 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         try {
             String response_message = connection.getResponseMessage();
             //logger.log("response message="+response_message);
-        } catch (IOException e) {
+        }
+        catch( OutOfMemoryError oome)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("OOM"));
+            return Optional.empty();
+        }
+        catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(url_string+": get_feature_vector_from_server_generic (Error#7): "+e));
             return Optional.empty();
         }
@@ -268,7 +310,13 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
                 if ( ultra_dbg) System.out.print((char)c);
                 sb.append((char)c);
             }
-        } catch (IOException e)
+        }
+        catch( OutOfMemoryError oome)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("OOM"));
+            return Optional.empty();
+        }
+        catch (IOException e)
         {
             logger.log(Stack_trace_getter.get_stack_trace("get_feature_vector_from_server_generic (8): "+e));
             return Optional.empty();

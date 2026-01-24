@@ -25,6 +25,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //**********************************************************
 public class Installers
@@ -219,7 +220,7 @@ public class Installers
     public static void show_version(Window owner, Logger logger)
     //**********************************************************
     {
-        Hourglass local_hourglass = Progress_window.show(
+        Optional<Hourglass> local_hourglass = Progress_window.show(
                 false,
                 "Please wait ... getting version",
                 30*60,
@@ -242,7 +243,8 @@ public class Installers
 
         Popups.simple_alert("version is "+version_string,owner,logger);
 
-        local_hourglass.close();
+        local_hourglass.ifPresent(Hourglass::close);
+
     }
 
     //**********************************************************
@@ -318,7 +320,7 @@ public class Installers
     private static void get_most_recent_version(Window owner, Logger logger)
     //**********************************************************
     {
-        Hourglass local_hourglass = Progress_window.show(
+        Optional<Hourglass> local_hourglass = Progress_window.show(
                 false,
                 "Please wait ... getting version",
                 30*60,
@@ -360,7 +362,7 @@ public class Installers
             }
             logger.log("version after:"+get_version_string(logger));
         }
-        local_hourglass.close();
+        local_hourglass.ifPresent(Hourglass::close);
     }
 
 }

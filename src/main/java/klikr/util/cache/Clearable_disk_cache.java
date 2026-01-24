@@ -11,7 +11,7 @@ import klikr.util.log.Logger;
 public interface Clearable_disk_cache
 //**********************************************************
 {
-    void clear_disk(Window owner, Aborter aborter, Logger logger);
+    Disk_cleared clear_disk(Window owner, Aborter aborter, Logger logger);
 
     String name();
 }

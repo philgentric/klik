@@ -27,15 +27,13 @@ import klikr.util.files_and_paths.old_and_new.Status;
 import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
+import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 import klikr.util.ui.Popups;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.RejectedExecutionException;
 import org.apache.commons.io.FileUtils;
 
@@ -156,10 +154,8 @@ public class Moving_files
             Logger logger)
     //**********************************************************
     {
-        Progress_window progress_window = check(the_list,x, y,  owner, logger);
-        Aborter local = null;
-        if ( progress_window == null) local = aborter;
-        else local = new Or_aborter(aborter,progress_window.aborter,logger);
+        Optional<Hourglass> hourglass = check(the_list,x, y,  owner, logger);
+        Aborter local = new Or_aborter(aborter,Progress_window.get_aborter(hourglass, logger),logger);
         List<Old_and_new_Path> done = new ArrayList<>();
         List<Old_and_new_Path> not_done = new ArrayList<>();
         for (Old_and_new_Path oandn : the_list)
@@ -245,23 +241,21 @@ public class Moving_files
             logger.log(Stack_trace_getter.get_stack_trace("❗ Moves not done? " + sb));
         }
 
-        if ( progress_window != null) progress_window.close();
-
-
+        hourglass.ifPresent(Hourglass::close);
         return done;
     }
 
     // determine if the operation may take a long time
     // if yes, return a progress window
     //**********************************************************
-    private static Progress_window check(
+    private static Optional<Hourglass> check(
             List<Old_and_new_Path> the_list,
             double x, double y,
             Window owner,
             Logger logger)
     //**********************************************************
     {
-        if ( the_list.isEmpty()) return null;
+        if ( the_list.isEmpty()) return Optional.empty();
 
         boolean show_progress_window = false;
         if ( the_list.size() > 2 )
@@ -292,7 +286,7 @@ public class Moving_files
                     owner,
                     logger);
         }
-        return null;
+        return Optional.empty();
     }
 
     // warning: this is a low level function,

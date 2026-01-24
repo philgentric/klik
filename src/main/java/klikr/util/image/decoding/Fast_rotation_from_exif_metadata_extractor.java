@@ -33,7 +33,7 @@ public class Fast_rotation_from_exif_metadata_extractor
     //**********************************************************
     {
 
-        if (Check_remaining_RAM.RAM_running_low(owner, logger)) {
+        if (Check_remaining_RAM.RAM_running_low("Image rotation extraction",owner, logger)) {
             logger.log("get_rotation NOT DONE because running low on memory ! ");
             return Optional.empty();
         }

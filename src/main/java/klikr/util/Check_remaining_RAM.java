@@ -8,26 +8,48 @@ import klikr.util.cache.Clearable_RAM_caches;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 //**********************************************************
 public class Check_remaining_RAM
 //**********************************************************
 {
     private static final boolean dbg = false;
-    public static final long MIN_REMAINING_FREE_MEMORY_MB = 200_000_000;
+    public static final long MIN_REMAINING_FREE_MEMORY_MB = 300_000_000;
+    private static Long last_time_oom_was_shown = null;
 
+    public static AtomicBoolean low_memory = new AtomicBoolean(false);
 
     //**********************************************************
-    public static boolean RAM_running_low(Window owner, Logger logger)
+    public static boolean RAM_running_low(String message, Window owner, Logger logger)
     //**********************************************************
     {
-        if (get_remaining_memory(logger) < MIN_REMAINING_FREE_MEMORY_MB) {
-            logger.log("\n\nWARNING: running low on memory ! ");
-            Popups.popup_Exception(null,100,"Your java VM machine is running out of RAM!\nclose some windows and/or try to increase the max in build.gradle.works and restart",owner,logger);
+        long before = get_remaining_memory(logger);
+        if ( before > MIN_REMAINING_FREE_MEMORY_MB) return false;
+        Clearable_RAM_caches.clear_all_RAM_caches(owner, logger);
+        System.gc();
+        long after = get_remaining_memory(logger);
 
-            Clearable_RAM_caches.clear_all_RAM_caches(logger);
-            return true;
+        low_memory.set(true);
+        logger.log(message+" Garbage Collector was called, AVAILABLE: "+before/1000_000L + " => "+after/1000_000L);
+        if (after > MIN_REMAINING_FREE_MEMORY_MB) return false;
+
+        logger.log("❌ Your java VM machine is running out of RAM!\n"+message+"\nIncrease max in Preferences?");
+        boolean show_pop_up = false;
+        if  (last_time_oom_was_shown == null)
+        {
+            show_pop_up = true;
+            last_time_oom_was_shown = System.currentTimeMillis();
         }
-        return false;
+        else
+        {
+            long now = System.currentTimeMillis();
+            // show popup again (max every 10 minutes)
+            if (last_time_oom_was_shown - now > 600_000) show_pop_up = false;
+        }
+        if ( show_pop_up) Popups.popup_warning("Running out of RAM","Your java VM machine is running out of RAM!\nclose some windows and/or increase max in Preferences", false,owner, logger);
+
+        return true;
     }
     //**********************************************************
     public static long get_remaining_memory(Logger logger)
@@ -44,4 +66,5 @@ public class Check_remaining_RAM
         if (dbg) logger.log("VM remaining memory "+(remaining/1_000_000)+" MB");
         return remaining;
     }
+
 }

@@ -352,7 +352,7 @@ public class Virtual_landscape_menus
                 x,
                 y,
                 owner,
-                logger);
+                logger).orElse(null);
         List<String> graphicsMagick_command_line = new ArrayList<>();
 
         boolean formula1 = false;
@@ -414,7 +414,7 @@ public class Virtual_landscape_menus
                 Platform.runLater(() ->virtual_landscape.set_status("Contact sheet generated : "+ CONTACT_SHEET_FILE_NAME));
             }
         }
-        hourglass.close();
+        if ( hourglass != null) hourglass.close();
     }
 
 
@@ -564,7 +564,7 @@ public class Virtual_landscape_menus
 
         Menu_items.add_menu_item_for_context_menu("Clear_All_RAM_Caches",null,
                 event -> {
-                    Clearable_RAM_caches.clear_all_RAM_caches(logger);
+                    Clearable_RAM_caches.clear_all_RAM_caches(owner, logger);
                 },
                 context_menu,owner,logger);
 

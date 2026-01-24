@@ -1,5 +1,6 @@
 package klikr.util.cache;
 
+import javafx.stage.Window;
 import klikr.browser.comparators.Similarity_comparator;
 import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.images.caching.Image_cache_interface;
@@ -27,7 +28,7 @@ public class Clearable_RAM_caches
     }
 
     //**********************************************************
-    public static void clear_all_RAM_caches(Logger logger)
+    public static void clear_all_RAM_caches(Window owner, Logger logger)
     //**********************************************************
     {
         for ( Clearable_RAM_cache clearable_RAM_cache : clearable_RAM_caches )
@@ -35,7 +36,7 @@ public class Clearable_RAM_caches
             clearable_RAM_cache.clear_RAM();
         }
 
-        Clearable_shared_caches.clear_all_RAM_caches(logger);
+        Clearable_shared_caches.clear_all_RAM_caches(owner, logger);
 
     }
 

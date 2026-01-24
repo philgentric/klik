@@ -12,6 +12,7 @@ public enum Rotation
     upsidedown, // 180
     rot_90_anticlockwise;
 
+
     //**********************************************************
     public static double to_angle(Rotation rotation)
     //**********************************************************
@@ -33,4 +34,5 @@ public enum Rotation
         }
         return 0.0;
     }
+
 }

@@ -32,6 +32,12 @@ public class Or_aborter extends Aborter
     public boolean should_abort()
     //**********************************************************
     {
+        if ( a == null )
+        {
+            if ( b == null ) return false;
+            return b.should_abort();
+        }
+        if ( b == null ) return a.should_abort();
         return a.should_abort() || b.should_abort();
     }
 

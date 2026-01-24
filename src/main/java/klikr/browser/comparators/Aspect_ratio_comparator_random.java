@@ -7,6 +7,7 @@ import javafx.stage.Window;
 import klikr.util.cache.Clearable_RAM_cache;
 import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.util.cache.Klikr_cache;
+import klikr.util.cache.Size_;
 import klikr.util.execute.actor.Aborter;
 
 import java.nio.file.Path;
@@ -38,10 +39,12 @@ public class Aspect_ratio_comparator_random implements Comparator<Path>, Clearab
 
     //**********************************************************
     @Override
-    public void clear_RAM()
+    public double clear_RAM()
     //**********************************************************
     {
+        double returned = Size_.of_Map(cache_local,Size_.of_Path_F(),Size_.of_Long_F());
         cache_local.clear();
+        return returned;
     }
     //**********************************************************
     @Override
