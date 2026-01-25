@@ -23,6 +23,7 @@ public class String_constants
     public static final String PURPOSE = "Java VM max ram";
     public static final String RAM_FILENAME = "ram";
     public static final String PRIVACY_SCREEN = ".privacy_screen";
+    public static final String HOW_MANY_TIMES = "HOW_MANY_TIMES";
     static final String NUMBER_OF_IMAGE_SIMILARITY_SERVERS = "NUMBER_OF_IMAGE_SIMILARITY_SERVERS";
 
     public static final String ULTIM = "_ultim"; // must be lowercase because we test name.toLowerCase.contains("_ultim")

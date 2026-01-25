@@ -16,7 +16,6 @@ import javafx.stage.Window;
 import klikr.properties.String_constants;
 import klikr.util.External_application;
 import klikr.look.Jar_utils;
-import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.*;
@@ -70,7 +69,7 @@ public class Icon_factory_actor implements Actor
         this.owner = owner;
         logger = logger_;
         if (dbg) logger.log("✅ Icon_factory created");
-        icon_cache_dir = Clearable_disk_caches.get_cache_dir( Cache_folder.icon_cache,owner,logger);
+        icon_cache_dir = Cache_folder.get_cache_dir( Cache_folder.icon_cache,owner,logger);
         writer = new Icon_writer_actor(icon_cache_dir, owner, logger);
     }
 
@@ -287,7 +286,7 @@ public class Icon_factory_actor implements Actor
                 // no need for folders
                 break;
             default:
-                Path icon_cache_dir = Clearable_disk_caches.get_cache_dir( Cache_folder.icon_cache,owner,logger);
+                Path icon_cache_dir = Cache_folder.get_cache_dir( Cache_folder.icon_cache,owner,logger);
                 if (path.getParent().toAbsolutePath().toString().equals(icon_cache_dir.toAbsolutePath().toString()))
                 {
                     // the user is browsing the icon cache. if we save a file for the icon, it will trigger a new icon request...

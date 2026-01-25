@@ -145,7 +145,7 @@ public class Playlist
                 return path.toAbsolutePath().normalize().toString();
             }
         };
-        Function<String,Path> object_key_maker = new Function<String, Path>() {
+        Function<String,Path> external_K_maker = new Function<String, Path>() {
             @Override
             public Path apply(String s) {
                 return Path.of(s);
@@ -173,12 +173,11 @@ public class Playlist
                 key_serializer, key_deserializer,
                 value_serializer, value_deserializer,
                 value_extractor,
-                string_key_maker,object_key_maker,
+                string_key_maker,external_K_maker,
                 Size_.of_Double_F(),
                 aborter, owner, logger);
             duration_cache.reload_cache_from_disk();
-            Clearable_RAM_caches.record(duration_cache);
-            Clearable_disk_caches.record(duration_cache);
+            RAM_caches.duration_cache = duration_cache;
         }
 
         //if ( Browsing_caches.song_bitrate_cache != null)
@@ -203,21 +202,13 @@ public class Playlist
                     key_serializer, key_deserializer,
                     value_serializer, value_deserializer,
                     value_extractor,
-                    string_key_maker,object_key_maker,
+                    string_key_maker,external_K_maker,
                     Size_.of_Double_F(),
                     aborter, owner, logger);
 
             bitrate_cache.reload_cache_from_disk();
-
-            Clearable_RAM_caches.record(bitrate_cache);
-            Clearable_disk_caches.record(bitrate_cache);
-
+            RAM_caches.bitrate_cache = bitrate_cache;
         }
-
-
-
-
-
 
     }
 

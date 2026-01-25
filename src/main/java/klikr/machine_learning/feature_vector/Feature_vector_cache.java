@@ -26,7 +26,6 @@ import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 //**********************************************************
-public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk_cache
+public class Feature_vector_cache implements Clearable_RAM_cache
 //**********************************************************
 {
     private final static boolean ultra_dbg = false;
@@ -45,6 +44,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
     protected final Logger logger;
     //private final Aborter aborter;
     protected final String tag;
+    protected final Path folder_path;
     protected final Path cache_file_path;
 
     public record Paths_and_feature_vectors(Feature_vector_cache fv_cache, List<Path> paths) { }
@@ -67,8 +67,8 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
         //this.aborter = aborter; // as this is a shared cache, closing the browser that created it must not disable it
         this.tag = tag;
         String cache_file_name = UUID.nameUUIDFromBytes(tag.getBytes()) +".fv_cache";
-        Path dir = get_feature_vector_cache_dir(null,logger);
-        cache_file_path= Path.of(dir.toAbsolutePath().toString(), cache_file_name);
+        folder_path = get_feature_vector_cache_dir(null,logger);
+        cache_file_path= Path.of(folder_path.toAbsolutePath().toString(), cache_file_name);
         if ( dbg) logger.log(tag +" cache file ="+cache_file_path);
         feature_vector_creation_actor = new Feature_vector_creation_actor(fvs);
     }
@@ -89,28 +89,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
         return returned;
     }
 
-    //**********************************************************
-    @Override
-    public Disk_cleared clear_disk(Window owner, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        try {
-            long size = Files.size(cache_file_path);
-            Files.delete(cache_file_path);
-            return new Disk_cleared(cache_file_path, size);
-        } catch (IOException e) {
-            logger.log(""+e);
-        }
-        return null;
-    }
 
-    //**********************************************************
-    @Override
-    public String name()
-    //**********************************************************
-    {
-        return "Feature vector cache for: "+tag;
-    }
     //**********************************************************
     public static Path get_feature_vector_cache_dir(Stage owner, Logger logger)
     //**********************************************************
@@ -131,7 +110,8 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
         Feature_vector feature_vector =  the_cache.get(key_from_path(p));
         if ( feature_vector != null)
         {
-            if ( dbg) logger.log("feature_vector found in cache for "+p);
+            //if ( dbg)
+                logger.log("feature_vector found in cache for "+p);
             if ( tr != null) tr.has_ended("found in cache",null);
             return feature_vector;
         }
@@ -144,7 +124,8 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
         {
             //logger.log(instance_number+" OK aborter "+aborter.name+" reason="+aborter.reason);
         }
-        if ( dbg) logger.log("going to make feature_vector for "+p);
+        //if ( dbg)
+            logger.log("going to make feature_vector for "+p);
 
         Feature_vector_build_message imp = new Feature_vector_build_message(p,this,owner,browser_aborter,logger);
         if ( wait_if_needed)
@@ -328,27 +309,28 @@ public class Feature_vector_cache implements Clearable_RAM_cache, Clearable_disk
     {
         try( Perf p = new Perf("preload_all_feature_vector_in_cache"))
         {
-        Feature_vector_cache feature_vector_cache = Clearable_shared_caches.fv_cache_of_caches.get(path_list_provider.get_name());
+            logger.log("\n\n✅ Going to preload_all_feature_vector_in_cache\n\n");
+        Feature_vector_cache feature_vector_cache = RAM_caches.fv_cache_of_caches.get(path_list_provider.get_name());
         AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
 
-        if ( feature_vector_cache == null)
-        {
-            Optional<Hourglass> hourglass = Progress_window.show(
-                    in_flight,
-                    "Wait, making feature vectors",
-                    3600*60,
-                    x,
-                    y,
-                    owner,
-                    logger);
+            if ( feature_vector_cache == null)
+            {
+                Optional<Hourglass> hourglass = Progress_window.show(
+                        in_flight,
+                        "Wait, making feature vectors",
+                        3600*60,
+                        x,
+                        y,
+                        owner,
+                        logger);
 
-            Or_aborter or_aborter = new Or_aborter(browser_aborter,Progress_window.get_aborter(hourglass, logger),logger);
-            feature_vector_cache = new Feature_vector_cache(path_list_provider.get_name(), fvs, or_aborter,logger);
-            Paths_and_feature_vectors paths_and_feature_vectors = feature_vector_cache.read_from_disk_and_update(paths,in_flight, owner, or_aborter,logger);
-            Clearable_shared_caches.fv_cache_of_caches.put(path_list_provider.get_name(),feature_vector_cache);
-            hourglass.ifPresent(Hourglass::close);
-            return paths_and_feature_vectors;
-        }
+                Or_aborter or_aborter = new Or_aborter(browser_aborter,Progress_window.get_aborter(hourglass, logger),logger);
+                feature_vector_cache = new Feature_vector_cache(path_list_provider.get_name(), fvs, or_aborter,logger);
+                Paths_and_feature_vectors paths_and_feature_vectors = feature_vector_cache.read_from_disk_and_update(paths,in_flight, owner, or_aborter,logger);
+                RAM_caches.fv_cache_of_caches.put(path_list_provider.get_name(),feature_vector_cache);
+                hourglass.ifPresent(Hourglass::close);
+                return paths_and_feature_vectors;
+            }
         return feature_vector_cache.update(paths, in_flight,owner, browser_aborter,logger);
         }
     }

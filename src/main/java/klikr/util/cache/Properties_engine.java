@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 //**********************************************************
-public class Properties_engine<V> implements Disk_engine<String, V>
+public class Properties_engine<V> implements Disk_engine<V>
 //**********************************************************
 {
     private static final boolean dbg = false;

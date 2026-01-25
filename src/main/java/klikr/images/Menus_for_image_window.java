@@ -10,6 +10,7 @@ import javafx.scene.input.KeyCombination;
 import klikr.Window_type;
 import klikr.Instructions;
 import klikr.path_lists.Path_list_provider_for_file_system;
+import klikr.util.Check_remaining_RAM;
 import klikr.util.execute.System_open_actor;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
@@ -474,7 +475,9 @@ public class Menus_for_image_window
 
         if ( Booleans.get_boolean_defaults_to_false(Feature.Enable_image_similarity.name()))
         {
-            context_menu.getItems().add(Item_file_with_icon.create_show_similar_menu_item(
+            if (!Check_remaining_RAM.low_memory.get())
+            {
+                context_menu.getItems().add(Item_file_with_icon.create_show_similar_menu_item(
                     image_window.image_display_handler.get_image_context().get().path,
                     //image_properties_cache,
                     fv_cache_supplier,
@@ -482,6 +485,7 @@ public class Menus_for_image_window
                     image_window.stage,
                     image_window.aborter,
                     image_window.logger));
+            }
         }
 
         if ( Booleans.get_boolean_defaults_to_false(Feature.Enable_face_recognition.name()))

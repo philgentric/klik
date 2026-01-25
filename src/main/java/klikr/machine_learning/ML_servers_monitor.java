@@ -12,6 +12,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klikr.util.Check_remaining_RAM;
 import klikr.util.Shared_services;
 import klikr.look.Look_and_feel_manager;
 import klikr.util.Simple_json_parser;
@@ -59,6 +60,7 @@ public class ML_servers_monitor implements AutoCloseable
     public static void start_ML_servers_monitor(Window owner, Logger logger)
     //**********************************************************
     {
+        if (Check_remaining_RAM.low_memory.get()) return;
         if ( instance == null )
         {
             instance = new ML_servers_monitor();

@@ -4,8 +4,6 @@
 package klikr.browser.comparators;
 
 import javafx.stage.Window;
-import klikr.util.cache.Clearable_disk_cache;
-import klikr.util.cache.Clearable_RAM_cache;
 import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;

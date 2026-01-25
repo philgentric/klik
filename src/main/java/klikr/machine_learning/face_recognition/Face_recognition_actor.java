@@ -16,7 +16,6 @@ import javafx.stage.Window;
 import klikr.machine_learning.ML_registry_discovery;
 import klikr.machine_learning.ML_server_type;
 import klikr.machine_learning.ML_service_type;
-import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.execute.actor.*;
 import klikr.machine_learning.feature_vector.Feature_vector;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
@@ -512,7 +511,7 @@ public class Face_recognition_actor implements Actor
         if ( dbg) logger.log("Face detected");
 
         // write the image to disk, the tmp path will be passed to the embedding server
-        Path face_reco_cache_folder = Clearable_disk_caches.get_cache_dir(Cache_folder.face_recognition_cache,owner,logger);
+        Path face_reco_cache_folder = Cache_folder.get_cache_dir(Cache_folder.face_recognition_cache,owner,logger);
         if ( dbg) logger.log("face_reco_folder = "+face_reco_cache_folder);
 
         String file_name_base = "tmp_unknown_face_"+ UUID.randomUUID();

@@ -16,7 +16,6 @@ import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
-import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.files_and_paths.*;
@@ -49,7 +48,7 @@ public class Deduplication_engine implements Againor, Abortable
 
     private final Window owner;
     Logger logger;
-    BlockingQueue<File_pair_deduplication> same_file_pairs_input_queue = new LinkedBlockingQueue<>();
+    BlockingQueue<File_pair_deduplication> file_pairs_queue = new LinkedBlockingQueue<>();
     LongAdder threads_in_flight = new LongAdder();
     LongAdder duplicates_found = new LongAdder();
     File target_dir;
@@ -158,7 +157,7 @@ public class Deduplication_engine implements Againor, Abortable
             }
 
             // launch actor (feeder) in another tread
-            Runnable_for_finding_duplicate_file_pairs duplicate_finder = new Runnable_for_finding_duplicate_file_pairs(local_deduplication, files, i_min, i_max, same_file_pairs_input_queue, private_aborter,owner, logger);
+            Runnable_for_finding_duplicate_file_pairs duplicate_finder = new Runnable_for_finding_duplicate_file_pairs(local_deduplication, files, i_min, i_max, file_pairs_queue, private_aborter,owner, logger);
             Actor_engine.execute(duplicate_finder,"Deduplicate (2)",logger);
 
             logger.log("Deduplication::runnable_deduplication thread launched on i_min="+i_min+ " i_max="+i_max);
@@ -184,7 +183,7 @@ public class Deduplication_engine implements Againor, Abortable
             }
             File_pair_deduplication p = null;
             try {
-                p = same_file_pairs_input_queue.poll(300, TimeUnit.MILLISECONDS);
+                p = file_pairs_queue.poll(300, TimeUnit.MILLISECONDS);
             }
             catch (InterruptedException e) {
                 logger.log(Stack_trace_getter.get_stack_trace("" + e));
@@ -300,7 +299,7 @@ public class Deduplication_engine implements Againor, Abortable
                 logger.log("Deduplicator::deduplicate_all abort");
                 return false;
             }
-            File_pair_deduplication p = same_file_pairs_input_queue.peek();
+            File_pair_deduplication p = file_pairs_queue.peek();
             if (p != null) return true;
 
             if ( are_threaded_finders_finished())
@@ -365,7 +364,7 @@ public class Deduplication_engine implements Againor, Abortable
 
                 File_pair_deduplication p;
                 try {
-                    p = same_file_pairs_input_queue.poll(3, TimeUnit.SECONDS);
+                    p = file_pairs_queue.poll(3, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
                     logger.log("" + e);
                     return;
@@ -437,7 +436,7 @@ public class Deduplication_engine implements Againor, Abortable
         for (;;) {
             File_pair_deduplication p = null;
             try {
-                p = same_file_pairs_input_queue.poll(300, TimeUnit.MILLISECONDS);
+                p = file_pairs_queue.poll(300, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -452,6 +451,7 @@ public class Deduplication_engine implements Againor, Abortable
             count++;
         }
         logger.log("found "+count+" identical file pairs");
+        // console will auto refresh
         //Popups.popup_warning("Duplicate file count",""+count,false,logger);
     }
 

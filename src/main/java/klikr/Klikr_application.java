@@ -117,6 +117,7 @@ import klikr.properties.String_constants;
 import klikr.properties.boolean_features.Booleans;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
+import klikr.util.Check_remaining_RAM;
 import klikr.util.Shared_services;
 import klikr.util.execute.Guess_OS;
 import klikr.util.execute.Operating_system;
@@ -161,6 +162,13 @@ public class Klikr_application extends Application
         Shared_services.init(name,primary_stage_);
         Logger logger = Shared_services.logger();
 
+
+        if ( (Runtime.getRuntime()).maxMemory() <= 1073741824 )
+        {
+            // this helps to disable a number of features
+            // that would make Klikr instable due to lack of RAM
+            Check_remaining_RAM.low_memory.set(true);
+        }
 
         if (Guess_OS.guess(primary_stage_,logger) == Operating_system.Windows)
         {
@@ -245,7 +253,7 @@ public class Klikr_application extends Application
         if ( how_many_times != null) count = Integer.parseInt(how_many_times);
         count ++;
         logger.log("Q: How many times Klik was started ? A: "+count);
-        Shared_services.main_properties().set("HOW_MANY_TIMES",""+count);
+        Shared_services.main_properties().set(String_constants.HOW_MANY_TIMES,""+count);
         if ( count> 10)
         {
             String s = Shared_services.main_properties().get("GITHUB_STAR_ASK_DONE");

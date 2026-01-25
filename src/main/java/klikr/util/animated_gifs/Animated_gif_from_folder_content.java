@@ -9,7 +9,6 @@ import javafx.stage.Window;
 import klikr.util.External_application;
 import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.util.cache.Cache_folder;
-import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Aborter;
@@ -71,7 +70,7 @@ public class Animated_gif_from_folder_content
         int icon_size = Non_booleans_properties.get_icon_size(owner);
 
         String output_animated_gif_name = Icon_caching.make_cache_name(path_list_provider.get_name(), "ANIMATED_FOLDER_" + icon_size, "gif");
-        Path folder_icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.folder_icon_cache,owner,logger);
+        Path folder_icon_cache_dir = Cache_folder.get_cache_dir(Cache_folder.folder_icon_cache,owner,logger);
         Path returned_path_of_animated_gif = Path.of(folder_icon_cache_dir.toAbsolutePath().toString(), output_animated_gif_name);
         if (Files.exists(returned_path_of_animated_gif)) {
             if (dbg) logger.log(" make_animated_gif_from_all_images_in_folder found in cache ");
@@ -81,7 +80,7 @@ public class Animated_gif_from_folder_content
 
         if ( aborter.should_abort()) return null;
 
-        Path icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache,owner, logger);
+        Path icon_cache_dir = Cache_folder.get_cache_dir(Cache_folder.icon_cache,owner, logger);
         //List<Path> to_be_cleaned_up = new ArrayList<>();
         List<Path> paths = new ArrayList<>();
         for (File f : images_in_folder) paths.add(f.toPath());

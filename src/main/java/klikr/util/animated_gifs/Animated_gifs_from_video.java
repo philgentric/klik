@@ -16,7 +16,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.util.Shared_services;
-import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
@@ -179,7 +178,7 @@ public class Animated_gifs_from_video
             HUNDRED[0] = (int)look_and_feel.estimate_text_width("Start time in s");
 
             // displayed animated gifs are 'temporary' (until saved maybe)
-            icon_cache_dir = Clearable_disk_caches.get_cache_dir( Cache_folder.icon_cache,the_stage,logger);
+            icon_cache_dir = Cache_folder.get_cache_dir( Cache_folder.icon_cache,the_stage,logger);
             the_stage.setTitle("Animated gif maker for :"+video_path.getFileName().toString());
             the_stage.setMinWidth(Mini_console_width);
             the_stage.setMinHeight(Mini_console_height);

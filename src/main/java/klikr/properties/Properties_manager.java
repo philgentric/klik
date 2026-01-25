@@ -101,68 +101,82 @@ public class Properties_manager
     {
         if ( reload_before_save)
         {
-            // before saving to disk we will reload the properties
-            // because another instance may have made changes and saved then to disk
-            // the reconciliation will consist in:
-            // 1. adding all entries that are on disk but not in this RAM hashmap
-            // 2. resolve conflict on a given value:keep the most recent value
+            if (reload_and_check()) return;
+        }
+        save_to_disk();
+    }
 
-            Properties on_disk = new Properties();
-            load_properties(on_disk, the_properties_path);
-            for (String k : on_disk.stringPropertyNames())
+    //**********************************************************
+    private boolean reload_and_check()
+    //**********************************************************
+    {
+        // before saving to disk we will reload the properties
+        // because another instance may have made changes and saved then to disk
+        // the reconciliation will consist in:
+        // 1. adding all entries that are on disk but not in this RAM hashmap
+        // 2. resolve conflict on a given value:keep the most recent value
+
+        Properties on_disk = new Properties();
+        load_properties(on_disk, the_properties_path);
+        for (String k : on_disk.stringPropertyNames())
+        {
+            if ( k.endsWith(AGE))
             {
-                if ( k.endsWith(AGE))
+                //logger.log("ignoring age key:"+k);
+                continue;
+            }
+            String v = the_Properties.getProperty(k);
+            if (v == null)
+            {
+                // absent in THIS RAM hashtable =  must be added
+                logger.log("CASE1:  storing ->"+on_disk.getProperty(k)+" for key:"+k);
+                the_Properties.setProperty(k, on_disk.getProperty(k));
+                String age = on_disk.getProperty(k + AGE);
+                if (age == null)
                 {
-                    //logger.log("ignoring age key:"+k);
-                    continue;
+                    age = LocalDateTime.now().toString();
                 }
-                String v = the_Properties.getProperty(k);
-                if (v == null)
+                logger.log("storing age for key:"+k);
+                the_Properties.setProperty(k + AGE, age);
+            }
+            else
+            {
+                String age_here_s = the_Properties.getProperty(k + AGE);
+                if (age_here_s == null) continue;
+                String age_on_disk_s = on_disk.getProperty(k + AGE);
+                if (age_on_disk_s == null) continue;
+                // possible conflict : take the most recent VALUE
+                LocalDateTime age_here;
+                try
                 {
-                    // absent in THIS RAM hashtable =  must be added
+                    age_here = LocalDateTime.parse(age_here_s);
+                }
+                catch (DateTimeParseException e)
+                {
+                    logger.log("WARNING cannot parse this date string? ->"+age_here_s+"<-");
+                    return true;
+                }
+                LocalDateTime age_on_disk;
+                try
+                {
+                    age_on_disk = LocalDateTime.parse(age_on_disk_s);
+                }
+                catch (DateTimeParseException e)
+                {
+                    logger.log("WARNING cannot parse this date string? ->"+age_on_disk_s+"<-");
+                    return true;
+                }
+                if (age_on_disk.isAfter(age_here))
+                {
+                    logger.log("CASE2: updating->"+on_disk.getProperty(k)+"<- for key:"+k);
+                    logger.log("age->"+age_on_disk_s+"<- for key:"+k + AGE);
+                    // the value in this hashtable is outdated, let us update it
                     the_Properties.setProperty(k, on_disk.getProperty(k));
-                    String age = on_disk.getProperty(k + AGE);
-                    if (age == null)
-                    {
-                        age = LocalDateTime.now().toString();
-                    }
-                    //logger.log("storing age for key:"+k);
-                    the_Properties.setProperty(k + AGE, age);
-                }
-                else
-                {
-                    String age_here_s = the_Properties.getProperty(k + AGE);
-                    if (age_here_s == null) continue;
-                    // conflict : take the most recent VALUE
-                    String age_on_disk_s = on_disk.getProperty(k + AGE);
-                    if (age_on_disk_s == null) continue;
-                    LocalDateTime age_here;
-                    try {
-                        age_here = LocalDateTime.parse(age_here_s);
-                    }
-                    catch (DateTimeParseException e)
-                    {
-                        logger.log("WARNING cannot parse this date string? ->"+age_here_s+"<-");
-                        return;
-                    }
-                    LocalDateTime age_on_disk;
-                    try {
-                        age_on_disk = LocalDateTime.parse(age_on_disk_s);
-                    }
-                    catch (DateTimeParseException e)
-                    {
-                        logger.log("WARNING cannot parse this date string? ->"+age_on_disk_s+"<-");
-                        return;
-                    }
-                    if (age_on_disk.isAfter(age_here)) {
-                        // the value in this hashtable is outdated, let us update it
-                        the_Properties.setProperty(k, on_disk.getProperty(k));
-                        the_Properties.setProperty(k + AGE, age_on_disk_s);
-                    }
+                    the_Properties.setProperty(k + AGE, age_on_disk_s);
                 }
             }
         }
-        save_to_disk();
+        return false;
     }
 
     //**********************************************************
@@ -219,7 +233,7 @@ public class Properties_manager
     }
 
     //**********************************************************
-    public void load_properties(Properties target, Path path)
+    public boolean load_properties(Properties target, Path path)
     //**********************************************************
     {
         if (dbg) logger.log("load_properties()");
@@ -232,18 +246,29 @@ public class Properties_manager
                 if (!Files.isReadable(path))
                 {
                     logger.log("cannot read properties from:" + path.toAbsolutePath());
-                    return;
+                    return false;
                 }
                 fis = new FileInputStream(path.toFile());
-                target.load(fis);
+                try
+                {
+                    target.load(fis);
+                }
+                catch (IllegalArgumentException ee)
+                {
+                    logger.log(Stack_trace_getter.get_stack_trace("load_properties Exception: " + ee+ " for path: "+path.toAbsolutePath()));
+                    fis.close();
+                    return false;
+                }
                 if (dbg) logger.log("properties loaded from:" + path.toAbsolutePath());
                 fis.close();
             }
-
-        } catch (Exception e)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("load_properties Exception: " + e));
+            return true;
         }
+        catch (Exception e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("load_properties Exception: " + e+ " for path: "+path.toAbsolutePath()));
+        }
+        return false;
     }
 
 
@@ -433,81 +458,4 @@ public class Properties_manager
         load_properties(the_Properties,the_properties_path);
     }
 
-
-
-    /*
-
-    // list all stored values for a base-key
-    //**********************************************************
-    public List<String> get_values_for_base(String key_base)
-    //**********************************************************
-    {
-        List<String> returned = new ArrayList<>();
-        for (int i = 0; i < max; i++)
-        {
-            if (get(key_base + i) != null) returned.add(get(key_base + i));
-        }
-        Collections.sort(returned);
-        return returned;
-    }
-
-
-
-    //**********************************************************
-    public boolean remove_invalid_dir(Path dir)
-    //**********************************************************
-    {
-        String to_be_removed_key;
-        String to_be_removed_value;
-        for (Entry<?, ?> e : the_Properties.entrySet())
-        {
-            String val = (String) e.getValue();
-            if (val.equals(dir.toAbsolutePath().toString()))
-            {
-                to_be_removed_key = (String) e.getKey();
-                to_be_removed_value = val;
-                boolean status = the_Properties.remove(to_be_removed_key, to_be_removed_value);
-                store_properties();
-                return status;
-            }
-        }
-        return false;
-    }
-
-    /// unit test
-
-    //**********************************************************
-    public static void main(String[] deb)
-    //**********************************************************
-    {
-        String TOTO = "toto";
-        File f_ = new File("debil.txt");
-        Logger logger = Logger_factory.get_system_logger("Properties test");
-        Properties_manager pm = Properties_manager.get(f_.toPath(), "unit test",new Aborter("dummy",logger),logger);
-
-        for (int i = 0; i < 15; i++)
-        {
-            String s = pm.get_one_empty_key_for_base(TOTO);
-            String value = "value for " + s;
-            pm.add(s, value);
-        }
-
-        for (String s : pm.get_values_for_base(TOTO))
-        {
-            logger.log(s);
-        }
-
-        String s = pm.get_one_empty_key_for_base(TOTO);
-        if (s == null)
-        {
-            logger.log("FATL 35343");
-            return;
-        }
-        String value = "value for REPLACED " + s;
-        pm.add(s, value);
-        logger.log(s + " is now key for: " + value);
-    }
-
-
-*/
 }

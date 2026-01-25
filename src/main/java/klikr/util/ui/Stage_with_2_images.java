@@ -126,8 +126,8 @@ public class Stage_with_2_images
 		the_big_vbox.getChildren().clear();
 
 		Button skip = new Button("Skip this pair");
-		Look_and_feel_manager.set_button_look(skip,true,stage,logger);
 		the_big_vbox.getChildren().add(skip);
+		Look_and_feel_manager.set_button_look(skip,true,stage,logger);
 		skip.setOnAction((ActionEvent e) -> {
             againor.again();
             if ( stage != null) stage.hide();

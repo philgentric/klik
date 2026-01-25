@@ -43,17 +43,17 @@ public class Runnable_for_finding_duplicate_file_pairs_similarity implements Run
     private final double too_far_away;
 	//**********************************************************
 	public Runnable_for_finding_duplicate_file_pairs_similarity(
-            List<Path> paths,
-            double too_far_away,
-            Klikr_cache<Path, Image_properties> image_properties_cache,// maybe null
-            Supplier<Feature_vector_cache> fv_cache_supplier,
-            Path_comparator_source path_comparator_source,
-            Deduplication_by_similarity_engine deduplication_by_similarity_engine_,
-            List<File_with_a_few_bytes> all_files_,
-            BlockingQueue<Similarity_file_pair> output_queue,
-            Window owner,
-            Aborter private_aborter_,
-            Logger logger_)
+			List<Path> paths,
+			double too_far_away,
+			Klikr_cache<Path, Image_properties> image_properties_cache,// maybe null
+			Supplier<Feature_vector_cache> fv_cache_supplier,
+			Path_comparator_source path_comparator_source,
+			Deduplication_by_similarity_engine deduplication_by_similarity_engine_,
+			List<File_with_a_few_bytes> all_files_,
+			BlockingQueue<Similarity_file_pair> output_queue,
+			Window owner,
+			Aborter private_aborter_,
+			Logger logger_)
 	//**********************************************************
 	{
         this.too_far_away = too_far_away;

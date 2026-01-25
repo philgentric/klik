@@ -97,7 +97,7 @@ public class Deduplication_console_window
                 abort();
             }
         });
-        Button cancel = new Button("cancel");
+        Button cancel = new Button("Cancel");
         Look_and_feel_manager.set_button_look(cancel,true,owner,logger);
         {
             cancel.setOnAction(new EventHandler<ActionEvent>() {
@@ -136,19 +136,16 @@ public class Deduplication_console_window
             progress_bar_examined.setPrefWidth(600);
             vbox.getChildren().add(progress_bar_examined);
         }
-        if ( !just_count) {
-            label_count_to_be_deleted = new Label();
-            Look_and_feel_manager.set_region_look(label_count_to_be_deleted,owner,logger);
 
-            //label_count_to_be_deleted.setWrapText(true);
-            vbox.getChildren().add(label_count_to_be_deleted);
-        }
+        label_count_to_be_deleted = new Label();
+        Look_and_feel_manager.set_region_look(label_count_to_be_deleted,owner,logger);
+        vbox.getChildren().add(label_count_to_be_deleted);
+
 
         if ( !just_count)
         {
             label_count_deleted = new Label();
             Look_and_feel_manager.set_region_look(label_count_deleted,owner,logger);
-
             //label_examined.setWrapText(true);
             vbox.getChildren().add(label_count_deleted);
             progress_bar_deleted = new ProgressBar();
@@ -179,7 +176,7 @@ public class Deduplication_console_window
                 refresh_UI();
             }
         };
-        Scheduled_thread_pool.execute(r,200, TimeUnit.MILLISECONDS);
+        Scheduled_thread_pool.execute(r,500, TimeUnit.MILLISECONDS);
     }
 
     //**********************************************************
@@ -196,8 +193,8 @@ public class Deduplication_console_window
             if (dbg) logger.log("count_pairs_examined=" + count_pairs_examined.doubleValue());
             if (dbg) logger.log("total_pairs_to_be_examined=" + total_pairs_to_be_examined.doubleValue());
             progress_bar_examined.setProgress((double) count_pairs_examined.doubleValue() / (double) total_pairs_to_be_examined.doubleValue());
+            label_count_to_be_deleted.setText("Duplicates found: " + count_duplicates.doubleValue());// + " " + new_text_to_be_deleted);
             if (!just_count) {
-                label_count_to_be_deleted.setText("Duplicates found: " + count_duplicates.doubleValue());// + " " + new_text_to_be_deleted);
                 label_count_deleted.setText("Duplicates deleted:" + count_deleted.doubleValue());// + " " + new_text_deleted);
                 progress_bar_deleted.setProgress((double) count_deleted.doubleValue() / (double) count_duplicates.doubleValue());
             }

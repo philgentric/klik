@@ -7,8 +7,6 @@ import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Window;
 import klikr.util.External_application;
-import klikr.util.cache.Clearable_disk_caches;
-import klikr.util.cache.Clearable_RAM_caches;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.experimental.fusk.Fusk_static_core;
@@ -253,7 +251,7 @@ public class Full_image_from_disk
     //**********************************************************
     {
         //logger.log("using GraphicsMagick_for_full_image");
-        Path icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache, owner, logger);
+        Path icon_cache_dir = Cache_folder.get_cache_dir(Cache_folder.icon_cache, owner, logger);
         Path png_path = icon_cache_dir.resolve(original_image_file.getFileName().toString()+"_full.png");
 
         if ( !png_path.toFile().exists())
@@ -290,7 +288,7 @@ public class Full_image_from_disk
     //**********************************************************
     {
         logger.log("using ImageMagick (fallback!) to load image by converting it");
-        Path icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache, owner, logger);
+        Path icon_cache_dir = Cache_folder.get_cache_dir(Cache_folder.icon_cache, owner, logger);
         Path png_path = icon_cache_dir.resolve(original_image_file.getFileName().toString()+"_full.png");
 
         if ( !png_path.toFile().exists())

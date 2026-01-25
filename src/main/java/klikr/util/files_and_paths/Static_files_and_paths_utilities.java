@@ -382,22 +382,22 @@ public class Static_files_and_paths_utilities
 
     }
     //**********************************************************
-    public static Sizes get_sizes_on_disk_deep(Path path, Aborter aborter, Window owner, Logger logger)
+    public static Sizes get_sizes_on_disk_deep(Path folder_path, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
         //get_size_on_disk_with_streams(path,logger);
         // the concurrent version is at least 5 times faster!
-        return get_sizes_on_disk_deep_concurrent(path,aborter,owner, logger);
+        return get_sizes_on_disk_deep_concurrent(folder_path,aborter,owner, logger);
     }
 
 
     //**********************************************************
-    public static Sizes get_sizes_on_disk_deep_concurrent(Path path, Aborter aborter, Window owner, Logger logger)
+    public static Sizes get_sizes_on_disk_deep_concurrent(Path folder_path, Aborter aborter, Window owner, Logger logger)
     //**********************************************************
     {
-        if ( !path.toFile().isDirectory())
+        if ( !folder_path.toFile().isDirectory())
         {
-            logger.log(Stack_trace_getter.get_stack_trace("Stupid2: not a folder: "+path));
+            logger.log(Stack_trace_getter.get_stack_trace("Stupid2: not a folder: "+folder_path));
             return null;
         }
         //long start = System.currentTimeMillis();
@@ -417,7 +417,7 @@ public class Static_files_and_paths_utilities
             //System.out.println("folder:"+f.getName());
         };
         ConcurrentLinkedQueue<String> warnings = new ConcurrentLinkedQueue<>();
-        Disk_scanner.process_folder(path, "get_sizes_on_disk_deep_concurrent", fp,dp, warnings, aborter, logger);
+        Disk_scanner.process_folder(folder_path, "get_sizes_on_disk_deep_concurrent", fp,dp, warnings, aborter, logger);
         if (! warnings.isEmpty())
         {
             StringBuilder sb = new StringBuilder();

@@ -36,11 +36,12 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 //**********************************************************
-public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cache
+public class Similarity_cache implements Clearable_RAM_cache
 //**********************************************************
 {
     private final Path_list_provider path_list_provider;
     private final Path similarity_cache_file_path;
+    private final Path folder_path;
     private final Window owner;
     private final Aborter aborter;
     private final Logger logger;
@@ -63,14 +64,14 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
         String cache_name = "similarity";
         String local = cache_name + path_list_provider.get_folder_path();
         name = UUID.nameUUIDFromBytes(local.getBytes()) + ".similarity_cache";
-        Path dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(Cache_folder.similarity_cache.name(), false, owner,logger);
-        if (dir != null)
+        folder_path = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(Cache_folder.similarity_cache.name(), false, owner,logger);
+        if (folder_path != null)
         {
-            logger.log("similarity cache folder=" + dir.toAbsolutePath());
+            logger.log("similarity cache folder=" + folder_path.toAbsolutePath());
         }
-        similarity_cache_file_path = Path.of(dir.toAbsolutePath().toString(), name);
+        similarity_cache_file_path = Path.of(folder_path.toAbsolutePath().toString(), name);
 
-        Feature_vector_cache fv_cache = Clearable_shared_caches.fv_cache_of_caches.get(path_list_provider.get_name());
+        Feature_vector_cache fv_cache = RAM_caches.fv_cache_of_caches.get(path_list_provider.get_name());
         if ( fv_cache == null)
         {
             Feature_vector_cache.Paths_and_feature_vectors result = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter, logger);
@@ -81,7 +82,7 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
             }
             fv_cache = result.fv_cache();
         }
-        make_similarity_cache(dir,fv_cache);
+        make_similarity_cache(fv_cache);
         // prefill the matrix with all 'close pairs'
 
         fill_cache_and_save_to_disk(
@@ -100,7 +101,7 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
     }
 
     //**********************************************************
-    private void make_similarity_cache(Path folder_path, Feature_vector_cache fv_cache)
+    private void make_similarity_cache(Feature_vector_cache fv_cache)
     //**********************************************************
     {
         BiPredicate<Path_pair, DataOutputStream> key_serializer= new BiPredicate<Path_pair, DataOutputStream>() {
@@ -163,16 +164,16 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
         };
 
 
-        Function<Path_pair,String> string_key_maker = new Function<Path_pair, String>() {
+        Function<Path_pair,String> internal_string_key_maker = new Function<Path_pair, String>() {
             @Override
             public String apply(Path_pair path_pair) {return path_pair.to_string_key();}
         };
-        Function<String,Path_pair> object_key_maker = new Function<String, Path_pair>() {
+        Function<String,Path_pair> path_pair_maker = new Function<String, Path_pair>() {
             @Override
             public Path_pair apply(String s) {return Path_pair.from_string_key(s);}
         };
 
-        Function<Path_pair, Double> value_extractor = new Function<Path_pair, Double>() {
+        Function<Path_pair, Double> similarity_extractor = new Function<Path_pair, Double>() {
             @Override
             public Double apply(Path_pair path_pair)
             {
@@ -205,8 +206,8 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
                 Cache_folder.similarity_cache.name(),
                 key_serializer, key_deserializer,
                 value_serializer, value_deserializer,
-                value_extractor,
-                string_key_maker,object_key_maker,
+                similarity_extractor,
+                internal_string_key_maker,path_pair_maker,
                 Size_.of_Double_F(),
                 aborter, owner, logger);
 
@@ -270,19 +271,4 @@ public class Similarity_cache implements Clearable_RAM_cache, Clearable_disk_cac
         hourglass.ifPresent(Hourglass::close);
     }
 
-    //**********************************************************
-    @Override
-    public Disk_cleared clear_disk(Window owner, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        return similarities.clear_disk(owner, aborter, logger);
-    }
-
-    //**********************************************************
-    @Override
-    public String name()
-    //**********************************************************
-    {
-        return "Image similarity cache for: "+name;
-    }
 }

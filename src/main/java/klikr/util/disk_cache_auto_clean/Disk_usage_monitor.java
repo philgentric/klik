@@ -10,7 +10,6 @@ import klikr.properties.boolean_features.Feature;
 import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.cache.Cache_folder;
-import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
@@ -100,7 +99,7 @@ public class Disk_usage_monitor
                     {
                         if (monitored_folder.name.equals(cache_folder.name()))
                         {
-                            Clearable_disk_caches.clear_disk_cache(cache_folder, false, owner, Shared_services.aborter(), logger);
+                            Cache_folder.clear_disk_cache(cache_folder, false, owner, Shared_services.aborter(), logger);
                             cleared = true;
                         }
                     }

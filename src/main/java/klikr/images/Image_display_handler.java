@@ -13,7 +13,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.stage.Window;
 import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.browser.virtual_landscape.Path_comparator_source;
-import klikr.util.cache.Clearable_disk_caches;
+import klikr.util.cache.Cache_folder;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.*;
 import klikr.path_lists.Path_list_provider;
@@ -180,7 +180,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                     Jfx_batch_injector.inject(() -> {
                         // clear the cache entry in case the file was MODIFIED
                         image_window.evict_from_cache(image_context.path,owner);
-                        Clearable_disk_caches.clear_one_icon_from_cache_on_disk(image_context.path,image_window.stage,logger);
+                        Cache_folder.clear_one_icon_from_cache_on_disk(image_context.path,image_window.stage,logger);
                         // reload the image
                         Optional<Image_context> option = Image_context.build_Image_context(image_context.path, image_window,aborter,logger);
                         if ( option.isPresent())

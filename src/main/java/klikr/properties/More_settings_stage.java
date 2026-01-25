@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.browser.virtual_landscape.Scroll_position_cache;
+import klikr.util.Check_remaining_RAM;
 import klikr.util.Shared_services;
 import klikr.System_info;
 import klikr.look.Look_and_feel;
@@ -20,9 +21,7 @@ import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.Installers;
 import klikr.util.cache.Cache_folder;
-import klikr.util.cache.Clearable_disk_caches;
-import klikr.util.cache.Clearable_RAM_caches;
-import klikr.util.cache.Clearable_shared_caches;
+import klikr.util.cache.RAM_caches;
 import klikr.util.execute.Debug_console;
 import klikr.util.log.Logger;
 import klikr.util.ui.Items_with_explanation;
@@ -37,7 +36,6 @@ public class More_settings_stage
 {
 
     public static final Feature[] basic_features ={
-            //Feature.Show_single_column_with_details,
             Feature.Show_icons_for_files,
             Feature.Show_icons_for_folders,
             Feature.Show_hidden_files,
@@ -105,7 +103,7 @@ public class More_settings_stage
             VBox box = new VBox(10);
             for (Feature f : basic_features)
             {
-                add_one_line(f, box);
+                add_one_line(true,f, box);
             }
             ScrollPane sp = new ScrollPane(box);
             sp.setFitToWidth(true);          // stretch items horizontally
@@ -148,7 +146,7 @@ public class More_settings_stage
 
             for (Feature f : advanced_features)
             {
-                add_one_line(f, box);
+                add_one_line(true,f, box);
             }
             {
                 String text = My_I18n.get_I18n_string("Length_of_video_sample",owner,logger);
@@ -178,7 +176,7 @@ public class More_settings_stage
             VBox box = new VBox(10);
             for (Feature f : experimental_features)
             {
-                add_one_line(f, box);
+                add_one_line(true,f, box);
             }
             //if (Feature_cache.get(Feature.Max_RAM_is_defined_by_user))
 
@@ -191,7 +189,7 @@ public class More_settings_stage
         {
             // INSTALL
             VBox box = new VBox(10);
-            add_one_line(Feature.Enable_install_debug, box);
+            add_one_line(true,Feature.Enable_install_debug, box);
             Installers.make_ui_to_install_everything(false,w,icon_size,look_and_feel,box,owner,logger);
             Installers.make_ui_to_install_all_apps(w,icon_size,look_and_feel,box,owner,logger);
             ScrollPane sp = new ScrollPane(box);
@@ -201,14 +199,20 @@ public class More_settings_stage
             accordion.getPanes().add(pane);
         }
 
+        boolean similarity_enabled = true;
+        if (Check_remaining_RAM.low_memory.get()) similarity_enabled = false;
         {
             VBox box = new VBox(10);
             Installers.make_ui_to_install_python_libs_for_ML(w, icon_size, look_and_feel,box, owner, logger);
 
-            add_one_line(Feature.Enable_ML_server_debug, box);
-            add_one_line(Feature.Display_image_distances, box);
+            if ( !similarity_enabled) Feature_cache.update_cached_boolean(Feature.Enable_ML_server_debug,false,owner);
+            add_one_line(similarity_enabled,Feature.Enable_ML_server_debug, box);
 
-            add_one_line(Feature.Enable_image_similarity,box);
+            if ( !similarity_enabled) Feature_cache.update_cached_boolean(Feature.Display_image_distances,false,owner);
+            add_one_line(similarity_enabled,Feature.Display_image_distances, box);
+
+            if ( !similarity_enabled) Feature_cache.update_cached_boolean(Feature.Enable_image_similarity,false,owner);
+            add_one_line(similarity_enabled,Feature.Enable_image_similarity,box);
             {
                 HBox hb = Installers.make_ui_to_start_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
                 if (!Feature_cache.get(Feature.Enable_image_similarity)) {
@@ -223,7 +227,7 @@ public class More_settings_stage
                 }
             }
 
-            add_one_line(Feature.Enable_face_recognition,box);
+            add_one_line(true,Feature.Enable_face_recognition,box);
             {
                 HBox hb = Installers.make_ui_to_start_face_recognition_servers(w, icon_size, look_and_feel, box, owner, logger);
                 if (!Feature_cache.get(Feature.Enable_face_recognition)) {
@@ -248,7 +252,7 @@ public class More_settings_stage
             VBox box = new VBox(10);
             for (Feature f : debugging_features)
             {
-                add_one_line(f, box);
+                add_one_line(true,f, box);
             }
             {
                 String key = "Show_Version";
@@ -320,13 +324,14 @@ public class More_settings_stage
 
 
     //**********************************************************
-    private void add_one_line (Feature bf, VBox vbox)
+    private void add_one_line (boolean enabled, Feature bf, VBox vbox)
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string(bf.name(), owner, logger);
         HBox hbox = new HBox();
         {
             CheckBox cb = new CheckBox(text);
+            if ( !enabled) cb.setDisable(true);
             cb.setMnemonicParsing(false);
             boolean value0 = Feature_cache.get(bf);
             cb.setSelected(value0);
@@ -373,7 +378,6 @@ public class More_settings_stage
 
     //**********************************************************
     private void detailed_cache_cleaning_buttons (
-            //boolean active,
     double w,
     double icon_size,
     Look_and_feel look_and_feel,
@@ -381,29 +385,30 @@ public class More_settings_stage
     //**********************************************************
     {
         {
-            add_one_button("Clear_All_RAM_Caches",
-                    event -> Clearable_RAM_caches.clear_all_RAM_caches(owner, logger), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Image_Properties_RAM_Cache",
-                    event -> Clearable_shared_caches.image_properties_cache_of_caches.clear(), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Image_Comparators_Caches",
-                    event -> Clearable_RAM_caches.clear_image_comparators_caches(), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Scroll_Position_Cache",
-                    event -> Scroll_position_cache.scroll_position_cache_clear(), w, icon_size, look_and_feel, vbox);
+            add_one_button("Clear_All_RAM_Caches", w, icon_size, look_and_feel, vbox,
+                    event -> RAM_caches.clear_all_RAM_caches(owner, logger));
+            add_one_button("Clear_Image_Properties_RAM_Cache", w, icon_size, look_and_feel, vbox,
+                    event -> RAM_caches.image_properties_cache_of_caches.clear());
+            add_one_button("Clear_Image_Comparators_Caches", w, icon_size, look_and_feel, vbox,
+                    event -> RAM_caches.image_caches.clear());
+            add_one_button("Clear_Scroll_Position_Cache", w, icon_size, look_and_feel, vbox,
+                    event -> Scroll_position_cache.scroll_position_cache_clear());
 
         }
         {
-            add_one_button("Clear_All_Disk_Caches",
-                    event -> Clearable_disk_caches.clear_all_disk_caches(owner,Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Icon_Cache_On_Disk",
-                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.icon_cache, true, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Folders_Icon_Cache_Folder",
-                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.folder_icon_cache, false, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Image_Properties_Disk_Cache",
-                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.image_properties_cache, false, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Image_Feature_Vector_Disk_Cache",
-                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.feature_vectors_cache, true, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
-            add_one_button("Clear_Image_Similarity_Disk_Cache",
-                    event -> Clearable_disk_caches.clear_disk_cache(Cache_folder.similarity_cache, true, owner, Shared_services.aborter(), logger), w, icon_size, look_and_feel, vbox);
+            add_one_button("Clear_All_Disk_Caches", w, icon_size, look_and_feel, vbox,
+                    event -> Cache_folder.clear_all_disk_caches(owner,Shared_services.aborter(), logger));
+            add_one_button("Clear_Icon_Cache_On_Disk", w, icon_size, look_and_feel, vbox,
+                    event -> {
+                        Cache_folder.clear_disk_cache(Cache_folder.icon_cache, true, owner, Shared_services.aborter(), logger);
+                        Cache_folder.clear_disk_cache(Cache_folder.folder_icon_cache, false, owner, Shared_services.aborter(), logger);
+                    });
+            add_one_button("Clear_Image_Properties_Disk_Cache", w, icon_size, look_and_feel, vbox,
+                    event -> Cache_folder.clear_disk_cache(Cache_folder.image_properties_cache, false, owner, Shared_services.aborter(), logger));
+            add_one_button("Clear_Image_Feature_Vector_Disk_Cache", w, icon_size, look_and_feel, vbox,
+                    event -> Cache_folder.clear_disk_cache(Cache_folder.feature_vectors_cache, true, owner, Shared_services.aborter(), logger));
+            add_one_button("Clear_Image_Similarity_Disk_Cache", w, icon_size, look_and_feel, vbox,
+                    event -> Cache_folder.clear_disk_cache(Cache_folder.similarity_cache, true, owner, Shared_services.aborter(), logger));
 
 
         }
@@ -413,11 +418,11 @@ public class More_settings_stage
     //**********************************************************
     private void add_one_button(
             String key,
-            EventHandler<ActionEvent> handler,
             double w,
             double icon_size,
             Look_and_feel look_and_feel,
-            VBox vbox)
+            VBox vbox,
+            EventHandler<ActionEvent> handler)
     //**********************************************************
     {
         HBox hb = Items_with_explanation.make_hbox_with_button_and_explanation(

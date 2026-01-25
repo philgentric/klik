@@ -8,6 +8,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Booleans;
+import klikr.util.Check_remaining_RAM;
 import klikr.util.files_and_paths.Guess_file_type;
 import klikr.util.log.Logger;
 
@@ -137,6 +138,7 @@ public class Keyboard_handling_for_Image_window
 
 
             case UP:
+                if (!Check_remaining_RAM.low_memory.get())
                 {
                     if (keyboard_dbg) logger.log("UP = previous rescaler");
                     Path p = image_window.image_display_handler.get_image_context().get().path;
@@ -149,6 +151,7 @@ public class Keyboard_handling_for_Image_window
                 break;
 
             case DOWN:
+                if (!Check_remaining_RAM.low_memory.get())
                 {
                     if (keyboard_dbg) logger.log("DOWN = next rescaler");
                     Path p = image_window.image_display_handler.get_image_context().get().path;

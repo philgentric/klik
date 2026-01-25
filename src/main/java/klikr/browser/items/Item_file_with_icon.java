@@ -28,6 +28,7 @@ import klikr.Instructions;
 import klikr.Window_type;
 import klikr.audio.UI_instance_holder;
 import klikr.properties.boolean_features.Booleans;
+import klikr.util.Check_remaining_RAM;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.Drag_and_drop;
@@ -247,13 +248,15 @@ public class Item_file_with_icon extends Item_file
 
         if ( Feature_cache.get(Feature.Enable_image_similarity))
         {
-            context_menu.getItems().add(create_show_similar_menu_item(
-                    get_item_path(),
-                    fv_cache_supplier,
-                    path_comparator_source,
-                    owner,
-                    aborter,
-                    logger));
+            if (!Check_remaining_RAM.low_memory.get()) {
+                context_menu.getItems().add(create_show_similar_menu_item(
+                        get_item_path(),
+                        fv_cache_supplier,
+                        path_comparator_source,
+                        owner,
+                        aborter,
+                        logger));
+            }
         }
 
         {

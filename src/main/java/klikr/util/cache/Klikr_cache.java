@@ -15,7 +15,8 @@ import klikr.util.log.Stack_trace_getter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -35,7 +36,7 @@ import java.util.function.Function;
 // can also save itself to disk, and reload of course
 
 //**********************************************************
-public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cache
+public class Klikr_cache<K,V> implements Clearable_RAM_cache
 //**********************************************************
 {
 
@@ -43,56 +44,11 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
     protected final Logger logger;
     protected final String name;
     private final RAM_cache_actor<K,V> actor;
-    private final Function<K,String> string_key_maker;
-    // high level, the key is anything i.e. "K" but internally we rely only on Strings
+    // API level, the key is "K" but internally we rely only on Strings
+    private final Function<K,String> internal_string_key_maker;
     private final Map<String,V> cache = new ConcurrentHashMap<>();
-    private final Disk_engine disk_engine;
+    private final Disk_engine<V> disk_engine;
     private final Function<V,Long> size_of_V;
-
-    // when disk engine is a properties file, keys are Strings
-    //**********************************************************
-    public Klikr_cache(
-            Path_list_provider path_list_provider,
-            String cache_name_,
-            Function<V, String> string_serializer,
-            Function<String, V> string_deserializer,
-            Function<String,V> value_extractor,
-            Function<K,String> string_key_maker,
-            Function<V,Long> value_size,
-            Aborter aborter,
-            Window owner, Logger logger_)
-    //**********************************************************
-    {
-        this.size_of_V = value_size;
-        this.string_key_maker = string_key_maker;
-        logger = logger_;
-        name = cache_name_;
-        String local = name + path_list_provider.get_name();
-        if ( dbg) logger.log(name +" local ="+local);
-        String cache_file_name = path_list_provider.get_folder_path().getFileName().toString()+"_"+UUID.nameUUIDFromBytes(local.getBytes()) +".properties";
-        if ( dbg) logger.log(name +" cache_file_name ="+cache_file_name);
-        Path dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(name, false,owner, logger);
-        if ( dbg) logger.log(name +" dir ="+dir.toAbsolutePath().toString());
-
-        disk_engine = new Properties_engine<V>(
-                name,
-                dir,
-                string_serializer,
-                string_deserializer,
-                owner,
-                aborter,
-                logger
-        );
-
-        actor = new RAM_cache_actor(value_extractor,logger);
-    }
-
-    // when disk engine is a binary file,
-    // keys are whatever you want BUT ...
-    // since internally we use only Strings
-    // you must provide methods:
-    // 1. to get a String from your Object-key
-    // 2. to get a Object-key from a String-key
 
     //**********************************************************
     public Klikr_cache(
@@ -103,15 +59,15 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
             BiPredicate<V, DataOutputStream> value_serializer,
             Function<DataInputStream, V> value_deserializer,
             Function<K,V> value_extractor,
-            Function<K,String> string_key_maker,
-            Function<String,K> object_key_maker,
+            Function<K,String> internal_string_key_maker,
+            Function<String,K> K_maker,
             Function<V,Long> size_of_V,
             Aborter aborter,
             Window owner, Logger logger_)
     //**********************************************************
     {
         this.size_of_V = size_of_V;
-        this.string_key_maker = string_key_maker;
+        this.internal_string_key_maker = internal_string_key_maker;
         logger = logger_;
         name = cache_name_;
         String local = name + path_list_provider.get_name();
@@ -125,12 +81,8 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
         disk_engine = new Binary_file_engine(
                 name,
                 cache_file_path,
-                key_serializer,
-                key_deserializer,
                 value_serializer,
                 value_deserializer,
-                string_key_maker,
-                object_key_maker,
                 owner,
                 aborter,
                 logger
@@ -169,7 +121,7 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
             logger.log(Stack_trace_getter.get_stack_trace("FATAL "));
             return null;
         }
-        String real_key= string_key_maker.apply(object_key);
+        String real_key= internal_string_key_maker.apply(object_key);
         V value = cache.get(real_key);
         if ( value != null)
         {
@@ -212,23 +164,23 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
         return local;//UUID.nameUUIDFromBytes(local.getBytes()).toString();
     }
     //**********************************************************
-    public void inject(K object_key, V value, boolean and_save_to_disk)
+    public void inject(K external_key, V value, boolean and_save_to_disk)
     //**********************************************************
     {
-        if ( object_key == null)
+        if ( external_key == null)
         {
             logger.log(("WARNING (ignored) "));
             return;
         }
         if ( value == null)
         {
-            logger.log(("WARNING (ignored) corrupted image ? "+object_key));
+            logger.log(("WARNING (ignored) corrupted image ? "+external_key));
             return;
         }
-        String real_key = string_key_maker.apply(object_key);
-        if(dbg) logger.log("RAM cache: "+ name +" injecting: real_key="+real_key+" value="+value );
-        cache.put(real_key,value);
-        if ( and_save_to_disk) save_one_item_to_disk(object_key,value);
+        String internal_String_key = internal_string_key_maker.apply(external_key);
+        if(dbg) logger.log("RAM cache: "+ name +" injecting: internal_String_key="+internal_String_key+" value="+value );
+        cache.put(internal_String_key,value);
+        if ( and_save_to_disk) save_one_item_to_disk(external_key,value);
     }
 
     //**********************************************************
@@ -262,21 +214,4 @@ public class Klikr_cache<K,V> implements Clearable_RAM_cache, Clearable_disk_cac
         //disk_engine.save_one_to_disk(key,value);
     }
 
-    //**********************************************************
-    @Override
-    public Disk_cleared clear_disk(Window owner, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-        Path path = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(name, false, owner,logger);
-        double size = Static_files_and_paths_utilities.clear_folder(path, name, false,false,owner, aborter, logger);
-        return new Disk_cleared(path,size);
-    }
-
-    //**********************************************************
-    @Override
-    public String name()
-    //**********************************************************
-    {
-        return "klikr cache "+name;
-    }
 }

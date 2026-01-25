@@ -33,8 +33,8 @@ import klikr.Window_type;
 import klikr.Instructions;
 import klikr.audio.Audio_player;
 import klikr.path_lists.Path_list_provider;
-import klikr.util.cache.Clearable_disk_caches;
-import klikr.util.cache.Clearable_RAM_caches;
+import klikr.util.cache.Cache_folder;
+import klikr.util.cache.RAM_caches;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser.Icon_size;
@@ -564,13 +564,13 @@ public class Virtual_landscape_menus
 
         Menu_items.add_menu_item_for_context_menu("Clear_All_RAM_Caches",null,
                 event -> {
-                    Clearable_RAM_caches.clear_all_RAM_caches(owner, logger);
+                    RAM_caches.clear_all_RAM_caches(owner, logger);
                 },
                 context_menu,owner,logger);
 
         Menu_items.add_menu_item_for_context_menu("Clear_All_Disk_Caches",null,
                 event -> {
-             Clearable_disk_caches.clear_all_disk_caches(owner,virtual_landscape.aborter,logger);
+                    Cache_folder.clear_all_disk_caches(owner,virtual_landscape.aborter,logger);
                 },
                 context_menu,owner,logger);
 

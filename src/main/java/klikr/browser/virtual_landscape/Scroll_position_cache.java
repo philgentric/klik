@@ -7,7 +7,9 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+//**********************************************************
 public class Scroll_position_cache implements Clearable_RAM_cache
+//**********************************************************
 {
     public final static Map<String, Path> scroll_position_cache = new HashMap<>();
 
@@ -30,10 +32,12 @@ public class Scroll_position_cache implements Clearable_RAM_cache
     }
 
     //**********************************************************
-    public static void scroll_position_cache_clear()
+    public static double scroll_position_cache_clear()
     //**********************************************************
     {
+        double size = Size_.of_Map(scroll_position_cache,Size_.of_String_F(),Size_.of_Path_F());
         scroll_position_cache.clear();
+        return size;
     }
 
     //**********************************************************

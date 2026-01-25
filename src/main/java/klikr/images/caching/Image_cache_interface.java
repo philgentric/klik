@@ -7,7 +7,6 @@ import javafx.stage.Window;
 import klikr.util.cache.Clearable_RAM_cache;
 import klikr.images.Image_context;
 import klikr.images.Image_display_handler;
-import klikr.util.cache.Clearable_disk_cache;
 
 import java.nio.file.Path;
 

@@ -12,7 +12,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 //**********************************************************
-public class Binary_file_engine<K,V> implements Disk_engine<K,V>
+public class Binary_file_engine<V> implements Disk_engine<V>
 //**********************************************************
 {
     private static final boolean dbg = false;
@@ -20,12 +20,8 @@ public class Binary_file_engine<K,V> implements Disk_engine<K,V>
 
     public final String name;
     public final Path cache_file_path;
-    public final BiPredicate<K, DataOutputStream> key_serializer;
-    public final Function<DataInputStream, K> key_deserializer;
     public final BiPredicate<V, DataOutputStream> value_serializer;
     public final Function<DataInputStream, V> value_deserializer;
-    public final Function<K,String> string_key_maker;
-    public final Function<String,K> object_key_maker;
     public final Aborter aborter;
     public final Window owner;
     public final Logger logger;
@@ -34,23 +30,15 @@ public class Binary_file_engine<K,V> implements Disk_engine<K,V>
     public Binary_file_engine(
             String name,
             Path cache_file_path,
-            BiPredicate<K, DataOutputStream> key_serializer,
-            Function<DataInputStream, K> key_deserializer,
             BiPredicate<V, DataOutputStream> value_serializer,
             Function<DataInputStream, V> value_deserializer,
-            Function<K,String> string_key_maker,
-            Function<String,K> object_key_maker,
             Window owner, Aborter aborter, Logger logger
     )
     //**********************************************************
     {
         this.cache_file_path = cache_file_path;
-        this.key_serializer = key_serializer;
-        this.key_deserializer = key_deserializer;
         this.value_serializer = value_serializer;
         this.value_deserializer = value_deserializer;
-        this.string_key_maker = string_key_maker;
-        this.object_key_maker = object_key_maker;
         this.logger = logger;
         this.name = name;
         this.aborter = aborter;
@@ -77,12 +65,7 @@ public class Binary_file_engine<K,V> implements Disk_engine<K,V>
                     logger.log("aborting cal reload "+aborter.reason());
                     return reloaded;
                 }
-                K key = key_deserializer.apply(dis);
-                if ( key == null)
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace("FATAL"));
-                    return reloaded;
-                }
+                String key = dis.readUTF();
                 if (ultra_dbg) logger.log("key "+key);
                 V value = value_deserializer.apply(dis);
                 if ( value == null)
@@ -91,9 +74,7 @@ public class Binary_file_engine<K,V> implements Disk_engine<K,V>
                     return reloaded;
                 }
                 if (ultra_dbg) logger.log("value "+value);
-
-                String real_key = string_key_maker.apply(key);
-                cache.put(real_key,value);
+                cache.put(key,value);
                 if ( k%10000 == 0) logger.log(k +" items loaded from disk ....");
                 reloaded++;
             }
@@ -125,12 +106,8 @@ public class Binary_file_engine<K,V> implements Disk_engine<K,V>
             dos.writeInt(cache.size());
             for(Map.Entry<String, V> e : cache.entrySet())
             {
-                K object_key = object_key_maker.apply(e.getKey());
-                if ( !key_serializer.test(object_key,dos))
-                {
-                    logger.log(Stack_trace_getter.get_stack_trace(" Panic"));
-                    break;
-                }
+                String key = e.getKey();
+                dos.writeUTF(key);
                 if ( !value_serializer.test(e.getValue(),dos))
                 {
                     logger.log(Stack_trace_getter.get_stack_trace(" Panic"));

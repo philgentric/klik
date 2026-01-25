@@ -8,7 +8,6 @@ package klikr.util.files_and_paths;
 
 import javafx.stage.Window;
 import klikr.util.Shared_services;
-import klikr.util.cache.Clearable_disk_caches;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Or_aborter;
@@ -175,10 +174,10 @@ public class Moving_files
                 process_one_move(new Old_and_new_Path(meta_old, meta_new, Command.command_rename, Status.before_command,false), owner, local, logger);
             }
 
+            /*
             {
                 // we rename the ICON to avoid remaking one
 
-                Path icon_cache_dir = Clearable_disk_caches.get_cache_dir(Cache_folder.icon_cache,owner,logger);
                 int icon_size = Non_booleans_properties.get_icon_size(owner);
                 Path current_icon = Icon_caching.path_for_icon_caching(oandn.old_Path,String.valueOf(icon_size), Icon_caching.png_extension,owner,logger);
                 if (Files.exists(current_icon)) {
@@ -193,8 +192,9 @@ public class Moving_files
                 }
                 //logger.log("renaming icon :"+current_icon.getName()+"==>"+new_icon.getName());
             }
+                        // then we move the actual file
+            */
 
-            // then we move the actual file
             Old_and_new_Path actual = process_one_move(oandn, owner, local, logger);
             if ( actual==null)
             {

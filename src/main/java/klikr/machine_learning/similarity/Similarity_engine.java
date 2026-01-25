@@ -7,8 +7,8 @@ package klikr.machine_learning.similarity;
 
 import javafx.geometry.Point2D;
 import javafx.stage.Window;
-import klikr.util.cache.Size_;
 import klikr.util.cache.Klikr_cache;
+import klikr.util.cache.Size_;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.cache.Clearable_RAM_cache;
 import klikr.browser.virtual_landscape.Path_comparator_source;
@@ -451,6 +451,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             Double similarity = m2.get(p1);
             if ( similarity != null) return similarity;
         }
+
         return null;
     }
 

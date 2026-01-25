@@ -64,7 +64,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		int ignored = 0;
 		for (int i = i_min; i < i_max; i++ )
 		{
-			for ( int j = i+1; j < all_files.size(); j++)
+			for ( int j = 0; j < i; j++)
 			{
 				if (private_aborter.should_abort()) {
 					if (dbg) logger.log("Runnable_for_finding_duplicate_file_pairs abort");

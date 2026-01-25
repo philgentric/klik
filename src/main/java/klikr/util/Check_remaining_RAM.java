@@ -4,7 +4,9 @@
 package klikr.util;
 
 import javafx.stage.Window;
-import klikr.util.cache.Clearable_RAM_caches;
+import klikr.properties.Properties_manager;
+import klikr.properties.String_constants;
+import klikr.util.cache.RAM_caches;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
 
@@ -26,11 +28,12 @@ public class Check_remaining_RAM
     {
         long before = get_remaining_memory(logger);
         if ( before > MIN_REMAINING_FREE_MEMORY_MB) return false;
-        Clearable_RAM_caches.clear_all_RAM_caches(owner, logger);
+        RAM_caches.clear_all_RAM_caches(owner, logger);
         System.gc();
         long after = get_remaining_memory(logger);
-
         low_memory.set(true);
+
+
         logger.log(message+" Garbage Collector was called, AVAILABLE: "+before/1000_000L + " => "+after/1000_000L);
         if (after > MIN_REMAINING_FREE_MEMORY_MB) return false;
 

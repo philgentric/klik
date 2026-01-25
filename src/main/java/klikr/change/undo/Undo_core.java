@@ -26,7 +26,7 @@ import java.util.*;
 public class Undo_core implements Datetime_to_signature_source
 //**********************************************************
 {
-    private final static boolean dbg = false;
+    private final static boolean dbg = true;
     private final Logger logger;
     static final boolean ultra_dbg = false;
     private static final String key_base = "undo_item_"; // name of items about this in properties file
@@ -335,6 +335,7 @@ public class Undo_core implements Datetime_to_signature_source
             if ( dbg)  logger.log("       "+k+"="+v);
         }
         int j = 0;
+        logger.log("Undo_core WRITE : "+undo_item.oans.size());
         for (Old_and_new_Path oan : undo_item.oans)
         {
             {

@@ -15,8 +15,7 @@ import klikr.machine_learning.image_similarity.Feature_vector_source_for_image_s
 import klikr.machine_learning.similarity.Similarity_cache;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
-import klikr.util.cache.Clearable_RAM_caches;
-import klikr.util.cache.Clearable_shared_caches;
+import klikr.util.cache.RAM_caches;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.log.Logger;
 import klikr.util.execute.actor.Aborter;
@@ -161,11 +160,11 @@ public enum Sort_files_by {
             Path_list_provider path_list_provider, Window owner,double x, double y, Logger logger)
     //**********************************************************
     {
-        Similarity_cache similarity_cache = Clearable_shared_caches.similarity_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+        Similarity_cache similarity_cache = RAM_caches.similarity_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
         if (similarity_cache == null)
         {
             similarity_cache = new Similarity_cache(fvs, paths, path_list_provider, owner, x, y, Shared_services.aborter(), logger);
-            Clearable_shared_caches.similarity_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), similarity_cache);
+            RAM_caches.similarity_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), similarity_cache);
         }
         return similarity_cache;
     }

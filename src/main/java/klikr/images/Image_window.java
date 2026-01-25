@@ -25,8 +25,7 @@ import klikr.browser.classic.Browser;
 import klikr.browser.comparators.Last_access_comparator;
 import klikr.browser.icons.image_properties_cache.Image_properties;
 import klikr.properties.Sort_files_by;
-import klikr.util.cache.Clearable_RAM_caches;
-import klikr.util.cache.Clearable_shared_caches;
+import klikr.util.cache.RAM_caches;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.images.caching.Image_cache_cafeine;
@@ -175,7 +174,7 @@ public class Image_window
                 if (forward_size > 10) forward_size = 10;
                 //logger.log("cache_slots="+cache_slots);
 
-                image_cache = Clearable_shared_caches.image_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+                image_cache = RAM_caches.image_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
 
                 if ( image_cache == null)
                 {
@@ -185,7 +184,7 @@ public class Image_window
                     } else {
                         image_cache = new Image_cache_cafeine(forward_size, owner, aborter, logger);
                     }
-                    Clearable_shared_caches.image_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), image_cache);
+                    RAM_caches.image_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), image_cache);
                 }
             }
 
@@ -201,10 +200,10 @@ public class Image_window
                 }
             }
 
-            Klikr_cache<Path, Image_properties> tmp = Clearable_shared_caches.image_properties_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
+            Klikr_cache<Path, Image_properties> tmp = RAM_caches.image_properties_cache_of_caches.get(path_list_provider.get_folder_path().toAbsolutePath().toString());
             if (tmp == null) {
                 tmp = Virtual_landscape.make_image_properties_cache(path_list_provider,aborter,owner,logger);
-                Clearable_shared_caches.image_properties_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), tmp);
+                RAM_caches.image_properties_cache_of_caches.put(path_list_provider.get_folder_path().toAbsolutePath().toString(), tmp);
             }
             image_properties_cache = tmp;
 
