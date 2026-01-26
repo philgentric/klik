@@ -16,14 +16,18 @@ import klikr.util.Check_remaining_RAM;
 import klikr.util.Shared_services;
 import klikr.look.Look_and_feel_manager;
 import klikr.util.Simple_json_parser;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
+import klikr.util.mmap.Mmap;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.*;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +38,7 @@ public class ML_servers_monitor implements AutoCloseable
 {
     private static final boolean dbg = false;
     private static final boolean ultra_dbg = false;
-    private static ML_servers_monitor instance;
+    private static volatile ML_servers_monitor instance;
 
     private Stage stage;
     private VBox vbox;
@@ -61,10 +65,16 @@ public class ML_servers_monitor implements AutoCloseable
     //**********************************************************
     {
         if (Check_remaining_RAM.low_memory.get()) return;
-        if ( instance == null )
+        if (instance == null)
         {
-            instance = new ML_servers_monitor();
-            Platform.runLater(()->instance.init(owner,logger));
+            synchronized (ML_servers_monitor.class)
+            {
+                if (instance == null)
+                {
+                    instance = new ML_servers_monitor();
+                    Platform.runLater(()->instance.init(owner,logger));
+                }
+            }
         }
     }
 

@@ -21,7 +21,7 @@ public class Media_instance_statics
 //**********************************************************
 {
     private static ConcurrentLinkedQueue<Aborter> aborters = new ConcurrentLinkedQueue<>();
-    private static Media_instance instance;
+    private static volatile Media_instance instance;
 
     //**********************************************************
     public static void play_this(String encoded, Media_callbacks media_callbacks, boolean first_time, Window owner, Logger logger)

@@ -1,9 +1,13 @@
 package klikr.properties;
 
 import klikr.util.Shared_services;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Actor_engine;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
+import klikr.util.mmap.Mmap;
 
+import java.nio.file.Path;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -13,14 +17,23 @@ public class Store_engine
 //**********************************************************
 {
     private static final boolean dbg = false;
-    private static Store_engine instance;
+    private static volatile Store_engine instance;
     private static BlockingQueue<Save_job> disk_store_request_queue;
 
     //**********************************************************
     public static BlockingQueue<Save_job> get_queue(Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = new Store_engine(logger);
+        if (instance == null)
+        {
+            synchronized (Store_engine.class)
+            {
+                if (instance == null)
+                {
+                    instance = new Store_engine(logger);
+                }
+            }
+        }
         return disk_store_request_queue;
     }
     //**********************************************************

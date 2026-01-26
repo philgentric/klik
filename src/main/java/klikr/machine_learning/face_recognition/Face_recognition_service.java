@@ -34,6 +34,7 @@ import klikr.Window_type;
 import klikr.Instructions;
 import klikr.look.Look_and_feel_manager;
 import klikr.path_lists.Path_list_provider_for_file_system;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
@@ -44,6 +45,7 @@ import klikr.machine_learning.feature_vector.Feature_vector_double;
 import klikr.util.files_and_paths.Extensions;
 import klikr.util.files_and_paths.Guess_file_type;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
+import klikr.util.mmap.Mmap;
 import klikr.util.ui.Popups;
 import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
@@ -102,7 +104,16 @@ public class Face_recognition_service
     public static Face_recognition_service get_instance(Window owner,Logger logger)
     //**********************************************************
     {
-        if ( instance == null) start_new(owner,logger);
+        if (instance == null)
+        {
+            synchronized (Face_recognition_service.class)
+            {
+                if (instance == null)
+                {
+                    start_new(owner,logger);
+                }
+            }
+        }
         return instance;
     }
 

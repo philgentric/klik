@@ -4,12 +4,14 @@
 package klikr.change.undo;
 
 import javafx.stage.Window;
+import klikr.change.history.History_engine;
 import klikr.util.Shared_services;
 import klikr.change.active_list_stage.Active_list_stage;
 import klikr.change.active_list_stage.Datetime_to_signature_source;
 import klikr.util.files_and_paths.Moving_files;
 import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klikr.util.log.Logger;
+import klikr.util.mmap.Mmap;
 import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.ui.Popups;
 
@@ -38,7 +40,16 @@ public class Undo_for_moves implements Datetime_to_signature_source
     public static Undo_for_moves get_instance(Window owner, Logger logger)
     //**********************************************************
     {
-        if (instance == null) instance = new Undo_for_moves(owner, logger);
+        if (instance == null)
+        {
+            synchronized (Undo_for_moves.class)
+            {
+                if (instance == null)
+                {
+                    instance = new Undo_for_moves(owner, logger);
+                }
+            }
+        }
         return instance;
     }
 

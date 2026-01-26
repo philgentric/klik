@@ -31,6 +31,8 @@ import klikr.util.execute.Execute_command;
 import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
+import klikr.util.mmap.Mmap;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -222,12 +224,26 @@ public class Icon_factory_actor implements Actor
         }
 
         {
-            Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(
-                    path,
-                    icon_factory_request.icon_size,
-                    String.valueOf(icon_factory_request.icon_size),
-                    Icon_caching.png_extension,
-                    false, icon_factory_request.owner,logger);
+            Image image_from_cache;
+            if ( Icon_writer_actor.use_mmap)
+            {
+                image_from_cache = Mmap.instance.read_image(
+                        Icon_caching.tag_for_icon_caching(
+                                path,
+                                String.valueOf(icon_factory_request.icon_size)
+                        ));
+            }
+            else
+            {
+                image_from_cache = Icons_from_disk.load_icon_from_disk_cache(
+                        path,
+                        icon_factory_request.icon_size,
+                        String.valueOf(icon_factory_request.icon_size),
+                        Icon_caching.png_extension,
+                        false, icon_factory_request.owner, logger);
+            }
+
+
             if (icon_factory_request.aborter.should_abort())
             {
                 if (aborting_dbg)

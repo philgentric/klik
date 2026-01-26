@@ -3,10 +3,13 @@
 
 package klikr.images;
 
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Actor;
 import klikr.util.execute.actor.Message;
 import klikr.change.Change_gang;
 import klikr.path_lists.Indexer;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
+import klikr.util.mmap.Mmap;
 import klikr.util.perf.Perf;
 import klikr.util.ui.Jfx_batch_injector;
 
@@ -19,13 +22,22 @@ public class Change_image_actor implements Actor
 //**********************************************************
 {
     private static final boolean dbg = false;
-    private static Change_image_actor instance;
+    private static volatile Change_image_actor instance;
 
     //**********************************************************
     public static Actor get_instance()
     //**********************************************************
     {
-        if ( instance == null) instance = new Change_image_actor();
+        if (instance == null)
+        {
+            synchronized (Change_image_actor.class)
+            {
+                if (instance == null)
+                {
+                    instance = new Change_image_actor();
+                }
+            }
+        }
         return instance;
     }
 

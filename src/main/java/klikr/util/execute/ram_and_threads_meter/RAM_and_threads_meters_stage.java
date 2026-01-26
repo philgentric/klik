@@ -12,12 +12,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.look.Look_and_feel_manager;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.execute.Scheduled_thread_pool;
+import klikr.util.mmap.Mmap;
 import klikr.util.ui.Menu_items;
 
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 //**********************************************************
@@ -26,13 +30,22 @@ public class RAM_and_threads_meters_stage
 {
     public static final double DISPLAY_PIXEL_HEIGHT = 600;
     private final static long HEARTH_BEAT = 50; //ms
-    private static Stage instance;
+    private static volatile Stage instance;
 
     //**********************************************************
     public static void show_stage(Window originator, Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = create_stage(originator,logger);
+        if (instance == null)
+        {
+            synchronized (Mmap.class)
+            {
+                if (instance == null)
+                {
+                    instance = create_stage(originator,logger);
+                }
+            }
+        }
         else instance.show();
     }
 

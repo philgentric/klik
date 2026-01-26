@@ -5,8 +5,12 @@
 //SOURCES ./Fusk_actor_for_one_folder.java
 package klikr.experimental.fusk;
 
+import klikr.experimental.backup.Backup_singleton;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Aborter;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
+import klikr.util.mmap.Mmap;
 
 import java.nio.file.Path;
 
@@ -17,7 +21,7 @@ import static klikr.experimental.fusk.Fusk_actor_for_one_folder.fusk_this_folder
 public class Fusk_singleton
 //**********************************************************
 {
-    private static Fusk_singleton instance;
+    private static volatile Fusk_singleton instance;
     public final Logger logger;
     Path source;
     Path destination;
@@ -52,10 +56,17 @@ public class Fusk_singleton
     private static Fusk_singleton get_instance(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if ( instance == null)
+        if (instance == null)
         {
-            instance = new Fusk_singleton(aborter, logger);
+            synchronized (Fusk_singleton.class)
+            {
+                if (instance == null)
+                {
+                    instance = new Fusk_singleton(aborter, logger);
+                }
+            }
         }
+
         return instance;
     }
 

@@ -5,6 +5,8 @@ package klikr.experimental.backup;
 //SOURCES ./Backup_engine.java
 
 import javafx.stage.Window;
+import klikr.change.bookmarks.Bookmarks;
+import klikr.util.Shared_services;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
 
@@ -17,7 +19,7 @@ import java.util.List;
 public class Backup_singleton
 //**********************************************************
 {
-    private static Backup_singleton instance;
+    private static volatile Backup_singleton instance;
     Logger logger;
     Path source;
     Path destination;
@@ -115,10 +117,17 @@ public class Backup_singleton
     private static Backup_singleton get_instance(Logger logger_)
     //**********************************************************
     {
-        if ( instance == null)
+        if (instance == null)
         {
-            instance = new Backup_singleton(logger_);
+            synchronized (Backup_singleton.class)
+            {
+                if (instance == null)
+                {
+                    instance = new Backup_singleton(logger_);
+                }
+            }
         }
+
         return instance;
     }
     //**********************************************************

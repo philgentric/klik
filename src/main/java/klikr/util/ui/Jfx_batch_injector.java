@@ -4,11 +4,15 @@
 package klikr.util.ui;
 
 import javafx.application.Platform;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.log.Logger;
+import klikr.util.mmap.Mmap;
 
+import java.nio.file.Path;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -31,18 +35,29 @@ public class Jfx_batch_injector
     // if something arrives while the batch is being executed, it will get in the batch
     private final ConcurrentLinkedQueue<Runnable> batch = new ConcurrentLinkedQueue<>();
     private final Logger logger;
-    private static Jfx_batch_injector instance;
+    private static volatile Jfx_batch_injector instance;
     private final Aborter aborter;
 
     //**********************************************************
     public static void inject(Runnable r, Logger logger)
     //**********************************************************
     {
-        if ( enable) {
-            if (instance == null) instance = new Jfx_batch_injector(logger);
+        if ( enable)
+        {
+            if (instance == null)
+            {
+                synchronized (Mmap.class)
+                {
+                    if (instance == null)
+                    {
+                        instance = new Jfx_batch_injector(logger);
+                    }
+                }
+            }
             instance.inject(r);
         }
-        else {
+        else
+        {
             Platform.runLater(r);
         }
     }

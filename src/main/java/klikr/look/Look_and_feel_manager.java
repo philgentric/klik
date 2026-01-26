@@ -29,8 +29,13 @@ import klikr.look.styles.Look_and_feel_light;
 import klikr.look.styles.Look_and_feel_modena;
 import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Feature_cache;
+import klikr.util.cache.Cache_folder;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
+import klikr.util.mmap.Mmap;
+
+import java.nio.file.Path;
 
 
 //**********************************************************
@@ -63,18 +68,23 @@ public class Look_and_feel_manager
     public static Image dummy_icon = null;
     public static Image back_icon = null;
 
-    private static Look_and_feel instance;
+    private static volatile Look_and_feel instance;
 
     //**********************************************************
     public static Look_and_feel get_instance(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( instance != null )
+        if (instance == null)
         {
-            return instance;
+            synchronized (Look_and_feel.class)
+            {
+                if (instance == null)
+                {
+                    instance = read_look_and_feel_from_properties_file(owner,logger);
+                }
+            }
         }
 
-        instance = read_look_and_feel_from_properties_file(owner,logger);
         return instance;
     }
 

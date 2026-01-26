@@ -7,6 +7,7 @@ package klikr.util.execute;
 
 import javafx.stage.Window;
 import klikr.Klikr_application;
+import klikr.properties.Store_engine;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor;
 import klikr.util.execute.actor.Actor_engine;
@@ -26,7 +27,7 @@ import java.util.List;
 public class System_open_actor implements Actor
 //**********************************************************
 {
-    private static System_open_actor instance;
+    private static volatile System_open_actor instance;
 
     //**********************************************************
     public static void open_with_system(
@@ -55,7 +56,16 @@ public class System_open_actor implements Actor
     private static System_open_actor get()
     //**********************************************************
     {
-        if ( instance == null) instance = new System_open_actor();
+        if (instance == null)
+        {
+            synchronized (System_open_actor.class)
+            {
+                if (instance == null)
+                {
+                    instance = new System_open_actor();
+                }
+            }
+        }
         return instance;
     }
 

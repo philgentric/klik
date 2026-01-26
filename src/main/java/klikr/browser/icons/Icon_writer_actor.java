@@ -10,6 +10,7 @@ import klikr.util.execute.actor.Message;
 import klikr.util.image.Static_image_utilities;
 import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
+import klikr.util.mmap.Mmap;
 
 import java.nio.file.Path;
 
@@ -23,9 +24,11 @@ public class Icon_writer_actor implements Actor
 //**********************************************************
 {
 	private static final boolean dbg = false;
+	public static final boolean use_mmap = true;
 	// dbg_names is super useful to debug this feature BUT it has a major caveat:
 	// folders with [whatever] in the name will not have an animated icon
 
+	public static Mmap mmap;
 	Path cache_dir;
 	private final Logger logger;
     private final Window owner;
@@ -37,6 +40,10 @@ public class Icon_writer_actor implements Actor
         this.owner = owner;
 		if ( dbg) logger.log("Icon_writer_actor created");
 		cache_dir = cache_dir_;
+		if ( use_mmap)
+		{
+			mmap = Mmap.get_instance("giant",10000,null, owner,logger);
+		}
 	}
 
 
@@ -72,9 +79,17 @@ public class Icon_writer_actor implements Actor
     public void write_icon_to_cache_on_disk(Icon_write_message iwm)
     //**********************************************************
     {
-        Path out_path = Icon_caching.path_for_icon_caching(iwm.absolute_path(),String.valueOf(iwm.icon_size()),Icon_caching.png_extension,owner,logger);
-        Static_image_utilities.write_png_to_disk(iwm.image(), out_path, logger);
-    }
+		if ( use_mmap)
+		{
+			String tag = Icon_caching.tag_for_icon_caching(iwm.absolute_path(),String.valueOf(iwm.icon_size()));
+			mmap.write_image(tag,iwm.image(),true);
+		}
+		else
+		{
+			Path out_path = Icon_caching.path_for_icon_caching(iwm.absolute_path(), String.valueOf(iwm.icon_size()), Icon_caching.png_extension, owner, logger);
+			Static_image_utilities.write_png_to_disk(iwm.image(), out_path, logger);
+		}
+	}
 
 
     /*

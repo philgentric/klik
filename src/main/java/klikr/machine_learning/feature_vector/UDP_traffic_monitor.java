@@ -8,14 +8,18 @@ import javafx.stage.Window;
 import klikr.machine_learning.ML_servers_monitor;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Actor_engine;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
+import klikr.util.mmap.Mmap;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 
 //**********************************************************
@@ -23,7 +27,7 @@ public class UDP_traffic_monitor implements AutoCloseable
 //**********************************************************
 {
     private static final boolean dbg = false;
-    private static UDP_traffic_monitor instance;
+    private static volatile UDP_traffic_monitor instance;
 
     private DatagramSocket socket;
     private final byte[] buffer = new byte[1024];
@@ -46,13 +50,18 @@ public class UDP_traffic_monitor implements AutoCloseable
     public static void start_servers_monitoring(Window owner, Logger logger)
     //**********************************************************
     {
-        if ( instance == null)
+        if (instance == null)
         {
-            instance = new UDP_traffic_monitor(owner,logger);
-            ML_servers_monitor.start_ML_servers_monitor(owner, logger);
-            logger.log("ML servers monitoring is activated");
+            synchronized (UDP_traffic_monitor.class)
+            {
+                if (instance == null)
+                {
+                    instance = new UDP_traffic_monitor(owner,logger);
+                    ML_servers_monitor.start_ML_servers_monitor(owner, logger);
+                    logger.log("ML servers monitoring is activated");
+                }
+            }
         }
-
 
     }
 

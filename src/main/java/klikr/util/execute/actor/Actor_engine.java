@@ -8,10 +8,14 @@
 package klikr.util.execute.actor;
 
 import javafx.application.Platform;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.virtual_threads.Actor_engine_with_virtual_threads;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
+import klikr.util.mmap.Mmap;
 import klikr.util.ui.Text_frame;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -29,7 +33,7 @@ public class Actor_engine // is a singleton
 //**********************************************************
 {
     public static final boolean cancel_dbg = false;
-    private static Actor_engine_interface instance;
+    private static volatile Actor_engine_interface instance;
 
     // accounting:
     public static final AtomicInteger threads_in_flight = new AtomicInteger(0);
@@ -48,7 +52,16 @@ public class Actor_engine // is a singleton
     public static Job run(Actor actor, Message message, Job_termination_reporter tr, Logger logger)
     //**********************************************************
     {
-        if ( instance == null) instance = create(logger);
+        if (instance == null)
+        {
+            synchronized (Actor_engine.class)
+            {
+                if (instance == null)
+                {
+                    instance = create(logger);
+                }
+            }
+        }
         return instance.run(actor,message,tr,logger);
     }
 
@@ -91,10 +104,17 @@ public class Actor_engine // is a singleton
     private static Actor_engine_interface create(Logger logger)
     //**********************************************************
     {
-        if ( instance != null) return instance;
-        instance = new Actor_engine_with_virtual_threads(logger);
+        if (instance == null)
+        {
+            synchronized (Actor_engine.class)
+            {
+                if (instance == null)
+                {
+                    instance = new Actor_engine_with_virtual_threads(logger);
+                }
+            }
+        }
         return instance;
-
     }
 
 

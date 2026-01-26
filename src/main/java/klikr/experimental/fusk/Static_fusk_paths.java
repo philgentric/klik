@@ -3,6 +3,10 @@
 
 package klikr.experimental.fusk;
 
+import klikr.util.cache.Cache_folder;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
+import klikr.util.mmap.Mmap;
+
 import java.nio.file.Path;
 
 
@@ -12,7 +16,7 @@ public class Static_fusk_paths
 {
     private Path fusk_destination = null;
     private Path fusk_source = null;
-    private static Static_fusk_paths instance;
+    private static volatile Static_fusk_paths instance;
 
     //**********************************************************
     public static Path get_fusk_source()
@@ -47,6 +51,16 @@ public class Static_fusk_paths
     private static void create_instance()
     //**********************************************************
     {
-        instance = new Static_fusk_paths();
+        if (instance == null)
+        {
+            synchronized (Static_fusk_paths.class)
+            {
+                if (instance == null)
+                {
+                    instance = new Static_fusk_paths();
+                }
+            }
+        }
+
     }
 }

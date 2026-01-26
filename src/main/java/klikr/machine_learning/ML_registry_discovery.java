@@ -8,20 +8,24 @@ import klikr.machine_learning.face_recognition.Face_detection_type;
 import klikr.properties.boolean_features.Feature;
 import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.Simple_json_parser;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.Execute_command;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.Guess_OS;
 import klikr.util.execute.Operating_system;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
+import klikr.util.mmap.Mmap;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,7 +36,7 @@ public class ML_registry_discovery
 {
     private final static boolean dbg = false;
     private final Random random = new Random();
-    private static ML_registry_discovery instance;
+    private static volatile ML_registry_discovery instance;
 
     private final AtomicBoolean server_pump_started = new AtomicBoolean(false);
     private final BlockingQueue<ML_service_type> request_queue = new LinkedBlockingQueue<>();
@@ -84,7 +88,16 @@ public class ML_registry_discovery
     public static ML_servers_status find_active_servers(ML_service_type st, Window owner, Logger logger)
     //**********************************************************
     {
-        if ( instance == null ) instance = new ML_registry_discovery();
+        if (instance == null)
+        {
+            synchronized (ML_registry_discovery.class)
+            {
+                if (instance == null)
+                {
+                    instance = new ML_registry_discovery();
+                }
+            }
+        }
         return instance.find_active_servers_internal(st, owner, logger);
     }
 

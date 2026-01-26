@@ -7,11 +7,13 @@ package klikr.change.history;
 //SOURCES ./Properties_for_history.java
 
 import javafx.stage.Window;
+import klikr.change.bookmarks.Bookmarks;
 import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.File_based_IProperties;
 import klikr.properties.IProperties;
 import klikr.util.log.Logger;
+import klikr.util.mmap.Mmap;
 
 import java.util.List;
 
@@ -20,15 +22,21 @@ public class History_engine
 //**********************************************************
 {
     private final Properties_for_history properties_for_history;
-    private static History_engine instance;
+    private static volatile History_engine instance;
 
     //**********************************************************
     public static History_engine get(Window owner)
     //**********************************************************
     {
-        if ( instance ==null)
+        if (instance == null)
         {
-            instance = new History_engine(owner, Shared_services.aborter(),Shared_services.logger());
+            synchronized (History_engine.class)
+            {
+                if (instance == null)
+                {
+                    instance = new History_engine(owner, Shared_services.aborter(),Shared_services.logger());
+                }
+            }
         }
         return instance;
     }

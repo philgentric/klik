@@ -6,19 +6,23 @@ package klikr.change.bookmarks;
 
 import javafx.stage.Window;
 import klikr.util.Shared_services;
+import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.File_based_IProperties;
 import klikr.properties.IProperties;
 import klikr.properties.Properties_with_base;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
+import klikr.util.mmap.Mmap;
 
+import java.nio.file.Path;
 import java.util.List;
 
 //**********************************************************
 public class Bookmarks
 //**********************************************************
 {
-    private static Bookmarks instance = null;
+    private static volatile Bookmarks instance = null;
     private final Logger logger;
     private final IProperties ip;
     private final Properties_with_base pb;
@@ -27,7 +31,17 @@ public class Bookmarks
     public static Bookmarks get(Window owner)
     //**********************************************************
     {
-        if ( instance == null) instance = new Bookmarks(owner, Shared_services.aborter(),Shared_services.logger());
+        if (instance == null)
+        {
+            synchronized (Bookmarks.class)
+            {
+                if (instance == null)
+                {
+                    instance = new Bookmarks(owner, Shared_services.aborter(),Shared_services.logger());
+                }
+            }
+        }
+
         return instance;
     }
 
