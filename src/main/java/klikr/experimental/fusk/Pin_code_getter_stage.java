@@ -178,8 +178,7 @@ public class Pin_code_getter_stage
             disable_fusk.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    Booleans.set_boolean(Feature.Fusk_is_on.name(),false,local_stage);
-                    Feature_cache.update_cached_boolean(Feature.Fusk_is_on,false,local_stage);
+                    Feature_cache.update_cached_boolean_and_save(Feature.Fusk_is_on,false,local_stage);
                     logger.log("fusk disabled");
                     local_stage.close();
                 }

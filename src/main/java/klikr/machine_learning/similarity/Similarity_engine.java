@@ -7,6 +7,7 @@ package klikr.machine_learning.similarity;
 
 import javafx.geometry.Point2D;
 import javafx.stage.Window;
+import klikr.properties.boolean_features.Feature_cache;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.cache.Size_;
 import klikr.util.execute.actor.Aborter;
@@ -235,7 +236,7 @@ public class Similarity_engine implements Clearable_RAM_cache
                 {
                     if (Popups.info_popup("After selecting one, you can use ESC to close these small windows one by one",null,owner,logger))
                     {
-                        Booleans.set_boolean(Feature.Show_can_use_ESC_to_close_windows.name(), false,owner);
+                        Feature_cache.update_cached_boolean_and_save(Feature.Show_can_use_ESC_to_close_windows, true,owner);
                     }
                 }
             }

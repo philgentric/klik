@@ -13,13 +13,15 @@ public class Properties_with_base
 //**********************************************************
 {
     private final String key_base; // base name in properties file
-    private final IProperties ip;
+    private final File_storage ip;
     private final int max;
+    private final Logger logger;
 
     //**********************************************************
-    public Properties_with_base(IProperties ip, String key_base, int max, Logger logger)
+    public Properties_with_base(File_storage ip, String key_base, int max, Logger logger)
     //**********************************************************
     {
+        this.logger = logger;
         this.max = max;
         this.key_base = key_base;
         this.ip = ip;
@@ -33,7 +35,7 @@ public class Properties_with_base
         for (int i = 0; i < max; i++)
         {
             String path = ip.get(key_base + i);
-            //System.out.println((key_base + i)+"->"+path+"<-");
+            //logger.log((key_base + i)+"->"+path+"<-");
             if (path != null) returned.add(path);
         }
         return returned;
@@ -45,22 +47,23 @@ public class Properties_with_base
     //**********************************************************
     {
         if ( is_already_there(s)) return;
-        System.out.println(" ADDING: ->"+key_base+"<-"+s);
+        logger.log("ADDING... key_base->"+key_base+"<- value->"+s+"<-");
         for (int i = 0; i < max; i++)
         {
             String path = ip.get(key_base + i);
             if ( path == null)
             {
                 // free slot
-                System.out.println("bookmark found free slot: ->"+i+"<-");
+                logger.log(" ...found free slot: ->"+i+"<-");
                 ip.set(key_base+i, s);
+                ip.save_to_disk();
                 return;
             }
         }
         // no more free slots, let us remove the last one
         ip.set(key_base+(max-1), s);
-        System.out.println("bookmark no free slot for: ->"+s+"<-");
-
+        logger.log(" no free slot for: ->"+s+"<-");
+        ip.save_to_disk();
     }
 
 
@@ -68,19 +71,19 @@ public class Properties_with_base
     private boolean is_already_there(String candidate)
     //**********************************************************
     {
-        System.out.println("bookmark is_already_there?: ->"+candidate+"<-");
+        logger.log("bookmark is_already_there?: ->"+candidate+"<-");
 
         for (String k : ip.get_all_keys())
         {
             if (!k.startsWith(key_base))
             {
-                System.out.println("k not a "+key_base+"->"+k+"<-");
+                logger.log("k not a "+key_base+"->"+k+"<-");
                 continue;
             }
-            System.out.println("k is a "+key_base+"->"+k+"<-");
+            logger.log("k is a "+key_base+"->"+k+"<-");
             String v = ip.get(k);
             if (v == null) continue;
-            System.out.println("k is a "+key_base+"->"+k+"<-"+v);
+            logger.log("k is a "+key_base+"->"+k+"<-"+v);
 
             if (v.equals(candidate)) return true;
         }
@@ -91,7 +94,7 @@ public class Properties_with_base
     public void clear()
     //**********************************************************
     {
-        System.out.println("bookmark clearing: ->"+key_base+"<-");
+        logger.log("bookmark clearing: ->"+key_base+"<-");
         ip.clear();
     }
 }

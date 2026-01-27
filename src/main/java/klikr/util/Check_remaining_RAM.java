@@ -4,8 +4,6 @@
 package klikr.util;
 
 import javafx.stage.Window;
-import klikr.properties.Properties_manager;
-import klikr.properties.String_constants;
 import klikr.util.cache.RAM_caches;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;

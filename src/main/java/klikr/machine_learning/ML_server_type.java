@@ -34,6 +34,8 @@ public enum ML_server_type
         }
         return null;
     }
+
+    private int number_of_image_similarity_servers = -1;
     //**********************************************************
     int quota(Window owner)
     //**********************************************************
@@ -51,7 +53,8 @@ public enum ML_server_type
             }
             case MobileNet:
             {
-                return Non_booleans_properties.get_number_of_image_similarity_servers(owner);
+                if ( number_of_image_similarity_servers < 0 ) number_of_image_similarity_servers = Non_booleans_properties.get_number_of_image_similarity_servers(owner);
+                return number_of_image_similarity_servers;
             }
         }
         return -1;

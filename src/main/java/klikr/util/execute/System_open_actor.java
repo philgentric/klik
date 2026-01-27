@@ -7,7 +7,6 @@ package klikr.util.execute;
 
 import javafx.stage.Window;
 import klikr.Klikr_application;
-import klikr.properties.Store_engine;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor;
 import klikr.util.execute.actor.Actor_engine;

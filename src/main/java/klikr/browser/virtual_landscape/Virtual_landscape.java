@@ -132,7 +132,7 @@ public class Virtual_landscape
     public Icon_factory_actor icon_factory_actor;
 
     public ConcurrentLinkedQueue<List<Path>> iconized_sorted_queue = new ConcurrentLinkedQueue<>();
-    public final BlockingQueue<Boolean> request_queue = new LinkedBlockingQueue<>();
+    public final ArrayBlockingQueue<Boolean> request_queue = new ArrayBlockingQueue<>(1);
     private final ConcurrentHashMap<Path, Item> all_items_map = new ConcurrentHashMap<>();
     private final AtomicBoolean items_are_ready = new AtomicBoolean(false);
 
@@ -303,8 +303,7 @@ public class Virtual_landscape
             // Shortcut show details: ⌘/Ctrl + 2
             show_details = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHORTCUT_DOWN);
             scene.getAccelerators().put(show_details, () -> {
-                if (!Feature_cache.get(Feature.Show_single_column_with_details))
-                    Feature_cache.update_cached_boolean(Feature.Show_single_column_with_details, true, owner);
+                Feature_cache.update_cached_boolean_and_dont_save(Feature.Show_single_column_with_details, !Feature_cache.get(Feature.Show_single_column_with_details), owner);
             });
         }
 
@@ -313,7 +312,7 @@ public class Virtual_landscape
             KeyCombination kc = new KeyCodeCombination(KeyCode.DIGIT1, KeyCombination.SHORTCUT_DOWN);
             scene.getAccelerators().put(kc, () -> {
                 if (Feature_cache.get(Feature.Show_single_column_with_details))
-                    Feature_cache.update_cached_boolean(Feature.Show_single_column_with_details,false,owner);
+                    Feature_cache.update_cached_boolean_and_dont_save(Feature.Show_single_column_with_details,false,owner);
             });
         }
 
@@ -2571,14 +2570,9 @@ public class Virtual_landscape
     public void redraw_fx(String from)
     //**********************************************************
     {
-        //if (dbg)
+        if (dbg)
             logger.log("✅ Virtual_landscape redraw from:" + from);
-
-        try {
-            request_queue.put(Boolean.TRUE);
-        } catch (InterruptedException e) {
-            logger.log("" + e);
-        }
+        request_queue.offer(Boolean.TRUE);
     }
 
     //**********************************************************
@@ -2588,11 +2582,9 @@ public class Virtual_landscape
         Runnable r = () -> {
             for (;;) {
                 try {
-                    Boolean b = request_queue.poll(3, TimeUnit.SECONDS);
-                    if (b != null)
-                        redraw_all_internal(owner, owner.getX() + 100, owner.getY() + 100);
-                    if (aborter.should_abort())
-                        return;
+                    Boolean b = request_queue.poll(30, TimeUnit.SECONDS);
+                    if (aborter.should_abort()) return;
+                    if (b != null) redraw_all_internal(owner, owner.getX() + 100, owner.getY() + 100);
 
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -2602,20 +2594,11 @@ public class Virtual_landscape
         Actor_engine.execute(r, "Redraw engine", logger);
     }
 
-    private final AtomicBoolean the_guard = new AtomicBoolean(false);
 
     //**********************************************************
     private void redraw_all_internal(Window owner, double x, double y)
     //**********************************************************
     {
-        logger.log("\n\n redraw request ? is guard set?\n\n");
-        if (the_guard.get()) {
-            logger.log("\n\n redraw request IGNORED, guard is set!\n\n");
-            return;
-        }
-        the_guard.set(true);
-        aborter.add_on_abort(() -> the_guard.set(false));
-
         long start = System.currentTimeMillis();
 
         Optional<Hourglass> hourglass = Optional.empty();
@@ -2848,8 +2831,6 @@ public class Virtual_landscape
             if (dbg)
                 logger.log("\n✅ compute_geometry reason=" + reason + " current_vertical_offset="
                         + current_vertical_offset);
-            if (scroll_dbg)
-                logger.log(("✅ compute_geometry single_column=" + Feature_cache.get(Feature.Show_single_column_with_details)));
 
             double magic = 2.0;
             double row_increment_for_dirs = magic * Non_booleans_properties.get_font_size(owner, logger);
@@ -2876,16 +2857,12 @@ public class Virtual_landscape
                 ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size, owner, logger));
                 show_error_icon(iv_denied, top_delta_y);
                 progress_window.ifPresent(Hourglass::close);
-                the_guard.set(false);
-                logger.log("✅ on DENIED the_guard =>" + the_guard.get() + " for " + path_list_provider.get_name());
                 return;
             }
             if (error_type == Error_type.NOT_FOUND) {
                 ImageView not_found = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size, owner, logger));
                 show_error_icon(not_found, top_delta_y);
                 progress_window.ifPresent(Hourglass::close);
-                the_guard.set(false);
-                logger.log("✅ on NOT_FOUND the_guard =>" + the_guard.get() + " for " + path_list_provider.get_name());
                 return;
             }
             if (error_type == Error_type.ERROR) {
@@ -2893,9 +2870,6 @@ public class Virtual_landscape
                         Look_and_feel_manager.get_unknown_error_icon(icon_size, owner, logger));
                 show_error_icon(unknown_error, top_delta_y);
                 progress_window.ifPresent(Hourglass::close);
-                the_guard.set(false);
-                logger.log("✅ ON ERROR map_buttons_and_icons_guard =>" + the_guard.get() + " for "
-                        + path_list_provider.get_name());
                 return;
             }
 
@@ -2942,10 +2916,6 @@ public class Virtual_landscape
                     future_pane_content.addAll(all_items_map.values());
 
                     items_are_ready.set(true);
-                    the_guard.set(false);
-                    if (dbg)
-                        logger.log("✅ END, the_guard => " + the_guard.get() + " for " + path_list_provider.get_name());
-
                     Jfx_batch_injector.inject(() -> {
                         progress_window.ifPresent(Hourglass::close);
 

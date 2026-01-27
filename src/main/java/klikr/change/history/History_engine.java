@@ -2,18 +2,16 @@
 // SPDX-License-Identifier: MIT
 
 package klikr.change.history;
-//SOURCES ../../properties/IProperties.java
-//SOURCES ../../properties/File_based_IProperties.java
+//SOURCES ../../properties/File_storage.java
+//SOURCES ../../properties/File_storage_using_Properties.java
 //SOURCES ./Properties_for_history.java
 
 import javafx.stage.Window;
-import klikr.change.bookmarks.Bookmarks;
+import klikr.properties.File_storage;
+import klikr.properties.File_storage_using_Properties;
 import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
-import klikr.properties.File_based_IProperties;
-import klikr.properties.IProperties;
 import klikr.util.log.Logger;
-import klikr.util.mmap.Mmap;
 
 import java.util.List;
 
@@ -45,7 +43,7 @@ public class History_engine
     private History_engine(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        IProperties ip = new File_based_IProperties("history","history",true, owner,aborter,logger);
+        File_storage ip = new File_storage_using_Properties("history","history",false, owner,aborter,logger);
         properties_for_history = new Properties_for_history(ip,  300, logger);
     }
 

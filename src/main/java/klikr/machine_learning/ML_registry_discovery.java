@@ -39,7 +39,7 @@ public class ML_registry_discovery
     private static volatile ML_registry_discovery instance;
 
     private final AtomicBoolean server_pump_started = new AtomicBoolean(false);
-    private final BlockingQueue<ML_service_type> request_queue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ML_service_type> request_queue = new ArrayBlockingQueue<>(1);
     private final Map<String,List<ML_server>> servers_from_file = new ConcurrentHashMap<>();
     private Aborter pump_aborter;
     private final Map<String,Integer> running = new ConcurrentHashMap<>();

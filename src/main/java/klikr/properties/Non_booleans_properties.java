@@ -15,15 +15,6 @@ import klikr.System_info;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.virtual_landscape.Virtual_landscape;
 import klikr.util.log.Logger;
-import klikr.util.ui.Popups;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 
 //**********************************************************
@@ -134,14 +125,14 @@ public class Non_booleans_properties
         String video_length_s = Shared_services.main_properties().get(ID);
         if (video_length_s == null)
         {
-            return default_value; // may be null
+            Shared_services.main_properties().set(ID, String.valueOf(default_value));
+            return default_value;
         }
         else
         {
             double d_video_length = Double.parseDouble(video_length_s);
             returned  = (int) d_video_length;
         }
-        Shared_services.main_properties().set(ID, String.valueOf(returned));
         return returned;
     }
 
@@ -164,13 +155,13 @@ public class Non_booleans_properties
         String s = Shared_services.main_properties().get(ID);
         if (s == null)
         {
-            return default_value; // maybe null
+            Shared_services.main_properties().set(ID, String.valueOf(default_value));
+            return default_value;
         }
         else
         {
             returned = Double.parseDouble(s);
         }
-        Shared_services.main_properties().set(ID, String.valueOf(returned));
         return returned;
     }
 
@@ -188,7 +179,7 @@ public class Non_booleans_properties
     public static Rectangle2D get_window_bounds(String key, Window owner)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         String x_s = pm.get(key + String_constants.SCREEN_TOP_LEFT_X);
         if (x_s == null) return default_rectangle();
         double x = Double.parseDouble(x_s);
@@ -278,7 +269,7 @@ public class Non_booleans_properties
     {
         Rectangle2D r = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
         if (dbg) logger.log("saving bounds=" + r);
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         pm.set(key + String_constants.SCREEN_TOP_LEFT_X, String.valueOf(r.getMinX()));
         pm.set(key + String_constants.SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
         pm.set(key + String_constants.SCREEN_WIDTH, String.valueOf(r.getWidth()));
@@ -348,8 +339,6 @@ public class Non_booleans_properties
         return get_int(String_constants.DISK_CACHE_SIZE_WARNING_MEGABYTES,DEFAULT_SIZE_WARNING_MEGABYTES,owner);
     }
 
-
-
     //**********************************************************
     public static void set_folder_icon_size(int value, Window owner)
     //**********************************************************
@@ -397,7 +386,7 @@ public class Non_booleans_properties
     public static void force_reload_from_disk(Window owner)
     //**********************************************************
     {
-        Shared_services.main_properties().force_reload_from_disk();
+        Shared_services.main_properties().reload_from_disk();
     }
 
 
@@ -405,14 +394,14 @@ public class Non_booleans_properties
     public static void save_java_VM_max_RAM(int value, Window owner, Logger logger)
     //**********************************************************
     {
-        File_based_IProperties f = new File_based_IProperties(String_constants.PURPOSE, String_constants.RAM_FILENAME,true,owner,new Aborter("ram", logger), logger);
+        File_storage_using_Properties f = new File_storage_using_Properties(String_constants.PURPOSE, String_constants.RAM_FILENAME,true,owner,new Aborter("ram", logger), logger);
         f.set(String_constants.JAVA_VM_MAX_RAM, "" + value);
     }
     //**********************************************************
     public static int get_java_VM_max_RAM(Window owner, Logger logger)
     //**********************************************************
     {
-        File_based_IProperties f = new File_based_IProperties(String_constants.PURPOSE, String_constants.RAM_FILENAME, true, owner,new Aborter("ram", logger), logger);
+        File_storage_using_Properties f = new File_storage_using_Properties(String_constants.PURPOSE, String_constants.RAM_FILENAME, true, owner,new Aborter("ram", logger), logger);
         String s = f.get(String_constants.JAVA_VM_MAX_RAM);
         if (s == null)
         {
@@ -431,81 +420,5 @@ public class Non_booleans_properties
         }
         return value;
     }
-
-
-
-/*
-    //**********************************************************
-    public static int get_animated_gif_duration_for_a_video(Window owner)
-    //**********************************************************
-    {
-        if (video_length > 0) return video_length;
-        // first time, we look it up on disk
-        String video_length_s = Shared_services.main_properties().get(VIDEO_SAMPLE_LENGTH);
-        if (video_length_s == null) {
-            video_length = DEFAULT_VIDEO_LENGTH;
-        } else {
-            double d_video_length = Double.parseDouble(video_length_s);
-            video_length = (int) d_video_length;
-        }
-        Shared_services.main_properties().set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
-        //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
-        return video_length;
-    }
-
-    //**********************************************************
-    public static void set_animated_gif_duration_for_a_video(int l,Window owner)
-    //**********************************************************
-    {
-        video_length = l;
-        Shared_services.main_properties().set(VIDEO_SAMPLE_LENGTH, String.valueOf(video_length));
-    }
-
-
-    //**********************************************************
-    public static int get_column_width(Window owner)
-    //**********************************************************
-    {
-        if (column_width > 0) return column_width;
-        // first time, we look it up on disk
-        String column_width_s = Shared_services.main_properties().get(COLUMN_WIDTH);
-        if (column_width_s == null) {
-            column_width = Virtual_landscape.MIN_COLUMN_WIDTH;
-        } else {
-            double local = Double.parseDouble(column_width_s);
-            column_width = (int) local;
-        }
-        Shared_services.main_properties().set(COLUMN_WIDTH, String.valueOf(column_width));
-        return column_width;
-    }
-
-    //**********************************************************
-    public static void set_column_width(int l, Window owner)
-    //**********************************************************
-    {
-        column_width = l;
-        Shared_services.main_properties().set(COLUMN_WIDTH, String.valueOf(column_width));
-    }
-
-
-     //**********************************************************
-    public static int get_icon_size(Window owner)
-    //**********************************************************
-    {
-        if (icon_size > 0) return icon_size;
-        // first time, we look it up on disk
-        String icon_size_s = Shared_services.main_properties().get(ICON_SIZE);
-        if (icon_size_s == null) {
-            icon_size = DEFAULT_ICON_SIZE;
-        } else {
-            double d_icon_size = Double.parseDouble(icon_size_s);
-            icon_size = (int) d_icon_size;
-        }
-        Shared_services.main_properties().set(ICON_SIZE, String.valueOf(icon_size));
-        //if (icon_manager != null) icon_manager.icon_size_is_now(icon_size.get_icon_size());
-        return icon_size;
-    }
-
-*/
 
 }

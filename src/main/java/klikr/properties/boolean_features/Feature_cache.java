@@ -122,12 +122,26 @@ public class Feature_cache
     {
         return boolean_feature_cache.get(feature);
     }
-
     //**********************************************************
-    public static void update_cached_boolean(Feature feature, boolean new_val, Window owner)
+    public static void update_cached_boolean_and_save(Feature feature, boolean new_val, Window owner)
     //**********************************************************
     {
-        Booleans.set_boolean(feature.name(),new_val,owner);
+        update_cached_boolean(feature, new_val, true, owner);
+
+    }
+    //**********************************************************
+    public static void update_cached_boolean_and_dont_save(Feature feature, boolean new_val, Window owner)
+    //**********************************************************
+    {
+        update_cached_boolean(feature, new_val, false, owner);
+
+    }
+
+    //**********************************************************
+    private static void update_cached_boolean(Feature feature, boolean new_val, boolean and_save, Window owner)
+    //**********************************************************
+    {
+        if ( and_save) Booleans.save_boolean(feature.name(),new_val,owner);
         boolean_feature_cache.put(feature,new_val);
         for( Feature_change_target fct : registered_for_any_boolean_change)
         {
@@ -136,7 +150,10 @@ public class Feature_cache
 
         List<Feature_change_target> l = registered_for.get(feature);
         if ( l == null) return;
-        for( Feature_change_target fct : l) fct.update(feature,new_val);
+        for( Feature_change_target fct : l)
+        {
+            fct.update(feature,new_val);
+        }
     }
 
     //**********************************************************

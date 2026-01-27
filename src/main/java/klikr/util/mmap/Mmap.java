@@ -4,6 +4,7 @@ import javafx.stage.Window;
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
 import klikr.util.cache.Cache_folder;
+import klikr.util.execute.actor.Actor_engine;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Simple_logger;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -35,6 +37,7 @@ public class Mmap
     private final AtomicLong currentOffset = new AtomicLong(0);
     private final Logger logger;
     private final Runnable on_nuke;
+    private final ArrayBlockingQueue<Boolean> save_queue = new ArrayBlockingQueue<>(1);
 
     private interface Meta{};
     private record Simple_metadata(long offset, long length) implements Meta{}
@@ -126,6 +129,24 @@ public class Mmap
             logger.log("Failed to memory-map the file: " + e.getMessage());
             return false;
         }
+        Runnable savior = () -> {
+            for(;;)
+            {
+                try
+                {
+                    // Block waiting for a save request
+                    save_queue.take();
+                    save_index_internal();
+                }
+                catch (InterruptedException e)
+                {
+                    logger.log(""+e);
+                    break;
+                }
+            }
+        };
+
+        Actor_engine.execute(savior, "Mmap-index-saver", logger);
         return  true;
     }
 
@@ -196,7 +217,7 @@ public class Mmap
         String tag = path.toAbsolutePath().normalize().toString();
         if (index.containsKey(tag))
         {
-            logger.log("tag already registered: " + path);
+            logger.log("write_file, tag already registered: " + path);
             return null;
         }
         try
@@ -211,10 +232,7 @@ public class Mmap
             {
                 // ok, was available
                 logger.log("Registered tag:->" + tag + "<- at aligned offset: " + offset);
-                if ( and_save)
-                {
-                    if (!save_index()) return null;
-                }
+                if ( and_save) save_index();
                 return tag;
             }
             logger.log("FATAL NOT Registered " + tag );
@@ -234,7 +252,7 @@ public class Mmap
     {
         if (index.containsKey(tag))
         {
-            logger.log("tag already registered: " + tag);
+            logger.log("write_bytes, tag already registered: " + tag);
             return false;
         }
 
@@ -250,10 +268,7 @@ public class Mmap
         {
             // ok, was available
             logger.log("Registered bytes tag:->" + tag + "<- at aligned offset: " + offset);
-            if ( and_save)
-            {
-                if (!save_index()) return false;
-            }
+            if ( and_save) save_index();
             return true;
         }
         return false;
@@ -292,14 +307,6 @@ public class Mmap
         return null;
     }
 
-    /*
-    does not make sense to close at any "normal" time
-    public void close()
-    {
-        save_index();
-        arena.close();
-    }
-    */
 
 
 
@@ -309,10 +316,15 @@ public class Mmap
     {
         if (index.containsKey(tag))
         {
-            logger.log("tag already registered: " + tag);
+            logger.log("write_image, tag already registered: " + tag);
             return false;
         }
         PixelReader pr = image.getPixelReader();
+        if ( pr == null)
+        {
+            logger.log("❌ PANIC in write_image, image is null");
+            return false;
+        }
         int width = (int)image.getWidth();
         int height = (int)image.getHeight();
         byte[] bytes = new byte[width*height*4];
@@ -345,10 +357,7 @@ public class Mmap
         {
             // ok, was available
             logger.log("Registered image with tag:->" + tag + "<- at aligned offset: " + offset);
-            if ( and_save)
-            {
-                if (!save_index()) return false;
-            }
+            if ( and_save) save_index();
             return true;
         }
         return false;
@@ -401,10 +410,18 @@ public class Mmap
 
 
 
+    //**********************************************************
+    public void save_index()
+    //**********************************************************
+    {
+        save_queue.offer(Boolean.TRUE);
+    }
+
+
     static final byte SIMPLE_META = 0x01;
     static final byte IMAGE_META = 0x02;
     //**********************************************************
-    public synchronized boolean save_index()
+    private void save_index_internal()
     //**********************************************************
     {
         try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(index_file.toFile())))
@@ -433,7 +450,7 @@ public class Mmap
             }
             dos.flush();
             logger.log("Index saved with " + index.size() + " entries.");
-            return true;
+            return;
         }
         catch (FileNotFoundException e)
         {
@@ -443,7 +460,6 @@ public class Mmap
         {
             logger.log(""+e);
         }
-        return false;
     }
 
     //**********************************************************
@@ -504,6 +520,16 @@ public class Mmap
         // 3. Save the empty index to disk immediately causing the .index file to be reset too
         save_index();
     }
+
+
+    /*
+    does not make sense to close at any "normal" time
+    public void close()
+    {
+        save_index();
+        arena.close();
+    }
+    */
 
     //**********************************************************
     public static void main(String[] args)

@@ -13,6 +13,7 @@ import klikr.util.log.Logger;
 import klikr.util.mmap.Mmap;
 
 import java.nio.file.Path;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +31,7 @@ public class Jfx_batch_injector
 {
     private static final boolean enable = false;
     private static final boolean dbg = false;
-    private final LinkedBlockingQueue<Runnable> input = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Runnable> input = new LinkedBlockingQueue<>();
 
     // if something arrives while the batch is being executed, it will get in the batch
     private final ConcurrentLinkedQueue<Runnable> batch = new ConcurrentLinkedQueue<>();

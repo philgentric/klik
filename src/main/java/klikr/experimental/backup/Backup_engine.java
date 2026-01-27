@@ -305,7 +305,7 @@ public class Backup_engine
     public static void remove_all_properties()
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         for(int j = 0; j <=12 ; j++)
         {
             {

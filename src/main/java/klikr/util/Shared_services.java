@@ -4,9 +4,9 @@
 package klikr.util;
 
 import javafx.stage.Stage;
+import klikr.properties.File_storage;
+import klikr.properties.File_storage_using_Properties;
 import klikr.util.execute.actor.Aborter;
-import klikr.properties.File_based_IProperties;
-import klikr.properties.IProperties;
 import klikr.properties.boolean_features.Booleans;
 import klikr.properties.boolean_features.Feature;
 import klikr.util.log.File_logger;
@@ -19,7 +19,7 @@ public class Shared_services
 {
     private static Aborter aborter;
     private static Logger logger;
-    private static IProperties main_properties;
+    private static File_storage main_properties;
 
     public static Logger logger()
     {
@@ -30,7 +30,7 @@ public class Shared_services
         return aborter;
     }
     //**********************************************************
-    public static IProperties main_properties()
+    public static File_storage main_properties()
     //**********************************************************
     {
         return main_properties;
@@ -48,7 +48,7 @@ public class Shared_services
         Logger tmp_logger = new Simple_logger();
         aborter = new Aborter("Shared_services", tmp_logger);
         // this properties file holds both the Non-booleans AND the Booleans
-        main_properties = new File_based_IProperties(name+" main properties", "klikr", true,owner, aborter, tmp_logger);
+        main_properties = new File_storage_using_Properties(name+" main properties", "klikr", true,owner, aborter, tmp_logger);
         logger = get_logger(name);
     }
 

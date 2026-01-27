@@ -205,13 +205,13 @@ public class More_settings_stage
             VBox box = new VBox(10);
             Installers.make_ui_to_install_python_libs_for_ML(w, icon_size, look_and_feel,box, owner, logger);
 
-            if ( !similarity_enabled) Feature_cache.update_cached_boolean(Feature.Enable_ML_server_debug,false,owner);
+            if ( !similarity_enabled) Feature_cache.update_cached_boolean_and_save(Feature.Enable_ML_server_debug,false,owner);
             add_one_line(similarity_enabled,Feature.Enable_ML_server_debug, box);
 
-            if ( !similarity_enabled) Feature_cache.update_cached_boolean(Feature.Display_image_distances,false,owner);
+            if ( !similarity_enabled) Feature_cache.update_cached_boolean_and_save(Feature.Display_image_distances,false,owner);
             add_one_line(similarity_enabled,Feature.Display_image_distances, box);
 
-            if ( !similarity_enabled) Feature_cache.update_cached_boolean(Feature.Enable_image_similarity,false,owner);
+            if ( !similarity_enabled) Feature_cache.update_cached_boolean_and_save(Feature.Enable_image_similarity,false,owner);
             add_one_line(similarity_enabled,Feature.Enable_image_similarity,box);
             {
                 HBox hb = Installers.make_ui_to_start_image_similarity_servers(w, icon_size, look_and_feel, box, owner, logger);
@@ -357,8 +357,7 @@ public class More_settings_stage
     {
         boolean value = cb.isSelected();
         logger.log("Preference changing for: " + bf + "new value:" + value);
-        Booleans.set_boolean(bf.name(), value, owner); // this will trigger a file save
-        Feature_cache.update_cached_boolean(bf, value, owner);
+        Feature_cache.update_cached_boolean_and_save(bf, value, owner);
     }
 
     //**********************************************************

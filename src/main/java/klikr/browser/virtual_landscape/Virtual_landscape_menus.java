@@ -497,6 +497,8 @@ public class Virtual_landscape_menus
 
         context_menu.getItems().add(make_file_sort_method_menu());
 
+        context_menu.getItems().add(create_menu_item_for_show_details(virtual_landscape,owner,logger));
+
         context_menu.getItems().add(make_icon_size_menu());
         if ( Feature_cache.get(Feature.Show_icons_for_folders))
         {
@@ -525,7 +527,7 @@ public class Virtual_landscape_menus
             {
                 if ( menu_item.isSelected())
                 {
-                    Feature_cache.update_cached_boolean(Feature.Play_music, true, owner);
+                    Feature_cache.update_cached_boolean_and_save(Feature.Play_music, true, owner);
                     if ( Klikr_application.audio_player != null)
                     {
                         logger.log("an audio player already exists");
@@ -538,7 +540,7 @@ public class Virtual_landscape_menus
                 }
                 else
                 {
-                    Feature_cache.update_cached_boolean(Feature.Play_music, false, owner);
+                    Feature_cache.update_cached_boolean_and_save(Feature.Play_music, false, owner);
                     if ( Klikr_application.audio_player != null)
                     {
                         logger.log("killing audio player");
@@ -805,7 +807,7 @@ public class Virtual_landscape_menus
         item.setOnAction(actionEvent ->
         {
             boolean val = ((CheckMenuItem) actionEvent.getSource()).isSelected();
-            Feature_cache.update_cached_boolean(Feature.Fusk_is_on,val,owner);
+            Feature_cache.update_cached_boolean_and_save(Feature.Fusk_is_on,val,owner);
 
         });
         Items_with_explanation.add_question_mark_button(key, item, virtual_landscape.owner ,logger);
@@ -1388,8 +1390,6 @@ public class Virtual_landscape_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_column_width(length,owner);
-                Booleans.set_boolean(Feature.Show_single_column_with_details.name(), false, owner); // this will trigger a file save
-                Feature_cache.update_cached_boolean(Feature.Show_single_column_with_details, false, owner);
                 local_virtual_landscape.redraw_fx("column width changed");
             }
         });
@@ -1399,30 +1399,20 @@ public class Virtual_landscape_menus
     }
 
     //**********************************************************
-    public static void create_menu_item_for_show_details(Menu menu, List<CheckMenuItem> all_check_menu_items, Virtual_landscape local_virtual_landscape, Window owner, Logger logger)
+    public static CheckMenuItem create_menu_item_for_show_details(Virtual_landscape local_virtual_landscape, Window owner, Logger logger)
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Show_Details",owner,logger);
         text += " ("+local_virtual_landscape.show_details.getDisplayText()+")";
         CheckMenuItem item = new CheckMenuItem(text );
         Look_and_feel_manager.set_menu_item_look(item, owner, logger);
-        int actual_size = Non_booleans_properties.get_column_width(owner);
-        item.setSelected(actual_size == 100_000_000);
+        item.setSelected(Feature_cache.get(Feature.Show_single_column_with_details));
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
-            if (local.isSelected()) {
-                for ( CheckMenuItem cmi : all_check_menu_items)
-                {
-                    if ( cmi != local) cmi.setSelected(false);
-                }
-                Non_booleans_properties.set_column_width(100_000_000,owner);
-                Booleans.set_boolean(Feature.Show_single_column_with_details.name(), true, owner); // this will trigger a file save
-                Feature_cache.update_cached_boolean(Feature.Show_single_column_with_details, true, owner);
-                local_virtual_landscape.redraw_fx("column width set to Show_single_column_with_details");
-            }
+            Feature_cache.update_cached_boolean_and_dont_save(Feature.Show_single_column_with_details, local.isSelected(), owner);
+            local_virtual_landscape.redraw_fx("Show_single_column_with_details");
         });
-        menu.getItems().add(item);
-        all_check_menu_items.add(item);
+        return item;
 
     }
     //**********************************************************
@@ -1516,8 +1506,6 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(text);
         Look_and_feel_manager.set_menu_item_look(menu,owner, logger);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-
-        create_menu_item_for_show_details(menu,all_check_menu_items,local_virtual_landscape,owner,logger);
 
         int[] possible_lengths ={Virtual_landscape.MIN_COLUMN_WIDTH,400,500,600,800,1000,2000,4000};
         for ( int l : possible_lengths)

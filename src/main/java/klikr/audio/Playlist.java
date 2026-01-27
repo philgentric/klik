@@ -17,7 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klikr.properties.IProperties;
+import klikr.properties.File_storage;
 import klikr.properties.String_constants;
 import klikr.util.Shared_services;
 import klikr.path_lists.Path_list_provider_for_file_system;
@@ -1220,7 +1220,7 @@ public class Playlist
     public static void save_current_song(String path, Window owner)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         pm.set(AUDIO_PLAYER_CURRENT_SONG, path);
 
     }
@@ -1229,7 +1229,7 @@ public class Playlist
     public static String get_current_song(Window owner)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         return pm.get(AUDIO_PLAYER_CURRENT_SONG);
     }
 

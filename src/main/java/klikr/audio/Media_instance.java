@@ -8,10 +8,9 @@ import javafx.collections.ObservableList;
 import javafx.scene.media.*;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import klikr.properties.IProperties;
+import klikr.properties.File_storage;
 import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
-import klikr.properties.Non_booleans_properties;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
@@ -253,7 +252,7 @@ public class Media_instance
     public static Integer get_current_time_in_song(Window owner,Logger logger)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         String s = pm.get(AUDIO_PLAYER_CURRENT_TIME);
         if (s == null)
         {

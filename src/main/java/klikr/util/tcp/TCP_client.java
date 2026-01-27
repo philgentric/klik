@@ -7,7 +7,6 @@ package klikr.util.tcp;
 //SOURCES ../../properties/Properties_server.java
 
 import klikr.util.execute.actor.Actor_engine;
-import klikr.properties.Properties_server;
 import klikr.util.log.File_logger;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
@@ -147,83 +146,7 @@ public class TCP_client
 
     }
 
-    //**********************************************************
-    public static List<String> request_all_keys(String host, int port_number, Logger logger)
-    //**********************************************************
-    {
-        try( Socket client_socket = new Socket(host,port_number);
-             DataInputStream dis = new DataInputStream(client_socket.getInputStream());
-             DataOutputStream dos = new DataOutputStream(client_socket.getOutputStream())
-        )
-        {
-            List<String> result = new java.util.ArrayList<>();
-            for(;;)
-            {
-                String k = TCP_util.read_string(dis);
-                if ( k.equals(Properties_server.E_ND_O_F_K_EYS)) break;
-                result.add(k);
-            }
-            return result;
-        }
-        catch (UnknownHostException e)
-        {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            return List.of();
 
-        }
-        catch (ConnectException e)
-        {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(e+" Cannot connect is a server at "+host+":"+port_number+" started?"));
-            return List.of();
-        }
-        catch (IOException e)
-        {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            return List.of();
-        }
-
-    }
-
-    public record KV(String k, String v){}
-
-    //**********************************************************
-    public static List<KV> requestN(String host, int port_number, Logger logger)
-    //**********************************************************
-    {
-        try( Socket client_socket = new Socket(host,port_number);
-             DataInputStream dis = new DataInputStream(client_socket.getInputStream());
-             DataOutputStream dos = new DataOutputStream(client_socket.getOutputStream())
-        )
-        {
-            List<KV> result = new java.util.ArrayList<>();
-            for(;;)
-            {
-                String k = TCP_util.read_string(dis);
-                if ( k.equals(Properties_server.E_ND_O_F_K_EYS)) break;
-                String v = TCP_util.read_string(dis);
-                result.add(new KV(k,v));
-
-            }
-            return result;
-        }
-        catch (UnknownHostException e)
-        {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            return List.of();
-
-        }
-        catch (ConnectException e)
-        {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(e+" Cannot connect is a server at "+host+":"+port_number+" started?"));
-            return List.of();
-        }
-        catch (IOException e)
-        {
-            if ( dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
-            return List.of();
-        }
-
-    }
 
 
 

@@ -3,7 +3,7 @@
 
 package klikr.change.history;
 
-import klikr.properties.IProperties;
+import klikr.properties.File_storage;
 import klikr.util.log.Logger;
 
 import java.nio.file.Files;
@@ -11,15 +11,15 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static klikr.properties.Properties_manager.AGE;
+import static klikr.properties.File_storage_using_Properties.AGE;
 
 //**********************************************************
 public class Properties_for_history
 //**********************************************************
 {
-    private final static boolean dbg = false;
+    private final static boolean dbg = true;
     private final Logger logger;
-    private final IProperties ip;
+    private final File_storage storage;
     private final int max;
 
     // back button management
@@ -28,12 +28,12 @@ public class Properties_for_history
     List<String> back_trace = new ArrayList<>();
 
     //**********************************************************
-    public Properties_for_history(IProperties ip, int max, Logger logger)
+    public Properties_for_history(File_storage storage, int max, Logger logger)
     //**********************************************************
     {
         this.logger = logger;
         this.max = max;
-        this.ip = ip;
+        this.storage = storage;
     }
 
 
@@ -58,8 +58,10 @@ public class Properties_for_history
             }
         }
         current = tag;
-        History_item new_item = new History_item(tag, LocalDateTime.now());
-        ip.set(tag, tag);
+        LocalDateTime now = LocalDateTime.now();
+        History_item new_item = new History_item(tag, now);
+        storage.set(tag, now.toString());
+        storage.save_to_disk();
 
         List<History_item> all_history_items = get_all_history_items();
         all_history_items.add(new_item);
@@ -70,14 +72,15 @@ public class Properties_for_history
         if (all_history_items.size() > max)
         {
             History_item last = all_history_items.remove(all_history_items.size() - 1);
-            for (String k : ip.get_all_keys())
+            for (String k : storage.get_all_keys())
             {
                 if (k.endsWith(AGE)) continue;
                 if (k.equals(last.value)) {
-                    ip.remove(k);
+                    storage.remove(k);
                     break;
                 }
             }
+            storage.save_to_disk();
         }
     }
     //**********************************************************
@@ -85,15 +88,10 @@ public class Properties_for_history
     //**********************************************************
     {
         List<History_item> returned = new ArrayList<>();
-        for (String k : ip.get_all_keys())
+        for (String k : storage.get_all_keys())
         {
             if (k.endsWith(AGE)) continue;
-            String v = ip.get(k);
-            if (v == null) {
-                logger.log("WEIRD history key failed?");
-                continue;
-            }
-            String age_s = ip.get(k + AGE);
+            String age_s = storage.get(k);
             if ( age_s == null)
             {
                 logger.log("WEIRD cannot get age from key?"+k);
@@ -101,11 +99,11 @@ public class Properties_for_history
             }
             LocalDateTime ts = LocalDateTime.parse(age_s);
             if (ts == null) {
-                logger.log("WEIRD cannot get timestamp from key?");
+                logger.log("WEIRD cannot get timestamp from ->"+age_s+"<-");
                 continue;
             }
-            History_item hi = new History_item(v, ts);
-            hi.set_available(Files.exists(Path.of(v)));
+            History_item hi = new History_item(k, ts);
+            hi.set_available(Files.exists(Path.of(k)));
             returned.add(hi);
         }
         Collections.sort(returned,History_item.comparator_by_date);
@@ -117,7 +115,7 @@ public class Properties_for_history
     //**********************************************************
     {
         System.out.println("clearing history");
-        ip.clear();
+        storage.clear();
     }
 
     //**********************************************************

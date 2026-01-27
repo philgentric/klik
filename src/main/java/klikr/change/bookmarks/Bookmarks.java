@@ -5,17 +5,13 @@ package klikr.change.bookmarks;
 //SOURCES ../../properties/Properties_with_base.java
 
 import javafx.stage.Window;
+import klikr.properties.File_storage;
 import klikr.util.Shared_services;
-import klikr.util.cache.Cache_folder;
 import klikr.util.execute.actor.Aborter;
-import klikr.properties.File_based_IProperties;
-import klikr.properties.IProperties;
+import klikr.properties.File_storage_using_Properties;
 import klikr.properties.Properties_with_base;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
-import klikr.util.mmap.Mmap;
 
-import java.nio.file.Path;
 import java.util.List;
 
 //**********************************************************
@@ -24,7 +20,7 @@ public class Bookmarks
 {
     private static volatile Bookmarks instance = null;
     private final Logger logger;
-    private final IProperties ip;
+    private final File_storage ip;
     private final Properties_with_base pb;
 
     //**********************************************************
@@ -50,7 +46,7 @@ public class Bookmarks
     //**********************************************************
     {
         this.logger = logger;
-        ip = new File_based_IProperties("bookmarks","bookmarks",true, owner, aborter,logger);
+        ip = new File_storage_using_Properties("bookmarks","bookmarks",true, owner, aborter,logger);
         pb = new Properties_with_base(ip,"bookmark_",30,logger);
     }
 

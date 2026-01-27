@@ -14,16 +14,12 @@ import klikr.util.execute.actor.Or_aborter;
 import klikr.change.Change_gang;
 import klikr.change.undo.Undo_for_moves;
 import klikr.change.Redo_same_move_engine;
-import klikr.properties.Non_booleans_properties;
 import klikr.properties.boolean_features.Feature;
-import klikr.util.cache.Cache_folder;
-import klikr.experimental.metadata.Metadata_handler;
 import klikr.look.my_i18n.My_I18n;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.files_and_paths.old_and_new.Command;
 import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
 import klikr.util.files_and_paths.old_and_new.Status;
-import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.progress.Hourglass;
@@ -166,34 +162,6 @@ public class Moving_files
             }
             // record (last) move destination folder
             Redo_same_move_engine.last_destination_folder = oandn.new_Path.getParent();
-            // we also move meta data
-            Path meta_old = Metadata_handler.make_metadata_path(oandn.old_Path);
-            if (meta_old.toFile().exists()) {
-                // if there is an associated metadata file, move it too
-                Path meta_new = Metadata_handler.make_metadata_path(oandn.new_Path);
-                process_one_move(new Old_and_new_Path(meta_old, meta_new, Command.command_rename, Status.before_command,false), owner, local, logger);
-            }
-
-            /*
-            {
-                // we rename the ICON to avoid remaking one
-
-                int icon_size = Non_booleans_properties.get_icon_size(owner);
-                Path current_icon = Icon_caching.path_for_icon_caching(oandn.old_Path,String.valueOf(icon_size), Icon_caching.png_extension,owner,logger);
-                if (Files.exists(current_icon)) {
-                    Path new_icon = Icon_caching.path_for_icon_caching(oandn.new_Path, String.valueOf(icon_size), Icon_caching.png_extension, owner, logger);
-
-                    //Files.move(current_icon.toPath(), new_icon.toPath());
-                    //FileUtils.moveFile(current_icon, new_icon, StandardCopyOption.REPLACE_EXISTING);
-                    if ( !move_file(current_icon,new_icon,logger))
-                    {
-                        logger.log("icon move failed");
-                    }
-                }
-                //logger.log("renaming icon :"+current_icon.getName()+"==>"+new_icon.getName());
-            }
-                        // then we move the actual file
-            */
 
             Old_and_new_Path actual = process_one_move(oandn, owner, local, logger);
             if ( actual==null)

@@ -6,8 +6,8 @@ package klikr.properties.boolean_features;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
+import klikr.properties.File_storage;
 import klikr.util.Shared_services;
-import klikr.properties.IProperties;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
 
@@ -22,10 +22,10 @@ public class Booleans
     public static final String GOT_IT_DONT_SHOW_ME_THIS_AGAIN = "Got it ! Dont show me this again.";
 
     //**********************************************************
-    public static void set_boolean(String s, boolean b, Window owner)
+    public static void save_boolean(String s, boolean b, Window owner)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         pm.set(s, String.valueOf(b));
 
     }
@@ -35,7 +35,7 @@ public class Booleans
     public static boolean get_boolean_defaults_to_false(String s)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         String bb = pm.get(s);
         return Boolean.parseBoolean(bb); // returns false if bb is null
     }
@@ -44,7 +44,7 @@ public class Booleans
     public static boolean get_boolean_defaults_to_true(String s)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         String bb = pm.get(s);
         if ( bb == null)
         {
@@ -76,11 +76,11 @@ public class Booleans
                     "\nOn Mac, type 'brew install ffmpeg' in a shell";
 
             Platform.runLater(()->{
-            if ( Popups.info_popup(msg, GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
-            {
-                // user decided that the warning is annoying
-                set_boolean(Feature.Show_ffmpeg_install_warning.name(), false,owner);
-            }});
+                if ( Popups.info_popup(msg, GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
+                {
+                    Feature_cache.update_cached_boolean_and_save(Feature.Show_ffmpeg_install_warning, false,owner);
+                }
+            });
         }
     }
 
@@ -101,7 +101,7 @@ public class Booleans
                             "\nOn Mac, type: 'brew install graphicsmagick' in a shell";
                     if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
                     {
-                        set_boolean(Feature.Show_graphicsmagick_install_warning.name(), false,owner);
+                        Feature_cache.update_cached_boolean_and_save(Feature.Show_graphicsmagick_install_warning, false,owner);
                     }
 
                 }
@@ -128,7 +128,7 @@ public class Booleans
                             "\nOn Mac: use the launcher or type 'brew install chromaprint' in a shell";
                     if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
                     {
-                        set_boolean(Feature.Show_fpcalc_install_warning.name(), false,owner);
+                        Feature_cache.update_cached_boolean_and_save(Feature.Show_fpcalc_install_warning, false,owner);
                     }
 
                 }
@@ -154,7 +154,7 @@ public class Booleans
                             "\nOn Mac: use the launcher or type 'brew install imagemagick' in a shell";
                     if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
                     {
-                        set_boolean(Feature.Show_imagemagick_install_warning.name(), false,owner);
+                        Feature_cache.update_cached_boolean_and_save(Feature.Show_imagemagick_install_warning, false,owner);
                     }
 
                 }
@@ -181,7 +181,7 @@ public class Booleans
                             "\nOn Mac: use the launcher or type 'brew install imagemagick' in a shell";
                     if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
                     {
-                        set_boolean(Feature.Show_mediainfo_install_warning.name(), false,owner);
+                        Feature_cache.update_cached_boolean_and_save(Feature.Show_mediainfo_install_warning, false,owner);
                     }
 
                 }
@@ -208,7 +208,7 @@ public class Booleans
                             "\nOn Mac: use the launcher or type 'brew install yt-dlp' in a shell";
                     if ( Popups.info_popup(msg,GOT_IT_DONT_SHOW_ME_THIS_AGAIN,owner,logger))
                     {
-                        set_boolean(Feature.Show_ytdlp_install_warning.name(), false,owner);
+                        Feature_cache.update_cached_boolean_and_save(Feature.Show_ytdlp_install_warning, false,owner);
                     }
 
                 }

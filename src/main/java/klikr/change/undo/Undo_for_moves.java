@@ -32,7 +32,7 @@ public class Undo_for_moves implements Datetime_to_signature_source
     private static Logger logger = null;
     public static List<Active_list_stage> undo_stages = new ArrayList<>();
     private final Undo_core core;
-    public static final String UNDO_FILENAME = "undo_for_moves.properties";
+    public static final String UNDO_FILENAME = "undo_for_moves";
 
 
 

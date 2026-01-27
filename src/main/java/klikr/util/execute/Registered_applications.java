@@ -6,10 +6,9 @@ package klikr.util.execute;
 import javafx.application.Platform;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import klikr.properties.File_storage_using_Properties;
 import klikr.properties.String_constants;
 import klikr.util.execute.actor.Aborter;
-import klikr.properties.Non_booleans_properties;
-import klikr.properties.Properties_manager;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
@@ -21,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static klikr.properties.Properties_manager.AGE;
+import static klikr.properties.File_storage_using_Properties.AGE;
 
 //**********************************************************
 public class Registered_applications
@@ -31,7 +30,7 @@ public class Registered_applications
     private static final Map<String,String> map = new HashMap<>();
 
     public static final String REGISTERED_APPLICATIONS_FILENAME = "registered_applications.properties";
-    private static Properties_manager properties_manager;
+    private static File_storage_using_Properties storage;
 
     //**********************************************************
     public static String get_registered_application(String extension, Window owner, Aborter aborter,Logger logger)
@@ -83,7 +82,7 @@ public class Registered_applications
     private static void save_map(Logger logger)
     //**********************************************************
     {
-        if ( properties_manager == null)
+        if ( storage == null)
         {
             logger.log("Registered_applications.save_map: properties_manager is null");
             return;
@@ -92,7 +91,8 @@ public class Registered_applications
         {
             if ( key.endsWith(AGE)) continue; // skip age entries
             String value = map.get(key);
-            properties_manager.add(key,value, true);
+            storage.set(key,value);
+            storage.save_to_disk();
             logger.log("Registered_applications.save_map: "+key+" "+value);
         }
     }
@@ -101,15 +101,13 @@ public class Registered_applications
     private static void load_map(Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if ( properties_manager == null)
+        if ( storage == null)
         {
-            String home = System.getProperty(String_constants.USER_HOME);
-            Path p = Paths.get(home, String_constants.CONF_DIR, REGISTERED_APPLICATIONS_FILENAME);
-            properties_manager = new Properties_manager(p,"Registered applications DB",owner,aborter,logger);
+            storage = new File_storage_using_Properties("Registered applications DB",REGISTERED_APPLICATIONS_FILENAME,false,owner,aborter,logger);
         }
-        for (String key : properties_manager.get_all_keys())
+        for (String key : storage.get_all_keys())
         {
-            String value = properties_manager.get(key);
+            String value = storage.get(key);
             map.put(key,value);
         }
     }

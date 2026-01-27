@@ -32,6 +32,7 @@ import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.mmap.Mmap;
+import org.jspecify.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -46,8 +47,8 @@ import java.util.Optional;
 public class Icon_factory_actor implements Actor
 //**********************************************************
 {
-    private static final boolean verbose_dbg = false;
-    private static final boolean dbg = false;
+    private static final boolean verbose_dbg = true;
+    private static final boolean dbg = true;
     private static final boolean pdf_dbg = false;
     private static final boolean aborting_dbg = false;
 
@@ -175,11 +176,11 @@ public class Icon_factory_actor implements Actor
         {
             case pdf -> {
                 if (dbg) logger.log("✅ "+destination.get_item_path() + " type is PDF");
-                return Optional.ofNullable(process_pdf(icon_factory_request, destination));
+                return process_pdf(icon_factory_request, destination);
             }
             case video -> {
                 if (dbg) logger.log("✅ "+destination.get_item_path() + " type is VIDEO");
-                return Optional.ofNullable(process_video(icon_factory_request, destination));
+                return process_video(icon_factory_request, destination);
             }
 
             case folder, symbolic_link_on_folder -> {
@@ -199,7 +200,7 @@ public class Icon_factory_actor implements Actor
         }
         logger.log("❗ WARNING icon is null for "+destination.get_item_path());
 
-        return null;
+        return Optional.empty();
     }
 
 
@@ -224,25 +225,7 @@ public class Icon_factory_actor implements Actor
         }
 
         {
-            Image image_from_cache;
-            if ( Icon_writer_actor.use_mmap)
-            {
-                image_from_cache = Mmap.instance.read_image(
-                        Icon_caching.tag_for_icon_caching(
-                                path,
-                                String.valueOf(icon_factory_request.icon_size)
-                        ));
-            }
-            else
-            {
-                image_from_cache = Icons_from_disk.load_icon_from_disk_cache(
-                        path,
-                        icon_factory_request.icon_size,
-                        String.valueOf(icon_factory_request.icon_size),
-                        Icon_caching.png_extension,
-                        false, icon_factory_request.owner, logger);
-            }
-
+            Image image_from_cache = Icons_from_disk.get_image_from_cache(path,icon_factory_request.icon_size,owner,logger);
 
             if (icon_factory_request.aborter.should_abort())
             {
@@ -336,6 +319,7 @@ public class Icon_factory_actor implements Actor
     }
 
 
+
     //**********************************************************
     private Optional<Image> process_image_with_no_cached_icon(Icon_factory_request icon_factory_request, Icon_destination destination)
     //**********************************************************
@@ -374,7 +358,7 @@ public class Icon_factory_actor implements Actor
 
 
     //**********************************************************
-    private Image_and_properties process_video(Icon_factory_request icon_factory_request, Icon_destination destination)
+    private Optional<Image_and_properties> process_video(Icon_factory_request icon_factory_request, Icon_destination destination)
     //**********************************************************
     {
         if (verbose_dbg) logger.log("✅ Icon_factory thread:  process_video " + destination.get_item_path().toAbsolutePath());
@@ -382,121 +366,128 @@ public class Icon_factory_actor implements Actor
         // we are going to create an animated gif using ffmpeg
         // ... unless it is already in the icon cache
         //String tag = ""; // empty since we do not resize the frames to icon size
-        {
-            Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(destination.get_item_path(), icon_factory_request.icon_size, "",Icon_caching.gif_extension, dbg, icon_factory_request.owner,logger);
-            if (icon_factory_request.aborter.should_abort()) {
-                if (aborting_dbg) logger.log("❗ Icon_factory thread: aborting4");
-                return null;
-            }
-            if (image_from_cache != null) {
-                if (dbg)
-                    logger.log("✅ Icon_factory thread: found in cache: " + destination.get_item_path().getFileName());
 
-                Image_properties properties = new Image_properties(image_from_cache.getWidth(), image_from_cache.getHeight(), Rotation.normal);
-                return new Image_and_properties(image_from_cache, properties);
-            }
-
-
-            if (dbg)
-                logger.log("❗ Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
-            double length = Non_booleans_properties.get_animated_gif_duration_for_a_video(icon_factory_request.owner);
-
-            Path gif_animated_icon_file = Icon_caching.path_for_icon_caching(destination.get_path_for_display_icon_destination(), "", Icon_caching.gif_extension, owner, logger);
-            //File gif_animated_icon_file = Icons_from_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
-            if (icon_factory_request.aborter.should_abort()) {
-                if (aborting_dbg) logger.log("❗ Icon_factory thread: aborting5");
-                return null;
-            }
-
-            Path destination_gif_full_path = Paths.get(icon_cache_dir.toAbsolutePath().toString(), gif_animated_icon_file.getFileName().toString());
-
-            double skip = 0;
-            {
-                Double duration_in_seconds = Ffmpeg_utils.get_media_duration(destination.get_item_path(), icon_factory_request.owner, logger);
-                if (duration_in_seconds != null) {
-                    if (duration_in_seconds > 3 * 3600) {
-                        logger.log("❗ WARNING: ffprobe reports duration that looks wrong");
-                        duration_in_seconds = 1800.0;
-                    }
-
-                    if (duration_in_seconds < 0) {
-                        duration_in_seconds = length;
-                    }
-
-                    if (duration_in_seconds < length) {
-                        length = duration_in_seconds;
-                    } else {
-                        // jump to the middle of the movie
-                        skip = duration_in_seconds / 2 - length;
-                    }
-                }
-            }
-
-
-            Ffmpeg_utils.video_to_gif(
-                    destination.get_item_path(),
-                    icon_factory_request.icon_size,
-                    10,
-                    destination_gif_full_path,
-                    length,
-                    skip,
-                    0,
-                    icon_factory_request.get_aborter(), icon_factory_request.owner,logger);
-            if (icon_factory_request.aborter.should_abort()) {
-                if (aborting_dbg) logger.log("❗ Icon_factory thread: aborting6");
-                return null;
-            }
-
-            if (destination_gif_full_path.toFile().length() == 0) {
-                logger.log("❗ ERROR animated gif empty " + destination_gif_full_path.toAbsolutePath());
-                return null;
-            }
-            if (verbose_dbg)
-                logger.log("✅ Icon_factory Animated gif icon MADE for " + destination.get_item_path().getFileName() + " as " + destination_gif_full_path.toAbsolutePath());
+        Image image_from_cache = Icons_from_disk.get_image_from_cache(destination.get_item_path(), icon_factory_request.icon_size, icon_factory_request.owner,logger);
+        if (icon_factory_request.aborter.should_abort()) {
+            if (aborting_dbg) logger.log("❗ Icon_factory thread: aborting4");
+            return Optional.empty();
         }
-        {
-            Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(destination.get_path_for_display_icon_destination(), icon_factory_request.icon_size, "",Icon_caching.gif_extension, dbg, icon_factory_request.owner,logger);
-
-            if (icon_factory_request.aborter.should_abort()) {
-                if (aborting_dbg) logger.log("❗ Icon_factory thread: aborting7");
-                return null;
-            }
-            if (image_from_cache == null) {
-                logger.log("❗ Icon_factory thread: load from file FAILED (5) for " + destination.get_item_path().getFileName());
-                return null;
-            }
-            if ((image_from_cache.getHeight() == 0) && (image_from_cache.getWidth() == 0)) {
-                logger.log("❗ Icon_factory thread: load from file FAILED (6) for " + destination.get_item_path().getFileName());
-                return null;
-            }
-            //logger.log("Icon_factory returning image for :" + destination.get_item_path().getFileName());
+        if (image_from_cache != null) {
+            if (dbg)
+                logger.log("✅ Icon_factory thread: found in cache: " + destination.get_item_path().getFileName());
 
             Image_properties properties = new Image_properties(image_from_cache.getWidth(), image_from_cache.getHeight(), Rotation.normal);
-            return new Image_and_properties(image_from_cache, properties);
+            return Optional.of(new Image_and_properties(image_from_cache, properties));
         }
+
+
+        if (dbg)
+            logger.log("❗ Icon_factory thread:  load from GIF tmp FAILED for " + destination.get_item_path());
+        double length = Non_booleans_properties.get_animated_gif_duration_for_a_video(icon_factory_request.owner);
+
+        Path gif_animated_icon_file = Icon_caching.path_for_icon_caching(destination.get_path_for_display_icon_destination(), "", Icon_caching.gif_extension, owner, logger);
+        //File gif_animated_icon_file = Icons_from_disk.file_for_cache(icon_cache_dir, destination.get_icon_path(), ""+icon_factory_request.icon_size+"_"+length, gif_extension);
+        if (icon_factory_request.aborter.should_abort()) {
+            if (aborting_dbg) logger.log("❗ Icon_factory thread: aborting5");
+            return Optional.empty();
+        }
+
+        Path destination_gif_full_path = Paths.get(icon_cache_dir.toAbsolutePath().toString(), gif_animated_icon_file.getFileName().toString());
+
+        double skip = 0;
+        {
+            Double duration_in_seconds = Ffmpeg_utils.get_media_duration(destination.get_item_path(), icon_factory_request.owner, logger);
+            if (duration_in_seconds != null) {
+                if (duration_in_seconds > 3 * 3600) {
+                    logger.log("❗ WARNING: ffprobe reports duration that looks wrong");
+                    duration_in_seconds = 1800.0;
+                }
+
+                if (duration_in_seconds < 0) {
+                    duration_in_seconds = length;
+                }
+
+                if (duration_in_seconds < length) {
+                    length = duration_in_seconds;
+                } else {
+                    // jump to the middle of the movie
+                    skip = duration_in_seconds / 2 - length;
+                }
+            }
+        }
+
+
+        Ffmpeg_utils.video_to_gif(
+                destination.get_item_path(),
+                icon_factory_request.icon_size,
+                10,
+                destination_gif_full_path,
+                length,
+                skip,
+                0,
+                icon_factory_request.get_aborter(), icon_factory_request.owner,logger);
+        if (icon_factory_request.aborter.should_abort()) {
+            if (aborting_dbg) logger.log("❗ Icon_factory thread: aborting6");
+            return Optional.empty();
+        }
+
+        if (destination_gif_full_path.toFile().length() == 0) {
+            logger.log("❗ ERROR animated gif empty " + destination_gif_full_path.toAbsolutePath());
+            return Optional.empty();
+        }
+
+        if (verbose_dbg)
+            logger.log("✅ Icon_factory Animated gif icon MADE for " + destination.get_item_path().getFileName() + " as " + destination_gif_full_path.toAbsolutePath());
+
+
+        image_from_cache = Icons_from_disk.load_icon_from_disk_cache(destination.get_item_path(), icon_factory_request.icon_size, "",Icon_caching.gif_extension, dbg, icon_factory_request.owner,logger);
+        //Image image_from_cache = Icons_from_disk.get_image_from_cache(destination.get_path_for_display_icon_destination(), icon_factory_request.icon_size, icon_factory_request.owner,logger);
+
+        if (icon_factory_request.aborter.should_abort()) {
+            if (aborting_dbg) logger.log("❗ Icon_factory thread: aborting7");
+            return Optional.empty();
+        }
+        if (image_from_cache == null) {
+            logger.log("❗ Icon_factory thread: load from file FAILED (5) for " + destination.get_item_path().getFileName());
+            return Optional.empty();
+        }
+        if ((image_from_cache.getHeight() == 0) && (image_from_cache.getWidth() == 0)) {
+            logger.log("❗ Icon_factory thread: load from file FAILED (6) for " + destination.get_item_path().getFileName());
+            return Optional.empty();
+        }
+        //logger.log("Icon_factory returning image for :" + destination.get_item_path().getFileName());
+        if ( Icon_writer_actor.use_mmap)
+        {
+            String tag = destination.get_path_for_display_icon_destination().toAbsolutePath().toString();
+            Mmap.instance.write_image(tag, image_from_cache,true);
+        }
+        Image_properties properties = new Image_properties(image_from_cache.getWidth(), image_from_cache.getHeight(), Rotation.normal);
+        return Optional.of(new Image_and_properties(image_from_cache, properties));
+
     }
 
 
 
     //**********************************************************
-    private Image_and_properties process_pdf(Icon_factory_request icon_factory_request, Icon_destination icon_destination)
+    private Optional<Image_and_properties> process_pdf(Icon_factory_request icon_factory_request, Icon_destination icon_destination)
     //**********************************************************
     {
 
         if (pdf_dbg) logger.log("✅ Icon_factory thread:  process_pdf " + icon_destination.get_item_path().toAbsolutePath());
 
 
-        Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(icon_destination.get_path_for_display_icon_destination(), icon_factory_request.icon_size, "",Icon_caching.png_extension, false,icon_factory_request.owner,logger);
+        //Image image_from_cache = Icons_from_disk.load_icon_from_disk_cache(icon_destination.get_path_for_display_icon_destination(), icon_factory_request.icon_size, "",Icon_caching.png_extension, false,icon_factory_request.owner,logger);
+        Image image_from_cache = Icons_from_disk.get_image_from_cache(icon_destination.get_path_for_display_icon_destination(), icon_factory_request.icon_size, icon_factory_request.owner,logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("❗ Icon_factory thread: aborting8");
-            return null;
+            return Optional.empty();
         }
         if (image_from_cache != null)
         {
             if (pdf_dbg) logger.log("✅ Icon_factory thread: found in cache for: " + icon_destination.get_item_path().getFileName());
             Image_properties properties = new Image_properties(image_from_cache.getWidth(),image_from_cache.getHeight(),Rotation.normal);
-            return new Image_and_properties(image_from_cache,properties);
+            return Optional.of(new Image_and_properties(image_from_cache,properties));
         }
 
         if (pdf_dbg)
@@ -509,11 +500,8 @@ public class Icon_factory_actor implements Actor
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("❗ Icon_factory thread: aborting9");
-            return null;
+            return Optional.empty();
         }
-
-       // boolean use_GraphicsMagick = true;
-       // if (use_GraphicsMagick)
         {
             // gm convert -density 300 -resize 256x256 -quality 90 input.pdf output.png
             List<String> command_line_for_GraphicsMagic = new ArrayList<>();
@@ -542,128 +530,36 @@ public class Icon_factory_actor implements Actor
                 {
                     Booleans.manage_show_graphicsmagick_install_warning(owner,logger);
                 }
-                return null;
+                return Optional.empty();
             }
             if ( pdf_dbg) logger.log(sb.toString());
         }
-        /*
-        else
-        {
-            String deb = null;
-            try (PDDocument document = Loader.loadPDF(file_in, deb)) {
-
-                if (icon_factory_request.aborter.should_abort()) {
-                    if (aborting_dbg) logger.log("Icon_factory thread: aborting10");
-                    return null;
-                }
-                if (pdf_dbg) logger.log("Icon_factory thread:  PDF loaded");
-                PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
-                if (acroForm != null && acroForm.getNeedAppearances()) {
-                    acroForm.refreshAppearances();
-                }
-                PDFRenderer renderer = new PDFRenderer(document);
-                renderer.setSubsamplingAllowed(true);
-                int i = 0;
-                {
-                    //int dpi = Non_booleans_properties.get_icon_size(logger);
-                    BufferedImage image = renderer.renderImage(i);
-                    if (pdf_dbg)
-                        logger.log("PDF = " + image.getWidth() + "x" + image.getHeight() + " aspect ratio = " + ((double) (image.getWidth()) / (double) (image.getHeight())));
-                    if (aspect_ratio_cache != null)
-                        aspect_ratio_cache.inject(icon_destination.get_item_path(), ((double) (image.getWidth()) / (double) (image.getHeight())), true);
-
-                    //BufferedImage image = renderer.renderImageWithDPI(i, dpi, ImageType.RGB);
-                    if (icon_factory_request.aborter.should_abort()) {
-                        if (aborting_dbg) logger.log("Icon_factory thread: aborting11");
-                        return null;
-                    }
-
-                    try (OutputStream output = new BufferedOutputStream(new FileOutputStream(resulting_png_name))) {
-                        ImageOutputStream imageOutput = null;
-                        ImageWriter writer = null;
-                        try {
-                            // find suitable image writer
-                            Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(png_extension);
-                            ImageWriteParam param = null;
-                            IIOMetadata metadata = null;
-                            // Loop until we get the best driver, i.e. one that supports
-                            // setting dpi in the standard metadata format; however we'd also
-                            // accept a driver that can't, if a better one can't be found
-                            while (writers.hasNext()) {
-                                if (icon_factory_request.aborter.should_abort()) {
-                                    if (aborting_dbg) logger.log("Icon_factory thread: aborting12");
-                                    return null;
-                                }
-                                if (writer != null) {
-                                    writer.dispose();
-                                }
-                                writer = writers.next();
-                                if (writer != null) {
-                                    param = writer.getDefaultWriteParam();
-                                    metadata = writer.getDefaultImageMetadata(new ImageTypeSpecifier(image), param);
-                                    if (metadata != null
-                                            && !metadata.isReadOnly()
-                                            && metadata.isStandardMetadataFormatSupported()) {
-                                        break;
-                                    }
-                                }
-                            }
-                            if (writer == null) {
-                                logger.log("No ImageWriter found for jpeg format");
-                                return null;
-                            }
-                            // compression
-                            if (param != null && param.canWriteCompressed()) {
-                                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                                {
-                                    param.setCompressionType(param.getCompressionTypes()[0]);
-                                    param.setCompressionQuality(1);
-                                }
-                            }
-                            imageOutput = ImageIO.createImageOutputStream(output);
-                            if (icon_factory_request.aborter.should_abort()) {
-                                if (aborting_dbg) logger.log("Icon_factory thread: aborting13");
-                                return null;
-                            }
-                            writer.setOutput(imageOutput);
-
-                            writer.write(null, new IIOImage(image, null, metadata), param);
-                            if (pdf_dbg) logger.log("image of PDF write done (1) " + resulting_png_name);
-                        } finally {
-                            if (writer != null) {
-                                writer.dispose();
-                            }
-                            if (imageOutput != null) {
-                                imageOutput.close();
-                            }
-                        }
-                    }
-                }
-            } catch (IOException ioe) {
-                logger.log("Error converting document [" + ioe.getClass().getSimpleName() + "]: " + ioe.getMessage());
-                return null;
-            }
-        }*/
 
         if (pdf_dbg) logger.log("✅ image of PDF write done (2)" + resulting_png_name);
         image_from_cache = Icons_from_disk.load_icon_from_disk_cache(icon_destination.get_item_path(),icon_factory_request.icon_size, "", Icon_caching.png_extension, dbg, icon_factory_request.owner,logger);
+        //image_from_cache = Icons_from_disk.get_image_from_cache(icon_destination.get_item_path(),icon_factory_request.icon_size, icon_factory_request.owner,logger);
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("❗ Icon_factory thread: aborting14");
-            return null;
+            return Optional.empty();
         }
         if (image_from_cache == null)
         {
             logger.log("❗ Icon_factory thread: load from file FAILED (7) for " + icon_destination.get_item_path().getFileName());
-            return null;
+            return Optional.empty();
         }
         else
         {
             if (pdf_dbg) logger.log("✅ image of PDF found on disk OK (3)" + resulting_png_name);
         }
 
+        if ( Icon_writer_actor.use_mmap )
+        {
+            String tag = icon_destination.get_path_for_display_icon_destination().toAbsolutePath().toString();
+            Mmap.instance.write_image(tag, image_from_cache,true);
+        }
         Image_properties properties = new Image_properties(image_from_cache.getWidth(),image_from_cache.getHeight(),Rotation.normal);
-        return new Image_and_properties(image_from_cache,properties);
+        return Optional.of(new Image_and_properties(image_from_cache,properties));
     }
 
 

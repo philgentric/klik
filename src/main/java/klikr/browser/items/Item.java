@@ -44,7 +44,6 @@ import klikr.browser.icons.Icon_factory_request;
 import klikr.browser.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
 import klikr.browser.virtual_landscape.Selection_handler;
-import klikr.experimental.metadata.Tag_stage;
 import klikr.images.Exif_stage;
 import klikr.look.Font_size;
 import klikr.look.Look_and_feel;
@@ -481,16 +480,6 @@ public abstract class Item implements Icon_destination
 
     }
 
-    //**********************************************************
-    public static void create_edit_tag_menu_item(Path path, ContextMenu context_menu,boolean dbg, Window owner, Aborter aborter,Logger logger)
-    //**********************************************************
-    {
-        Menu_items.add_menu_item_for_context_menu("Show_tag",null,
-                event -> {
-            if (dbg) logger.log("File tag");
-            Tag_stage.open_tag_stage(path,true,owner,aborter,logger);
-        },context_menu,owner,logger);
-    }
 
     //**********************************************************
     public void create_open_with_system_menu_item(Path path, ContextMenu context_menu)

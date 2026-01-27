@@ -26,7 +26,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import klikr.properties.IProperties;
+import klikr.properties.File_storage;
 import klikr.properties.String_constants;
 import klikr.util.External_application;
 import klikr.util.Shared_services;
@@ -1284,7 +1284,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         }
         previous_current_time_in_song = time;
         //logger.log("save_current_time_in_song "+time);
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         pm.set(Media_instance.AUDIO_PLAYER_CURRENT_TIME, "" + time);
 
     }
@@ -1295,7 +1295,7 @@ public class Audio_player_FX_UI implements Media_callbacks
     public static double get_equalizer_value_for_band(int i, Window owner,Logger logger)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         String s = pm.get(AUDIO_PLAYER_EQUALIZER_BAND_ + i);
         if (s == null) return 0;
 
@@ -1312,7 +1312,7 @@ public class Audio_player_FX_UI implements Media_callbacks
     public static void save_equalizer_value_for_band(int i, double value, Window owner)
     //**********************************************************
     {
-        IProperties pm = Shared_services.main_properties();
+        File_storage pm = Shared_services.main_properties();
         pm.set(AUDIO_PLAYER_EQUALIZER_BAND_ + i, "" + value);
     }
 

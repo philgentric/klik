@@ -8,6 +8,8 @@
 package klikr.util.image;
 
 import javafx.stage.Window;
+import klikr.browser.icons.Icon_factory_request;
+import klikr.browser.icons.Icon_writer_actor;
 import klikr.util.External_application;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser.items.Iconifiable_item_type;
@@ -23,6 +25,7 @@ import klikr.util.execute.Execute_command;
 import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
+import klikr.util.mmap.Mmap;
 
 //import javax.imageio.ImageIO;
 //import java.awt.*;
@@ -283,6 +286,36 @@ public class Icons_from_disk
          * 
          */
     }
+
+    // **********************************************************
+    public static Image get_image_from_cache(
+            Path path,
+            int icon_size,
+            Window owner,
+            Logger logger)
+    // **********************************************************
+    {
+        Image image_from_cache;
+        if ( Icon_writer_actor.use_mmap)
+        {
+            image_from_cache = Mmap.instance.read_image(
+                    Icon_caching.tag_for_icon_caching(
+                            path,
+                            String.valueOf(icon_size)
+                    ));
+        }
+        else
+        {
+            image_from_cache = load_icon_from_disk_cache(
+                    path,
+                    icon_size,
+                    String.valueOf(icon_size),
+                    Icon_caching.png_extension,
+                    false, owner, logger);
+        }
+        return image_from_cache;
+    }
+
 
     // **********************************************************
     public static Image load_icon_from_disk_cache(
