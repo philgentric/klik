@@ -14,15 +14,13 @@
 
 package klikr.browser.items;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -279,7 +277,8 @@ public abstract class Item implements Icon_destination
                     Path finalTarget = target;
 
                     Menu_items.add_menu_item_for_context_menu(
-                            "Browse_in_new_window",(new KeyCodeCombination(KeyCode.N,KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
+                            "Browse_in_new_window",
+                            null,//(new KeyCodeCombination(KeyCode.N,KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                             event -> {
                                 if (dbg) logger.log("Browse in new window!");
                                 Instructions.additional_no_past(Window_type.File_system_2D,new Path_list_provider_for_file_system(finalTarget,owner,logger), owner, logger);
@@ -287,7 +286,8 @@ public abstract class Item implements Icon_destination
 
                     if (Booleans.get_boolean_defaults_to_false(Feature.Enable_3D.name())) {
                         Menu_items.add_menu_item_for_context_menu(
-                                "Browse_in_new_3D_window",null,
+                                "Browse_in_new_3D_window",
+                                null,
                                 event -> {
                                     if (dbg) logger.log("Browse in new window!");
                                     Instructions.additional_no_past(Window_type.File_system_3D, new Path_list_provider_for_file_system(finalTarget, owner, logger), owner, logger);
@@ -302,7 +302,7 @@ public abstract class Item implements Icon_destination
                 create_rename_menu_item(local_button, local_label,context_menu);
                 create_delete_menu_item(context_menu);
                 Menu_items.add_menu_item_for_context_menu("Copy",
-                        (new KeyCodeCombination(KeyCode.C,KeyCodeCombination.SHORTCUT_DOWN)).getDisplayText(),
+                        null,//(new KeyCodeCombination(KeyCode.C,KeyCodeCombination.SHORTCUT_DOWN)).getDisplayText(),
                         event -> {
                         if (dbg) logger.log("Copying the directory");
                         Path new_path =  Static_files_and_paths_utilities.ask_user_for_new_dir_name(owner,get_item_path(),logger);
@@ -370,7 +370,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         Menu_items.add_menu_item_for_context_menu("Delete",
-                (new KeyCodeCombination(KeyCode.BACK_SPACE)).getDisplayText(),
+                null,//(new KeyCodeCombination(KeyCode.BACK_SPACE)).getDisplayText(),
                 event -> {
                     if (dbg) logger.log("Deleting!");
                     double x = owner.getX()+100;
@@ -384,7 +384,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         Menu_items.add_menu_item_for_context_menu("Copy",
-                (new KeyCodeCombination(KeyCode.C,KeyCodeCombination.SHORTCUT_DOWN)).getDisplayText(),
+                null,//(new KeyCodeCombination(KeyCode.C,KeyCodeCombination.SHORTCUT_DOWN)).getDisplayText(),
                 event -> {
                 if (dbg) logger.log("copying!");
 
@@ -626,12 +626,13 @@ public abstract class Item implements Icon_destination
 
     // this is called SUPER intensively when scrolling
     //**********************************************************
-    public synchronized void process_is_visible(double current_vertical_offset)
+    public void process_is_visible(double current_vertical_offset)
     //**********************************************************
     {
-        //if ( !Platform.isFxApplicationThread()) logger.log(Stack_trace_getter.get_stack_trace("PANIC"));
-        //if ( get_javafx_y() == 0) logger.log("process_is_visible item "+get_item_path()+" x="+get_javafx_x()+" y="+get_javafx_y());
-
+        if ( !Platform.isFxApplicationThread())
+        {
+            Platform.runLater(()->process_is_visible(current_vertical_offset));
+        }
 
         set_translate_X(get_javafx_x());
         set_translate_Y(get_javafx_y() - current_vertical_offset);
@@ -666,7 +667,7 @@ public abstract class Item implements Icon_destination
     //**********************************************************
     {
         Menu_items.add_menu_item_for_context_menu("Rename",
-                (new KeyCodeCombination(KeyCode.R)).getDisplayText(),
+                null,//(new KeyCodeCombination(KeyCode.R)).getDisplayText(),
 
                 event -> {
             if (dbg) logger.log("Item2_button: Renaming");

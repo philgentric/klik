@@ -7,6 +7,7 @@
 
 package klikr.experimental.backup;
 
+import javafx.application.Platform;
 import javafx.stage.Window;
 import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
@@ -187,9 +188,13 @@ public class Backup_engine
     }
 
     //**********************************************************
-    synchronized private void update_status(String source, String destination, String status)
+    private void update_status(String source, String destination, String status)
     //**********************************************************
     {
+        if ( !Platform.isFxApplicationThread())
+        {
+            Platform.runLater(() -> update_status(source, destination, status));
+        }
         // first find the target
         for(int i = 0 ; i <= 12 ; i++)
         {
@@ -206,16 +211,20 @@ public class Backup_engine
                 {
                     // FOUND
                     key = LAST_STATUS +i;
-                    Shared_services.main_properties().set(key,status);
+                    Shared_services.main_properties().set_and_save(key,status);
                 }
             }
         }
     }
 
     //**********************************************************
-    synchronized private void update_properties(String absolutePath_source, String absolutePath_destination)
+    private void update_properties(String absolutePath_source, String absolutePath_destination)
     //**********************************************************
     {
+        if ( !Platform.isFxApplicationThread())
+        {
+            Platform.runLater(() -> update_properties(absolutePath_source, absolutePath_destination));
+        }
 
         // one issue is to check if this pair is not already in the database
 
@@ -238,7 +247,7 @@ public class Backup_engine
                     key = LAST_SAVE_DATE +j;
                     Date d = new Date();
                     s = d.toString();
-                    Shared_services.main_properties().set(key,s);
+                    Shared_services.main_properties().set_and_save(key,s);
                     return;
                 }
             }
@@ -295,7 +304,7 @@ public class Backup_engine
         Date d = new Date();
         String s = d.toString();
         Shared_services.main_properties().set(LAST_SAVE_DATE+"0", s);
-
+        Shared_services.main_properties().save_to_disk();
         // NOTE: status is updated by dedicated routine
 
     }

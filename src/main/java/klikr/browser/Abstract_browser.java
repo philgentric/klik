@@ -173,16 +173,16 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
         if ( dbg) logger.log("Browser init");
         monitor();
         virtual_landscape = new Virtual_landscape(context_type,get_Path_list_provider(),my_Stage.the_Stage,this,this,this,this,this,aborter, logger);
-        virtual_landscape.redraw_fx("Browser constructor");
+        virtual_landscape.redraw_fx("Browser constructor", true);
 
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (dbg) logger.log("new browser width =" + newValue.doubleValue());
             record_stage_bounds();
-            virtual_landscape.redraw_fx("width changed by user");
+            virtual_landscape.redraw_fx("width changed by user", false);
         });
         my_Stage.the_Stage.heightProperty().addListener((observable, oldValue, newValue) -> {
             record_stage_bounds();
-            virtual_landscape.redraw_fx("height changed by user");
+            virtual_landscape.redraw_fx("height changed by user", false);
         });
 
 
@@ -193,7 +193,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
     public void define_UI()
     //**********************************************************
     {
-        virtual_landscape.redraw_fx("UI changed TCP signal received");
+        virtual_landscape.redraw_fx("UI changed TCP signal received",true);
     }
 
     //**********************************************************

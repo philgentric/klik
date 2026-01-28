@@ -26,7 +26,9 @@ import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -52,7 +54,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     private final Feature_vector_creation_actor feature_vector_creation_actor;
 
     private final int instance_number;
-    private static int instance_number_generator = 0;
+    private static AtomicInteger instance_number_generator = new AtomicInteger(0);
 
     //**********************************************************
     public Feature_vector_cache(
@@ -62,7 +64,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             Logger logger_)
     //**********************************************************
     {
-        instance_number = instance_number_generator++;
+        instance_number = instance_number_generator.getAndIncrement();
         logger = logger_;
         //this.aborter = aborter; // as this is a shared cache, closing the browser that created it must not disable it
         this.tag = tag;
@@ -110,7 +112,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
         Feature_vector feature_vector =  the_cache.get(key_from_path(p));
         if ( feature_vector != null)
         {
-            //if ( dbg)
+            if ( dbg)
                 logger.log("feature_vector found in cache for "+p);
             if ( tr != null) tr.has_ended("found in cache",null);
             return feature_vector;
@@ -154,7 +156,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     }
 
     //**********************************************************
-    public synchronized void reload_cache_from_disk(AtomicInteger in_flight, Aborter browser_aborter)
+    public void reload_cache_from_disk(AtomicInteger in_flight, Aborter browser_aborter)
     //**********************************************************
     {
         int reloaded = 0;
@@ -231,7 +233,8 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     //**********************************************************
     {
         int saved = 0;
-        try(DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(cache_file_path.toFile()))))
+        File tmp_file = new File(cache_file_path.toString()+".tmp");
+        try(DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(tmp_file))))
         {
             // extract first feature vector to decide type
             if ( the_cache.size() == 0)
@@ -291,9 +294,17 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
 
-       // logger.log("feature vector components min = "+min+" max = "+ max);
-        //if (dbg)
+        try
+        {
+            Files.move(tmp_file.toPath(), cache_file_path, StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
+            //if (dbg)
             logger.log(saved +" feature vectors from cache saved to file");
+        }
+        catch (IOException e)
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+        }
+       // logger.log("feature vector components min = "+min+" max = "+ max);
     }
 
     //**********************************************************

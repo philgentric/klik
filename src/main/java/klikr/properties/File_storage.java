@@ -11,6 +11,7 @@ public interface File_storage
 //**********************************************************
 {
     boolean set(String key, String value);
+    boolean set_and_save(String key, String value);
     String get(String key);
     LocalDateTime get_age(String key);
     void remove(String key);

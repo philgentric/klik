@@ -289,7 +289,7 @@ public class Icons_from_disk
 
     // **********************************************************
     public static Image get_image_from_cache(
-            Path path,
+            Path original_image_path,
             int icon_size,
             Window owner,
             Logger logger)
@@ -298,21 +298,43 @@ public class Icons_from_disk
         Image image_from_cache;
         if ( Icon_writer_actor.use_mmap)
         {
-            image_from_cache = Mmap.instance.read_image(
-                    Icon_caching.tag_for_icon_caching(
-                            path,
-                            String.valueOf(icon_size)
-                    ));
+            Path p = Icon_caching.path_for_icon_caching(
+                    original_image_path,
+                    String.valueOf(icon_size),
+                    Icon_caching.png_extension,
+                    owner, logger
+            );
+
+            logger.log("mmap READ key ->"+p.toAbsolutePath().toString()+"<-");
+            image_from_cache = Mmap.instance.read_image(p.toAbsolutePath().toString());
         }
         else
         {
             image_from_cache = load_icon_from_disk_cache(
-                    path,
+                    original_image_path,
                     icon_size,
                     String.valueOf(icon_size),
                     Icon_caching.png_extension,
                     false, owner, logger);
         }
+        return image_from_cache;
+    }
+
+    // **********************************************************
+    public static Image get_image_from_cache(
+            Path path,
+            Window owner,
+            Logger logger)
+    // **********************************************************
+    {
+        Image image_from_cache;
+        if ( Icon_writer_actor.use_mmap)
+        {
+
+            logger.log("mmap READ key ->"+path.toAbsolutePath().toString()+"<-");
+            image_from_cache = Mmap.instance.read_image(path.toAbsolutePath().toString());
+        }
+
         return image_from_cache;
     }
 
@@ -351,6 +373,61 @@ public class Icons_from_disk
             // or when the icon cache dir content has been erased etc.
             // so quite a lot, so it is logged only in debug
             if (dbg_local)
+                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+        } catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+        }
+        return null;
+    }
+
+    // **********************************************************
+    public static Image load_icon(
+            Path path,
+            Logger logger)
+    // **********************************************************
+    {
+        try (InputStream input_stream = Files.newInputStream(path)) {
+            Image image = new Image(input_stream);
+            return image;
+        } catch (FileNotFoundException e) {
+            // this happens the first time one visits a directory...
+            // or when the icon cache dir content has been erased etc.
+            // so quite a lot, so it is logged only in debug
+            if (dbg)
+                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+        } catch (NoSuchFileException e) {
+            // this happens the first time one visits a directory...
+            // or when the icon cache dir content has been erased etc.
+            // so quite a lot, so it is logged only in debug
+            if (dbg)
+                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+        } catch (IOException e) {
+            logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+        }
+        return null;
+    }
+
+    // **********************************************************
+    public static Image load_icon2(
+            Path path,
+            int size,
+            Logger logger)
+    // **********************************************************
+    {
+        try (InputStream input_stream = Files.newInputStream(path)) {
+            Image image = new Image(input_stream,size,size,true,true);
+            return image;
+        } catch (FileNotFoundException e) {
+            // this happens the first time one visits a directory...
+            // or when the icon cache dir content has been erased etc.
+            // so quite a lot, so it is logged only in debug
+            if (dbg)
+                logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
+        } catch (NoSuchFileException e) {
+            // this happens the first time one visits a directory...
+            // or when the icon cache dir content has been erased etc.
+            // so quite a lot, so it is logged only in debug
+            if (dbg)
                 logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));

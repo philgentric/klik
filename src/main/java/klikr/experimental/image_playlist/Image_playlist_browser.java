@@ -149,7 +149,7 @@ public class Image_playlist_browser extends Abstract_browser
                 {
                     logger.log("Change Gang says : playlist changed !!");
                     path_list_provider.reload();
-                    virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.the_playlist_file_path);
+                    virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.the_playlist_file_path, true);
                 }
             }
         }

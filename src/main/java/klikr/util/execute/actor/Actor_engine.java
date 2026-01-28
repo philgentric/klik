@@ -106,7 +106,7 @@ public class Actor_engine // is a singleton
     {
         if (instance == null)
         {
-            synchronized (Actor_engine.class)
+            synchronized (Actor_engine_interface.class)
             {
                 if (instance == null)
                 {

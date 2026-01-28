@@ -55,15 +55,13 @@ public class Properties_with_base
             {
                 // free slot
                 logger.log(" ...found free slot: ->"+i+"<-");
-                ip.set(key_base+i, s);
-                ip.save_to_disk();
+                ip.set_and_save(key_base+i, s);
                 return;
             }
         }
         // no more free slots, let us remove the last one
-        ip.set(key_base+(max-1), s);
         logger.log(" no free slot for: ->"+s+"<-");
-        ip.save_to_disk();
+        ip.set_and_save(key_base+(max-1), s);
     }
 
 

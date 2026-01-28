@@ -117,10 +117,4 @@ public class Icon_caching
         return s;
     }
 
-    //**********************************************************
-    public static String tag_for_icon_caching(Path path, String icon_size_tag)
-    //**********************************************************
-    {
-        return path.toAbsolutePath().toString()+"_"+icon_size_tag;
-    }
 }

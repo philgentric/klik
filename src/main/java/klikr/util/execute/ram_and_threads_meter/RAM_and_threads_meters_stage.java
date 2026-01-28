@@ -38,7 +38,7 @@ public class RAM_and_threads_meters_stage
     {
         if (instance == null)
         {
-            synchronized (Mmap.class)
+            synchronized (RAM_and_threads_meters_stage.class)
             {
                 if (instance == null)
                 {

@@ -68,7 +68,7 @@ public class Face_recognition_service
 {
     public static final boolean dbg = false;
     public final static String EXTENSION_FOR_EP = "prototype";
-    private static Face_recognition_service instance = null;
+    private static volatile Face_recognition_service instance = null;
     final Logger logger;
     ConcurrentLinkedQueue<Embeddings_prototype> embeddings_prototypes = new ConcurrentLinkedQueue<>();
     ConcurrentLinkedQueue<String> labels = new ConcurrentLinkedQueue<>();

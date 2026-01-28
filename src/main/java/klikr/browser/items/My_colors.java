@@ -3,6 +3,7 @@
 
 package klikr.browser.items;
 
+import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Window;
@@ -27,9 +28,13 @@ public class My_colors
     public static Map<String,My_color> all_colors = new HashMap();
 
     //**********************************************************
-    public static synchronized void init_My_colors(Window owner, Logger logger)
+    public static void init_My_colors(Window owner, Logger logger)
     //**********************************************************
     {
+        if ( !Platform.isFxApplicationThread() )
+        {
+            Platform.runLater( ()->init_My_colors( owner, logger) );
+        }
         all_colors.clear();
         Color col;
         String localized_name;

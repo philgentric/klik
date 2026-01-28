@@ -118,6 +118,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
         if ( !s.equals(Sort_files_by.FILE_NAME.name()))
         {
             Shared_services.main_properties().set(Sort_files_by.SORT_FILES_BY, Sort_files_by.FILE_NAME.name());
+            Shared_services.main_properties().save_to_disk();
         }
         Optional<Hourglass> hourglass = Circle_3D.get_hourglass(stage,logger);
 

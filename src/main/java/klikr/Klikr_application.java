@@ -253,7 +253,7 @@ public class Klikr_application extends Application
         if ( how_many_times != null) count = Integer.parseInt(how_many_times);
         count ++;
         logger.log("Q: How many times Klik was started ? A: "+count);
-        Shared_services.main_properties().set(String_constants.HOW_MANY_TIMES,""+count);
+        Shared_services.main_properties().set_and_save(String_constants.HOW_MANY_TIMES,""+count);
         if ( count> 10)
         {
             String s = Shared_services.main_properties().get("GITHUB_STAR_ASK_DONE");

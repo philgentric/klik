@@ -57,6 +57,15 @@ public class File_storage_using_Properties implements File_storage
         if ( dbg) logger.log("File_storage_using_Properties "+path.toAbsolutePath().toString());
         reload_from_disk();
     }
+    //**********************************************************
+    @Override
+    public boolean set_and_save(String key, String value)
+    //**********************************************************
+    {
+        set(key, value);
+        save_to_disk();
+        return true;
+    }
 
     //**********************************************************
     @Override

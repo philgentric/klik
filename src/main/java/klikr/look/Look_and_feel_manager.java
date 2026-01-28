@@ -117,7 +117,7 @@ public class Look_and_feel_manager
             }
         }
 
-        if ( and_save) Shared_services.main_properties().set(String_constants.STYLE_KEY, look_and_feel_style.name());
+        if ( and_save) Shared_services.main_properties().set_and_save(String_constants.STYLE_KEY, look_and_feel_style.name());
         if (dbg) logger.log("read_look_and_feel_from_properties_file: using style " + look_and_feel_style.name());
         return  switch (look_and_feel_style)
         {

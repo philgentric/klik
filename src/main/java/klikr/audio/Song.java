@@ -132,7 +132,7 @@ public class Song
 
         Menu_items.add_menu_item_for_context_menu(
             "Browse_in_new_window",
-                (new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
+                null,//(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                 (ActionEvent e) ->
                         Instructions.additional_no_past(Window_type.File_system_2D, new Path_list_provider_for_file_system(Path.of(full_path).getParent(), owner, logger), owner, logger),
                 context_menu,
@@ -140,7 +140,7 @@ public class Song
 
         Menu_items.add_menu_item_for_context_menu(
                 "Rename",
-                (new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
+                null,//(new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
 
                 (ActionEvent e) ->
                 {

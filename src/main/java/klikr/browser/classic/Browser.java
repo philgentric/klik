@@ -234,13 +234,13 @@ public class Browser extends Abstract_browser implements Feature_change_target
                     }
                 }
                 logger.log("redraw_fx due to change gang");
-                virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path());
+                virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path(),true);
             }
             break;
             case one_new_file, one_file_gone: {
                 if (dbg) logger.log("CHANGE GANG received: Browser of: " + path_list_provider.get_folder_path() + " RECOGNIZED change gang notification: " + l);
                 logger.log("redraw_fx due to change gang");
-                virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path());
+                virtual_landscape.redraw_fx("change gang for dir: " + path_list_provider.get_folder_path(), true);
             }
             break;
             default:

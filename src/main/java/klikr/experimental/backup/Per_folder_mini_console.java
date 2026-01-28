@@ -3,6 +3,7 @@
 
 package klikr.experimental.backup;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
@@ -194,12 +195,15 @@ public class Per_folder_mini_console
 
 
     //**********************************************************
-    synchronized void show_progress()
+    void show_progress()
     //**********************************************************
     {
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater(this::show_progress);
+        }
 
         String report = make_current_report();
-        Jfx_batch_injector.inject(() -> the_text_area.setText(report),logger);
+        the_text_area.setText(report);
 
         if ( processed_file_count.doubleValue() == target_file_count)
         {

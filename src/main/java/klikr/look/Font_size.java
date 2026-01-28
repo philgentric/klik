@@ -14,12 +14,12 @@ import klikr.util.log.Logger;
 public class Font_size
 //**********************************************************
 {
+    private final static boolean dbg = false;
     public static final String FX_FONT_SIZE = "-fx-font-size:";
     public static final String PX = "px;";
     public static int PX_LENGTH = ("px;").length();
 
 
-    private final static boolean dbg = false;
     //**********************************************************
     public static String get_font_size(Window owner, Logger logger)
     //**********************************************************

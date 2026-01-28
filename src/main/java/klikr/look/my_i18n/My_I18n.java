@@ -28,7 +28,7 @@ public class My_I18n
     private final Language language;
     private final Locale locale;
 
-    private static My_I18n instance = null;
+    private static volatile My_I18n instance = null;
 
     //**********************************************************
     // must return the key if not found in resources
@@ -37,11 +37,17 @@ public class My_I18n
     {
         if (instance == null)
         {
-            String language_key = Non_booleans_properties.get_language_key(owner);
-            //logger.log(Stack_trace_getter.get_stack_trace("My_I18n instance is null, rebuilding for "+language_key));
-            Language language = Language.valueOf(language_key);
-            Locale locale = language.get_locale();
-            instance = new My_I18n(language, locale, logger);
+            synchronized (My_I18n.class) {
+                if (instance == null)
+                {
+                    String language_key = Non_booleans_properties.get_language_key(owner);
+                    //logger.log(Stack_trace_getter.get_stack_trace("My_I18n instance is null, rebuilding for "+language_key));
+                    Language language = Language.valueOf(language_key);
+                    Locale locale = language.get_locale();
+                    instance = new My_I18n(language, locale, logger);
+                }
+            }
+
         }
         if ( instance.the_resource_bundle == null)
         {

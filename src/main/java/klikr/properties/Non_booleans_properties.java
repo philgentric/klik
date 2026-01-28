@@ -36,11 +36,12 @@ public class Non_booleans_properties
     // cached values
 
 
+    private static double font_size_cache = -1.0;
     private static int icon_size = -1;
     private static int folder_icon_size = -1;
     private static int video_length = -1;
     private static int column_width = -1;
-    private static Color custom_color = null;
+    //private static Color custom_color = null;
 
 
     //**********************************************************
@@ -50,13 +51,6 @@ public class Non_booleans_properties
         return get_int(String_constants.NUMBER_OF_IMAGE_SIMILARITY_SERVERS,DEFAULT_NUMBER_OF_IMAGE_SIMILARITY_SERVERS,owner);
     }
 
-    //**********************************************************
-    public static void set_number_of_image_similarity_servers(int value, Window owner)
-    //**********************************************************
-    {
-        icon_size = value;
-        set_int(value,String_constants.NUMBER_OF_IMAGE_SIMILARITY_SERVERS, owner);
-    }
 
 
     //**********************************************************
@@ -125,7 +119,7 @@ public class Non_booleans_properties
         String video_length_s = Shared_services.main_properties().get(ID);
         if (video_length_s == null)
         {
-            Shared_services.main_properties().set(ID, String.valueOf(default_value));
+            Shared_services.main_properties().set_and_save(ID, String.valueOf(default_value));
             return default_value;
         }
         else
@@ -140,7 +134,7 @@ public class Non_booleans_properties
     public static void set_int(int val, String ID, Window owner)
     //**********************************************************
     {
-        Shared_services.main_properties().set(ID, String.valueOf(val));
+        Shared_services.main_properties().set_and_save(ID, String.valueOf(val));
     }
 
     //**********************************************************
@@ -155,7 +149,7 @@ public class Non_booleans_properties
         String s = Shared_services.main_properties().get(ID);
         if (s == null)
         {
-            Shared_services.main_properties().set(ID, String.valueOf(default_value));
+            Shared_services.main_properties().set_and_save(ID, String.valueOf(default_value));
             return default_value;
         }
         else
@@ -169,7 +163,7 @@ public class Non_booleans_properties
     public static void set_double(double val, String ID, Window owner)
     //**********************************************************
     {
-        Shared_services.main_properties().set(ID, String.valueOf(val));
+        Shared_services.main_properties().set_and_save(ID, String.valueOf(val));
     }
 
 
@@ -274,6 +268,7 @@ public class Non_booleans_properties
         pm.set(key + String_constants.SCREEN_TOP_LEFT_Y, String.valueOf(r.getMinY()));
         pm.set(key + String_constants.SCREEN_WIDTH, String.valueOf(r.getWidth()));
         pm.set(key + String_constants.SCREEN_HEIGHT, String.valueOf(r.getHeight()));
+        pm.save_to_disk();
     }
 
 
@@ -329,7 +324,7 @@ public class Non_booleans_properties
     public static void set_cache_size_limit_warning_megabytes_fx(int warning_megabytes, Window owner)
     //**********************************************************
     {
-        Shared_services.main_properties().set(String_constants.DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
+        Shared_services.main_properties().set_and_save(String_constants.DISK_CACHE_SIZE_WARNING_MEGABYTES, String.valueOf(warning_megabytes));
     }
 
     //**********************************************************
@@ -348,7 +343,6 @@ public class Non_booleans_properties
     }
 
 
-    static double font_size_cache = -1.0;
 
     //**********************************************************
     public static double get_font_size(Window owner,Logger logger)
@@ -364,6 +358,7 @@ public class Non_booleans_properties
     public static void set_font_size(double value, Window owner)
     //**********************************************************
     {
+        font_size_cache = value;
         set_double(value,String_constants.FONT_SIZE,owner);
     }
 
@@ -375,7 +370,7 @@ public class Non_booleans_properties
         String s = Shared_services.main_properties().get(String_constants.LANGUAGE_KEY);
         if (s == null) {
             s = "English";
-            Shared_services.main_properties().set(String_constants.LANGUAGE_KEY, s);
+            Shared_services.main_properties().set_and_save(String_constants.LANGUAGE_KEY, s);
         }
         return s;
     }
@@ -395,7 +390,7 @@ public class Non_booleans_properties
     //**********************************************************
     {
         File_storage_using_Properties f = new File_storage_using_Properties(String_constants.PURPOSE, String_constants.RAM_FILENAME,true,owner,new Aborter("ram", logger), logger);
-        f.set(String_constants.JAVA_VM_MAX_RAM, "" + value);
+        f.set_and_save(String_constants.JAVA_VM_MAX_RAM, "" + value);
     }
     //**********************************************************
     public static int get_java_VM_max_RAM(Window owner, Logger logger)

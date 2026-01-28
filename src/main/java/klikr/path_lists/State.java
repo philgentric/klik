@@ -14,14 +14,15 @@ import klikr.util.perf.Perf;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 //**********************************************************
 class State
 //**********************************************************
 {
-    private final static boolean dbg = false;
-    private final Map<Path, Integer> path_to_index;
-    private final Map<Integer,Path> index_to_path;
+    private final static boolean dbg = true;
+    private volatile Map<Path, Integer> path_to_index;
+    private volatile Map<Integer,Path> index_to_path;
     private final Logger logger;
     private final Aborter aborter;
     private final Path_list_provider path_list_provider;
@@ -41,13 +42,13 @@ class State
         Actor_engine.execute(()->rescan("constructor"),"Indexer rescan",logger);
     }
     //**********************************************************
-    public synchronized int how_many_images()
+    public int how_many_images()
     //**********************************************************
     {
         return index_to_path.size();
     }
     //**********************************************************
-    public synchronized void rescan(String reason)
+    public void rescan(String reason)
     //**********************************************************
     {
         try ( Perf perf = new Perf("State::rescan "+reason)) {
@@ -92,15 +93,19 @@ class State
                 }
             }
 
-            index_to_path.clear();
-            path_to_index.clear();
-
-
-            int index = 0;
-            for (Path p : path_list) {
-                index_to_path.put(index, p);
-                path_to_index.put(p, index);
-                index++;
+            {
+                // the tmp version is not valid until the loop is finished
+                // ... but it is not visible either
+                Map<Integer,Path> tmp_index_to_path = new HashMap<>();
+                Map<Path,Integer> tmp_path_to_index =  new HashMap<>();
+                int index = 0;
+                for (Path p : path_list) {
+                    tmp_index_to_path.put(index, p);
+                    tmp_path_to_index.put(p, index);
+                    index++;
+                }
+                this.index_to_path = tmp_index_to_path;
+                this.path_to_index = tmp_path_to_index;
             }
         }
     }

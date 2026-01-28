@@ -42,7 +42,7 @@ public class Github_stars
             if (response == laterButton)
             {
                 // reset the counter
-                Shared_services.main_properties().set("HOW_MANY_TIMES",""+0);
+                Shared_services.main_properties().set_and_save("HOW_MANY_TIMES",""+0);
             }
         });
     }
@@ -55,7 +55,7 @@ public class Github_stars
             if ( host_services != null)
             {
                 host_services.showDocument("https://github.com/philgentric/klik");
-                Shared_services.main_properties().set("GITHUB_STAR_ASK_DONE","true");
+                Shared_services.main_properties().set_and_save("GITHUB_STAR_ASK_DONE","true");
             }
         } catch (Exception e) {
             e.printStackTrace();

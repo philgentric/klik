@@ -34,7 +34,7 @@ public class Video_player
      Logger logger;
      String url;
      private volatile MediaPlayer the_media_player;
-     static Video_player instance = null;
+     static volatile Video_player instance = null;
 
 
 
@@ -44,7 +44,14 @@ public class Video_player
     {
         if ( instance == null)
         {
-            instance = new Video_player(logger);
+            synchronized (Video_player.class)
+            {
+                if ( instance == null)
+                {
+                    instance = new Video_player(logger);
+                }
+
+            }
         }
         instance.play(url_);
 

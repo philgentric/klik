@@ -216,7 +216,7 @@ public enum Sort_files_by {
         String s = Shared_services.main_properties().get(SORT_FILES_BY);
         if (s == null)
         {
-            Shared_services.main_properties().set(SORT_FILES_BY, Sort_files_by.FILE_NAME.name());
+            Shared_services.main_properties().set_and_save(SORT_FILES_BY, Sort_files_by.FILE_NAME.name());
             if (dbg) System.out.println(Stack_trace_getter.get_stack_trace("sort files by (2): "+ Sort_files_by.FILE_NAME));
             cached.put(folder_path, Sort_files_by.FILE_NAME);
             return Sort_files_by.FILE_NAME;
@@ -255,7 +255,7 @@ public enum Sort_files_by {
             logger.log("warning: SIMILARITY_BY_PURSUIT not saved to properties");
             return;
         }
-        Shared_services.main_properties().set(SORT_FILES_BY, b.name());
+        Shared_services.main_properties().set_and_save(SORT_FILES_BY, b.name());
     }
 
 }

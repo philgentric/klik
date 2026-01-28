@@ -31,7 +31,7 @@ public class Folders_with_large_images_locator
 //**********************************************************
 {
     private static boolean dbg = false;
-    private static Folders_with_large_images_locator instance = null;
+    private static volatile Folders_with_large_images_locator instance = null;
     private final Path top;
     private final int minimum_count;
     private final int min_bytes;

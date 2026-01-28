@@ -838,7 +838,8 @@ public class Audio_player_FX_UI implements Media_callbacks
     {
         if (equalizer_created)
         {
-            for (int i = 0; i < sliders.size(); i++) {
+            for (int i = 0; i < sliders.size(); i++)
+            {
                 Slider s = sliders.get(i);
                 double value = get_equalizer_value_for_band(i, stage, logger);
                 s.setValue(value);
@@ -901,7 +902,8 @@ public class Audio_player_FX_UI implements Media_callbacks
         Button reset_button = new Button(My_I18n.get_I18n_string("Reset_Equalizer", stage, logger));
         Look_and_feel_manager.set_button_look(reset_button, true, stage, logger);
         reset_button.setOnAction(actionEvent -> {
-            for (int i = 0; i < equalizer_bands.size(); i++) {
+            for (int i = 0; i < equalizer_bands.size(); i++)
+            {
                 equalizer_bands.get(i).setGain(0.0);
                 sliders.get(i).setValue(0.0);
                 save_equalizer_value_for_band(i, 0.0, stage);
@@ -1285,7 +1287,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         previous_current_time_in_song = time;
         //logger.log("save_current_time_in_song "+time);
         File_storage pm = Shared_services.main_properties();
-        pm.set(Media_instance.AUDIO_PLAYER_CURRENT_TIME, "" + time);
+        pm.set_and_save(Media_instance.AUDIO_PLAYER_CURRENT_TIME, "" + time);
 
     }
 
@@ -1313,7 +1315,7 @@ public class Audio_player_FX_UI implements Media_callbacks
     //**********************************************************
     {
         File_storage pm = Shared_services.main_properties();
-        pm.set(AUDIO_PLAYER_EQUALIZER_BAND_ + i, "" + value);
+        pm.set_and_save(AUDIO_PLAYER_EQUALIZER_BAND_ + i, "" + value);
     }
 
     //**********************************************************

@@ -468,8 +468,8 @@ public class Animated_gifs_from_video
             logger);
 
 
-        //Image image = Icons_from_disk.load_icon_from_disk_cache(video_path, height, tag,Icon_caching.gif_extension, Icons_from_disk.dbg, owner,logger);
-        Image image = Icons_from_disk.get_image_from_cache(video_path, height, owner,logger);
+        Image image = Icons_from_disk.load_icon_from_disk_cache(video_path, height, tag,Icon_caching.gif_extension, Icons_from_disk.dbg, owner,logger);
+        //Image image = Icons_from_disk.get_image_from_cache(video_path, height, owner,logger);
 
         if ( image == null)
         {

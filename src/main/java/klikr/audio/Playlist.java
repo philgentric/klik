@@ -310,9 +310,13 @@ public class Playlist
     
 
     //**********************************************************
-    private synchronized void save_playlist()
+    private void save_playlist()
     //**********************************************************
     {
+        if ( !Platform.isFxApplicationThread())
+        {
+            Platform.runLater(this::save_playlist);
+        }
         if (playlist_file == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
@@ -546,7 +550,7 @@ public class Playlist
 
         // new empty playlist with default name
         playlist_file_name = "playlist." + Guess_file_type.KLIKR_AUDIO_PLAYLIST_EXTENSION;
-        Shared_services.main_properties().set(PLAYLIST_FILE_NAME, playlist_file_name);
+        Shared_services.main_properties().set_and_save(PLAYLIST_FILE_NAME, playlist_file_name);
         String home = System.getProperty(String_constants.USER_HOME);
         Path p = Paths.get(home, String_constants.CONF_DIR, playlist_file_name);
         return p.toFile();
@@ -647,7 +651,7 @@ public class Playlist
     public void change_play_list_name(String new_playlist_name)
     //**********************************************************
     {
-        Shared_services.main_properties().set(PLAYLIST_FILE_NAME, new_playlist_name);
+        Shared_services.main_properties().set_and_save(PLAYLIST_FILE_NAME, new_playlist_name);
         playlist_file = new File(saving_dir, new_playlist_name);
         save_playlist();
         the_music_ui.set_playlist_name_display(extract_playlist_name());
@@ -673,9 +677,13 @@ public class Playlist
 
 
     //**********************************************************
-    synchronized void  load_playlist(File playlist_file_)
+    void  load_playlist(File playlist_file_)
     //**********************************************************
     {
+        if ( !Platform.isFxApplicationThread())
+        {
+            Platform.runLater(()->load_playlist(playlist_file_));
+        }
         logger.log("✅ Loading playlist as:" + playlist_file_.getAbsolutePath());
         if (playlist_file_ == null)
         {
@@ -700,7 +708,7 @@ public class Playlist
             }
             add_all_to_playlist(to_be_loaded);
             playlist_file = playlist_file_;
-            Shared_services.main_properties().set(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
+            Shared_services.main_properties().set_and_save(PLAYLIST_FILE_NAME, playlist_file.getAbsolutePath());
 
             logger.log("\n\n✅ loaded " + the_playlist.size() + " songs from file:" + playlist_file.getAbsolutePath() + "\n\n");
             update_playlist_size_info();
@@ -1067,7 +1075,7 @@ public class Playlist
     }
 
     //**********************************************************
-    synchronized void jump_to_next_on_end_of_media()
+    void jump_to_next_on_end_of_media()
     //**********************************************************
     {
         jump_to_next();
@@ -1082,9 +1090,14 @@ public class Playlist
     }
 
     //**********************************************************
-    synchronized void jump_to_next()
+    void jump_to_next()
     //**********************************************************
     {
+        if ( !Platform.isFxApplicationThread())
+        {
+            Platform.runLater(this::jump_to_next);
+            return;
+        }
         long start = System.currentTimeMillis();
 
         if ( dbg) logger.log("✅ jumping to next song");
@@ -1120,9 +1133,13 @@ public class Playlist
 
 
     //**********************************************************
-    synchronized void jump_to_previous_from_user()
+    void jump_to_previous_from_user()
     //**********************************************************
     {
+        if ( !Platform.isFxApplicationThread())
+        {
+            Platform.runLater(this::jump_to_previous_from_user);
+        }
         long start = System.currentTimeMillis();
 
         if (the_playlist.isEmpty()) return;
@@ -1221,7 +1238,7 @@ public class Playlist
     //**********************************************************
     {
         File_storage pm = Shared_services.main_properties();
-        pm.set(AUDIO_PLAYER_CURRENT_SONG, path);
+        pm.set_and_save(AUDIO_PLAYER_CURRENT_SONG, path);
 
     }
 

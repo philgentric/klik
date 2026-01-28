@@ -440,7 +440,7 @@ public class Virtual_landscape_menus
                     Path new_dir = virtual_landscape.path_list_provider.resolve(new_name);
                     Files.createDirectory(new_dir);
                     Scroll_position_cache.scroll_position_cache_write(virtual_landscape.path_list_provider.get_folder_path(), new_dir);
-                    virtual_landscape.redraw_fx("created new empty dir");
+                    virtual_landscape.redraw_fx("created new empty dir", true);
                     break;
                 }
                 catch (IOException e)
@@ -894,7 +894,7 @@ public class Virtual_landscape_menus
     {
         remove_empty_folders(recursively);
         // can be called from a thread which is NOT the FX event thread
-        Jfx_batch_injector.inject(() -> virtual_landscape.redraw_fx("remove empty folder"),logger);
+        Jfx_batch_injector.inject(() -> virtual_landscape.redraw_fx("remove empty folder",false),logger);
     }
 
     
@@ -1390,7 +1390,7 @@ public class Virtual_landscape_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_column_width(length,owner);
-                local_virtual_landscape.redraw_fx("column width changed");
+                local_virtual_landscape.redraw_fx("column width changed",false);
             }
         });
         menu.getItems().add(item);
@@ -1410,7 +1410,7 @@ public class Virtual_landscape_menus
         item.setOnAction(actionEvent -> {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
             Feature_cache.update_cached_boolean_and_dont_save(Feature.Show_single_column_with_details, local.isSelected(), owner);
-            local_virtual_landscape.redraw_fx("Show_single_column_with_details");
+            local_virtual_landscape.redraw_fx("Show_single_column_with_details",true);
         });
         return item;
 
@@ -1442,7 +1442,7 @@ public class Virtual_landscape_menus
                 }
                 Non_booleans_properties.set_icon_size(target_size,owner);
                 logger.log("icon size changed to "+target_size);
-                virtual_landscape.redraw_fx("icon size changed");
+                virtual_landscape.redraw_fx("icon size changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1466,7 +1466,7 @@ public class Virtual_landscape_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_folder_icon_size(target_size,owner);
-                virtual_landscape.redraw_fx("folder icon size changed");
+                virtual_landscape.redraw_fx("folder icon size changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1490,7 +1490,7 @@ public class Virtual_landscape_menus
                     if (cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_font_size(target_size, owner);
-                virtual_landscape.redraw_fx("font size changed");
+                virtual_landscape.redraw_fx("font size changed",false);
             }
         });
         menu.getItems().add(item);

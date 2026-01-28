@@ -17,16 +17,12 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Window;
 import klikr.Instructions;
 import klikr.Window_type;
-import klikr.audio.UI_instance_holder;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.Check_remaining_RAM;
 import klikr.util.execute.actor.Aborter;
@@ -316,7 +312,7 @@ public class Item_file_with_icon extends Item_file
         {
             MenuItem mi = Menu_items.make_menu_item(
                     "Edit_File",
-                    (new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
+                    null,//(new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                     event -> {
                         if (dbg) logger.log("Editing " + get_item_path());
                         System_open_actor.open_with_system(get_item_path(), owner, aborter, logger);
@@ -327,7 +323,7 @@ public class Item_file_with_icon extends Item_file
         {
             MenuItem mi = Menu_items.make_menu_item(
                     "Browse_in_new_window",
-                    (new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
+                    null,//(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                     (ActionEvent e) ->
                             Instructions.additional_no_past(Window_type.File_system_2D, new Path_list_provider_for_file_system(get_item_path().getParent(), owner, logger), owner, logger),
                     owner, logger);

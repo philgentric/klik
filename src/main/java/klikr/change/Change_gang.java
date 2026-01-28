@@ -6,6 +6,7 @@
 package klikr.change;
 
 import javafx.stage.Window;
+import klikr.change.undo.Undo_for_moves;
 import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
@@ -35,7 +36,7 @@ public class Change_gang
     public Logger dedicated_logger;
     House_keeping_actor house_keeping_actor;
     private final ConcurrentLinkedQueue<Change_receiver> change_gang_receivers;
-    public static Change_gang instance = null; // the first guy registering will cause the instance to be created
+    public static volatile Change_gang instance = null; // the first guy registering will cause the instance to be created
     //**********************************************************
     private static void create_instance()
     //**********************************************************
@@ -185,7 +186,17 @@ public class Change_gang
     public static void register(Change_receiver change_receiver, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if ( instance ==  null) create_instance();
+
+        if (instance == null)
+        {
+            synchronized (Change_gang.class)
+            {
+                if (instance == null)
+                {
+                    create_instance();
+                }
+            }
+        }
         instance.register_internal(change_receiver, aborter);
     }
     //**********************************************************
@@ -198,7 +209,7 @@ public class Change_gang
     }
 
     //**********************************************************
-    public static synchronized void deregister(Change_receiver change_receiver, Aborter aborter)
+    public static void deregister(Change_receiver change_receiver, Aborter aborter)
     //**********************************************************
     {
         if (instance == null) return;

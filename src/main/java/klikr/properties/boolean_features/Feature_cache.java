@@ -161,7 +161,7 @@ public class Feature_cache
     //**********************************************************
     {
         System.out.println("Feature_cache: "+key+"=>"+new_value);
-        Shared_services.main_properties().set(key, new_value);
+        Shared_services.main_properties().set_and_save(key, new_value);
         send_UI_changed(Launcher.UI_CHANGED,new_value, logger);
         List<String_change_target> l = string_registered_for.get(key);
         if ( l == null) return;

@@ -58,7 +58,10 @@ public enum Iconifiable_item_type
         String extension = Extensions.get_extension(path.getFileName().toString());
         if (Guess_file_type.is_this_extension_a_video(extension)) return video;
         if (Guess_file_type.is_this_extension_a_pdf(extension)) return pdf;
-        if (Guess_file_type.is_this_extension_a_gif(extension)) return image_gif;
+        if (Guess_file_type.is_this_extension_a_gif(extension))
+        {
+            return image_gif;
+        }
         if (Guess_file_type.is_this_extension_a_png(extension)) return image_png;
         if (Guess_file_type.is_this_extension_a_non_javafx_type(extension)) return non_javafx_image;
         //if (Guess_file_type.is_this_extension_a_fits(extension)) return image_fits;

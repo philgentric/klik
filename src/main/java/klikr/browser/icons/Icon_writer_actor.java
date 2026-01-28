@@ -79,14 +79,13 @@ public class Icon_writer_actor implements Actor
     public void write_icon_to_cache_on_disk(Icon_write_message iwm)
     //**********************************************************
     {
+		Path out_path = Icon_caching.path_for_icon_caching(iwm.absolute_path(), String.valueOf(iwm.icon_size()), Icon_caching.png_extension, owner, logger);
 		if ( use_mmap)
 		{
-			String tag = Icon_caching.tag_for_icon_caching(iwm.absolute_path(),String.valueOf(iwm.icon_size()));
-			mmap.write_image(tag,iwm.image(),true);
+			mmap.write_image(out_path.toAbsolutePath().toString(),iwm.image(),true);
 		}
 		else
 		{
-			Path out_path = Icon_caching.path_for_icon_caching(iwm.absolute_path(), String.valueOf(iwm.icon_size()), Icon_caching.png_extension, owner, logger);
 			Static_image_utilities.write_png_to_disk(iwm.image(), out_path, logger);
 		}
 	}

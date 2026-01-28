@@ -8,6 +8,7 @@ import klikr.util.execute.actor.Actor_engine;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Simple_logger;
+import klikr.util.log.Stack_trace_getter;
 
 import java.io.*;
 import java.lang.foreign.Arena;
@@ -322,7 +323,7 @@ public class Mmap
         PixelReader pr = image.getPixelReader();
         if ( pr == null)
         {
-            logger.log("❌ PANIC in write_image, image is null");
+            logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC in write_image, PixelReader is null for image: " + image));
             return false;
         }
         int width = (int)image.getWidth();

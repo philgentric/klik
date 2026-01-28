@@ -60,8 +60,7 @@ public class Properties_for_history
         current = tag;
         LocalDateTime now = LocalDateTime.now();
         History_item new_item = new History_item(tag, now);
-        storage.set(tag, now.toString());
-        storage.save_to_disk();
+        storage.set_and_save(tag, now.toString());
 
         List<History_item> all_history_items = get_all_history_items();
         all_history_items.add(new_item);

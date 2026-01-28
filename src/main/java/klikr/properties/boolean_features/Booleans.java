@@ -26,7 +26,7 @@ public class Booleans
     //**********************************************************
     {
         File_storage pm = Shared_services.main_properties();
-        pm.set(s, String.valueOf(b));
+        pm.set_and_save(s, String.valueOf(b));
 
     }
 
@@ -48,7 +48,7 @@ public class Booleans
         String bb = pm.get(s);
         if ( bb == null)
         {
-            pm.set(s, "true");
+            pm.set_and_save(s, "true");
             return true;
         }
         return Boolean.parseBoolean(bb);

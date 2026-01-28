@@ -5,6 +5,7 @@
 //SOURCES ./Pin_code_getter_stage.java
 package klikr.experimental.fusk;
 
+import javafx.application.Platform;
 import klikr.properties.String_constants;
 import klikr.util.execute.actor.Aborter;
 import klikr.properties.Non_booleans_properties;
@@ -23,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Fusk_bytes implements Pin_code_client
 //**********************************************************
 {
-    private static Fusk_bytes instance = null;
+    private static volatile Fusk_bytes instance = null;
     private static final String default_signature_text = "Don't_pay_the_FerryWoman_until_she_brings_you_to_the_other_side";
     private static String actual_signature_text;
     private static byte[] signature_clear;
@@ -59,13 +60,18 @@ public class Fusk_bytes implements Pin_code_client
     to get a new instance one must call RESET
      */
     //**********************************************************
-    synchronized public static boolean initialize(Logger logger)
+    public static boolean initialize(Logger logger)
     //**********************************************************
     {
         if ( is_initialized())
         {
             logger.log("already initialized");
             return true;
+        }
+        if ( !Platform.isFxApplicationThread())
+        {
+            Platform.runLater(()->initialize(logger));
+            return false;
         }
         if ( instance == null)
         {
@@ -97,10 +103,14 @@ public class Fusk_bytes implements Pin_code_client
         init(logger);
     }
     //**********************************************************
-    private synchronized boolean init(Logger logger)
+    private boolean init(Logger logger)
     //**********************************************************
     {
-
+        if ( !Platform.isFxApplicationThread())
+        {
+            Platform.runLater(()->init(logger));
+            return false;
+        }
         if ( is_initialized())
         {
             logger.log("Fusk already initialized");
@@ -108,13 +118,14 @@ public class Fusk_bytes implements Pin_code_client
         }
         if ( pin_code == null)
         {
-            if ( !pincode_popup.get())
+            if ( pincode_popup.compareAndSet(false, true) )
             {
-                pincode_popup.set(true);
                 logger.log("Fusk: getting pin code from user");
 
-                Pin_code_getter_stage pin_code_getter_stage = new Pin_code_getter_stage( logger);
-                pin_code_getter_stage.ask_pin_code_in_a_thread(this, logger);
+                Platform.runLater(()->{
+                    Pin_code_getter_stage pin_code_getter_stage = new Pin_code_getter_stage( logger);
+                    pin_code_getter_stage.ask_pin_code_in_a_thread(this, logger);
+                });
             }
             return false; // not ready yet
         }
