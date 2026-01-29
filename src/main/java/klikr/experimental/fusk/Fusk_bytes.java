@@ -70,6 +70,7 @@ public class Fusk_bytes implements Pin_code_client
         }
         if ( !Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 initialize");
             Platform.runLater(()->initialize(logger));
             return false;
         }
@@ -108,6 +109,7 @@ public class Fusk_bytes implements Pin_code_client
     {
         if ( !Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 init");
             Platform.runLater(()->init(logger));
             return false;
         }

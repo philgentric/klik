@@ -25,7 +25,7 @@ public class File_with_a_few_bytes
 {
 	private static final boolean ultra_dbg = false;
 	public final File file;
-	final long size; // if size differ ... different files
+	final long size; // if length differ ... different files
 	byte[] first_bytes = null; // if we looked once, we keep the first few bytes, because if the first N bytes differ = different files
 	private static final int BUFFER_SIZE = 8192;//4096;//1024;
 

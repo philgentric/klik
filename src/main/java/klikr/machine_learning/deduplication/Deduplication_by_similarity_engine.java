@@ -54,7 +54,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
     public final Aborter private_aborter = new Aborter("Deduplication_engine",logger);
     Stage_with_2_images stage_with_2_images;
     //boolean same_image_size;
-    private final Klikr_cache<Path, Image_properties> image_properties_cache; // may be null, if not only image of same size are considered
+    private final Klikr_cache<Path, Image_properties> image_properties_cache; // may be null, if not only image of same length are considered
 
     private final boolean looking_for_images;
     private final double too_far_away;

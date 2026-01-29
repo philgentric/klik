@@ -51,7 +51,7 @@ public class Image_cache_cafeine implements Image_cache_interface
                 })*/
                 .build();
         logger = logger_;
-        if(ultra_dbg) logger.log("Cafeine max size = "+(2*forward_size+1));
+        if(ultra_dbg) logger.log("Cafeine max length = "+(2*forward_size+1));
         image_decoding_actor = new Image_decoding_actor_for_cache(logger);// need a single instance
     }
 
@@ -81,7 +81,7 @@ public class Image_cache_cafeine implements Image_cache_interface
     {
         if (ultra_dbg) logger.log("preloading request! " + forward_size);
 
-        if (Check_remaining_RAM.RAM_running_low("full-size image cache preload", owner,logger))
+        if (Check_remaining_RAM.RAM_running_low("full-length image cache preload", owner,logger))
         {
             //if (ultra_dbg)
                 logger.log("Clearing image cache as RAM is low");
@@ -183,7 +183,7 @@ public class Image_cache_cafeine implements Image_cache_interface
 
         }
         logger.log(count+ " images in cache");
-        logger.log("Total cache size: "+total_pixel/1_000_000+" Mpixels");
+        logger.log("Total cache length: "+total_pixel/1_000_000+" Mpixels");
         logger.log("cache hitRate: "+s.hitRate());
         logger.log("cache loadCount: "+s.loadCount());
         logger.log("cache totalLoadTime: "+s.totalLoadTime());

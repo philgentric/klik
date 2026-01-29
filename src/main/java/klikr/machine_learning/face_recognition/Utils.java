@@ -68,10 +68,12 @@ public class Utils
 
         if ( Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS2 display");
             r.run();
         }
         else
         {
+            logger.log("HAPPENS1 display");
             Jfx_batch_injector.inject(r, logger);
         }
     }

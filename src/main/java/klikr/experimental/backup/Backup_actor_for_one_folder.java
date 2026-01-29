@@ -208,8 +208,8 @@ public class Backup_actor_for_one_folder implements Actor
         stats.done_dir_count.increment();
 
         // since the files are done in threads, this does not work:
-        //long size = Static_files_and_paths_utilities.get_size_on_disk_excluding_sub_folders(request.source_dir.toPath(), logger);
-        //stats.number_of_bytes_processed.addAndGet(size);
+        //long length = Static_files_and_paths_utilities.get_size_on_disk_excluding_sub_folders(request.source_dir.toPath(), logger);
+        //stats.number_of_bytes_processed.addAndGet(length);
 
         if ( mini_console != null)
         {

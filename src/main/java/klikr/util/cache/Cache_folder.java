@@ -10,6 +10,7 @@ import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
+import klikr.util.mmap.Mmap;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,6 +58,8 @@ public enum Cache_folder
             returned.add(dc);
             total += dc.bytes();
         }
+
+        total += Mmap.instance.clear_cache();
 
         String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(total,owner,logger);
         logger.log("\n\n✅ Total cleared disk bytes: " + size_in_bytes+"\n\n");

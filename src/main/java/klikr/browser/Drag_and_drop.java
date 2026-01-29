@@ -142,7 +142,7 @@ public class Drag_and_drop
                 logger);
 
 
-        //Popups.popup_text("Drag and Drop", list.size() + " file(s) moved!", true);
+        //Popups.popup_text("Drag and Drop", list.length() + " file(s) moved!", true);
 
         // tell the source
         drag_event.setDropCompleted(true);

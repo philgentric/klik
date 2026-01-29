@@ -81,7 +81,7 @@ public class File_comparator
         }
 
 
-        // same size, let us check bytes, block per block
+        // same length, let us check bytes, block per block
         // at the first sign of a difference, return false
         try (
                 BufferedInputStream bis1 = new BufferedInputStream(new FileInputStream(file_to_be_copied));

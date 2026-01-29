@@ -463,15 +463,15 @@ public class Item_folder extends Item implements Icon_destination
             Long bytes = folder_total_sizes.get(path);
             if ( bytes == null)
             {
-                //logger.log(path+" size not found in cache");
+                //logger.log(path+" length not found in cache");
                 Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, owner, logger);
                 bytes = (Long) sizes.bytes();
-                //logger.log(path+" not found in cache, size is "+bytes+ "bytes");
+                //logger.log(path+" not found in cache, length is "+bytes+ "bytes");
                 folder_total_sizes.put(path,bytes);
             }
             else
             {
-                logger.log(path+" size found in cache "+bytes);
+                logger.log(path+" length found in cache "+bytes);
             }
             count.decrement();
 
@@ -490,7 +490,7 @@ public class Item_folder extends Item implements Icon_destination
                 //browser.scene_geometry_changed("number of files in button", true);
             },logger);
         };
-        Actor_engine.execute(r, "Add total size in a folder's button", logger);
+        Actor_engine.execute(r, "Add total length in a folder's button", logger);
     }
 
 

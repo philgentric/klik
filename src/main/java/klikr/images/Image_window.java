@@ -275,7 +275,7 @@ public class Image_window
 
             ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
                 if (dbg)
-                    logger.log("ChangeListener: image window position and/or size changed: " + stage.getWidth() + "," + stage.getHeight());
+                    logger.log("ChangeListener: image window position and/or length changed: " + stage.getWidth() + "," + stage.getHeight());
                 if (save_window_bounds) Non_booleans_properties.save_window_bounds(stage, IMAGE_WINDOW, logger);
             };
             stage.xProperty().addListener(change_listener);
@@ -822,7 +822,7 @@ public class Image_window
             }
             else if (ic.image_is_damaged)
             {
-                local_title.append(" damaged or invalid (wrong extension?) ->").append(ic.path.toAbsolutePath().toString()).append("<- size = ").append(ic.path.toFile().length()).append(" Bytes");
+                local_title.append(" damaged or invalid (wrong extension?) ->").append(ic.path.toAbsolutePath().toString()).append("<- length = ").append(ic.path.toFile().length()).append(" Bytes");
             } else {
                 local_title.append(" ").append(ic.image.getWidth()).append("x").append(ic.image.getHeight());
             }
@@ -915,7 +915,7 @@ public class Image_window
                 logger.log_stack_trace("❌ FATAL: Image_context.Image is null, should not happen");
                 return;
             }
-            // if pix-for-pix was used on a very large image, the window size is very large too..
+            // if pix-for-pix was used on a very large image, the window length is very large too..
             // let us check and correct that
             Jfx_batch_injector.inject(() -> {
 

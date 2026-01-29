@@ -264,7 +264,7 @@ public class Stage_with_2_images
 			HBox hbox2 = new HBox();
 			{
 				String size_in_kB = file.length()/1000+"kB";
-				Label label = new Label("File size: "+size_in_kB);
+				Label label = new Label("File length: "+size_in_kB);
 				Look_and_feel_manager.set_region_look(label,stage,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);
@@ -290,7 +290,7 @@ public class Stage_with_2_images
                 {
                     width = image.getWidth();
                     height = image.getHeight();
-                    String lab = "Image size: " + width + " x " + height;
+                    String lab = "Image length: " + width + " x " + height;
                     boolean same = true;
                     if (previous.image_width() != width) same = false;
                     if (previous.image_height() != height) same = false;

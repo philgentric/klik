@@ -315,6 +315,7 @@ public class Playlist
     {
         if ( !Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 save_playlist");
             Platform.runLater(this::save_playlist);
         }
         if (playlist_file == null)
@@ -682,6 +683,7 @@ public class Playlist
     {
         if ( !Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 load_playlist");
             Platform.runLater(()->load_playlist(playlist_file_));
         }
         logger.log("✅ Loading playlist as:" + playlist_file_.getAbsolutePath());
@@ -746,7 +748,7 @@ public class Playlist
     //**********************************************************
     {
         Runnable r = () -> update_playlist_size_info_in_a_thread();
-        Actor_engine.execute(r,"Update playlist size info",logger);
+        Actor_engine.execute(r,"Update playlist length info",logger);
     }
 
 
@@ -1095,6 +1097,7 @@ public class Playlist
     {
         if ( !Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 jump_to_next");
             Platform.runLater(this::jump_to_next);
             return;
         }
@@ -1138,6 +1141,8 @@ public class Playlist
     {
         if ( !Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 jump_to_previous_from_user");
+
             Platform.runLater(this::jump_to_previous_from_user);
         }
         long start = System.currentTimeMillis();

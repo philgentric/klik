@@ -429,7 +429,7 @@ public class Static_files_and_paths_utilities
         }
 
         //long now = System.currentTimeMillis();
-        //logger.log("get_size_on_disk_concurrent: " + (now-start)+" size=" +bytes.get());
+        //logger.log("get_size_on_disk_concurrent: " + (now-start)+" length=" +bytes.get());
         return new Sizes(bytes.get(),folders.get(),files.get(),images.get());
     }
 
@@ -454,7 +454,7 @@ public class Static_files_and_paths_utilities
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
         Disk_scanner.process_folder(path, "get_size_on_disk_concurrent", fp,null,wp,aborter,logger);
         //long now = System.currentTimeMillis();
-        //logger.log("get_size_on_disk_concurrent: " + (now-start)+" size=" +size.get());
+        //logger.log("get_size_on_disk_concurrent: " + (now-start)+" length=" +length.get());
         return bytes.get();
     }
 

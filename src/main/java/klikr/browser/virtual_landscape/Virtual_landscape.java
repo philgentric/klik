@@ -616,10 +616,10 @@ public class Virtual_landscape
         if (new_icon_size < 20)
             new_icon_size = 20;
         if (Browser.kbd_dbg)
-            logger.log("new icon size = " + new_icon_size);
+            logger.log("new icon length = " + new_icon_size);
         Non_booleans_properties.set_icon_size(new_icon_size, owner);
         // icon_manager.modify_button_fonts(fac);
-        redraw_fx("new icon size " + new_icon_size, true);
+        redraw_fx("new icon length " + new_icon_size, true);
     }
 
     //**********************************************************
@@ -654,13 +654,13 @@ public class Virtual_landscape
                     case DENIED:
                         logger.log("\n\naccess denied\n\n");
                         set_status("Access denied for:" + path_list_provider.get_name());
-                        on_geometry_changed("access denied", null);
+                        on_geometry_changed("access denied", null, is_redrawing);
                         break;
                     case NOT_FOUND:
                     case ERROR:
                         logger.log("\n\ndirectory gone\n\n");
                         set_status("Gone:" + path_list_provider.get_name());
-                        on_geometry_changed("gone", null);
+                        on_geometry_changed("gone", null, is_redrawing);
                         break;
                 }
             }
@@ -744,7 +744,7 @@ public class Virtual_landscape
     {
 
         Text t = new Text(text);
-        t.setStyle("-fx-font-size: 70;");
+        t.setStyle("-fx-font-length: 70;");
         Scene dummy_scene = new Scene(new VBox(t));
         WritableImage wi = dummy_scene.snapshot(null);
         Paint ppp = new ImagePattern(wi);
@@ -816,8 +816,11 @@ public class Virtual_landscape
         iv_denied.setSmooth(true);
         iv_denied.setY(top_delta_y);
         if (Platform.isFxApplicationThread()) {
+            logger.log("HAPPENS1 show_error_icon");
             the_Pane.getChildren().add(iv_denied);
-        } else {
+        } else
+        {
+            logger.log("HAPPENS2 show_error_icon");
             Jfx_batch_injector.inject(() -> the_Pane.getChildren().add(iv_denied), logger);
         }
         compute_bounding_rectangle(error_type.toString());
@@ -972,7 +975,7 @@ public class Virtual_landscape
                 Item item = all_items_map.get(path);
                 if (item == null) {
                     logger.log(
-                            ("❌ should not happen: no item in map for: " + path + " map size=" + all_items_map.size()));
+                            ("❌ should not happen: no item in map for: " + path + " map length=" + all_items_map.size()));
                     continue;
                 }
                 if (dbg)
@@ -1276,7 +1279,7 @@ public class Virtual_landscape
                     paths.sort(other_file_comparator);
                 }
                 if (dbg)
-                    logger.log("✅ Virtual_landscape folder_path size " + paths.size());
+                    logger.log("✅ Virtual_landscape folder_path length " + paths.size());
                 for (Path folder_path : paths) {
                     if (dbg)
                         logger.log("✅ Virtual_landscape process_folders (3) " + folder_path);
@@ -1441,7 +1444,7 @@ public class Virtual_landscape
             logger.log("✅ check_visibility: items are not ready yet ! " + reason);
             return;
         }
-        // logger.log("check_visibility: "+ all_items_map.values().size()+" items are
+        // logger.log("check_visibility: "+ all_items_map.values().length()+" items are
         // ready "+reason);
         double pane_height = the_Pane.getHeight();
         int icon_size = Non_booleans_properties.get_icon_size(owner);
@@ -1490,7 +1493,7 @@ public class Virtual_landscape
 
         // logger.log(top_left + " is now top left at y=" + min_y);
 
-        // logger.log("currently Item2_image (s): "+Item2_image.currently.size());
+        // logger.log("currently Item2_image (s): "+Item2_image.currently.length());
     }
 
     private static final double margin = 20;
@@ -1577,7 +1580,7 @@ public class Virtual_landscape
                     logger.log("" + e);
                 }
                 if (count.doubleValue() == 0) {
-                    Jfx_batch_injector.inject(() -> on_geometry_changed("sort by number of files", progress_window),
+                    Jfx_batch_injector.inject(() -> on_geometry_changed("sort by number of files", progress_window, is_redrawing),
                             logger);
                     if (System.currentTimeMillis() - start > 3000) {
                         Ding.play("display how many files in each folder", logger);
@@ -1638,7 +1641,7 @@ public class Virtual_landscape
                 }
                 if (count.doubleValue() == 0) {
                     Jfx_batch_injector.inject(() -> on_geometry_changed(
-                            "sort by folder size on disk", hourglass), logger);
+                            "sort by folder length on disk", hourglass, is_redrawing), logger);
                     if (System.currentTimeMillis() - start > 3000) {
                         Ding.play("display all folder sizes", logger);
                     }
@@ -1666,7 +1669,7 @@ public class Virtual_landscape
             return 0.0;
 
         // logger.log("\n\nIcon_manager::get_y_offset_of "+target.toAbsolutePath()+"
-        // size="+all_items_map.values().size());
+        // length="+all_items_map.values().length());
         String t2 = target.toAbsolutePath().toString();
         for (Item i : all_items_map.values()) {
             // logger.log("\n\nIcon_manager::get_y_offset_of ... looking at
@@ -1976,7 +1979,7 @@ public class Virtual_landscape
     //**********************************************************
     {
         if (dbg)
-            logger.log("✅ applying font size " + Non_booleans_properties.get_font_size(owner, logger));
+            logger.log("✅ applying font length " + Non_booleans_properties.get_font_size(owner, logger));
         for (Node x : top_buttons) {
             Font_size.apply_global_font_size_to_Node(x, owner, logger);
         }
@@ -2645,46 +2648,42 @@ public class Virtual_landscape
     //**********************************************************
     {
         if ( !is_redrawing.compareAndSet(false,true)) return;
-        try {
-            long start = System.currentTimeMillis();
-            Optional<Hourglass> hourglass = Optional.empty();
+        Optional<Hourglass> hourglass = Optional.empty();
 
-            if (show_progress_window_on_redraw && rc.show_hourglass()) {
-                hourglass = Progress_window.show(
-                        false,
-                        "Scanning folder",
-                        20 * 60,
-                        x,
-                        y,
-                        owner,
-                        logger);
-            }
+        long start = System.currentTimeMillis();
 
-            set_comparators(x + 100, y + 200);
-
-            // the_max_dir_text_length = 0;
-            all_items_map.clear();
-            paths_holder.iconized_paths.clear();
-            paths_holder.non_iconized.clear();
-            paths_holder.folders.clear();
-            iconized_sorted_queue.clear();
-
-            get_image_properties_cache();
-            scan_list();
-
-            if (System.currentTimeMillis() - start > 5_000) {
-                if (Booleans.get_boolean_defaults_to_false(Feature.Play_ding_after_long_processes.name())) {
-                    Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
-                }
-            }
-            get_path_comparator();
-            // logger.log("all_image_properties_acquired, going to refresh");
-            refresh_UI(rc.reason(), hourglass);
-
+        if (show_progress_window_on_redraw && rc.show_hourglass()) {
+            hourglass = Progress_window.show(
+                    false,
+                    "Scanning folder",
+                    20 * 60,
+                    x,
+                    y,
+                    owner,
+                    logger);
         }
-        finally {
-            is_redrawing.set(false);
+
+        set_comparators(x + 100, y + 200);
+
+        // the_max_dir_text_length = 0;
+        all_items_map.clear();
+        paths_holder.iconized_paths.clear();
+        paths_holder.non_iconized.clear();
+        paths_holder.folders.clear();
+        iconized_sorted_queue.clear();
+
+        get_image_properties_cache();
+        scan_list();
+
+        if (System.currentTimeMillis() - start > 5_000) {
+            if (Booleans.get_boolean_defaults_to_false(Feature.Play_ding_after_long_processes.name())) {
+                Ding.play("all_image_properties_acquired: done acquiring all image properties", logger);
+            }
         }
+        get_path_comparator();
+        // logger.log("all_image_properties_acquired, going to refresh");
+        refresh_UI(rc.reason(), hourglass,is_redrawing);
+
         if (dbg)
             logger.log("✅ Virtual_landscape::refresh_UI done");
 
@@ -2824,21 +2823,21 @@ public class Virtual_landscape
 
 
     //**********************************************************
-    private void refresh_UI(String reason, Optional<Hourglass> progress_window)
+    private void refresh_UI(String reason, Optional<Hourglass> progress_window, AtomicBoolean is_redrawing)
     //**********************************************************
     {
         sort_iconized_items(reason);
 
         Runnable r = () -> {
             // logger.log("refresh_UI_after_scan_dir " + reason);
-            refresh_UI_on_fx_thread(reason, progress_window);
+            refresh_UI_on_fx_thread(reason, progress_window,is_redrawing);
         };
         Jfx_batch_injector.inject(r, logger);
 
     }
 
     //**********************************************************
-    private void refresh_UI_on_fx_thread(String reason, Optional<Hourglass> progress_window)
+    private void refresh_UI_on_fx_thread(String reason, Optional<Hourglass> progress_window, AtomicBoolean is_redrawing)
     //**********************************************************
     {
 
@@ -2846,7 +2845,7 @@ public class Virtual_landscape
             if (dbg)
                 logger.log("✅ refresh_UI_on_fx_thread reason: " + reason);
 
-            on_geometry_changed("scene_geometry_changed reason: " + reason, progress_window);
+            on_geometry_changed("scene_geometry_changed reason: " + reason, progress_window,is_redrawing);
 
             if (dbg)
                 logger.log("✅ adapt_slider_to_scene");
@@ -2874,7 +2873,7 @@ public class Virtual_landscape
     }
 
     //**********************************************************
-    public void on_geometry_changed(String reason, Optional<Hourglass> progress_window)
+    public void on_geometry_changed(String reason, Optional<Hourglass> progress_window, AtomicBoolean is_redrawing)
     //**********************************************************
     {
         try (Perf p1 = new Perf("compute_geometry")) {
@@ -2907,12 +2906,14 @@ public class Virtual_landscape
                 ImageView iv_denied = new ImageView(Look_and_feel_manager.get_denied_icon(icon_size, owner, logger));
                 show_error_icon(iv_denied, top_delta_y);
                 progress_window.ifPresent(Hourglass::close);
+                is_redrawing.set(false);
                 return;
             }
             if (error_type == Error_type.NOT_FOUND) {
                 ImageView not_found = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size, owner, logger));
                 show_error_icon(not_found, top_delta_y);
                 progress_window.ifPresent(Hourglass::close);
+                is_redrawing.set(false);
                 return;
             }
             if (error_type == Error_type.ERROR) {
@@ -2920,6 +2921,7 @@ public class Virtual_landscape
                         Look_and_feel_manager.get_unknown_error_icon(icon_size, owner, logger));
                 show_error_icon(unknown_error, top_delta_y);
                 progress_window.ifPresent(Hourglass::close);
+                is_redrawing.set(false);
                 return;
             }
 
@@ -2967,7 +2969,6 @@ public class Virtual_landscape
 
                     items_are_ready.set(true);
                     Jfx_batch_injector.inject(() -> {
-                        progress_window.ifPresent(Hourglass::close);
 
                         for (Item item : future_pane_content) {
                             if (item.visible_in_scene.get()) {
@@ -2979,6 +2980,8 @@ public class Virtual_landscape
                         scroll_to();
 
                         on_scroll(reason + " map_buttons_and_icons ");
+                        progress_window.ifPresent(Hourglass::close);
+                        is_redrawing.set(false);
 
                     }, logger);
                 }

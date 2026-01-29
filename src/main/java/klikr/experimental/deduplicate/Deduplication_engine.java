@@ -132,7 +132,7 @@ public class Deduplication_engine implements Againor, Abortable
         //for(File_with_a_few_bytes mf : files) logger.log(mf.file.getAbsolutePath());
         logger.log("Deduplication::runnable_deduplication found a total of "+files.size()+ " files");
 
-        console_window.set_status_text("Found " + files.size() + " files ... comparison for bit-size identity started...");
+        console_window.set_status_text("Found " + files.size() + " files ... comparison for bit-length identity started...");
         console_window.total_files_to_be_examined.add(files.size());
 
         long pairs = (long)files.size()*((long)files.size()-1L);
@@ -425,7 +425,7 @@ public class Deduplication_engine implements Againor, Abortable
         Deduplication_engine local_deduplication = this;
         /*
         List<File_with_a_few_bytes> files = scan();
-        console_window.get_interface().set_status_text("Found " + files.size() + " files ... comparison for identity started...");
+        console_window.get_interface().set_status_text("Found " + files.length() + " files ... comparison for identity started...");
         // launch actor (feeder) in another tread
         finder2 = new Runnable_for_finding_duplicate_file_pairs2(local_deduplication, files, same_file_pairs_input_queue, browser_aborter, logger);
         Actor_engine.execute(finder2,browser_aborter,logger);

@@ -257,7 +257,7 @@ public class TCP_server
                 int size = 0;
                 try {
                     size = dis.readInt();
-                    logger.log("size ->"+size+"<-");
+                    logger.log("length ->"+size+"<-");
                 }
                 catch (IOException e)
                 {

@@ -46,7 +46,7 @@ public class Icons_from_disk
     public static final boolean dbg = false;
 
     // private static boolean use_ImageIO = false;
-    // this call RESIZES to the target icon size
+    // this call RESIZES to the target icon length
 
     // private static long elapsed_read_original_image_from_disk_and_return_icon =0;
     // **********************************************************
@@ -305,8 +305,8 @@ public class Icons_from_disk
                     owner, logger
             );
 
-            logger.log("mmap READ key ->"+p.toAbsolutePath().toString()+"<-");
-            image_from_cache = Mmap.instance.read_image(p.toAbsolutePath().toString());
+            logger.log("get_image_from_cache mmap READ key ->"+p.toAbsolutePath().toString()+"<-");
+            image_from_cache = Mmap.instance.read_image_as_pixel(p.toAbsolutePath().toString());
         }
         else
         {
@@ -332,7 +332,7 @@ public class Icons_from_disk
         {
 
             logger.log("mmap READ key ->"+path.toAbsolutePath().toString()+"<-");
-            image_from_cache = Mmap.instance.read_image(path.toAbsolutePath().toString());
+            image_from_cache = Mmap.instance.read_image_as_pixel(path.toAbsolutePath().toString());
         }
 
         return image_from_cache;
@@ -341,9 +341,9 @@ public class Icons_from_disk
 
     // **********************************************************
     public static Image load_icon_from_disk_cache(
-            Path original_image_file, // this is NOT the ICON path, this is the true full size image
+            Path original_image_file, // this is NOT the ICON path, this is the true full length image
             int icon_size,
-            String tag, // icon size or empty
+            String tag, // icon length or empty
             String extension,
             boolean dbg_local,
             Window owner,

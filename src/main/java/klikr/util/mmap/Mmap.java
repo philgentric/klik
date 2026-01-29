@@ -1,9 +1,9 @@
 package klikr.util.mmap;
 
 import javafx.stage.Window;
-import javafx.scene.image.*;
 import javafx.scene.image.Image;
 import klikr.util.cache.Cache_folder;
+import klikr.util.cache.Size_;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
@@ -11,44 +11,39 @@ import klikr.util.log.Simple_logger;
 import klikr.util.log.Stack_trace_getter;
 
 import java.io.*;
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.*;
 
 //**********************************************************
 public class Mmap
 //**********************************************************
 {
     public static volatile Mmap instance;
-    // 16KB alignment constant
-    private static final long ALIGNMENT = 16 * 1024;
 
-    private MemorySegment segment;
-    public final Path index_file;
-    public final Path giant_file;
-    private final Arena arena;
-    private final Map<String, Meta> index = new ConcurrentHashMap<>();
-    private final AtomicLong currentOffset = new AtomicLong(0);
+    private final Map<Integer,Piece> pieces = new ConcurrentHashMap<>();
+    private final Map<String, Meta> main_index = new ConcurrentHashMap<>();
     private final Logger logger;
-    private final Runnable on_nuke;
-    private final ArrayBlockingQueue<Boolean> save_queue = new ArrayBlockingQueue<>(1);
-
-    private interface Meta{};
-    private record Simple_metadata(long offset, long length) implements Meta{}
-    private record Image_metadata(long offset, int width, int height) implements Meta {}
+    private final int piece_size_in_megabytes;
+    private final Path cache_folder;
+    private final Path main_index_file;
 
 
-    // allow_nuke: if true, when the mmap file is full, it will clear all entries and start over
-    // kind of drastic even for a cache...
+    private interface Operation{};
+    private record Save_index() implements Operation{};
+    private record Write_file(Path path, boolean and_save) implements Operation{};
+    public record Write_image_as_pixels(String tag, Image image, boolean and_save, Runnable on_end) implements Operation{};
+    public record Write_image_as_file(Path path, Image image, boolean and_save, Runnable on_end) implements Operation{};
+
+    private final LinkedBlockingQueue<Operation> operation_queue = new LinkedBlockingQueue<>();
+
+    private final static boolean stats_dbg = true;
+    private final Map<String, Integer> usage = new ConcurrentHashMap<>();
+
     //**********************************************************
-    public static Mmap get_instance(String tag, int size_in_megabytes, Runnable on_nuke, Window owner, Logger logger)
+    public static Mmap get_instance(int piece_size_in_megabytes, Window owner, Logger logger)
     //**********************************************************
     {
         if (instance == null)
@@ -57,355 +52,83 @@ public class Mmap
             {
                 if (instance == null)
                 {
-                    Path folder = Static_files_and_paths_utilities.get_cache_folder(Cache_folder.icon_cache, owner, logger);
-                    instance = new Mmap(folder.resolve(tag), size_in_megabytes, on_nuke, logger);
+                    instance = new Mmap( piece_size_in_megabytes, owner, logger);
                 }
             }
         }
         return instance;
     }
 
-
-
     //**********************************************************
-    private Mmap(Path giant_file, int size_in_megabytes, Runnable on_nuke, Logger logger)
+    private Mmap(int piece_size_in_megabytes, Window owner,Logger logger)
     //**********************************************************
     {
+        this.piece_size_in_megabytes = piece_size_in_megabytes;
         this.logger = logger;
-        this.on_nuke = on_nuke;
-        this.giant_file = giant_file;
-        this.index_file = giant_file.getParent().resolve(giant_file.getFileName().toString()+".index");
-        // Arena.ofShared() allows multi-threaded access
-        this.arena = Arena.ofShared();
-        if ( !init(size_in_megabytes))
-        {
-            logger.log("FATAL ERROR: Mmap initialization failed");
-        }
-    }
+        cache_folder = Static_files_and_paths_utilities.get_cache_folder(Cache_folder.icon_cache, owner, logger);
+        main_index_file = cache_folder.resolve("main_index");
+        load_index();
 
-    //**********************************************************
-    private boolean init(int size_in_megabytes)
-    //**********************************************************
-    {
-
-        // 1. Pre-allocate DB file so the map has non-zero size to work with
-        if (Files.exists(giant_file))
-        {
-            logger.log("Mmap file already exists, RELOADING: "+giant_file.toAbsolutePath());
-            if (read_index(index_file))
-            {
-                long maxOffset = 0;
-                for (Meta m : index.values())
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                for(;;)
                 {
-                    if (m instanceof Simple_metadata s)
+                    try
                     {
-                        maxOffset = Math.max(maxOffset, s.offset + s.length);
+                        logger.log("going to block");
+                        Operation op = operation_queue.poll(3, TimeUnit.SECONDS);
+                        logger.log("operation!!! " + op);
+                        if (op == null) continue;
+                        if(op instanceof Save_index si)
+                        {
+                            save_index_internal();
+                        }
+                        else if(op instanceof Write_file wf)
+                        {
+                            write_file_internal(wf);
+                        }
+                        else if(op instanceof Write_image_as_pixels wiap)
+                        {
+                            write_image_as_pixels(wiap);
+                        }
+                        else if(op instanceof Write_image_as_file wiaf)
+                        {
+                            write_image_as_file(wiaf);
+                        }
                     }
-                    else if (m instanceof Image_metadata i)
+                    catch (InterruptedException e)
                     {
-                        maxOffset = Math.max(maxOffset, i.offset + (long) i.width * i.height * 4);
+                        logger.log(""+e);
                     }
-                }
-                // Align the restored offset
-                long alignedMax = (maxOffset + ALIGNMENT - 1) & ~(ALIGNMENT - 1);
-                currentOffset.set(alignedMax);
-            }
-        }
-        else
-        {
-            logger.log("Mmap CREATION: "+giant_file.toAbsolutePath());
-
-            if (init_empty_giant_file(size_in_megabytes))
-            {
-                return false;
-            }
-        }
-
-        try (FileChannel channel = FileChannel.open(giant_file, StandardOpenOption.READ, StandardOpenOption.WRITE))
-        {
-            this.segment = channel.map(FileChannel.MapMode.READ_WRITE, 0, channel.size(), arena);
-        }
-        catch (IOException e)
-        {
-            logger.log("Failed to memory-map the file: " + e.getMessage());
-            return false;
-        }
-        Runnable savior = () -> {
-            for(;;)
-            {
-                try
-                {
-                    // Block waiting for a save request
-                    save_queue.take();
-                    save_index_internal();
-                }
-                catch (InterruptedException e)
-                {
-                    logger.log(""+e);
-                    break;
                 }
             }
         };
+        Actor_engine.execute(r,"mmap input pump",logger);
 
-        Actor_engine.execute(savior, "Mmap-index-saver", logger);
-        return  true;
-    }
 
-    //**********************************************************
-    private boolean init_empty_giant_file(int size_in_megabytes)
-    //**********************************************************
-    {
-        try (RandomAccessFile raf = new RandomAccessFile(giant_file.toFile(), "rw")) {
-            // Set the file size immediately without allocating heap memory
-            raf.setLength(1024L * 1024L * size_in_megabytes);
-        } catch (IOException e) {
-            logger.log("Failed to create file: " + e.getMessage());
-            return true;
-        }
-        return false;
-    }
+        if ( stats_dbg) {
+            Runnable stats = new Runnable() {
+                @Override
+                public void run() {
+                    for (; ; ) {
+                        try {
+                            Thread.sleep(20_000);
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("****************************************\n");
+                            for (Map.Entry<String, Integer> e : usage.entrySet()) {
+                                sb.append(e.getKey()).append(" used: ").append(e.getValue()).append("\n");
+                            }
+                            sb.append("****************************************\n");
+                            logger.log(sb.toString());
 
-    //**********************************************************
-    private long reserve_space(long size)
-    //**********************************************************
-    {
-        if (size > segment.byteSize()) {
-            logger.log("Item too huge for cache file");
-            return -1;
-        }
-
-        while (true) {
-            long current = currentOffset.get();
-            // Calculate position rounded up to the nearest 16KB boundary
-            long aligned_start_offset = (current + ALIGNMENT - 1) & ~(ALIGNMENT - 1);
-            long nextOffset = aligned_start_offset + size;
-
-            if (nextOffset > segment.byteSize())
-            {
-                if (on_nuke != null)
-                {
-                    synchronized(this) {
-                        // Double-check: Another thread might have already cleared the cache while we waited
-                        long freshCurrent = currentOffset.get();
-                        long freshStart = (freshCurrent + ALIGNMENT - 1) & ~(ALIGNMENT - 1);
-
-                        // If it is STILL full, then we are the chosen thread to nuke it.
-                        if (freshStart + size > segment.byteSize()) {
-                            clear_cache();
-                            on_nuke.run();
+                        } catch (InterruptedException e) {
+                            logger.log("" + e);
                         }
                     }
-                    continue;
                 }
-                else
-                {
-                    logger.log("Not enough space in memory mapped file");
-                    return -1;
-                }
-
-            }
-            // Try to update currentOffset to the END of this new file
-            if (currentOffset.compareAndSet(current, nextOffset)) {
-                return aligned_start_offset;
-            }
-        }
-    }
-
-    //**********************************************************
-    public String write_file(Path path, boolean and_save)
-    //**********************************************************
-    {
-        String tag = path.toAbsolutePath().normalize().toString();
-        if (index.containsKey(tag))
-        {
-            logger.log("write_file, tag already registered: " + path);
-            return null;
-        }
-        try
-        {
-            long size = Files.size(path);
-            long offset = reserve_space(size);
-            if (offset == -1) return null;
-            copy_file_to_segment(path, offset, size);
-
-            Meta prev = index.putIfAbsent(tag, new Simple_metadata(offset, size));
-            if (prev == null)
-            {
-                // ok, was available
-                logger.log("Registered tag:->" + tag + "<- at aligned offset: " + offset);
-                if ( and_save) save_index();
-                return tag;
-            }
-            logger.log("FATAL NOT Registered " + tag );
-            return null;
-        }
-        catch (IOException e)
-        {
-            System.err.println("Could not register file: " + e.getMessage());
-            return null;
-        }
-
-    }
-
-    //**********************************************************
-    public boolean write_bytes(String tag, byte[] bytes, boolean and_save)
-    //**********************************************************
-    {
-        if (index.containsKey(tag))
-        {
-            logger.log("write_bytes, tag already registered: " + tag);
-            return false;
-        }
-
-        long size = bytes.length;
-        long offset = reserve_space(size);
-        if (offset == -1) return false;
-
-        MemorySegment sourceParam = MemorySegment.ofArray(bytes);
-        MemorySegment.copy(sourceParam, 0, segment, offset, size);
-
-        Meta prev = index.putIfAbsent(tag, new Simple_metadata(offset, size));
-        if (prev == null)
-        {
-            // ok, was available
-            logger.log("Registered bytes tag:->" + tag + "<- at aligned offset: " + offset);
-            if ( and_save) save_index();
-            return true;
-        }
-        return false;
-    }
-
-    //**********************************************************
-    private void copy_file_to_segment(Path sourceFile, long destinationOffset, long size)
-    //**********************************************************
-    {
-        // Use a confined arena for the source handling, it closes immediately after copy
-        try (Arena localArena = Arena.ofConfined(); FileChannel srcChannel = FileChannel.open(sourceFile, StandardOpenOption.READ))
-        {
-            MemorySegment srcSegment = srcChannel.map(FileChannel.MapMode.READ_ONLY, 0, size, localArena);
-            MemorySegment.copy(srcSegment, 0, this.segment, destinationOffset, size);
-        }
-        catch (IOException e)
-        {
-            System.err.println("Error copying file to memory-mapped segment: " + e.getMessage());
-        }
-    }
-
-    //**********************************************************
-    public MemorySegment get_MemorySegment(String tag)
-    //**********************************************************
-    {
-        Meta meta = index.get(tag);
-        if (meta == null) return null;
-        if ( meta instanceof Simple_metadata simple)
-        {
-            return segment.asSlice(simple.offset, simple.length);
-        }
-        if ( meta instanceof Image_metadata imageMeta)
-        {
-            return segment.asSlice(imageMeta.offset, imageMeta.width * imageMeta.height * 4);
-        }
-        return null;
-    }
-
-
-
-
-    //**********************************************************
-    public boolean write_image(String tag, Image image, boolean and_save)
-    //**********************************************************
-    {
-        if (index.containsKey(tag))
-        {
-            logger.log("write_image, tag already registered: " + tag);
-            return false;
-        }
-        PixelReader pr = image.getPixelReader();
-        if ( pr == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC in write_image, PixelReader is null for image: " + image));
-            return false;
-        }
-        int width = (int)image.getWidth();
-        int height = (int)image.getHeight();
-        byte[] bytes = new byte[width*height*4];
-        pr.getPixels(0, 0, width, height, PixelFormat.getByteBgraInstance(), bytes, 0, width * 4);
-        for (int i = 0; i < width*height; i++) {
-            int base = i * 4;
-            int b = bytes[base]   & 0xFF;
-            int g = bytes[base+1] & 0xFF;
-            int r = bytes[base+2] & 0xFF;
-            int a = bytes[base+3] & 0xFF;
-
-            // premultiply: c' = c * a / 255
-            bytes[base]   = (byte)((b * a) / 255);
-            bytes[base+1] = (byte)((g * a) / 255);
-            bytes[base+2] = (byte)((r * a) / 255);
-            bytes[base+3] = (byte)a;   // alpha stays the same
-        }
-
-
-
-        long size = bytes.length;
-        long offset = reserve_space(size);
-        if (offset == -1) return false;
-
-        MemorySegment sourceParam = MemorySegment.ofArray(bytes);
-        MemorySegment.copy(sourceParam, 0, segment, offset, size);
-
-        Meta prev = index.putIfAbsent(tag, new Image_metadata(offset, width, height));
-        if (prev == null)
-        {
-            // ok, was available
-            logger.log("Registered image with tag:->" + tag + "<- at aligned offset: " + offset);
-            if ( and_save) save_index();
-            return true;
-        }
-        return false;
-    }
-
-
-    //**********************************************************
-    public Image read_image(String tag)
-    //**********************************************************
-    {
-        MemorySegment segment = get_MemorySegment(tag);
-        if (segment == null)
-        {
-            return null;
-        }
-
-        Meta meta = index.get(tag);
-        int width;
-        int height;
-        if (meta instanceof Image_metadata im)
-        {
-            width = im.width();
-            height = im.height();
-
-            /* works but is counterproductive as it creates a COPY of the pixels in heap memory
-            so the memory pressure is DOUBLED !!!
-            WritableImage wImage = new WritableImage(width, height);
-            PixelWriter writer = wImage.getPixelWriter();
-            byte[] bytes = segment.toArray(java.lang.foreign.ValueLayout.JAVA_BYTE);
-            writer.setPixels(0, 0, width, height, PixelFormat.getByteBgraInstance(), bytes, 0, width * 4);
-            return wImage;
-            */
-
-            java.nio.ByteBuffer directBuffer = segment.asByteBuffer();
-            PixelBuffer<java.nio.ByteBuffer> pixelBuffer = new PixelBuffer<>(
-                    width,
-                    height,
-                    directBuffer,
-                    PixelFormat.getByteBgraPreInstance() // Must match the format used in write_image
-            );
-            logger.log("Retrieved image: "+tag);
-            return new WritableImage(pixelBuffer);
-        }
-        else
-        {
-            logger.log("File not found in index.");
-            return null;
+            };
+            Actor_engine.execute(stats, "mmap stats", logger);
         }
     }
 
@@ -415,144 +138,408 @@ public class Mmap
     public void save_index()
     //**********************************************************
     {
-        save_queue.offer(Boolean.TRUE);
+        operation_queue.offer(new Save_index());
     }
 
 
-    static final byte SIMPLE_META = 0x01;
-    static final byte IMAGE_META = 0x02;
     //**********************************************************
     private void save_index_internal()
     //**********************************************************
     {
+        util_save_index(main_index,main_index_file,logger);
+    }
+
+    //**********************************************************
+    private Image_as_pixel_metadata find_room_for_image_as_pixel(Image image)
+    //**********************************************************
+    {
+        long size= (long) (image.getWidth() * image.getHeight() * 4);
+        Room room = find_room(size);
+        if ( room == null) return null;
+        return new Image_as_pixel_metadata(room.piece(), room.offset(), (int) image.getWidth(), (int) image.getHeight());
+    }
+
+    //**********************************************************
+    private Image_as_file_metadata find_room_for_image_as_file(Image image, Path path)
+    //**********************************************************
+    {
+        long length = path.toFile().length();
+        Room room = find_room(length);
+        if ( room == null) return null;
+        return new Image_as_file_metadata(room.piece(), room.offset(), length);
+    }
+
+
+    //**********************************************************
+    private Simple_metadata find_room_for_file(Path path)
+    //**********************************************************
+    {
+        long size = path.toFile().length();
+        Room room = find_room(size);
+        if ( room == null)
+        {
+            logger.log("find_room_for_file failed for "+path);
+            return null;
+        }
+        return new Simple_metadata(room.piece(), room.offset(), size);
+    }
+
+    record Room(Piece piece, long offset){}
+
+    //**********************************************************
+    private Room find_room(long length)
+    //**********************************************************
+    {
+        for ( Piece piece : pieces.values() )
+        {
+            long offset = piece.has_room(length);
+            if ( offset>= 0 )
+            {
+                return new Room(piece,offset);
+            }
+        }
+        // need to create a new Piece
+        int index = pieces.size();
+        Piece piece = new Piece(index,cache_folder,logger);
+        piece.init(piece_size_in_megabytes);
+        pieces.put(index,piece);
+        long offset = piece.has_room(length);
+        if ( offset>= 0 )
+        {
+            return new Room(piece,offset);
+        }
+        return null;
+    }
+
+    //**********************************************************
+    public void write_file(Path path, boolean and_save)
+    //**********************************************************
+    {
+        logger.log("write_file offer ...");
+        operation_queue.add(new Write_file(path,and_save));
+    }
+    //**********************************************************
+    private void write_file_internal(Write_file wf)
+    //**********************************************************
+    {
+        Simple_metadata meta = find_room_for_file(wf.path());
+        if ( meta == null )
+        {
+            logger.log("no room found for "+wf.path());
+            return;
+        }
+        meta.piece().write_file(meta,wf.path());
+        String key = wf.path().toAbsolutePath().toString();
+        main_index.put(key, meta);
+        logger.log("mmap write_file_internal WROTE: "+key);
+        if (wf.and_save())
+        {
+            save_index();
+        }
+    }
+
+    //**********************************************************
+    private byte[] read_file(Path p)
+    //**********************************************************
+    {
+        Simple_metadata sm = (Simple_metadata) main_index.get(p.toAbsolutePath().toString());
+        if ( sm == null)
+        {
+            logger.log("read_file failed: no metadata found for "+p);
+            return null;
+        }
+        Piece piece = sm.piece();
+        if ( piece == null)
+        {
+            logger.log("read_file failed: no piece for "+p);
+            return null;
+        }
+        if ( stats_dbg)
+        {
+            usage.merge(p.toAbsolutePath().toString(), 1, Integer::sum);;
+        }
+        return piece.read_file(p);
+    }
+
+    // takes more file space but faster to reload
+    //**********************************************************
+    public void write_image_as_pixels(String tag, Image image, boolean and_save, Runnable on_end)
+    //**********************************************************
+    {
+        operation_queue.offer(new Write_image_as_pixels(tag,image,and_save, on_end));
+    }
+
+    // for animated gifs, javafx does not have a PixelReader... so we cache the FILE
+    //**********************************************************
+    public void write_image_as_file(Path path, Image image, boolean and_save, Runnable on_end)
+    //**********************************************************
+    {
+        operation_queue.offer(new Write_image_as_file(path,image,and_save, on_end));
+    }
+
+    //**********************************************************
+    public void write_image_as_pixels(Write_image_as_pixels wi)
+    //**********************************************************
+    {
+        Image_as_pixel_metadata meta = find_room_for_image_as_pixel(wi.image());
+        if ( meta == null ) return;
+        meta.piece().write_image_as_pixels(meta.offset(),wi.tag(),wi.image());
+        main_index.put(wi.tag(), meta);
+        logger.log("mmap image as pixel: "+wi.tag());
+        if (wi.and_save())
+        {
+            save_index();
+        }
+        if ( wi.on_end() != null )
+        {
+            wi.on_end().run();
+        }
+    }
+
+    //**********************************************************
+    public void write_image_as_file(Write_image_as_file wi)
+    //**********************************************************
+    {
+        Image_as_file_metadata meta = find_room_for_image_as_file(wi.image(), wi.path());
+        if ( meta == null ) return;
+        String key = wi.path().toAbsolutePath().toString();
+        meta.piece().write_image_as_file(meta,wi.path());
+        main_index.put(key, meta);
+        logger.log("mmap image as file: "+key);
+        if (wi.and_save())
+        {
+            save_index();
+        }
+        if ( wi.on_end() != null )
+        {
+            wi.on_end().run();
+        }
+    }
+
+
+    //**********************************************************
+    public Image read_image_as_pixel(String tag)
+    //**********************************************************
+    {
+        Image_as_pixel_metadata meta = (Image_as_pixel_metadata) main_index.get(tag);
+        if ( meta == null ) return null;
+        logger.log("mmap reading image: "+tag+" is pixels=yes");
+        Piece p = meta.piece();
+        if (p == null) return null;
+        if ( stats_dbg)
+        {
+            usage.merge(tag, 1, Integer::sum);;
+        }
+        return p.read_image_as_pixel(tag, meta);
+    }
+    //**********************************************************
+    public Image read_image_as_file(String tag)
+    //**********************************************************
+    {
+        Image_as_file_metadata meta = (Image_as_file_metadata) main_index.get(tag);
+        if ( meta == null ) return null;
+        logger.log("mmap reading image: "+tag+" is pixels=no");
+        Piece p = meta.piece();
+        if (p == null) return null;
+        if ( stats_dbg)
+        {
+            usage.merge(tag, 1, Integer::sum);;
+        }
+        return p.read_image_as_file(tag, meta);
+    }
+
+
+
+
+    //**********************************************************
+    public synchronized double clear_cache()
+    //**********************************************************
+    {
+        double d = Size_.of_Map(main_index,Size_.of_String_F(),meta -> 8L);
+        main_index.clear();
+        if( stats_dbg) usage.clear();
+        for ( Piece piece : pieces.values() ) piece.clear_cache();
+        save_index();
+        return d;
+    }
+
+    //**********************************************************
+    public MemorySegment get_MemorySegment(String tag)
+    //**********************************************************
+    {
+        Simple_metadata sm = (Simple_metadata) main_index.get(tag);
+        Piece p = sm.piece();
+        if (p == null) return null;
+        return p.get_MemorySegment(tag);
+    }
+
+
+
+    static final byte SIMPLE_META = 0x01;
+    static final byte IMAGE_PIXEL_META = 0x02;
+    static final byte IMAGE_FILE_META = 0x03;
+    //**********************************************************
+    private static void util_save_index(Map<String,Meta> local, Path index_file, Logger logger)
+    //**********************************************************
+    {
         try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(index_file.toFile())))
         {
-            dos.writeInt(index.size());
-            for (Map.Entry<String, Meta> entry : index.entrySet())
+            logger.log("index size ="+local.size());
+            dos.writeInt(local.size());
+            for (Map.Entry<String, Meta> entry : local.entrySet())
             {
                 Meta meta = entry.getValue();
                 if (meta instanceof Simple_metadata simple)
                 {
+                    logger.log("writing Simple_metadata ="+entry.getKey());
+
+                    dos.writeInt(simple.piece().who_are_you);
                     dos.write(SIMPLE_META);
-                    String tag = entry.getKey();
-                    dos.writeUTF(tag);
+                    dos.writeUTF(entry.getKey());
                     dos.writeLong(simple.offset());
                     dos.writeLong(simple.length());
                 }
-                else if (meta instanceof Image_metadata imageMeta)
+                else if (meta instanceof Image_as_pixel_metadata iapm)
                 {
-                    dos.write(IMAGE_META);
-                    String tag = entry.getKey();
-                    dos.writeUTF(tag);
-                    dos.writeLong(imageMeta.offset());
-                    dos.writeInt(imageMeta.width());
-                    dos.writeInt(imageMeta.height());
+                    logger.log("writing Image_as_pixel_metadata ="+entry.getKey());
+
+                    dos.writeInt(iapm.piece().who_are_you);
+                    dos.write(IMAGE_PIXEL_META);
+                    dos.writeUTF(entry.getKey());
+                    dos.writeLong(iapm.offset());
+                    dos.writeInt(iapm.width());
+                    dos.writeInt(iapm.height());
+                }
+                else if (meta instanceof Image_as_file_metadata isfm)
+                {
+                    logger.log("writing Image_as_file_metadata ="+entry.getKey());
+
+                    dos.writeInt(isfm.piece().who_are_you);
+                    dos.write(IMAGE_FILE_META);
+                    dos.writeUTF(entry.getKey());
+                    dos.writeLong(isfm.offset());
+                    dos.writeLong(isfm.length());
                 }
             }
             dos.flush();
-            logger.log("Index saved with " + index.size() + " entries.");
+            logger.log("Index saved with " + local.size() + " entries.");
             return;
         }
         catch (FileNotFoundException e)
         {
-            logger.log(""+e);
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
         catch (IOException e)
         {
-            logger.log(""+e);
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
     }
-
     //**********************************************************
-    public boolean read_index(Path index_file)
+    public void load_index()
     //**********************************************************
     {
-        try (DataInputStream dis = new DataInputStream(new FileInputStream(index_file.toFile())))
+        try (DataInputStream dis = new DataInputStream(new FileInputStream(main_index_file.toFile())))
         {
-            int num_items = dis.readInt();
-            for (int i = 0; i < num_items; i++)
+            int size = dis.readInt();
+            for (int i = 0; i < size; i++)
             {
-                byte what = dis.readByte();
-                String tag = dis.readUTF();
+                int piece_index = dis.readInt();
+                Piece local = pieces.get(piece_index);
+                if(  local == null )
+                {
+                    local = new Piece(piece_index,cache_folder,logger);
+                    pieces.put(piece_index,local);
+                }
+                byte type = dis.readByte();
+                String key = dis.readUTF();
                 long offset = dis.readLong();
-
-                if ( what == SIMPLE_META)
+                if ( type == SIMPLE_META )
                 {
                     long length = dis.readLong();
-                    index.put(tag, new Simple_metadata(offset, length));
+                    Meta m = new Simple_metadata(pieces.get(piece_index),offset,length);
+                    local.insert(key,m);
+                    logger.log("cached item reloaded from file: "+key);
                 }
-                else if (what == IMAGE_META)
+                else if ( type == IMAGE_PIXEL_META )
                 {
                     int width = dis.readInt();
                     int height = dis.readInt();
-                    index.put(tag, new Image_metadata(offset, width, height));
+                    Meta m = new Image_as_pixel_metadata(pieces.get(piece_index),offset,width,height);
+                    local.insert(key,m);
+                    logger.log("cached item reloaded from file: "+key);
                 }
-                else
+                else if ( type == IMAGE_FILE_META )
                 {
-                    break;
+                    long length = dis.readLong();
+                    Meta m = new Image_as_file_metadata(pieces.get(piece_index),offset,length);
+                    local.insert(key,m);
+                    logger.log("cached item reloaded from file: "+key);
                 }
             }
+            logger.log("Index local with " + main_index.size() + " entries.");
         }
         catch (FileNotFoundException e)
         {
-            logger.log(""+e);
-            return false;
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
         catch (IOException e)
         {
-            logger.log(""+e);
-            return false;
+            logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
-        return true;
-    }
-
-    //**********************************************************
-    private synchronized void clear_cache()
-    //**********************************************************
-    {
-        logger.log("Cache full (buffer end reached). Clearing all entries and resetting offset.");
-
-        // 1. Clear the index map so key lookups fail gracefully
-        index.clear();
-
-        // 2. Reset the atomic offset counter to 0
-        currentOffset.set(0);
-
-        // 3. Save the empty index to disk immediately causing the .index file to be reset too
-        save_index();
+        // we can init only after everything is reloaded
+        for (Piece piece : pieces.values())
+        {
+            piece.init(piece_size_in_megabytes);
+        }
     }
 
 
-    /*
-    does not make sense to close at any "normal" time
-    public void close()
-    {
-        save_index();
-        arena.close();
-    }
-    */
 
     //**********************************************************
     public static void main(String[] args)
     //**********************************************************
     {
-        int size_in_megabytes = 1024;
         Logger logger = new Simple_logger();
-        Mmap mmap = Mmap.get_instance("giant",100,null, null,logger);
-        if (!mmap.init(size_in_megabytes)) return;
+        Mmap mmap = Mmap.get_instance(100, null,logger);
         {
             // test#1: file
-            String tag = mmap.write_file(Path.of("file1.txt"), true);
-            MemorySegment segment = mmap.get_MemorySegment(tag);
-            if (segment != null)
+            Path p = Path.of("file1.txt");
+            byte[] in = new byte[256];
+            for (int i = 0; i < 255; i++)
             {
-                // Read content back to verify
-                byte[] check = segment.toArray(java.lang.foreign.ValueLayout.JAVA_BYTE);
-                logger.log("Retrieved content: " + new String(check));
+                in[i] = (byte) i;
             }
-            else
+            try {
+                Files.write(p, in);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            logger.log("File saved with " + p.toAbsolutePath());
+            mmap.write_file(p, true);
+            mmap.save_index();
+            logger.log("File in cache !");
+            byte[] check = mmap.read_file(p);
+
+            for (int i = 0; i < check.length; i++)
             {
-                logger.log("File not found in index.");
+                if ( in[i] != check[i])
+                {
+                    logger.log("FATAL");
+                    return;
+                }
+            }
+            logger.log("Retrieved content: " + new String(check));
+        }
+        {
+            // test#2: image RAW pixels
+            String tag = "image.png";
+            {
+                Image i = new Image(new File(tag).toURI().toString());
+                mmap.write_image_as_pixels(tag, i, true, null);
+            }
+            {
+                Image j = mmap.read_image_as_pixel(tag);
+
             }
         }
         {
@@ -560,13 +547,14 @@ public class Mmap
             String tag = "image.png";
             {
                 Image i = new Image(new File(tag).toURI().toString());
-                mmap.write_image(tag, i, true);
+                mmap.write_image_as_file(Path.of(tag), i, true, null);
             }
             {
-                Image j = mmap.read_image(tag);
+                Image j = mmap.read_image_as_file(tag);
 
             }
         }
 
     }
+
 }

@@ -65,7 +65,7 @@ public class Image_decoding_actor_for_3D_cache implements Actor
         {
             Image image = option.get();
             // OutOfMemory can manisfest either as an exception, and then we get a null
-            // or the image is of size zero (!)
+            // or the image is of length zero (!)
             if ( (image.getWidth() > 1) && (image.getHeight() > 1))
             {
                 request.cache.put(request.path, new PhongMaterial(){{setDiffuseMap(image);}});

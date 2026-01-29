@@ -84,7 +84,7 @@ public class Folder_size_stage
         local_stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent windowEvent) {
-                local_aborter.abort("folder size window closing");
+                local_aborter.abort("folder length window closing");
             }
         });
 
@@ -92,7 +92,7 @@ public class Folder_size_stage
                 key_event -> {
                     if (key_event.getCode() == KeyCode.ESCAPE) {
                         local_stage.close();
-                        local_aborter.abort("folder size window closing2");
+                        local_aborter.abort("folder length window closing2");
                         key_event.consume();
                     }
                 });

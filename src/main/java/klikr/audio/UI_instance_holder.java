@@ -93,7 +93,11 @@ public class UI_instance_holder
 
             ui.change_song(finalSong, start, first_time);
         };
-        if (Platform.isFxApplicationThread()) r.run();
+        if (Platform.isFxApplicationThread())
+        {
+            logger.log("HAPPENS1 play_this_song");
+            r.run();
+        }
         else Platform.runLater(r);
     }
 

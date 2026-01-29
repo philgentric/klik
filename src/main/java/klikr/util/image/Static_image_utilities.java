@@ -744,7 +744,7 @@ public class Static_image_utilities
         {
             s = Static_image_utilities.compute_scale(display_area_width, display_area_height, source_image_width, source_image_height, zoom);
             trans.scale(s, s);
-            // it causes a change in image size
+            // it causes a change in image length
             W = (int) ((double) source_image_width * s);
             H = (int) ((double) source_image_height * s);
 
@@ -845,7 +845,7 @@ public class Static_image_utilities
                 s = 1.0;
             }
             trans.scale(s, s);
-            // it causes a change in image size
+            // it causes a change in image length
             W = (int) ((double) source_image_width * s);
             H = (int) ((double) source_image_height * s);
 
@@ -857,7 +857,7 @@ public class Static_image_utilities
                 s = 1.0;
             }
             trans.scale(s, s);
-            // it causes a change in image size
+            // it causes a change in image length
             W = (int) ((double) source_image_width * s);
             H = (int) ((double) source_image_height * s);
 

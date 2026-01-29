@@ -168,9 +168,9 @@ tasks.register('in3D', JavaExec) {
 }
 
 
-tasks.register('example', JavaExec) {
+tasks.register('mmap', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klikr.util.cache.Example'
+    mainClass = 'klikr.util.mmap.Mmap'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
     return

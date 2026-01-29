@@ -41,22 +41,24 @@ public class Running_film_old implements Hourglass
 	//**********************************************************
 	{
 		Running_film_old local = new Running_film_old(aborter, timeout_s,logger);
-		launch(local, wait_message, owner, x, y);
+		launch(local, wait_message, owner, x, y,logger);
 		return local;
 	}
 
 
 	//**********************************************************
-	private static Hourglass launch(Running_film_old local, String wait_message, Window owner, double x, double y)
+	private static Hourglass launch(Running_film_old local, String wait_message, Window owner, double x, double y,Logger logger)
 	//**********************************************************
 	{
 		//logger.log("Progress_window: wait_message= "+wait_message);
 		if ( Platform.isFxApplicationThread())
 		{
+			logger.log("HAPPENS2 launch (b)");
 			local.define_fx(wait_message, owner,x,y);
 		}
 		else
 		{
+			logger.log("HAPPENS1 launch (b)");
 			Jfx_batch_injector.now(()->local.define_fx(wait_message, owner, x,y));
 		}
 		return local;

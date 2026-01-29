@@ -65,7 +65,7 @@ public class Feature_vector_mask
                 }
                 else mask[i] = false;
             }
-            //logger.log("mask size = " + count);
+            //logger.log("mask length = " + count);
         }
     }
 

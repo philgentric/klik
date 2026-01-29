@@ -214,7 +214,7 @@ public class Folders_with_large_images_locator
                     public void run() {
                         explore(f);
                         folders.decrement();
-                        //logger.log("count after dec="+folders.get()+" size="+contanimated_directories.size());
+                        //logger.log("count after dec="+folders.get()+" length="+contanimated_directories.length());
                     }
                 };
                 if ( Executor.use_virtual_threads)

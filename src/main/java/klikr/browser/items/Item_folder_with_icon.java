@@ -499,7 +499,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, owner, logger);
             Jfx_batch_injector.inject(() -> disk_foot_print_receiver.set_disk_foot_print_text(sizes),logger);
         };
-        Actor_engine.execute(r,"Compute size deep",logger);
+        Actor_engine.execute(r,"Compute length deep",logger);
     }
 
 

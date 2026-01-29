@@ -91,7 +91,7 @@ public class About_klikr_stage
         l.add(new Line_for_info_stage(true,"The little features that make Klikr great:"));
         l.add(new Line_for_info_stage(false,"     You can easily rename things (folders and files)"));
         l.add(new Line_for_info_stage(false,"     Klikr remembers all settings (in a human readable file called "+ String_constants.PROPERTIES_FILENAME +")"));
-        l.add(new Line_for_info_stage(false,"     You can visualise how much room a folder takes on disk (folder size = everything including all sub-folder's content)"));
+        l.add(new Line_for_info_stage(false,"     You can visualise how much room a folder takes on disk (folder length = everything including all sub-folder's content)"));
         l.add(new Line_for_info_stage(false,"     Klikr tells you how many pictures a folder contains"));
         l.add(new Line_for_info_stage(false,"     Klikr history remembers the folders you visited, so you can shortcut. It can be cleared."));
         l.add(new Line_for_info_stage(false,"     Klikr bookmarks enable to short cut"));
@@ -99,7 +99,7 @@ public class About_klikr_stage
         l.add(new Line_for_info_stage(false,"     Klikr uses system defaults to open files: you can play music, open sheets etc"));
         l.add(new Line_for_info_stage(false,"     Klikr uses system defaults to edit files: you can start the system-configured default editor for anything, from Klikr"));
         l.add(new Line_for_info_stage(false,"     Klikr displays file name and pixel sizes in the title of \"Image\" windows"));
-        l.add(new Line_for_info_stage(false,"     You can sort folders alphabetically or by file/folder size"));
+        l.add(new Line_for_info_stage(false,"     You can sort folders alphabetically or by file/folder length"));
         l.add(new Line_for_info_stage(false,"     You can find images by keywords (it assumes file names are made by keywords concatenation)"));
         l.add(new Line_for_info_stage(false,"     You can find duplicated files/images (even if they have different names)"));
         l.add(new Line_for_info_stage(false,"     You can see the full EXIF metadata of the pictures (if any)"));

@@ -17,7 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /*
-The role of the indexer is to always display files in a given order (e.g. alphabetic, or file size etc)
+The role of the indexer is to always display files in a given order (e.g. alphabetic, or file length etc)
 for this we maintain a list of paths and the reverse map
 
 use cases are:
@@ -109,7 +109,7 @@ public class Indexer
             if (target >= state.how_many_images())
             {
                 if (state.how_many_images() == 0) {
-                    logger.log("❌ FATAL: path_list.size()=" + state.how_many_images());
+                    logger.log("❌ FATAL: path_list.length()=" + state.how_many_images());
                     return null;
                 }
                 target = 0;
@@ -159,7 +159,7 @@ public class Indexer
         if ( dbg) logger.log("checking new index="+index);
         if (index >= state.how_many_images())
         {
-            if ( dbg) logger.log("This is the beyond the end: i=" + index + " >= path_list.size()=" + state.how_many_images());
+            if ( dbg) logger.log("This is the beyond the end: i=" + index + " >= path_list.length()=" + state.how_many_images());
             index = 0;
         }
         return index;

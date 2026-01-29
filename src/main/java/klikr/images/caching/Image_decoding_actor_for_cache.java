@@ -62,7 +62,7 @@ public class Image_decoding_actor_for_cache implements Actor
         {
             Image_context image_context = option.get();
             // OutOfMemory can manisfest either as an exception, and then we get a null
-            // or the image is of size zero (!)
+            // or the image is of length zero (!)
             if ( (image_context.image.getWidth() > 1) && (image_context.image.getHeight() > 1))
             {
                 request.cache.put(request.make_key(), image_context);

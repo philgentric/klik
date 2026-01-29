@@ -204,7 +204,7 @@ public abstract class Abstract_browser implements Change_receiver, Shutdown_targ
             // ignore: we store the position of a "unique or last" window
             return;
         }
-        if (dbg) logger.log("ChangeListener: image window position and/or size changed");
+        if (dbg) logger.log("ChangeListener: image window position and/or length changed");
         Non_booleans_properties.save_window_bounds(my_Stage.the_Stage, BROWSER_WINDOW,logger);
     }
 

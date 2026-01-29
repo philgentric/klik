@@ -199,6 +199,7 @@ public class Per_folder_mini_console
     //**********************************************************
     {
         if (!Platform.isFxApplicationThread()) {
+            logger.log("HAPPENS1 show_progress");
             Platform.runLater(this::show_progress);
         }
 

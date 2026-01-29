@@ -228,9 +228,9 @@ public class Fusk_static_core
             byte[] clear = new byte[size];
             r.nextBytes(clear);
 
-            logger.log("clear size"+clear.length);
+            logger.log("clear length"+clear.length);
             byte[] fusk = Fusk_bytes.obfusk_and_add_signature(clear,aborter, logger);
-            logger.log("fusk size"+fusk.length);
+            logger.log("fusk length"+fusk.length);
             logger.log("difference "+(fusk.length-clear.length) +" = "+ Fusk_bytes.signature_fusk.length);
 
             byte[] check = Fusk_bytes.defusk_bytes_and_remove_signature(fusk, aborter, logger);

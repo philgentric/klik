@@ -63,10 +63,12 @@ public class Running_film_with_abort_button_old implements Hourglass
 	{
 		if ( Platform.isFxApplicationThread())
 		{
+			logger.log("HAPPENS2 launch(c)");
 			local.define_fx(wait_message,x,y);
 		}
 		else
 		{
+			logger.log("HAPPENS1 launch(c)");
 			Jfx_batch_injector.inject(()->local.define_fx(wait_message,x,y),logger);
 		}
 		return local;

@@ -28,7 +28,7 @@ public class System_info
     }
 
     // in order to recover from git the code previously here, erqsed recently,
-    // thqt was using a JMX MANAGEMENT BEAN TO FIND THE PHYSICAL MACHINE raM size,
+    // thqt was using a JMX MANAGEMENT BEAN TO FIND THE PHYSICAL MACHINE raM length,
     // but unfortunately the term 'physical, is not in the commit messages,
     // open q shell qnd type this git commqnd:
     // git log -S 'physical' --source --all --pretty=format:'%h %ad %s' --date=short

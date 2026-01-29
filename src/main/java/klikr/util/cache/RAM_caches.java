@@ -13,17 +13,18 @@ import klikr.util.log.Logger;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 //**********************************************************
 public class RAM_caches
 //**********************************************************
 {
     private static final boolean dbg = false;
-    public final static Map<String, Image_cache_interface> image_caches = new HashMap<>();
-    public final static Map<String, Klikr_cache<Path, Image_properties>> image_properties_cache_of_caches = new HashMap<>();
-    public final static Map<String, Similarity_cache> similarity_cache_of_caches = new HashMap<>();
-    public final static Map<String, Feature_vector_cache> fv_cache_of_caches = new HashMap<>();
-    public final static Map<String, Similarity_comparator> similarity_comparator_cache = new HashMap<>();
+    public final static Map<String, Image_cache_interface> image_caches = new ConcurrentHashMap<>();
+    public final static Map<String, Klikr_cache<Path, Image_properties>> image_properties_cache_of_caches = new ConcurrentHashMap<>();
+    public final static Map<String, Similarity_cache> similarity_cache_of_caches = new ConcurrentHashMap<>();
+    public final static Map<String, Feature_vector_cache> fv_cache_of_caches = new ConcurrentHashMap<>();
+    public final static Map<String, Similarity_comparator> similarity_comparator_cache = new ConcurrentHashMap<>();
     public static Klikr_cache<Path, Double> duration_cache;
     public static Klikr_cache<Path, Double> bitrate_cache;
 

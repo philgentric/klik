@@ -403,6 +403,7 @@ public class Face_recognition_service
         if ( size > 200) size = 200;
         if (Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 show_face_recognition_window");
             show_Face_recognition_window_internal(size,face,eval_result,owner);
         }
         else {
@@ -777,7 +778,7 @@ public class Face_recognition_service
                     String line = reader.readLine();
                     if (line == null)
                     {
-                        logger.log("error reading ep fv size");
+                        logger.log("error reading ep fv length");
                         ok = false;
                     }
                     else
@@ -796,7 +797,7 @@ public class Face_recognition_service
                     String line = reader.readLine();
                     if (line == null)
                     {
-                        logger.log("error reading fv: missing component #" + i + ", size of fv was " + size + " for: " + f);
+                        logger.log("error reading fv: missing component #" + i + ", length of fv was " + size + " for: " + f);
                         ok = false;
                         break;
                     }

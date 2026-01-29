@@ -52,6 +52,7 @@ public class Exif_stage
     {
         if(Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 show_exif_stage");
             show_exif_stage_(image,path,owner,aborter,logger);
         }
         else

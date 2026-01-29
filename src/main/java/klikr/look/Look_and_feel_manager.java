@@ -1188,7 +1188,7 @@ public class Look_and_feel_manager
             }
             else
             {
-                logger.log("WARNING: cannot load icon for size " + s + " from path: " + icon_path);
+                logger.log("WARNING: cannot load icon for length " + s + " from path: " + icon_path);
             }
         }
 

@@ -56,7 +56,7 @@ public class Actor_engine_based_on_workers implements Actor_engine_interface
     {
         Job j = new Job(actor,message,tr,logger);
         queue_job(j);
-        //logger.log(Stack_trace_getter.get_stack_trace("Actor_engine_based_on_workers: "+input_queue_single.size()+" queued jobs"));
+        //logger.log(Stack_trace_getter.get_stack_trace("Actor_engine_based_on_workers: "+input_queue_single.length()+" queued jobs"));
         return j;
     }
 

@@ -15,7 +15,7 @@ public class Font_size
 //**********************************************************
 {
     private final static boolean dbg = false;
-    public static final String FX_FONT_SIZE = "-fx-font-size:";
+    public static final String FX_FONT_SIZE = "-fx-font-length:";
     public static final String PX = "px;";
     public static int PX_LENGTH = ("px;").length();
 
@@ -38,13 +38,13 @@ public class Font_size
         if ( style == null)
         {
             menu_item.setStyle(append_to_old_style(style,size,font_family,logger));
-            //logger.log("1 applying font size to MenuItem " + size+ " "+menu_item.getText());
+            //logger.log("1 applying font length to MenuItem " + length+ " "+menu_item.getText());
             return;
         }
         if ( style.isEmpty())
         {
             menu_item.setStyle(append_to_old_style(style,size,font_family,logger));
-            //logger.log("2 applying font size to MenuItem " + size+ " "+menu_item.getText());
+            //logger.log("2 applying font length to MenuItem " + length+ " "+menu_item.getText());
             return;
         }
         if ( dbg) logger.log("\nfound node style->" + style + "<-");
@@ -53,23 +53,23 @@ public class Font_size
         {
             String new_style = style.replaceAll("-fx-font-style:\\s*[^;]+",FX_FONT_SIZE+size+PX);
             menu_item.setStyle(new_style);
-            //logger.log("3 applying font size to MenuItem " + size+ " "+menu_item.getText());
+            //logger.log("3 applying font length to MenuItem " + length+ " "+menu_item.getText());
             return;
         }
 
         menu_item.setStyle(append_to_old_style(style,size,font_family,logger));
-        //logger.log("4 applying font size to MenuItem " + size+ " "+menu_item.getText());
+        //logger.log("4 applying font length to MenuItem " + length+ " "+menu_item.getText());
 
     }
 
 
-    // edit the style to change the font size, without affecting the rest of the style
+    // edit the style to change the font length, without affecting the rest of the style
     //**********************************************************
     public static void apply_global_font_size_to_Node(Node node, Window owner, Logger logger)
     //**********************************************************
     {
         double size = Non_booleans_properties.get_font_size(owner,logger);
-        if (dbg) logger.log("applying font size " + size);
+        if (dbg) logger.log("applying font length " + size);
         apply_this_font_size_to_Node(node, size, logger);
     }
 

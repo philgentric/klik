@@ -191,13 +191,13 @@ public class Text_frame
         if (fontUrl != null && !fontUrl.isEmpty()) {
             initial.append("<style type=\"text/css\">")
                     .append("@font-face{font-family:'Atkinson'; src: url('").append(fontUrl).append("') format('truetype'); font-weight: bold; font-style: normal;}")
-                    .append("body, p { font-family: 'Atkinson', sans-serif; font-size: 14px; }")
+                    .append("body, p { font-family: 'Atkinson', sans-serif; font-length: 14px; }")
                     .append("p { margin-bottom: 0em; margin-top: 0em; }")
                     .append("</style>");
         } else {
             // fallback: system sans-serif
             initial.append("<style type=\"text/css\">")
-                    .append("body, p { font-family: sans-serif; font-size: 14px; }")
+                    .append("body, p { font-family: sans-serif; font-length: 14px; }")
                     .append("p { margin-bottom: 0em; margin-top: 0em; }")
                     .append("</style>");
         }
@@ -485,7 +485,7 @@ public class Text_frame
         {
             StringBuilder t = new StringBuilder();
             t.append("<style type=\"text/css\">\n");
-            t.append("body, p { font-family: 'Atkinson', sans-serif; font-size: 14px; }\n");
+            t.append("body, p { font-family: 'Atkinson', sans-serif; font-length: 14px; }\n");
             t.append("p {margin-bottom: 0em;  margin-top: 0em;} \n");
             t.append("</style>");
             for (String line : lines)

@@ -314,7 +314,7 @@ public abstract class Look_and_feel
         } catch (IOException e) {
             logger.log(""+e);
         }
-        // the size is a convenience if we would use the font object
+        // the length is a convenience if we would use the font object
         // here, we just load the font in the javafx cache
         if ( font != null)
         {

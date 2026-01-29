@@ -12,6 +12,8 @@ import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
 import klikr.util.mmap.Mmap;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 
@@ -42,7 +44,7 @@ public class Icon_writer_actor implements Actor
 		cache_dir = cache_dir_;
 		if ( use_mmap)
 		{
-			mmap = Mmap.get_instance("giant",10000,null, owner,logger);
+			mmap = Mmap.get_instance(100, owner,logger);
 		}
 	}
 
@@ -70,7 +72,6 @@ public class Icon_writer_actor implements Actor
 	//**********************************************************
 	{
 		Icon_write_message mm = (Icon_write_message) m;
-
 		write_icon_to_cache_on_disk(mm);
 		return "icon written";
 	}
@@ -82,7 +83,18 @@ public class Icon_writer_actor implements Actor
 		Path out_path = Icon_caching.path_for_icon_caching(iwm.absolute_path(), String.valueOf(iwm.icon_size()), Icon_caching.png_extension, owner, logger);
 		if ( use_mmap)
 		{
-			mmap.write_image(out_path.toAbsolutePath().toString(),iwm.image(),true);
+			Runnable on_end = ()->
+			{
+				try
+				{
+					Files.delete(out_path);
+				}
+				catch (IOException e)
+				{
+					logger.log(""+e);
+				}
+			};
+			mmap.write_image_as_pixels(out_path.toAbsolutePath().toString(),iwm.image(),true, on_end);
 		}
 		else
 		{
@@ -90,42 +102,4 @@ public class Icon_writer_actor implements Actor
 		}
 	}
 
-
-    /*
-    old way to do it: involved using AWT/SWING components
-    which does nt work with gluonfx native,
-    replaced with pure java png : ar.com.hjg.pngj
-
-
-
-    //**********************************************************
-    public void write_icon_to_cache_on_disk(Icon_write_message iwm)
-    //**********************************************************
-    {
-		try
-		{
-			BufferedImage bim = JavaFX_to_Swing.fromFXImage(iwm.image, null, logger);
-			if ( bim == null)
-			{
-				logger.log("write_icon_to_cache_on_disk JavaFX_to_Swing.fromFXImage failed for "+iwm.tag);
-				return;
-			}
-			if (iwm.get_aborter().should_abort()) return;
-			boolean status = ImageIO.write(bim, "png", new File(
-					cache_dir.toFile(),
-					make_cache_name(iwm.tag,String.valueOf(iwm.icon_size), iwm.extension))
-			);
-
-			if ( !status )
-			{
-				logger.log("Icon_writer: ImageIO.write returns false for: "+iwm.tag);
-			}
-		}
-		catch(Exception e)
-		{
-			logger.log("Icon_writer exception (1) ="+e+" path="+iwm.tag);
-		}
-		//logger.log("Icon_writer OK for path="+iwm.original_path+" png done");
-	}
-*/
 }

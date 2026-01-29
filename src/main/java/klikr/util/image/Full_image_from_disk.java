@@ -231,7 +231,7 @@ public class Full_image_from_disk
             }
             else if( image.getException().toString().contains("No loader for image data"))
             {
-                logger.log("❌ IMAGE decode failed :"+image.getException()+" "+original_image_file.toAbsolutePath());
+                logger.log(Stack_trace_getter.get_stack_trace("❌ IMAGE decode failed :"+image.getException()+" "+original_image_file.toAbsolutePath()));
                 // this occurs on damaged images like download not finished, or fusk wrong pin code
                 // Popups.popup_Exception(image.getException(),100,"If this image was fusked, maybe the pin code is wrong?",logger);
             }

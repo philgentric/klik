@@ -94,7 +94,7 @@ public class Undo_item
         // i.e. several files from folder A moved to folder B
         Path old_folder = null;
         Path new_folder = null;
-        //logger.log("ideal oans size "+oans.size());
+        //logger.log("ideal oans length "+oans.length());
 
         for ( Old_and_new_Path oan : oans)
         {

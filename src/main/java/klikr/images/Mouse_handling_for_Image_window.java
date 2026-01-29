@@ -409,12 +409,12 @@ public class Mouse_handling_for_Image_window
             logger.log("image_context is null");
             return true;
         }
-        //logger.log("check size:" + local.image.getWidth() + "x" + local.image.getHeight());
+        //logger.log("check length:" + local.image.getWidth() + "x" + local.image.getHeight());
         if ((local.image.getHeight() < 1) && (local.image.getWidth() < 1))
         {
             if (!local.image_is_damaged)
             {
-                logger.log("bad image size");
+                logger.log("bad image length");
             }
             logger.log("setting image view as broken icon");
             local.the_image_view.setImage(Jar_utils.get_broken_icon(300, image_window.stage, logger));

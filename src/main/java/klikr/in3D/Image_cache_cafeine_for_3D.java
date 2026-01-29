@@ -45,7 +45,7 @@ public class Image_cache_cafeine_for_3D
                 })
                 .build();
         logger = logger_;
-        if(ultra_dbg) logger.log("Cafeine max size = "+(2*forward_size+1));
+        if(ultra_dbg) logger.log("Cafeine max length = "+(2*forward_size+1));
         image_decoding_actor = new Image_decoding_actor_for_3D_cache(logger);// need a single instance
     }
 
@@ -74,7 +74,7 @@ public class Image_cache_cafeine_for_3D
     {
         if (ultra_dbg) logger.log("preloading request! " + forward_size);
 
-        if (Check_remaining_RAM.RAM_running_low("3D full-size image preload", owner,logger))
+        if (Check_remaining_RAM.RAM_running_low("3D full-length image preload", owner,logger))
         {
             //if (ultra_dbg)
                 logger.log("clearing image cache as RAM is low");

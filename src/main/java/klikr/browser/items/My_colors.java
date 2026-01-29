@@ -33,6 +33,7 @@ public class My_colors
     {
         if ( !Platform.isFxApplicationThread() )
         {
+            logger.log("HAPPENS1 init_My_colors");
             Platform.runLater( ()->init_My_colors( owner, logger) );
         }
         all_colors.clear();

@@ -378,7 +378,7 @@ public class Virtual_landscape_menus
             graphicsMagick_command_line.add("-fill");
             graphicsMagick_command_line.add("#ffffff");
             graphicsMagick_command_line.add("-define");
-            graphicsMagick_command_line.add("jpeg:size=300x200");
+            graphicsMagick_command_line.add("jpeg:length=300x200");
             graphicsMagick_command_line.add("-geometry");
             graphicsMagick_command_line.add("300x200+2+2");
             graphicsMagick_command_line.add("*.jpg");
@@ -594,7 +594,7 @@ public class Virtual_landscape_menus
         Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
         clean.getItems().add(menu);
 
-        // quasi similar means same image size
+        // quasi similar means same image length
         Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_quasi_similar_images",null,
                 event -> {
                     //logger.log("Deduplicate manually");
@@ -619,7 +619,7 @@ public class Virtual_landscape_menus
                             virtual_landscape,
                             too_far_away_image,
                             virtual_landscape.path_list_provider.get_folder_path().toFile(),
-                            null, // does not check image size
+                            null, // does not check image length
                             get_image_fv_cache,
                             owner,
                             logger)).do_your_job();
@@ -1441,8 +1441,8 @@ public class Virtual_landscape_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_icon_size(target_size,owner);
-                logger.log("icon size changed to "+target_size);
-                virtual_landscape.redraw_fx("icon size changed",true);
+                logger.log("icon length changed to "+target_size);
+                virtual_landscape.redraw_fx("icon length changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1466,7 +1466,7 @@ public class Virtual_landscape_menus
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_folder_icon_size(target_size,owner);
-                virtual_landscape.redraw_fx("folder icon size changed",true);
+                virtual_landscape.redraw_fx("folder icon length changed",true);
             }
         });
         menu.getItems().add(item);
@@ -1490,7 +1490,7 @@ public class Virtual_landscape_menus
                     if (cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_font_size(target_size, owner);
-                virtual_landscape.redraw_fx("font size changed",false);
+                virtual_landscape.redraw_fx("font length changed",false);
             }
         });
         menu.getItems().add(item);
@@ -1614,7 +1614,7 @@ public class Virtual_landscape_menus
             }
         }
         {
-            //compute icon size for N icons in a row
+            //compute icon length for N icons in a row
             double W = owner.getWidth()- virtual_landscape.slider_width;
             int[] possible_dividers = {3,4,5,10};
             for ( int divider : possible_dividers)

@@ -204,7 +204,7 @@ public class Importer
             public void run() {
                 Disk_scanner.process_folder(
                         target,
-                        "Photo importer size estimate",
+                        "Photo importer length estimate",
                         file_payload,
                         null,
                         wp,
@@ -214,7 +214,7 @@ public class Importer
                 done.set(true);
             }
         };
-        Actor_engine.execute(r,"Estimate size for 1 folder",logger);
+        Actor_engine.execute(r,"Estimate length for 1 folder",logger);
 
         Runnable monitor = new Runnable() {
             @Override
@@ -242,7 +242,7 @@ public class Importer
 
                 {
                     logger.log("done!");
-                    String s = "Importation size estimation: "+size.doubleValue()/1_000_000+" MBytes";
+                    String s = "Importation length estimation: "+size.doubleValue()/1_000_000+" MBytes";
                     for ( String w : wp) s+="\n"+w;
                     String final_s = s;
                     Jfx_batch_injector.inject(() -> textarea1.setText(final_s),logger);
@@ -250,7 +250,7 @@ public class Importer
                 }
             }
         };
-        Actor_engine.execute(monitor,"Monitor size estimation",logger);
+        Actor_engine.execute(monitor,"Monitor length estimation",logger);
 
 
 

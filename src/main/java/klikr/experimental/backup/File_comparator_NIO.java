@@ -50,7 +50,7 @@ public class File_comparator_NIO
             return false;
         }
 
-        // same size, let us check content, block per block
+        // same length, let us check content, block per block
         // at the first sign of a difference, return false
         boolean returned = true;
         FileChannel ch1 = null;

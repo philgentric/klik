@@ -30,7 +30,7 @@ public class Dummy_text_image_source implements Image_source
     @Override
     public Image_and_path get(int i)
     {
-        return null;//new Image_and_path(create_image_with_text("-"+i+"-", size, size), null);
+        return null;//new Image_and_path(create_image_with_text("-"+i+"-", length, length), null);
     }
 
     @Override

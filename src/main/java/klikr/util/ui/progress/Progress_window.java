@@ -105,10 +105,12 @@ public class Progress_window implements Hourglass
 	{
 		if ( Platform.isFxApplicationThread())
 		{
+			logger.log("HAPPENS2 launch");
 			local.define_fx(wait_message,owner,x,y);
 		}
 		else
 		{
+			logger.log("HAPPENS1 launch");
 			Jfx_batch_injector.inject(()->local.define_fx(wait_message,owner,x,y),logger);
 		}
 		return local;
@@ -303,23 +305,30 @@ public class Progress_window implements Hourglass
 				long elapsed = System.currentTimeMillis() - start;
 				double done = start_amount - in_flight_local;
 				double speed = done / elapsed * 1000; // items/s
-				int eta_s = (int)(in_flight_local / speed);
-				int eta_m = 0;
-				int eta_h = 0;
-				if ( eta_s > 60)
+				long eta_s = (long)(in_flight_local / speed);
+				long eta_m = 0L;
+				long eta_h = 0L;
+				long eta_day = 0L;
+				if ( eta_s > 60L)
 				{
-					eta_m = eta_s / 60;
-					eta_s = eta_s % 60;
-					if ( eta_m > 60)
+					eta_m = eta_s / 60L;
+					eta_s = eta_s % 60L;
+					if ( eta_m > 60L)
 					{
-						eta_h = eta_m / 60;
-						eta_m = eta_m % 60;
+						eta_h = eta_m / 60L;
+						eta_m = eta_m % 60L;
+						if (eta_h > 60L)
+						{
+							eta_day = eta_h / 60L;
+							eta_h = eta_h % 60L;
+						}
 					}
 				}
 				String eta_string;
-				if ( eta_h > 0) eta_string = String.format("ETA: %02d hours %02d minutes %02d seconds", eta_h, eta_m, eta_s);
-				else if ( eta_m > 0) eta_string = String.format("ETA: %02d m %02d s", eta_m, eta_s);
-				else eta_string = String.format("ETA: %02d s", eta_s);
+				if ( eta_day > 0L) eta_string = String.format("ETA: %02d days %02d hours", eta_day, eta_h);
+				else if ( eta_h > 0L) eta_string = String.format("ETA: %02d hours %02d minutes", eta_h, eta_m);
+				else if ( eta_m > 0) eta_string = String.format("ETA: %02d minutes %02d seconds", eta_m, eta_s);
+				else eta_string = String.format("ETA: %02d seconds", eta_s);
 
 				String finalEta_string = eta_string;
 				Jfx_batch_injector.inject(()->

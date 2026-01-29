@@ -330,7 +330,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
             return Optional.empty();
         }
         else {
-            //logger.log("GOT a feature vector of size:"+fv.features.length);
+            //logger.log("GOT a feature vector of length:"+fv.features.length);
         }
 
         return Optional.of(fv);

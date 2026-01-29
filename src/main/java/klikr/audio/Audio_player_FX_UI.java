@@ -119,7 +119,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         stage.setWidth(r.getWidth());
         stage.setHeight(r.getHeight());
         ChangeListener<Number> change_listener = (observableValue, number, t1) -> {
-            // if ( dbg) logger.log("ChangeListener: image window position and/or size
+            // if ( dbg) logger.log("ChangeListener: image window position and/or length
             // changed");
             Non_booleans_properties.save_window_bounds(stage, AUDIO_PLAYER, logger);
         };
@@ -667,7 +667,7 @@ public class Audio_player_FX_UI implements Media_callbacks
      * }
      * //if ( sb !=null) logger.log(sb.toString());
      * if ( scroll_dbg) logger.log("visible songs: " + count_visible + " out of " +
-     * local.size());
+     * local.length());
      * if ( e !=null) e.consume();
      * }
      */
@@ -765,7 +765,7 @@ public class Audio_player_FX_UI implements Media_callbacks
         //logger.log("Audio_player_FX_UI on_player_ready()");
 
         equalizer_bands = Media_instance_statics.get_bands();
-        // logger.log("\n\nequalizer init, bands= "+ equalizer_bands.size());
+        // logger.log("\n\nequalizer init, bands= "+ equalizer_bands.length());
 
         define_equalizer();
 

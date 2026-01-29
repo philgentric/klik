@@ -146,7 +146,7 @@ public class Similarity_engine implements Clearable_RAM_cache
     //**********************************************************
     public List<Most_similar> find_similars_special(
             boolean show_hour_glass,
-            Klikr_cache<Path, Image_properties> image_properties_cache, // maybe null, if not null will compare only image that have the same size
+            Klikr_cache<Path, Image_properties> image_properties_cache, // maybe null, if not null will compare only image that have the same length
             Path reference_item_path,
             List<Path> already_done,//maybe null
             int N,
@@ -194,7 +194,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         to_be_compared.remove(reference_item_path);
         if ( already_done!= null) to_be_compared.removeAll(already_done);
         List<Most_similar> most_similars = find_similars_of_special(
-                image_properties_cache, //if null dont check the image size
+                image_properties_cache, //if null dont check the image length
                 reference_item_path,
                 fv0,
                 N,
@@ -347,7 +347,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             if ( count_pairs_examined!= null) count_pairs_examined.increment();
             if ( image_properties_cache != null)
             {
-                // skip images of different size
+                // skip images of different length
                 Image_properties ip1 = image_properties_cache.get(path1,aborter,null,owner);
                 if ( ip1 == null) continue;
                 if ( ip0.w() != ip1.w()) continue;

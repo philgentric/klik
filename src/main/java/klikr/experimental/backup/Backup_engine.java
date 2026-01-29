@@ -193,6 +193,7 @@ public class Backup_engine
     {
         if ( !Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 update_status");
             Platform.runLater(() -> update_status(source, destination, status));
         }
         // first find the target
@@ -223,6 +224,7 @@ public class Backup_engine
     {
         if ( !Platform.isFxApplicationThread())
         {
+            logger.log("HAPPENS1 update_properties");
             Platform.runLater(() -> update_properties(absolutePath_source, absolutePath_destination));
         }
 

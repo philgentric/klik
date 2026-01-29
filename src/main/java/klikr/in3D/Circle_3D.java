@@ -144,7 +144,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
 
 
         // Calculate circle radius based on desired box width
-        double desiredBoxWidth = CORRIDOR_HEIGHT; // Adjust this for preferred image size
+        double desiredBoxWidth = CORRIDOR_HEIGHT; // Adjust this for preferred image length
         double angleStep = 360.0 / num_segments;
         double angleStepRad = Math.toRadians(angleStep);
 
@@ -187,7 +187,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
 
         StackPane stackPane = new StackPane();
         stackPane.getChildren().addAll(subScene, position_indicator_group);
-        // Bind SubScene size to StackPane
+        // Bind SubScene length to StackPane
         subScene.widthProperty().bind(stackPane.widthProperty());
         subScene.heightProperty().bind(stackPane.heightProperty());
         // Position indicator at top-center
@@ -616,7 +616,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
             floorMaterial = new PhongMaterial(Color.LIGHTGRAY);
         }
 
-        // Tile size - adjust based on your texture resolution
+        // Tile length - adjust based on your texture resolution
         double tileSize = 2000;//Math.max(200, circle_radius / 50); // Square tiles
         double tileThickness = 10;
 
@@ -663,7 +663,7 @@ public class Circle_3D implements Window_provider, Shutdown_target
         }
 
 
-        // Create separate red origin marker with fixed size
+        // Create separate red origin marker with fixed length
         double markerSize = Math.min(tileSize * 0.3, 600);
         Box redMarker = new Box(markerSize, tileThickness *2, markerSize);
         redMarker.setMaterial(redMaterial);

@@ -13,7 +13,7 @@ public record Path_pair(Path i, Path j)
 {
     public static long size()
     {
-        // shallow size only...
+        // shallow length only...
         return 32L;
     }
 
