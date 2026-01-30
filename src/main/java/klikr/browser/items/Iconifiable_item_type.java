@@ -3,8 +3,11 @@
 
 package klikr.browser.items;
 
+import javafx.stage.Window;
+import klikr.util.execute.actor.Aborter;
 import klikr.util.files_and_paths.Extensions;
 import klikr.util.files_and_paths.Guess_file_type;
+import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
 import java.nio.file.Files;
@@ -18,8 +21,9 @@ public enum Iconifiable_item_type
     symbolic_link_on_folder,
     non_javafx_image, // lots of formats, either via GraphicsMagick or ImageMagick
     javafx_image_not_gif_not_png, // which includes jpeg
-    image_png,
-    image_gif,
+    png,
+    gif,
+    animated_gif,
     //image_fits, // with the nasa java fits library, but we support it via non_javafx_image
     video,
     pdf,
@@ -27,7 +31,7 @@ public enum Iconifiable_item_type
     other;
 
     //**********************************************************
-    public static Iconifiable_item_type from_extension(Path path)
+    public static Iconifiable_item_type determine(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( path == null )
@@ -58,11 +62,17 @@ public enum Iconifiable_item_type
         String extension = Extensions.get_extension(path.getFileName().toString());
         if (Guess_file_type.is_this_extension_a_video(extension)) return video;
         if (Guess_file_type.is_this_extension_a_pdf(extension)) return pdf;
+        /* this WAY too expensive !!!
+        if (Guess_file_type.is_this_path_a_animated_gif(path, owner,aborter,logger))
+        {
+            return animated_gif;
+        }*/
         if (Guess_file_type.is_this_extension_a_gif(extension))
         {
-            return image_gif;
+
+            return gif;
         }
-        if (Guess_file_type.is_this_extension_a_png(extension)) return image_png;
+        if (Guess_file_type.is_this_extension_a_png(extension)) return png;
         if (Guess_file_type.is_this_extension_a_non_javafx_type(extension)) return non_javafx_image;
         //if (Guess_file_type.is_this_extension_a_fits(extension)) return image_fits;
         if (Guess_file_type.is_this_extension_an_image_not_gif_not_png(extension)) return javafx_image_not_gif_not_png;

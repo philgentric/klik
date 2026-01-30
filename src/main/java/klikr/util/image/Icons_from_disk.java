@@ -8,7 +8,6 @@
 package klikr.util.image;
 
 import javafx.stage.Window;
-import klikr.browser.icons.Icon_factory_request;
 import klikr.browser.icons.Icon_writer_actor;
 import klikr.util.External_application;
 import klikr.util.execute.actor.Aborter;
@@ -55,7 +54,7 @@ public class Icons_from_disk
             Iconifiable_item_type item_type,
             double icon_size,
             boolean report_if_not_found,
-            Aborter aborter, Window owner, Logger logger)
+            Window owner, Aborter aborter, Logger logger)
     // **********************************************************
     {
         // logger.log("read_original_image_from_disk_and_return_icon");
@@ -288,7 +287,7 @@ public class Icons_from_disk
     }
 
     // **********************************************************
-    public static Image get_image_from_cache(
+    public static Image get_image_from_mmap_or_cache(
             Path original_image_path,
             int icon_size,
             Window owner,
@@ -320,29 +319,13 @@ public class Icons_from_disk
         return image_from_cache;
     }
 
-    // **********************************************************
-    public static Image get_image_from_cache(
-            Path path,
-            Window owner,
-            Logger logger)
-    // **********************************************************
-    {
-        Image image_from_cache;
-        if ( Icon_writer_actor.use_mmap)
-        {
 
-            logger.log("mmap READ key ->"+path.toAbsolutePath().toString()+"<-");
-            image_from_cache = Mmap.instance.read_image_as_pixel(path.toAbsolutePath().toString());
-        }
-
-        return image_from_cache;
-    }
 
 
     // **********************************************************
     public static Image load_icon_from_disk_cache(
             Path original_image_file, // this is NOT the ICON path, this is the true full length image
-            int icon_size,
+            int icon_size, // used for the NAME (not for resizing)
             String tag, // icon length or empty
             String extension,
             boolean dbg_local,
@@ -380,10 +363,9 @@ public class Icons_from_disk
         return null;
     }
 
+    // only for icons i.e. NOT general purpose, which requires fusk support
     // **********************************************************
-    public static Image load_icon(
-            Path path,
-            Logger logger)
+    public static Image load_icon(Path path, Logger logger)
     // **********************************************************
     {
         try (InputStream input_stream = Files.newInputStream(path)) {

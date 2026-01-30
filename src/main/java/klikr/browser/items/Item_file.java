@@ -41,7 +41,7 @@ public abstract class Item_file extends Item
     {
         super(scene, selection_handler, icon_factory_actor, color, path_list_provider, path_comparator_source, owner, aborter, logger);
         this.path = path_;
-        item_type = Iconifiable_item_type.from_extension(get_item_path());
+        item_type = Iconifiable_item_type.determine(get_item_path(),owner,aborter,logger);
         icon_size = Non_booleans_properties.get_icon_size(owner);
     }
 
