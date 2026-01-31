@@ -14,7 +14,9 @@ import java.io.*;
 import java.lang.foreign.MemorySegment;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -271,21 +273,34 @@ public class Mmap
         }
     }
 
-
+    private static ConcurrentLinkedQueue<Long> elapseds = new ConcurrentLinkedQueue<>();
+    private static int counter = 0;
     //**********************************************************
-    public Image read_image_as_pixel(String tag)
+    public Image read_image_as_pixels(String tag)
     //**********************************************************
     {
+        long start = System.currentTimeMillis();
         Image_as_pixel_metadata meta = (Image_as_pixel_metadata) main_index.get(tag);
         if ( meta == null ) return null;
-        logger.log("mmap reading image: "+tag+" is pixels=yes");
+        //logger.log("mmap reading image: "+tag+" is pixels=yes");
         Piece p = meta.piece();
         if (p == null) return null;
         if ( stats_dbg)
         {
             usage.merge(tag, 1, Integer::sum);;
         }
-        return p.read_image_as_pixel(meta);
+        Image returned = p.read_image_as_pixels(meta);
+        long end = System.currentTimeMillis();
+        long elapsed = end - start;
+        elapseds.add(elapsed);
+        counter++;
+        if ( counter%10 == 0)
+        {
+            double tot = 0;
+            for ( long l : elapseds ) tot += l;
+            logger.log(" average READ "+tot/(double)counter+" ms");
+        }
+        return returned;
     }
     //**********************************************************
     public Image read_image_as_file(String tag)
@@ -608,7 +623,7 @@ public class Mmap
                 mmap.write_image_as_pixels(tag, i, true, null);
             }
             {
-                Image j = mmap.read_image_as_pixel(tag);
+                Image j = mmap.read_image_as_pixels(tag);
 
             }
         }

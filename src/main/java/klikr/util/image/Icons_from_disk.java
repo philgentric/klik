@@ -286,39 +286,6 @@ public class Icons_from_disk
          */
     }
 
-    // **********************************************************
-    public static Image get_image_from_mmap_or_cache(
-            Path original_image_path,
-            int icon_size,
-            Window owner,
-            Logger logger)
-    // **********************************************************
-    {
-        Image image_from_cache;
-        if ( Icon_writer_actor.use_mmap)
-        {
-            Path p = Icon_caching.path_for_icon_caching(
-                    original_image_path,
-                    String.valueOf(icon_size),
-                    Icon_caching.png_extension,
-                    owner, logger
-            );
-
-            logger.log("get_image_from_cache mmap READ key ->"+p.toAbsolutePath().toString()+"<-");
-            image_from_cache = Mmap.instance.read_image_as_pixel(p.toAbsolutePath().toString());
-        }
-        else
-        {
-            image_from_cache = load_icon_from_disk_cache(
-                    original_image_path,
-                    icon_size,
-                    String.valueOf(icon_size),
-                    Icon_caching.png_extension,
-                    false, owner, logger);
-        }
-        return image_from_cache;
-    }
-
 
 
 

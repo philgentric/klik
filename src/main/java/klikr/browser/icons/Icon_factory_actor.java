@@ -26,7 +26,6 @@ import klikr.browser.items.Iconifiable_item_type;
 import klikr.properties.boolean_features.Booleans;
 import klikr.util.cache.Cache_folder;
 import klikr.properties.Non_booleans_properties;
-import klikr.util.files_and_paths.Extensions;
 import klikr.util.image.Icons_from_disk;
 import klikr.util.execute.Execute_command;
 import klikr.util.image.icon_cache.Icon_caching;
@@ -47,12 +46,13 @@ import java.util.Optional;
 public class Icon_factory_actor implements Actor
 //**********************************************************
 {
+
     private static final boolean image_as_file = true;
 
 
-    private static final boolean verbose_dbg = true;
-    private static final boolean dbg = true;
-    private static final boolean pdf_dbg = true;
+    private static final boolean verbose_dbg = false;
+    private static final boolean dbg = false;
+    private static final boolean pdf_dbg = false;
     private static final boolean aborting_dbg = false;
 
     Logger logger;
@@ -259,7 +259,7 @@ public class Icon_factory_actor implements Actor
         }
 
         {
-            Image image_from_cache = Mmap.instance.read_image_as_pixel(icon_path.toAbsolutePath().toString());
+            Image image_from_cache = Mmap.instance.read_image_as_pixels(icon_path.toAbsolutePath().toString());
 
             if (icon_factory_request.aborter.should_abort())
             {
@@ -671,7 +671,7 @@ public class Icon_factory_actor implements Actor
         Path cache_key = Paths.get(icon_cache_dir.toAbsolutePath().toString(), resulting_png_name.getFileName().toString());
 
         logger.log("TRY FROM CACHE, as pixels: "+cache_key);
-        Image image_from_cache = Mmap.instance.read_image_as_pixel(cache_key.toAbsolutePath().toString());
+        Image image_from_cache = Mmap.instance.read_image_as_pixels(cache_key.toAbsolutePath().toString());
         if (icon_factory_request.aborter.should_abort())
         {
             if ( aborting_dbg) logger.log("❗ Icon_factory_actor aborting8");
@@ -917,7 +917,7 @@ public class Icon_factory_actor implements Actor
                 //case pdf, non_javafx_image, javafx_image_not_gif_not_png, png:
                 if ( use_pixels_in_mmap)
                 {
-                    image_from_cache = Mmap.instance.read_image_as_pixel(cache_key.toAbsolutePath().toString());
+                    image_from_cache = Mmap.instance.read_image_as_pixels(cache_key.toAbsolutePath().toString());
                 }
                 else
                 {
@@ -1097,7 +1097,7 @@ public class Icon_factory_actor implements Actor
             default:
                 if ( use_pixels_in_mmap)
                 {
-                    Mmap.instance.write_image_as_pixels(cache_key.toAbsolutePath().toString(),image_from_cache,true, on_end);
+                    Mmap.instance.write_image_as_pixels(cache_key.toAbsolutePath().toString(),image_from_cache,true, null);
                 }
                 else
                 {

@@ -3,7 +3,6 @@ package klikr.util.mmap;
 import javafx.scene.image.*;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
-import org.jspecify.annotations.Nullable;
 
 import java.io.*;
 import java.lang.foreign.Arena;
@@ -15,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 //**********************************************************
@@ -306,15 +304,15 @@ public class Piece
 
 
     //**********************************************************
-    public Image read_image_as_pixel(Image_as_pixel_metadata meta)
+    public Image read_image_as_pixels(Image_as_pixel_metadata meta)
     //**********************************************************
     {
         MemorySegment segment = get_MemorySegment(meta);
         if (segment == null) return null;
         int width = meta.width();
-        logger.log("image w = "+width);
+        //logger.log("image w = "+width);
         int height = meta.height();
-        logger.log("image h = "+height);
+        //logger.log("image h = "+height);
 
         ByteBuffer a = segment.asByteBuffer();
 
@@ -336,7 +334,7 @@ public class Piece
                 PixelFormat.getByteBgraPreInstance() // Must match the format used in write_image
             );
         Image returned = new WritableImage(pixelBuffer);
-        logger.log("Retrieved image FROM PIXELS, w= "+returned.getWidth()+" h= "+returned.getHeight());
+        //logger.log("Retrieved image FROM PIXELS, w= "+returned.getWidth()+" h= "+returned.getHeight());
         return returned;
     }
 
