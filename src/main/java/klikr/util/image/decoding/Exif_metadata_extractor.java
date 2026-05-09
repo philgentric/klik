@@ -40,7 +40,7 @@ public class Exif_metadata_extractor
     boolean image_is_damaged;
     public String title="";
     List<String> exif_metadata = null;
-    private double rotation = 0;
+    private Rotation rotation = Rotation.normal;
     Logger logger;
     Window owner;
 
@@ -55,12 +55,13 @@ public class Exif_metadata_extractor
 
     //**********************************************************
     @Deprecated
-    public double get_rotation(boolean report_if_not_found, Aborter aborter)
+    public Rotation get_rotation(boolean report_if_not_found, Aborter aborter)
     //**********************************************************
     {
         if ( exif_metadata != null ) return rotation;
         logger.log(Stack_trace_getter.get_stack_trace("WARNING"));
-        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, report_if_not_found, owner, aborter, logger).orElse(0.0);
+        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, report_if_not_found, owner, aborter, logger);
+        if ( rotation == null) rotation = Rotation.normal;
         return rotation;
     }
 
@@ -187,20 +188,20 @@ public class Exif_metadata_extractor
                                 if (tag.toString().contains("CW"))
                                 {
                                     // have to rotate +90
-                                    rotation = 90.0;
+                                    rotation = Rotation.rot_90_clockwise;//90.0;
                                 }
                             }
                             else if (tag.toString().contains("180"))
                             {
-                                rotation = 180.0;
+                                rotation = Rotation.upsidedown;//180.0;
                             }
                             else if (tag.toString().contains("270"))
                             {
-                                rotation = 270.0;
+                                rotation = Rotation.rot_90_anticlockwise;//270.0;
                             }
                             else
                             {
-                                rotation = 0.0;
+                                rotation = Rotation.normal;//0.0;
                             }
                         }
                     }

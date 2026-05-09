@@ -6,14 +6,13 @@
 package klikr.change;
 
 import javafx.stage.Window;
-import klikr.change.undo.Undo_for_moves;
 import klikr.util.Shared_services;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
-import klikr.util.files_and_paths.old_and_new.Command;
+import klikr.change.old_and_new.Command;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
@@ -32,7 +31,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Change_gang
 //**********************************************************
 {
-    public static final boolean dbg = true;
+    public static final boolean dbg = false;
     public Logger dedicated_logger;
     House_keeping_actor house_keeping_actor;
     private final ConcurrentLinkedQueue<Change_receiver> change_gang_receivers;

@@ -4,6 +4,7 @@
 package klikr.browser_core.icons;
 
 import javafx.scene.image.Image;
+import klikr.browser_core.Image_and_properties;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Message;
 
@@ -11,7 +12,7 @@ import java.nio.file.Path;
 
 //**********************************************************
 public record Icon_write_message(
-        Image image,
+        Image_and_properties iap,
         int icon_size,
         Path absolute_path,
         Aborter aborter) implements Message

@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.Klikr_application;
 import klikr.browser_core.Image_and_properties;
+import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.settings.String_constants;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
@@ -25,9 +26,9 @@ import klikr.change.Change_gang;
 import klikr.change.file_system_monitoring.File_status;
 import klikr.change.file_system_monitoring.Filesystem_item_modification_watcher;
 import klikr.change.file_system_monitoring.Filesystem_modification_reporter;
-import klikr.util.files_and_paths.old_and_new.Command;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.image.Full_image_from_disk;
 import klikr.util.image.Static_image_utilities;
 import klikr.util.files_and_paths.*;
@@ -65,7 +66,7 @@ public class Image_context
     public final Path path;
     public final Image image;
     public final ImageView the_image_view;
-    private Double rotation = null;
+    private Rotation rotation = null;
     Logger logger;
     double zoom_factor = 1.0;
     public boolean image_is_damaged;
@@ -180,11 +181,12 @@ public class Image_context
 
 
     //**********************************************************
-    public double get_rotation(Window owner, Aborter aborter)
+    public Rotation get_rotation(Window owner, Aborter aborter)
     //**********************************************************
     {
         if ( rotation != null) return rotation;
-        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, owner, aborter, logger).orElse(0.0);
+        rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, owner, aborter, logger);
+        logger.log("ROTATION "+rotation);
         return rotation;
     }
 

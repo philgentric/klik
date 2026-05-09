@@ -16,6 +16,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import klikr.browser_core.Drag_and_drop;
+import klikr.browser_core.Image_and_properties;
+import klikr.browser_core.icons.image_properties_cache.Image_properties;
+import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.look.Jar_utils;
 import klikr.look.Look_and_feel_manager;
 import klikr.util.cache.Cache_folder;
@@ -205,7 +208,8 @@ public class Mouse_handling_for_Image_window
         Path icon_cache_dir = Cache_folder.get_cache_dir(Cache_folder.icon_cache, image_window.stage, logger);
 
         cropped_image_path = icon_cache_dir.resolve("cropped_image.png");
-        Static_image_utilities.write_png_to_disk(cropped_image,cropped_image_path,logger);
+        Image_and_properties iap = Image_and_properties.build(cropped_image,false);
+        Static_image_utilities.write_png_to_disk(iap,cropped_image_path,logger);
 
     }
 

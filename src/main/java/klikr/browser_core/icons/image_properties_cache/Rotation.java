@@ -14,10 +14,10 @@ public enum Rotation
 
 
     //**********************************************************
-    public static double to_angle(Rotation rotation)
+    public double as_double()
     //**********************************************************
     {
-        switch (rotation)
+        switch (this)
         {
             case normal -> {
                 return 0.0;
@@ -33,6 +33,47 @@ public enum Rotation
             }
         }
         return 0.0;
+    }
+
+
+    //**********************************************************
+    public byte as_byte()
+    //**********************************************************
+    {
+        switch (this)
+        {
+            case normal -> {
+                return 0;
+            }
+            case rot_90_clockwise -> {
+                return 1;
+            }
+            case rot_90_anticlockwise -> {
+                return 2;
+            }
+            case upsidedown -> {
+                return 3;
+            }
+        }
+        return 0;
+    }
+
+    //**********************************************************
+    public static Rotation from_byte(byte r)
+    //**********************************************************
+    {
+        switch (r)
+        {
+            case 0:
+                return normal;
+            case 1:
+                return rot_90_clockwise;
+            case 2:
+                return rot_90_anticlockwise;
+            case 3:
+                return upsidedown;
+        }
+        return normal;
     }
 
 }

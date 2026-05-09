@@ -31,15 +31,15 @@ public class Static_image_utilities
     private static final boolean dbg = false;
 
     //**********************************************************
-    public static boolean write_png_to_disk(Image image,
+    public static boolean write_png_to_disk(Image_and_properties iap,
                                          Path out_path,
                                          Logger logger)
     //**********************************************************
     {
 
-        int w = (int) image.getWidth();
-        int h = (int) image.getHeight();
-        PixelReader pr = image.getPixelReader();
+        int w = (int) iap.image().getWidth();
+        int h = (int) iap.image().getHeight();
+        PixelReader pr = iap.image().getPixelReader();
         if (pr == null)
         {
             logger.log("Cannot save as PNG because Image has no PixelReader "+out_path);

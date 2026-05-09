@@ -135,7 +135,7 @@ public class Browser_for_file_system_in_3D implements Owner_provider, Selection_
         Sort_files_by sort_files_by = Sort_files_by.get_sort_files_by(path_list_provider.get_key(), stage,logger);
         if ( sort_files_by != Sort_files_by.FILE_NAME)
         {
-            Sort_files_by.set_sort_files_by(path_list_provider.get_key(),Sort_files_by.FILE_NAME, false, stage,logger);
+            Sort_files_by.set_sort_files_by_for_folder(path_list_provider.get_key(),Sort_files_by.FILE_NAME, false, stage,logger);
         }
         Optional<Hourglass> hourglass = Progress_window.show(
                 "Wait, loading in 3D",

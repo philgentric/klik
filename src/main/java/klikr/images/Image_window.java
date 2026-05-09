@@ -21,6 +21,7 @@ import klikr.Klikr_application;
 import klikr.Window_builder;
 import klikr.Window_type;
 import klikr.browser_core.Window_manager;
+import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.browsers.Browser_for_file_system_in_2D;
 import klikr.browser_core.comparators.Last_access_comparator;
 import klikr.browser_core.icons.image_properties_cache.Image_properties;
@@ -49,9 +50,9 @@ import klikr.experimental.fusk.Fusk_static_core;
 import klikr.experimental.fusk.Fusk_strings;
 import klikr.look.Look_and_feel;
 import klikr.look.Look_and_feel_manager;
-import klikr.util.files_and_paths.old_and_new.Command;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.image.rescaling.Image_rescaling_filter;
 import klikr.util.perf.Perf;
 import klikr.util.ui.Jfx_batch_injector;
@@ -74,7 +75,7 @@ public class Image_window
     private static final boolean use_linkedhashmap_for_cache = false;
     public static final String IMAGE_WINDOW = "IMAGE_WINDOW";
     double progress;
-    static boolean dbg = false;
+    static final boolean dbg = false;
     public final Scene the_Scene;
     public final Stage stage;
     public final Pane the_image_Pane;
@@ -958,7 +959,9 @@ public class Image_window
 
                 local_image_context.the_image_view.setPreserveRatio(true);
                 //local_image_context.the_image_view.setSmooth(true);
-                double rot = local_image_context.get_rotation(owner, aborter);
+                Rotation rotation = local_image_context.get_rotation(owner, aborter);
+                double rot = 0.0;
+                if   (rotation != null) rot = rotation.as_double();
 
                 // there is a bug with imageView rotate
                 // see: https://stackoverflow.com/questions/53109791/fitting-rotated-imageview-into-application-window-scene

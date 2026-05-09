@@ -8,16 +8,15 @@ import klikr.settings.*;
 import klikr.util.Shared_services;
 import klikr.change.active_list_stage.Datetime_to_signature_source;
 import klikr.look.my_i18n.My_I18n;
-import klikr.util.files_and_paths.old_and_new.Command;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 
 //**********************************************************

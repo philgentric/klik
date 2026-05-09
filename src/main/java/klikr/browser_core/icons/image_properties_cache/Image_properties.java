@@ -68,7 +68,10 @@ public record Image_properties(double w, double h, Rotation rotation, boolean is
         return 1.0;
     }
 
-    public Double get_image_width() {
+    //**********************************************************
+    public Double get_image_width()
+    //**********************************************************
+    {
         switch (rotation())
         {
             case normal,upsidedown ->
@@ -82,7 +85,10 @@ public record Image_properties(double w, double h, Rotation rotation, boolean is
         return null;
     }
 
-    public Double get_image_height() {
+    //**********************************************************
+    public Double get_image_height()
+    //**********************************************************
+    {
         switch (rotation())
         {
             case normal,upsidedown ->
@@ -95,6 +101,5 @@ public record Image_properties(double w, double h, Rotation rotation, boolean is
         }
         return null;
     }
-
 
 }

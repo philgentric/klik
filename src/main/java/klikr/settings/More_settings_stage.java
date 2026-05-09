@@ -41,6 +41,7 @@ public class More_settings_stage
             Feature.Show_icons_for_folders,
             Feature.Show_hidden_files,
             Feature.Show_hidden_folders,
+            Feature.Remember_sorting_method_per_folder,
             Feature.Show_file_names_as_tooltips,
             Feature.Reload_last_folder_on_startup,
             Feature.Dont_zoom_small_images,

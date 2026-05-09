@@ -23,7 +23,7 @@ import klikr.change.Change_receiver;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.path_lists.Type;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Old_and_new_Path;
 import klikr.path_lists.Indexer;
 import klikr.util.perf.Perf;
 import klikr.util.ui.Jfx_batch_injector;
@@ -41,6 +41,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
 //**********************************************************
 {
     private static final boolean dbg = false;
+    private static final boolean dbg_change = true;
 
     public final Image_window image_window; // 'parent'
     public final Logger logger;
@@ -153,13 +154,13 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     //**********************************************************
     {
 
-        if ( dbg) logger2.log("Image_display_handler: you_receive_this_because_a_file_event_occurred_somewhere");
+        if ( dbg_change) logger2.log("Image_display_handler: you_receive_this_because_a_file_event_occurred_somewhere");
 
         if ( image_context == null) return;
         //boolean found = false;
         for (Old_and_new_Path oanf : l)
         {
-            if ( dbg) logger2.log("Image_display_handler, getting a you_receive_this_because_a_move_occurred_somewhere " + oanf.to_string());
+            if ( dbg_change) logger2.log("Image_display_handler, getting a you_receive_this_because_a_move_occurred_somewhere " + oanf.to_string());
 
             if (image_context.path == null)
             {
@@ -168,7 +169,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             }
             if ( Static_files_and_paths_utilities.is_same_path(oanf.old_Path,image_context.path,logger))
             {
-                if ( dbg) logger.log(oanf.old_Path.toAbsolutePath()+ " OLD path corresponds to currently displayed image "+image_context.path.toAbsolutePath());
+                if ( dbg_change) logger.log(oanf.old_Path.toAbsolutePath()+ " OLD path corresponds to currently displayed image "+image_context.path.toAbsolutePath());
                 // the case when the image has been dragged away is handled directly
                 // by the setOnDragDone event handler
 
@@ -176,7 +177,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 // for example the image was renamed
                 if (image_indexer.is_known(oanf.new_Path))
                 {
-                    if ( dbg) logger.log("image RENAMED or MODIFIED (change in same dir):" + oanf.to_string());
+                    if ( dbg_change) logger.log("image RENAMED or MODIFIED (change in same dir):" + oanf.to_string());
                     Jfx_batch_injector.inject(() -> {
                         // clear the cache entry in case the file was MODIFIED
                         image_window.evict_from_cache(image_context.path,owner);
@@ -198,13 +199,13 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                 else
                 {
                     // the image was moved out of the current directory
-                    if ( dbg) logger.log("image moved out:" + oanf.to_string());
+                    if ( dbg_change) logger.log("image moved out:" + oanf.to_string());
                 }
 
             }
             else
             {
-                if ( dbg) logger.log(oanf.old_Path.toAbsolutePath()+ "OLD path DOES NOT corresponds to currently displayed image "+image_context.path.toAbsolutePath());
+                if ( dbg_change) logger.log(oanf.old_Path.toAbsolutePath()+ "OLD path DOES NOT corresponds to currently displayed image "+image_context.path.toAbsolutePath());
             }
         }
 

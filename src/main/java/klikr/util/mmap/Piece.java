@@ -1,6 +1,10 @@
 package klikr.util.mmap;
 
 import javafx.scene.image.*;
+import klikr.browser_core.Image_and_properties;
+import klikr.browser_core.icons.image_properties_cache.Image_properties;
+import klikr.browser_core.icons.image_properties_cache.Rotation;
+import klikr.util.image.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import org.jspecify.annotations.Nullable;
@@ -188,16 +192,16 @@ public class Piece
 
 
     //**********************************************************
-    public boolean write_image_as_pixels(long offset,  Image image)
+    public boolean write_image_as_pixels(long offset,  Image_and_properties iap)
     //**********************************************************
     {
-        PixelReader pr = image.getPixelReader();
+        PixelReader pr = iap.image().getPixelReader();
         if ( pr == null)
         {
             return false;
         }
-        int width = (int)image.getWidth();
-        int height = (int)image.getHeight();
+        int width = (int)iap.image().getWidth();
+        int height = (int)iap.image().getHeight();
 
         // could we use ????
         // ByteBuffer buffer = ByteBuffer.allocateDirect((int) width*height*4);
@@ -205,7 +209,8 @@ public class Piece
 
         int data_length = width * height*4;
         // add 4 for the CRC
-        byte[] bytes = new byte[data_length +4];
+        // add one byte for rotation
+        byte[] bytes = new byte[data_length +5];
         pr.getPixels(0, 0, width, height, PixelFormat.getByteBgraInstance(), bytes, 0, width * 4);
         for (int i = 0; i < width*height; i++) {
             int base = i * 4;
@@ -228,6 +233,9 @@ public class Piece
         bytes[local_offset+1] = (byte)(checksum >>> 16);
         bytes[local_offset+2] = (byte)(checksum >>> 8);
         bytes[local_offset+3] = (byte) checksum;
+        bytes[local_offset+4] = iap.properties().rotation().as_byte();
+
+
         MemorySegment.copy(MemorySegment.ofArray(bytes), 0, segment, offset, bytes.length);
 
         return true;
@@ -235,7 +243,7 @@ public class Piece
 
 
     //**********************************************************
-    public Optional<Image> read_image_as_pixels(Image_as_pixel_metadata meta)
+    public Optional<Image_and_properties> read_image_as_pixels(Image_as_pixel_metadata meta)
     //**********************************************************
     {
         MemorySegment segment = read_MemorySegment(meta);
@@ -251,17 +259,18 @@ public class Piece
         if( dbg) logger.log("image h = "+height);
         if ( height <=0)  return Optional.empty();
 
-        ByteBuffer a = segment.asByteBuffer();
+        ByteBuffer byte_buffer = segment.asByteBuffer();
 
         PixelBuffer<ByteBuffer> pixelBuffer = new PixelBuffer<>(
                 width,
                 height,
-                a,
+                byte_buffer,
                 PixelFormat.getByteBgraPreInstance() // Must match the format used in write_image
             );
-        Image returned = new WritableImage(pixelBuffer);
-        if ( dbg) logger.log("Mmap retrieved image 'AS PIXELS', w= "+returned.getWidth()+" h= "+returned.getHeight());
-        return Optional.of(returned);
+        Image i = new WritableImage(pixelBuffer);
+        if ( dbg) logger.log("Mmap retrieved image 'AS PIXELS', w= "+i.getWidth()+" h= "+i.getHeight());
+        byte r = byte_buffer.get(byte_buffer.limit()-1) ;
+        return Optional.of(new Image_and_properties(i, new Image_properties(width,height, Rotation.from_byte(r),false)));
     }
 
     //**********************************************************
@@ -274,20 +283,22 @@ public class Piece
     }
 
     //**********************************************************
-    public Image read_image_as_file(String tag, Image_as_file_metadata meta)
+    public Image_and_properties read_image_as_file(String tag, Image_as_file_metadata meta)
     //**********************************************************
     {
         byte[] bytes = read_bytes(meta);
         if (bytes == null) return null;
 
         try( ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
-            Image returned = new Image(bais);
-            if ( dbg) logger.log("Mmap retrieved image 'AS FILE', w= " + returned.getWidth() + " h= " + returned.getHeight());
-            if ( !returned.isError())
+            Image i = new Image(bais);
+            if ( dbg) logger.log("Mmap retrieved image 'AS FILE', w= " + i.getWidth() + " h= " + i.getHeight());
+            if ( !i.isError())
             {
-                return returned;
+                Rotation rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation_from_InputStream(bais,null,logger);
+                if ( rotation == null ) rotation = Rotation.normal;
+                return new Image_and_properties(i,new Image_properties(i.getWidth(),i.getHeight(),rotation,false));
             }
-            logger.log("error:" + returned.isError() + " " + returned.getException());
+            logger.log("error:" + i.isError() + " " + i.getException());
         }
         catch (IOException e)
         {

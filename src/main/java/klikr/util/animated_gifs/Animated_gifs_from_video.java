@@ -10,12 +10,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klikr.util.Shared_services;
+import klikr.browser_core.Image_and_properties;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
@@ -24,9 +23,9 @@ import klikr.look.Look_and_feel;
 import klikr.look.Look_and_feel_manager;
 import klikr.util.cache.Cache_folder;
 import klikr.util.files_and_paths.*;
-import klikr.util.files_and_paths.old_and_new.Command;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.image.Icons_from_disk;
 import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
@@ -469,15 +468,15 @@ public class Animated_gifs_from_video
             logger);
 
 
-        Image image = Icons_from_disk.load_icon_from_disk_cache(video_path, height, tag,Icon_caching.gif_extension, Icons_from_disk.dbg, owner,logger);
+        Image_and_properties iap = Icons_from_disk.load_icon_from_disk_cache(video_path, height, tag,Icon_caching.gif_extension, Icons_from_disk.dbg, owner,logger);
         //Image image = Icons_from_disk.get_image_from_cache(video_path, height, owner,logger);
 
-        if ( image == null)
+        if ( iap == null)
         {
             logger.log("❌ FATAL: load_icon_from_disk_cache==null");
             return null;
         }
-        the_imageview.setImage(image);
+        the_imageview.setImage(iap.image());
         return temporary_gif_full_path;
     }
 

@@ -3,6 +3,7 @@
 
 package klikr.browser_core.virtual_landscape;
 
+import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
@@ -84,7 +85,8 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         }
         if ( dbg)
             logger.log("pixel_height (slider SETMAX to) ="+pixel_height);
-        the_Slider.setMax(pixel_height); // when the pixel height is very large this is key to get good manual (mouse/trackpad) scroll accuracy
+        double finalPixel_height = pixel_height;
+        Platform.runLater(()->the_Slider.setMax(finalPixel_height)); // when the pixel height is very large this is key to get good manual (mouse/trackpad) scroll accuracy
         return pixel_height;
     }
 

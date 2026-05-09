@@ -13,9 +13,9 @@ import klikr.util.execute.actor.Message;
 import klikr.util.execute.actor.workers.Actor_engine_based_on_workers;
 import klikr.change.Change_gang;
 import klikr.util.files_and_paths.*;
-import klikr.util.files_and_paths.old_and_new.Command;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.log.Logger;
 
 import java.io.File;

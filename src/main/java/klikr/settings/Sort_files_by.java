@@ -41,6 +41,7 @@ public enum Sort_files_by {
 
     public final static boolean dbg = false;
 
+    public static final String SORT_FILES_BY_FOR_ALL_FOLDERS = "sort_files_by_for_all_folders";
     public static final String SORT_FILES_BY_FOR_FOLDER_ = "sort_files_by_for_folder_";
 
 
@@ -209,38 +210,86 @@ public enum Sort_files_by {
     // during a session we cache 'sort_files_by' PER FOLDER
     // and it is saved to file too
     // EXCEPT for items in never_saved_to_disk
-    private static Map<String, Sort_files_by> cached = new HashMap<>();
+    private static final Map<String, Sort_files_by> cached = new HashMap<>();
     //**********************************************************
     public static Sort_files_by get_sort_files_by(String key, Window owner, Logger logger)
     //**********************************************************
     {
-        Sort_files_by from_cache = cached.get(key);
-        if ( from_cache != null)
-        {
-            if (dbg) logger.log(Stack_trace_getter.get_stack_trace("CACHED sort files by (1): "+ from_cache.name()+" for:"+key ));
-            return from_cache;
-        }
 
-        String s = Shared_services.main_properties().get(SORT_FILES_BY_FOR_FOLDER_+key);
-        if (s == null)
+
+        if ( !Feature_cache.get(Feature.Remember_sorting_method_per_folder))
         {
-            Shared_services.main_properties().set_and_save(SORT_FILES_BY_FOR_FOLDER_+key, Sort_files_by.FILE_NAME.name());
-            if (dbg) logger.log(("sort files by (2): "+ Sort_files_by.FILE_NAME));
+            String s = Shared_services.main_properties().get(SORT_FILES_BY_FOR_ALL_FOLDERS);
+            if (s == null) {
+                Shared_services.main_properties().set_and_save(SORT_FILES_BY_FOR_ALL_FOLDERS, Sort_files_by.FILE_NAME.name());
+                if (dbg) logger.log(("sort files by (2): " + Sort_files_by.FILE_NAME));
+                cached.put(key, Sort_files_by.FILE_NAME);
+                return Sort_files_by.FILE_NAME;
+            }
+            if (s.isBlank()) {
+                Shared_services.main_properties().set_and_save(SORT_FILES_BY_FOR_ALL_FOLDERS, Sort_files_by.FILE_NAME.name());
+                if (dbg) logger.log(("sort files by (3): " + Sort_files_by.FILE_NAME));
+                cached.put(key, Sort_files_by.FILE_NAME);
+                return Sort_files_by.FILE_NAME;
+            }
+
+            try
+            {
+                Sort_files_by returned = Sort_files_by.valueOf(s);
+                if (dbg) logger.log(Stack_trace_getter.get_stack_trace("sort files by (4): "+returned));
+                cached.put(key, returned);
+                return returned;
+            }
+            catch (IllegalArgumentException e)
+            {
+                logger.log("sort files by (4): "+e);
+            }
+
             cached.put(key, Sort_files_by.FILE_NAME);
             return Sort_files_by.FILE_NAME;
         }
 
+        // per folder
 
-        Sort_files_by returned = Sort_files_by.valueOf(s);
+        Sort_files_by from_cache = cached.get(key);
+        if (from_cache != null) {
+            if (dbg)
+                logger.log(Stack_trace_getter.get_stack_trace("CACHED sort files by (1): " + from_cache.name() + " for:" + key));
+            return from_cache;
+        }
 
-        if (dbg) logger.log(Stack_trace_getter.get_stack_trace("sort files by (4): "+returned));
-        cached.put(key, returned);
-        return returned;
+        String s = Shared_services.main_properties().get(SORT_FILES_BY_FOR_FOLDER_ + key);
+        if (s == null) {
+            Shared_services.main_properties().set_and_save(SORT_FILES_BY_FOR_FOLDER_ + key, Sort_files_by.FILE_NAME.name());
+            if (dbg) logger.log(("sort files by (2): " + Sort_files_by.FILE_NAME));
+            cached.put(key, Sort_files_by.FILE_NAME);
+            return Sort_files_by.FILE_NAME;
+        }
+        if (s.isBlank()) {
+            Shared_services.main_properties().set_and_save(SORT_FILES_BY_FOR_FOLDER_ + key, Sort_files_by.FILE_NAME.name());
+            if (dbg) logger.log(("sort files by (3): " + Sort_files_by.FILE_NAME));
+            cached.put(key, Sort_files_by.FILE_NAME);
+            return Sort_files_by.FILE_NAME;
+        }
 
+        try
+        {
+            Sort_files_by returned = Sort_files_by.valueOf(s);
+            if (dbg) logger.log(Stack_trace_getter.get_stack_trace("sort files by (4): "+returned));
+            cached.put(key, returned);
+            return returned;
+        }
+        catch (IllegalArgumentException e)
+        {
+            logger.log("sort files by (4): "+e);
+        }
+
+        cached.put(key, Sort_files_by.FILE_NAME);
+        return Sort_files_by.FILE_NAME;
     }
 
     //**********************************************************
-    public static void set_sort_files_by(String key, Sort_files_by sort_files_by, boolean and_save, Window owner, Logger logger)
+    public static void set_sort_files_by_for_folder(String key, Sort_files_by sort_files_by, boolean and_save, Window owner, Logger logger)
     //**********************************************************
     {
         for (int i = 0 ; i < Settings_not_saved_to_disk.never_saved_to_disk.length; i++)
@@ -251,6 +300,15 @@ public enum Sort_files_by {
                 return;
             }
         }
+
+        if ( !Feature_cache.get(Feature.Remember_sorting_method_per_folder))
+        {
+            Shared_services.main_properties().set_and_save(SORT_FILES_BY_FOR_ALL_FOLDERS, sort_files_by.name());
+            cached.put(key, Sort_files_by.FILE_NAME);
+            return;
+        }
+
+
 
         if(dbg) logger.log("sort files by CACHE : " + sort_files_by.name() + " for folder: " + key);
         cached.put(key, sort_files_by);

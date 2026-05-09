@@ -16,10 +16,10 @@ import klikr.util.execute.actor.Actor_engine;
 import klikr.util.files_and_paths.Extensions;
 import klikr.util.files_and_paths.Filename_sanitizer;
 import klikr.util.files_and_paths.Moving_files;
-import klikr.util.files_and_paths.old_and_new.Command;
+import klikr.change.old_and_new.Command;
 import klikr.util.files_and_paths.Guess_file_type;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 

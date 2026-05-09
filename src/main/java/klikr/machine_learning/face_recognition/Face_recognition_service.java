@@ -33,6 +33,9 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.Window_builder;
 import klikr.Window_type;
+import klikr.browser_core.Image_and_properties;
+import klikr.browser_core.icons.image_properties_cache.Image_properties;
+import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.look.Look_and_feel_manager;
 import klikr.machine_learning.ML_server_type;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
@@ -644,6 +647,7 @@ public class Face_recognition_service
     public void show_face_recognition_window(Image face, Eval_results eval_result, ML_server_type ml_server_type)
     //**********************************************************
     {
+
         int size = 1600/K_of_KNN;
         if ( size > 200) size = 200;
         if (Platform.isFxApplicationThread())
@@ -702,7 +706,9 @@ public class Face_recognition_service
         {
             if ( face_image != null)
             {
-                Label l= new Label("Extracted face looks like this: (Detector: "+ml_server_type.name()+")");
+                String txt = "Extracted face looks like this: ";
+                if (ml_server_type!= null ) txt += " Detector: "+ml_server_type.name();
+                Label l= new Label(txt);
                 Look_and_feel_manager.set_label_look(l,stage,logger);
                 vBox.getChildren().add(l);
                 ImageView iv = new ImageView();
@@ -1118,7 +1124,7 @@ public class Face_recognition_service
 
         if (display_face_reco_window)
         {
-            show_face_recognition_window(face,eval_result,null);
+            show_face_recognition_window(face,eval_result,ML_server_type.FaceNet);
         }
 
         String display_label = eval_result.label();
@@ -1201,7 +1207,8 @@ public class Face_recognition_service
         Path path =  Embeddings_prototype.make_image_path(folder_path,tag,logger);
         logger.log("writing tmp image to: "+path+" face="+face.getWidth()+"x"+face.getHeight());
 
-        Static_image_utilities.write_png_to_disk(face, path, logger);
+        Image_and_properties iap = Image_and_properties.build(face,false);
+        Static_image_utilities.write_png_to_disk(iap, path, logger);
 
         return path;
     }

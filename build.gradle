@@ -62,7 +62,7 @@ dependencies {
     // MessagePack
     implementation 'org.msgpack:msgpack-core:0.9.8'
     // EXIF reader
-    implementation 'com.drewnoakes:metadata-extractor:2.19.0'
+    implementation 'com.drewnoakes:metadata-extractor:2.20.0'
     // Cache
     implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.2'
     // moving folders across different drives
@@ -105,7 +105,7 @@ tasks.register('klikr', JavaExec) {
             // Optional: decide whether to abort or continue
         }
         // Pull the property, validate it, and set the flag
-        final int DEFAULT_RAM_GB = 2   // whatever feels sane for your project
+        final int DEFAULT_RAM_GB = 2
 
         def raw = props.getProperty('max_RAM_in_GBytes')
         if (!raw) {

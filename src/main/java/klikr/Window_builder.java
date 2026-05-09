@@ -8,14 +8,10 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Window;
-import klikr.browsers.Browser_for_song_playlist;
-import klikr.browsers.Browser_for_file_system_in_2D;
+import klikr.browsers.*;
 import klikr.browser_core.comparators.Last_access_comparator;
 import klikr.browser_core.virtual_landscape.Scroll_position_cache;
 import klikr.browser_core.virtual_landscape.Shutdown_target;
-import klikr.browsers.Browser_for_disk_footprint;
-import klikr.browsers.Browser_for_image_playlist;
-import klikr.browsers.Browser_for_file_system_in_3D;
 import klikr.path_lists.Path_list_provider;
 import klikr.util.log.Logger;
 
@@ -273,6 +269,7 @@ public class Window_builder
             case File_system_diskview -> returned = new Browser_for_disk_footprint(window_builder,logger);
             case Song_playlist -> returned = new Browser_for_song_playlist(window_builder,logger);
             case Image_playlist -> returned = new Browser_for_image_playlist(window_builder,logger);
+            case Search_results -> returned = new Browser_for_search_results(window_builder,logger);
         }
         if (window_builder.shutdown_target != null)
         {

@@ -11,7 +11,7 @@ import klikr.browser_core.Window_manager;
 import klikr.path_lists.Path_list_provider;
 import klikr.path_lists.Path_list_provider_for_playlist;
 import klikr.util.execute.actor.Aborter;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Old_and_new_Path;
 import klikr.util.log.Logger;
 
 import java.nio.file.Path;

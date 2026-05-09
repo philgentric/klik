@@ -4,7 +4,7 @@
 package klikr.change;
 
 import javafx.stage.Window;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Old_and_new_Path;
 import klikr.util.log.Logger;
 
 import java.util.List;

@@ -35,19 +35,25 @@ public class Fast_image_property_from_exif_metadata_extractor
     public static Image_properties get_image_properties(Path path, boolean report_if_not_found, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        if (Check_remaining_RAM.RAM_running_low("Image properties extraction",owner, logger)) {
+        if (Check_remaining_RAM.RAM_running_low("Image properties extraction", owner, logger)) {
             logger.log("get_image_properties NOT DONE because running low on memory ! ");
             return null;
         }
 
         //logger.log("\n\n\nget_image_properties "+path);
         InputStream is = Full_image_from_disk.get_image_InputStream(path, Feature_cache.get(Feature.Fusk_is_on), report_if_not_found, aborter, logger);
-        if ( is == null)
-        {
-            logger.log(Stack_trace_getter.get_stack_trace("Warning: cannot open file "+path));
+        if (is == null) {
+            logger.log(Stack_trace_getter.get_stack_trace("Warning: cannot open file " + path));
             return null;
         }
 
+        return get_image_properties_from_InputStream(is, path, logger);
+    }
+
+    //**********************************************************
+     public static Image_properties get_image_properties_from_InputStream(InputStream is, Path path, Logger logger)
+     //**********************************************************
+     {
         Rotation rotation = Rotation.normal;
         double w = -1.0;
         double h = -1.0;
@@ -170,7 +176,9 @@ public class Fast_image_property_from_exif_metadata_extractor
     }
 
 
+    //**********************************************************
     public static Double get_number(String s)
+    //**********************************************************
     {
         String[] pieces = s.split(" ");
         for ( int i = pieces.length-1; i>0;i--)

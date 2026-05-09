@@ -783,13 +783,13 @@ public class Virtual_landscape
                     case DENIED:
                         logger.log("\n\naccess denied\n\n");
                         set_status("Access denied for:" + path_list_provider.get_key());
-                        on_geometry_changed(true,"access denied", null, is_redrawing);
+                        on_geometry_changed(true,"access denied", Optional.empty(), is_redrawing);
                         break;
                     case NOT_FOUND:
                     case ERROR:
                         logger.log("\n\ndirectory gone\n\n");
                         set_status("Gone:" + path_list_provider.get_key());
-                        on_geometry_changed(true,"gone", null, is_redrawing);
+                        on_geometry_changed(true,"gone", Optional.empty(), is_redrawing);
                         break;
                 }
             }
@@ -2035,7 +2035,8 @@ public class Virtual_landscape
         }
         if (scroll_dbg)
             logger.log("✅ landscape_height=" + virtual_landscape_height);
-        if (landscape_height_listener != null) {
+        if (landscape_height_listener != null)
+        {
             landscape_height_listener.browsed_landscape_height_has_changed(virtual_landscape_height,
                     current_vertical_offset);
         }
@@ -2292,58 +2293,91 @@ public class Virtual_landscape
     {
         if ( window_type == Window_type.File_system_2D)
         {
-            Button undo_bookmark_history_button = make_button_undo_and_bookmark_and_history(
-                    application,
-                    the_whole_history,
-                    path_list_provider,
-                    top_left,
-                    shutdown_target,
-                    window_type, height, owner, aborter, logger);
+            show_UNDO_HISTORY_BOOKMARK_menubar_item(top_pane, height);
+            show_FILES_menubar_item(top_pane, height);
+        }
+        if (
+            ( window_type == Window_type.File_system_2D)
+            ||
+            ( window_type == Window_type.Search_results)
+        )
+        {
+            show_VIEW_menubar_item(top_pane, height);
+            show_PREFERENCES_menubar_item(top_pane, height);
+        }
+        if ( window_type == Window_type.File_system_2D)
+        {
+            show_BACK_menubar_item(top_pane, height);
+        }
+    }
 
-            top_pane.getChildren().add(undo_bookmark_history_button);
-            top_buttons.add(undo_bookmark_history_button);
-        }
-        if ( window_type == Window_type.File_system_2D)
-        {
-            String files = My_I18n.get_I18n_string("Files", owner, logger);
-            Button files_button = new Button(files);
-            files_button.setOnAction(e -> button_files(e));
-            top_pane.getChildren().add(files_button);
-            top_buttons.add(files_button);
-            Image icon = Look_and_feel_manager.get_folder_icon(height, owner, logger);
-            Look_and_feel_manager.set_button_and_image_look(files_button, icon, height, null, false, owner, logger);
-        }
-        if ( window_type == Window_type.File_system_2D)
-        {
-            String view = My_I18n.get_I18n_string("View", owner, logger);
-            Button view_button = new Button(view);
-            view_button.setOnAction(e -> button_view(e));
-            top_pane.getChildren().add(view_button);
-            top_buttons.add(view_button);
-            Image icon = Look_and_feel_manager.get_view_icon(height, owner, logger);
-            Look_and_feel_manager.set_button_and_image_look(view_button, icon, height, null, false, owner, logger);
-        }
-        if ( window_type == Window_type.File_system_2D)
-        {
-            String preferences = My_I18n.get_I18n_string("Preferences", owner, logger);
-            Button preferences_button = new Button(preferences);
-            preferences_button.setOnAction(e -> button_preferences(e));
-            top_pane.getChildren().add(preferences_button);
-            top_buttons.add(preferences_button);
-            Image icon = Look_and_feel_manager.get_preferences_icon(height, owner, logger);
-            Look_and_feel_manager.set_button_and_image_look(preferences_button, icon, height, null, false, owner,
-                    logger);
-        }
-        if ( window_type == Window_type.File_system_2D)
-        {
-            String back_text = My_I18n.get_I18n_string("Back", owner, logger);
-            Button back_button = new Button(back_text);
-            back_button.setOnAction(e -> back());
-            top_pane.getChildren().add(back_button);
-            top_buttons.add(back_button);
-            Image icon = Look_and_feel_manager.get_back_icon(height, owner, logger);
-            Look_and_feel_manager.set_button_and_image_look(back_button, icon, height, null, false, owner, logger);
-        }
+    //**********************************************************
+    private void show_UNDO_HISTORY_BOOKMARK_menubar_item(Pane top_pane, double height)
+    //**********************************************************
+    {
+        Button undo_bookmark_history_button = make_button_undo_and_bookmark_and_history(
+                application,
+                the_whole_history,
+                path_list_provider,
+                top_left,
+                shutdown_target,
+                window_type, height, owner, aborter, logger);
+
+        top_pane.getChildren().add(undo_bookmark_history_button);
+        top_buttons.add(undo_bookmark_history_button);
+    }
+
+    //**********************************************************
+    private void show_FILES_menubar_item(Pane top_pane, double height)
+    //**********************************************************
+    {
+        String files = My_I18n.get_I18n_string("Files", owner, logger);
+        Button files_button = new Button(files);
+        files_button.setOnAction(e -> button_files(e));
+        top_pane.getChildren().add(files_button);
+        top_buttons.add(files_button);
+        Image icon = Look_and_feel_manager.get_folder_icon(height, owner, logger);
+        Look_and_feel_manager.set_button_and_image_look(files_button, icon, height, null, false, owner, logger);
+    }
+
+    //**********************************************************
+    private void show_BACK_menubar_item(Pane top_pane, double height)
+    //**********************************************************
+    {
+        String back_text = My_I18n.get_I18n_string("Back", owner, logger);
+        Button back_button = new Button(back_text);
+        back_button.setOnAction(e -> back());
+        top_pane.getChildren().add(back_button);
+        top_buttons.add(back_button);
+        Image icon = Look_and_feel_manager.get_back_icon(height, owner, logger);
+        Look_and_feel_manager.set_button_and_image_look(back_button, icon, height, null, false, owner, logger);
+    }
+
+    //**********************************************************
+    private void show_PREFERENCES_menubar_item(Pane top_pane, double height)
+    //**********************************************************
+    {
+        String preferences = My_I18n.get_I18n_string("Preferences", owner, logger);
+        Button preferences_button = new Button(preferences);
+        preferences_button.setOnAction(e -> button_preferences(e));
+        top_pane.getChildren().add(preferences_button);
+        top_buttons.add(preferences_button);
+        Image icon = Look_and_feel_manager.get_preferences_icon(height, owner, logger);
+        Look_and_feel_manager.set_button_and_image_look(preferences_button, icon, height, null, false, owner,
+                logger);
+    }
+
+    //**********************************************************
+    private void show_VIEW_menubar_item(Pane top_pane, double height)
+    //**********************************************************
+    {
+        String view = My_I18n.get_I18n_string("View", owner, logger);
+        Button view_button = new Button(view);
+        view_button.setOnAction(e -> button_view(e));
+        top_pane.getChildren().add(view_button);
+        top_buttons.add(view_button);
+        Image icon = Look_and_feel_manager.get_view_icon(height, owner, logger);
+        Look_and_feel_manager.set_button_and_image_look(view_button, icon, height, null, false, owner, logger);
     }
 
     //**********************************************************
@@ -2951,9 +2985,12 @@ public class Virtual_landscape
     {
         if ( !is_redrawing.compareAndSet(false,true))
         {
+            logger.log("is_redrawing.set(true)");
+
             logger.log("redraw_all_internal skipped, is_redrawing");
             return;
         }
+        logger.log("redraw_all_internal YES");
         Optional<Hourglass> hourglass = Optional.empty();
 
         long start = System.currentTimeMillis();
@@ -2961,7 +2998,7 @@ public class Virtual_landscape
         if (show_progress_window_on_redraw && rc.show_hourglass()) {
             hourglass = Progress_window.show_with_aborter(
                     aborter,
-                    "Scanning folder",
+                    "Scanning",
                     20 * 60,
                     x,
                     y,
@@ -3224,6 +3261,7 @@ public class Virtual_landscape
                 show_error_icon(iv_denied, top_delta_y);
                 progress_window.ifPresent(Hourglass::close);
                 is_redrawing.set(false);
+                logger.log("is_redrawing.set(false)");
                 return;
             }
             if (error_type == Error_type.NOT_FOUND) {
@@ -3231,6 +3269,7 @@ public class Virtual_landscape
                 show_error_icon(not_found, top_delta_y);
                 progress_window.ifPresent(Hourglass::close);
                 is_redrawing.set(false);
+                logger.log("is_redrawing.set(false)");
                 return;
             }
             if (error_type == Error_type.ERROR) {
@@ -3239,6 +3278,7 @@ public class Virtual_landscape
                 show_error_icon(unknown_error, top_delta_y);
                 progress_window.ifPresent(Hourglass::close);
                 is_redrawing.set(false);
+                logger.log("is_redrawing.set(false)");
                 return;
             }
 
@@ -3303,6 +3343,7 @@ public class Virtual_landscape
                         on_scroll(reason + " map_buttons_and_icons ");
                         progress_window.ifPresent(Hourglass::close);
                         is_redrawing.set(false);
+                        logger.log("is_redrawing.set(false)");
 
                     }, logger);
                 }

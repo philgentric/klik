@@ -96,11 +96,11 @@ public class Icon_writer_actor implements Actor
 					logger.log(""+e);
 				}
 			};
-			mmap.write_image_as_pixels(out_path.toAbsolutePath().toString(),iwm.image(),true, on_end);
+			mmap.write_image_as_pixels(out_path.toAbsolutePath().toString(),iwm.iap(),true, on_end);
 		}
 		else
 		{
-			Static_image_utilities.write_png_to_disk(iwm.image(), out_path, logger);
+			Static_image_utilities.write_png_to_disk(iwm.iap(), out_path, logger);
 		}
 	}
 

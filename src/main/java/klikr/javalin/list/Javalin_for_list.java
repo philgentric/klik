@@ -21,17 +21,16 @@ import java.util.function.Consumer;
 public class Javalin_for_list
 //**********************************************************
 {
-    private static final boolean ultra_dbg = true;
+    private static final boolean ultra_dbg = false;
     private static Javalin_for_list instance;
-    private final Application application;
     private final Logger logger;
     private Javalin javalin;
     private final int port_number;
     private final Set<WsContext> connected_clients = Collections.newSetFromMap(
             new ConcurrentHashMap<>()
     );
-    private String page_title = "Choose in lst";
-    private AtomicReference<Consumer<String>> on_click_source = new AtomicReference<>();
+    //private String page_title = "Choose in list";
+    private final AtomicReference<Consumer<String>> on_click_source = new AtomicReference<>();
 
     //**********************************************************
     public static void show(
@@ -58,7 +57,6 @@ public class Javalin_for_list
     private Javalin_for_list(Application application, Logger logger)
     //**********************************************************
     {
-        this.application = application;
         this.logger = logger;
         this.port_number = Javalin_common.find_free_port(logger);
     }

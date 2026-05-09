@@ -4,14 +4,12 @@
 package klikr.change.undo;
 
 import javafx.stage.Window;
-import klikr.change.history.History_engine;
 import klikr.util.Shared_services;
 import klikr.change.active_list_stage.Active_list_stage;
 import klikr.change.active_list_stage.Datetime_to_signature_source;
 import klikr.util.files_and_paths.Moving_files;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Old_and_new_Path;
 import klikr.util.log.Logger;
-import klikr.util.mmap.Mmap;
 import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.ui.Popups;
 

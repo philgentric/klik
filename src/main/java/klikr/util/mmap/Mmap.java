@@ -2,16 +2,15 @@ package klikr.util.mmap;
 
 import javafx.stage.Window;
 import javafx.scene.image.Image;
+import klikr.browser_core.Image_and_properties;
 import klikr.util.cache.Cache_folder;
 import klikr.util.cache.Size_;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
-import klikr.util.image.decoding.Exif_metadata_extractor;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
 import java.io.*;
-import java.lang.foreign.MemorySegment;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -261,10 +260,10 @@ public class Mmap
 
     // takes more file space but faster to reload
     //**********************************************************
-    public boolean write_image_as_pixels(String tag, Image image, boolean and_save, Runnable on_end)
+    public boolean write_image_as_pixels(String tag, Image_and_properties image, boolean and_save, Runnable on_end)
     //**********************************************************
     {
-        Image_as_pixel_metadata meta = find_room_for_image_as_pixel(image, tag);
+        Image_as_pixel_metadata meta = find_room_for_image_as_pixel(image.image(), tag);
         if ( meta == null )
         {
             logger.log("Mmap no room found for "+tag);
@@ -286,7 +285,7 @@ public class Mmap
     private static final ConcurrentLinkedQueue<Long> elapseds = new ConcurrentLinkedQueue<>();
     private static int counter = 0;
     //**********************************************************
-    public Optional<Image> read_image_as_pixels(String tag)
+    public Optional<Image_and_properties> read_image_as_pixels(String tag)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
@@ -308,7 +307,7 @@ public class Mmap
         {
             usage.merge(tag, 1, Integer::sum);;
         }
-        Optional<Image> returned = p.read_image_as_pixels(meta);
+        Optional<Image_and_properties> returned = p.read_image_as_pixels(meta);
 
         long end = System.currentTimeMillis();
         long elapsed = end - start;
@@ -323,7 +322,7 @@ public class Mmap
         return returned;
     }
     //**********************************************************
-    public Optional<Image> read_image_as_file(Path path)
+    public Optional<Image_and_properties> read_image_as_file(Path path)
     //**********************************************************
     {
         long start = System.currentTimeMillis();
@@ -341,7 +340,7 @@ public class Mmap
         {
             usage.merge(tag, 1, Integer::sum);;
         }
-        Image returned =  p.read_image_as_file(tag, meta);
+        Image_and_properties returned =  p.read_image_as_file(tag, meta);
         long end = System.currentTimeMillis();
         long elapsed = end - start;
         elapseds.add(elapsed);

@@ -6,6 +6,9 @@ package klikr.look;
 import javafx.scene.image.*;
 import javafx.stage.Window;
 import klikr.Klikr_application;
+import klikr.browser_core.Image_and_properties;
+import klikr.browser_core.icons.image_properties_cache.Image_properties;
+import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.util.execute.Application_jar;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.image.Static_image_utilities;
@@ -115,7 +118,8 @@ public class Jar_utils
         PixelWriter pw = icon.getPixelWriter();
         pw.setPixels(0,0,max,max,fmt,out_bytes,0,max*4);
         File out_file = new File(tmp_icon_file_name);
-        Static_image_utilities.write_png_to_disk(icon, out_file.toPath(), logger);
+        Image_and_properties iap = Image_and_properties.build(icon,false);
+        Static_image_utilities.write_png_to_disk(iap, out_file.toPath(), logger);
 
         // read it back
         try {

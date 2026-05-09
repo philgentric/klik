@@ -46,9 +46,9 @@ import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.execute.System_open_actor;
 import klikr.util.files_and_paths.*;
-import klikr.util.files_and_paths.old_and_new.Command;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.Jfx_batch_injector;
@@ -469,7 +469,7 @@ public class Item_file_with_icon extends Item_file
 
     //**********************************************************
     @Override
-    public void receive_icon(Image_and_properties image_and_rotation)
+    public void receive_icon(Image_and_properties iap)
     //**********************************************************
     {
         if ( dbg) logger.log("ITEM FILE WITH ICON RECEIVING icon");
@@ -489,28 +489,36 @@ public class Item_file_with_icon extends Item_file
             Jfx_batch_injector.inject(this::you_are_invisible,logger);
             return;
         }
-        if ( image_and_rotation == null)
+        if ( iap == null)
         {
             if ( dbg)
                 logger.log("❗ image_and_rotation == null ");
             //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
-        if ( image_and_rotation.image() == null)
+        if ( iap.properties() == null)
         {
             if ( dbg)
-                logger.log("❗ image_and_rotation.image() == null : setting the image to null in the Image_view");
+                logger.log("❗ image_and_rotation.properties() == null");
+            //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
+            return;
+        }
+        if ( iap.image() == null)
+        {
+            if ( dbg)
+                logger.log("❗ image_and_rotation.image() == null");
             //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
 
-        if ( (image_and_rotation.image().getHeight()  < 1) || (image_and_rotation.image().getWidth() < 1))
+
+        if ( (iap.image().getHeight()  < 1) || (iap.image().getWidth() < 1))
         {
             logger.log(Stack_trace_getter.get_stack_trace("❗ WARNING: empty image, not set "+path.toAbsolutePath()));
             Jfx_batch_injector.inject(this::you_are_invisible,logger);
             return;
         }
-        Jfx_batch_injector.inject(() -> receive_icon_in_fx_thread(image_and_rotation),logger);
+        Jfx_batch_injector.inject(() -> receive_icon_in_fx_thread(iap),logger);
     }
 
     //**********************************************************
@@ -548,21 +556,26 @@ public class Item_file_with_icon extends Item_file
 
         }
 
-        double local_rot = 0;
+        Rotation rotation = null;
         {
-            Rotation rotation = image_and_properties.properties().rotation();
+            rotation = image_and_properties.properties().rotation();
             if (rotation == null)
             {
                 Path p = get_item_path();
-                if (p != null) {
+                if (p != null)
+                {
                     if (Files.exists(p)) {
-                        if (
-                                (Guess_file_type.is_this_path_extension_a_video(p, logger)) || (Guess_file_type.is_this_path_extension_a_pdf(p, logger))
-                        ) {
+                        if ((Guess_file_type.is_this_path_extension_a_video(p, logger))
+                        ||
+                        (Guess_file_type.is_this_path_extension_a_pdf(p, logger)))
+                        {
                             if (dbg) logger.log("✅ PDF or video => rot=0");
-                            local_rot = 0;
-                        } else {
-                            local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(p, true, owner, aborter, logger).orElse(0.0);
+                            rotation = Rotation.normal;
+                        }
+                        else
+                        {
+                            rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(p, true, owner, aborter, logger);
+                            if( rotation == null) rotation = Rotation.normal;
                         }
                     } else {
                         logger.log(Stack_trace_getter.get_stack_trace("❌ Bad"));
@@ -601,7 +614,7 @@ public class Item_file_with_icon extends Item_file
             if (dbg) logger.log("✅ icon larger than target HAPPENS1 for: "+get_item_path());
             image_view.setFitWidth(icon_size);
             image_view.setFitHeight(icon_size);
-            if ((local_rot == 90) || (local_rot == 270))
+            if ((rotation == Rotation.rot_90_clockwise) || (rotation == Rotation.rot_90_anticlockwise))
             {
                 // this actually NEVER HAPPENS now since a PDF icon is never rotated
                 //if (dbg)
@@ -612,7 +625,7 @@ public class Item_file_with_icon extends Item_file
         }
         else
         {
-            if ((local_rot == 90) || (local_rot == 270))
+            if ((rotation == Rotation.rot_90_clockwise) || (rotation == Rotation.rot_90_anticlockwise))
             {
 
                 if ( image_and_properties.image().getHeight() < image_and_properties.image().getWidth())
@@ -641,7 +654,7 @@ public class Item_file_with_icon extends Item_file
             }
         }
         if ( image_and_properties.properties().rotation() != null) {
-            image_pane.setRotate(Rotation.to_angle(image_and_properties.properties().rotation()));
+            image_pane.setRotate(image_and_properties.properties().rotation().as_double());
         }
         else
         {

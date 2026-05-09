@@ -65,7 +65,7 @@ import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.settings.boolean_features.Feature_change_target;
 import klikr.change.file_system_monitoring.Filesystem_item_modification_watcher;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Old_and_new_Path;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.Jfx_batch_injector;

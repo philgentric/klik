@@ -27,6 +27,11 @@ import klikr.look.my_i18n.My_I18n;
 import klikr.settings.boolean_features.Feature;
 import klikr.util.files_and_paths.Guess_file_type;
 import klikr.look.Look_and_feel_manager;
+import klikr.util.files_and_paths.Moving_files;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.image.rescaling.Image_rescaling_filter;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
@@ -34,6 +39,9 @@ import klikr.util.ui.Items_with_explanation;
 import klikr.util.ui.Menu_items;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -245,8 +253,20 @@ public class Menus_for_image_window
 
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-            image_window.image_display_handler.get_image_context().get().rename_file_for_an_image_window(image_window);
-        }, image_window.stage, image_window.logger);
+
+            Image_context ic = image_window.image_display_handler.get_image_context().get();
+            Path to_be_deleted = ic.path;
+
+            Path trash_dir = Static_files_and_paths_utilities.get_trash_dir(to_be_deleted, image_window.owner, image_window.logger);
+            Path new_Path = (Paths.get(trash_dir.toString(), to_be_deleted.getFileName().toString()));
+            List<Old_and_new_Path> l = new ArrayList<>();
+
+            l.add(new Old_and_new_Path(to_be_deleted, new_Path, Command.command_move_to_trash, Status.before_command,false));
+            double x = image_window.stage.getX()+100;
+            double y = image_window.stage.getY()+100;
+            Moving_files.safe_delete_files(l, x,y,image_window.stage,image_window.aborter,image_window.logger);
+            image_window.image_display_handler.change_image_relative(1,false);
+            }, image_window.stage, image_window.logger);
     }
 
     //**********************************************************

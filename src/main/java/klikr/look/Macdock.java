@@ -5,7 +5,8 @@ package klikr.look;
 
 import klikr.util.log.Logger;
 
-public class Macdock {
+public class Macdock
+{
     private static boolean load_done = false;
 
     static

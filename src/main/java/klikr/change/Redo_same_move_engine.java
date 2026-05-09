@@ -6,9 +6,9 @@ package klikr.change;
 import javafx.stage.Stage;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.files_and_paths.*;
-import klikr.util.files_and_paths.old_and_new.Command;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 

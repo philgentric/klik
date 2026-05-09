@@ -11,6 +11,11 @@ package klikr.search;
 
 import javafx.application.Application;
 import javafx.stage.Window;
+import klikr.Owner_provider;
+import klikr.Window_builder;
+import klikr.Window_type;
+import klikr.path_lists.Path_list_provider_for_playlist;
+import klikr.path_lists.Path_list_provider_for_search_results;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser_core.virtual_landscape.Path_comparator_source;
@@ -57,12 +62,19 @@ public class Search_session implements Callback_for_file_found_publish
 		this.search_config = search_config;
 		this.search_receiver = search_receiver;
 		//this.the_browser = browser;
+		/*
 		this.find_result_frame = new Results_frame(
 				application,
 				path_list_provider,
 				path_comparator_source,
 				local_aborter, owner, logger);
-		/*this.find_result_frame = new Web_results(
+
+		 */
+		Path_list_provider search_results_path_list_provider = new Path_list_provider_for_search_results(owner,local_aborter,logger);
+		Owner_provider x = Window_builder.additional_no_past(application, Window_type.Search_results, search_results_path_list_provider, owner, logger);
+		this.find_result_frame = (Results) x;
+
+	/*this.find_result_frame = new Web_results(
 				application,
 				path_list_provider,
 				path_comparator_source,

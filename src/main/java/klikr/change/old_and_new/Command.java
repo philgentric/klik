@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.util.files_and_paths.old_and_new;
+package klikr.change.old_and_new;
 
 //**********************************************************
 public enum Command

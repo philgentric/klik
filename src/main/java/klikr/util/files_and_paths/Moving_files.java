@@ -16,10 +16,9 @@ import klikr.change.undo.Undo_for_moves;
 import klikr.change.Redo_same_move_engine;
 import klikr.settings.boolean_features.Feature;
 import klikr.look.my_i18n.My_I18n;
-import klikr.settings.boolean_features.Booleans;
-import klikr.util.files_and_paths.old_and_new.Command;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.progress.Hourglass;
@@ -133,7 +132,7 @@ public class Moving_files
             l2.add(oanf2);
         }
 
-        logger.log("safe_delete_all: perform_safe_moves_in_a_thread");
+        //logger.log("safe_delete_all: perform_safe_moves_in_a_thread");
 
         Moving_files.perform_safe_moves_in_a_thread(l2,  true,x,y, owner, aborter, logger);
 

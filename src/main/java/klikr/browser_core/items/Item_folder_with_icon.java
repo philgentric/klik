@@ -231,7 +231,6 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         the_image_view.setPreserveRatio(true);
 
         // normally we already have the rotation
-        double local_rot = 0;
         Image_properties properties = image_and_properties.properties();
         if (properties == null)
         {
@@ -249,12 +248,13 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                     logger.log(Stack_trace_getter.get_stack_trace(""));
                     return;
                 }
-                local_rot = Fast_rotation_from_exif_metadata_extractor.get_rotation(pfd, dbg, owner, aborter, logger).orElse(0.0);
-                the_image_pane.setRotate(local_rot);
+                rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(pfd, dbg, owner, aborter, logger);
+                if ( rotation == null) rotation = Rotation.normal;
+                the_image_pane.setRotate(rotation.as_double());
             }
             else
             {
-                the_image_pane.setRotate(Rotation.to_angle(rotation));
+                the_image_pane.setRotate(rotation.as_double());
             }
         }
         resize_the_box(button);

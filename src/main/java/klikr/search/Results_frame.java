@@ -63,8 +63,10 @@ public class Results_frame implements Results
 	final Aborter aborter;
 	private final Path_list_provider path_list_provider;
 	private final Path_comparator_source path_comparator_source;
-    private final static boolean use_scrollable_textfield = true;
 	private final Application application;
+
+	// DO NOT USE, scrollable textfield has a bad bug : capturing the click for the scroll disables the action !!!
+    private final static boolean use_scrollable_textfield = false;
     //**********************************************************
 	public Results_frame(
 			Application application,
@@ -165,7 +167,8 @@ public class Results_frame implements Results
         }
 		the_result_vbox.getChildren().add(b);
 		b.setOnAction((ActionEvent e) -> {
-			//logger.log("going to open on menu select: " + key);
+
+			logger.log("Search Results : going to open on menu select: " + path);
 
 			open(path, owner);
 		});

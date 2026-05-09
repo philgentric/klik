@@ -6,6 +6,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import klikr.browser_core.Image_and_properties;
+import klikr.browser_core.icons.image_properties_cache.Image_properties;
+import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.util.log.Logger;
 import klikr.util.log.Simple_logger;
 
@@ -49,24 +52,27 @@ public class Mmap_test extends Application
         {
             String tag2 = "src/main/resources/icons/French.png";
             Image french = new Image(new File(tag2).toURI().toString());
-            mmap.write_image_as_pixels(tag2,french,true,null);
-            Optional<Image> image2 = mmap.read_image_as_pixels(tag2);
-            if (image2.isEmpty())
+            Image_and_properties iap = Image_and_properties.build(french,false);
+            mmap.write_image_as_pixels(tag2,iap,true,null);
+            logger.log("Mmap Writing image to "+tag2);
+            Optional<Image_and_properties> iap2 = mmap.read_image_as_pixels(tag2);
+            logger.log("Mmap Reading image from "+tag2);
+            if (iap2.isEmpty())
             {
-                logger.log("Image not found "+tag2);
+                logger.log("Mmap read error for : "+tag2);
                 return;
             }
-            vbox.getChildren().add(new ImageView(image2.get()));
+            vbox.getChildren().add(new ImageView(iap2.get().image()));
         }
         {
             String tag3 = "src/main/resources/icons/Korean.png";
             mmap.write_image_as_file(Path.of(tag3), true, null);
-            Optional<Image> image3 = mmap.read_image_as_file(Path.of(tag3));
-            if (image3.isEmpty())
+            Optional<Image_and_properties> iap3 = mmap.read_image_as_file(Path.of(tag3));
+            if (iap3.isEmpty())
             {
                 logger.log("Image not found "+tag3);
                 return;
-            }vbox.getChildren().add(new ImageView(image3.get()));
+            }vbox.getChildren().add(new ImageView(iap3.get().image()));
         }
         boolean qsdfd = true;
         if ( qsdfd)

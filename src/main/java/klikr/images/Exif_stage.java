@@ -14,6 +14,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.settings.String_constants;
 import klikr.util.External_application;
 import klikr.util.execute.Execute_result;
@@ -207,7 +208,7 @@ public class Exif_stage
         List<String> exifs_tags_list = new ArrayList<>();
         boolean image_is_damaged = false;
         String title = null;
-        double rotation = 0;
+        Rotation rotation = Rotation.normal;
         try
         {
             Exif_metadata_extractor extractor = new Exif_metadata_extractor(path,owner, logger);

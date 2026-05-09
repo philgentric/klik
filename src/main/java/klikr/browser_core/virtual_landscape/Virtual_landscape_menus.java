@@ -74,9 +74,9 @@ import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.execute.Execute_command;
 import klikr.util.execute.System_open_actor;
 import klikr.util.files_and_paths.*;
-import klikr.util.files_and_paths.old_and_new.Command;
-import klikr.util.files_and_paths.old_and_new.Old_and_new_Path;
-import klikr.util.files_and_paths.old_and_new.Status;
+import klikr.change.old_and_new.Command;
+import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.change.old_and_new.Status;
 import klikr.util.info_stage.Info_stage;
 import klikr.util.info_stage.Line_for_info_stage;
 import klikr.util.log.Logger;
@@ -132,8 +132,10 @@ public class Virtual_landscape_menus
         ContextMenu files_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(files_menu,owner,logger);
 
-        files_menu.getItems().add(make_select_all_files_menu_item(logger));
-        if ( virtual_landscape.window_type == Window_type.File_system_2D) files_menu.getItems().add(make_select_all_folders_menu_item(logger));
+        if ( virtual_landscape.window_type == Window_type.File_system_2D)
+        {
+            files_menu.getItems().add(make_select_all_folders_menu_item(logger));
+        }
 
         {
             String create_string = My_I18n.get_I18n_string("Create",owner,logger);
@@ -224,10 +226,7 @@ public class Virtual_landscape_menus
                 create_song_similarity_deduplication_menu(menu);
             }
             files_menu.getItems().add(menu);
-        }
 
-        if ( virtual_landscape.window_type == Window_type.File_system_2D)
-        {
             if (Feature_cache.get(Feature.Enable_backup)) {
                 files_menu.getItems().add(make_backup_menu());
             }
@@ -1661,7 +1660,7 @@ public class Virtual_landscape_menus
                 }
                 if ( actual != sort_by)
                 {
-                    Sort_files_by.set_sort_files_by(virtual_landscape.path_list_provider.get_key(),sort_by, true, owner,logger);
+                    Sort_files_by.set_sort_files_by_for_folder(virtual_landscape.path_list_provider.get_key(),sort_by, true, owner,logger);
                     logger.log("new file/image sorting order= "+sort_by);
                     Window_builder.replace_same_folder(
                             virtual_landscape.application,

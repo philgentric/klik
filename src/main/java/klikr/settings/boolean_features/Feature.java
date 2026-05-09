@@ -12,6 +12,7 @@ public enum Feature
     Show_icons_for_folders,
     Show_hidden_files,
     Show_hidden_folders,
+    Remember_sorting_method_per_folder,
     Show_single_column_with_details,
     Show_file_names_as_tooltips,
     Reload_last_folder_on_startup,

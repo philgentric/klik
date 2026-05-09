@@ -8,6 +8,9 @@
 package klikr.util.image;
 
 import javafx.stage.Window;
+import klikr.browser_core.Image_and_properties;
+import klikr.browser_core.icons.image_properties_cache.Image_properties;
+import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.util.External_application;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser_core.items.Iconifiable_item_type;
@@ -20,6 +23,8 @@ import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.Check_remaining_RAM;
 import klikr.util.execute.Execute_command;
 //import klik.util.image.decoding.FITS;
+import klikr.util.image.decoding.Fast_image_property_from_exif_metadata_extractor;
+import klikr.util.image.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klikr.util.image.icon_cache.Icon_caching;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
@@ -33,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 //static utilities for loading images and icons from the disk
 //**********************************************************
@@ -47,7 +51,7 @@ public class Icons_from_disk
 
     // private static long elapsed_read_original_image_from_disk_and_return_icon =0;
     // **********************************************************
-    public static Image read_original_image_from_disk_and_return_icon(
+    public static Image_and_properties read_original_image_from_disk_and_return_icon(
             Path original_image_file,
             Iconifiable_item_type item_type,
             double icon_size,
@@ -60,7 +64,9 @@ public class Icons_from_disk
         if (Check_remaining_RAM.RAM_running_low("icon creation",owner,logger)) {
 
             logger.log("read_original_image_from_disk_and_return_icon NOT DONE because running low on memory ! ");
-            return Jar_utils.get_broken_icon(icon_size, owner, logger);
+            Image i = Jar_utils.get_broken_icon(icon_size, owner, logger);
+            if (i == null) return null;
+            return Image_and_properties.build(i,true);
         }
 
         switch (item_type) {
@@ -73,7 +79,9 @@ public class Icons_from_disk
              */
             case non_javafx_image -> {
                 logger.log("using NON-javafx for " + item_type + " " + original_image_file);
-                return use_GraphicsMagick_for_icon(original_image_file, icon_size, owner, logger);
+                Image i =  use_GraphicsMagick_for_icon(original_image_file, icon_size, owner, logger);
+                if (i == null) return null;
+                return Image_and_properties.build(i,false);
             }
             default -> {
             }
@@ -93,22 +101,8 @@ public class Icons_from_disk
                 return null;
             }
 
-            return use_javafx_Image(input_stream, icon_size, logger);
-            /*
-             * switch ( item_type)
-             * {
-             * case javafx_image_not_gif_not_png, image_png, image_gif -> {
-             * logger.log("using javafx for "+ item_type+ " "+original_image_file);
-             * return use_javafx_Image(input_stream,icon_size,logger);
-             * }
-             * default -> {
-             * logger.log(Stack_trace_getter.
-             * get_stack_trace("Icons_from_disk WARNING: unexpected item_type "+ item_type+
-             * " for "+original_image_file));
-             * return null;
-             * }
-             * }
-             */
+            byte[] bytes = input_stream.readAllBytes();
+            return use_javafx_Image(bytes, original_image_file,icon_size, logger);
         } catch (IOException e) {
             logger.log(Stack_trace_getter.get_stack_trace(e.toString()));
         }
@@ -116,7 +110,7 @@ public class Icons_from_disk
         // long now = System.currentTimeMillis();
         // elapsed_read_original_image_from_disk_and_return_icon += now-start;
         // logger.log("elapsed_read_original_image_from_disk_and_return_icon:"+elapsed_read_original_image_from_disk_and_return_icon);
-        return image;
+        return null;
     }
 
     // **********************************************************
@@ -215,11 +209,12 @@ public class Icons_from_disk
      * }
      */
     // **********************************************************
-    private static Image use_javafx_Image(InputStream input_stream, double icon_size, Logger logger)
+    private static Image_and_properties use_javafx_Image(byte[] bytes, Path path_for_dbg, double icon_size, Logger logger)
     // **********************************************************
     {
         // logger.log("use_javafx_Image");
-        Image image = new Image(input_stream, icon_size, icon_size, true, true);
+        InputStream is1 = new ByteArrayInputStream(bytes);
+        Image image = new Image(is1, icon_size, icon_size, true, true);
         if (image.isError()) {
             logger.log(("Icons_from_disk WARNING: an error occurred when reading AND resizing: "));
             return null;
@@ -234,7 +229,16 @@ public class Icons_from_disk
             // Icons_from_disk.load_native_resolution_image_from_disk(original_image_file,
             // true, null, aborter,logger);
         }
-        return image;
+
+        // find out if the image is rotated
+        InputStream is2 = new ByteArrayInputStream(bytes);
+        Rotation rot = Fast_rotation_from_exif_metadata_extractor.get_rotation_from_InputStream(is2,path_for_dbg,logger);
+        if ( rot == null )
+        {
+            logger.log(Stack_trace_getter.get_stack_trace(" WARNING rotation not found for "+path_for_dbg));
+            rot = Rotation.normal;
+        }
+        return new Image_and_properties(image,new Image_properties(image.getWidth(),image.getHeight(),rot,false));
 
         /*
          * this code uses AWT, which is not supported by gluon
@@ -288,7 +292,7 @@ public class Icons_from_disk
 
 
     // **********************************************************
-    public static Image load_icon_from_disk_cache(
+    public static Image_and_properties load_icon_from_disk_cache(
             Path original_image_file, // this is NOT the ICON path, this is the true full length image
             int icon_size, // used for the NAME (not for resizing)
             String tag, // icon length or empty
@@ -302,14 +306,17 @@ public class Icons_from_disk
 
         if (Check_remaining_RAM.RAM_running_low("icon from disk",owner,logger)) {
             logger.log("load_icon_from_disk_cache WARNING: running low on memory ! loading default icon");
-            return Look_and_feel_manager.get_default_icon(icon_size, owner, logger);
+            Image i = Look_and_feel_manager.get_default_icon(icon_size, owner, logger);
+            return Image_and_properties.build(i,false);
         }
         Path path = Icon_caching.path_for_icon_caching(original_image_file, tag, extension, owner, logger);
         if ( path == null ) return null;
         if (dbg)
             logger.log("load_icon_from_disk file is:" + path.toAbsolutePath() + " for " + original_image_file);
-        try (InputStream input_stream = Files.newInputStream(path)) {
-            return new Image(input_stream);
+        try (InputStream input_stream = Files.newInputStream(path))
+        {
+            Image i = new Image(input_stream);
+            return Image_and_properties.build(i,false);
         } catch (FileNotFoundException e) {
             // this happens the first time one visits a directory...
             // or when the icon cache dir content has been erased etc.
