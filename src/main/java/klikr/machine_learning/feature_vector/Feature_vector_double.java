@@ -3,6 +3,9 @@
 
 package klikr.machine_learning.feature_vector;
 
+import klikr.util.log.Logger;
+import klikr.util.log.Stack_trace_getter;
+
 //**********************************************************
 public class Feature_vector_double implements Feature_vector
 //**********************************************************
@@ -10,11 +13,13 @@ public class Feature_vector_double implements Feature_vector
     private final static boolean dbg = false;
 
     public double[] features;
+    public final String who_are_you;
 
     //**********************************************************
-    public Feature_vector_double(double[] values)
+    public Feature_vector_double(double[] values, String who_are_you)
     //**********************************************************
     {
+        this.who_are_you = who_are_you;
         if ( dbg)
         {
             if (values == null)
@@ -42,10 +47,10 @@ public class Feature_vector_double implements Feature_vector
 
     //**********************************************************
     @Override
-    public double distance(Feature_vector feature_vector)
+    public double distance(Feature_vector feature_vector, Logger logger)
     //**********************************************************
     {
-        return cosine_similarity(feature_vector);
+        return cosine_similarity(feature_vector,logger);
         //return hamming_similarity(feature_vector);
     }
 
@@ -87,11 +92,21 @@ public class Feature_vector_double implements Feature_vector
 
 
     //**********************************************************
-    public double cosine_similarity(Feature_vector other_feature_vector_)
+    public double cosine_similarity(Feature_vector other_feature_vector_, Logger logger)
     //**********************************************************
     {
         Feature_vector_double other_feature_vector = (Feature_vector_double) other_feature_vector_;
         int n = features.length;
+        int n2 = other_feature_vector.features.length;
+        if ( n2 != n)
+        {
+            // this can legitimately happen for song similarity
+            // i.e. a short song creates a shorter vector ...
+            if (dbg) logger.log(Stack_trace_getter.get_stack_trace("WARNING.... feature vector size mismatch "+n+" "+this.who_are_you+" vs "+n2+ " "+((Feature_vector_double) other_feature_vector_).who_are_you));
+            // too bad ... let us try the short way
+            if ( n2 < n) n = n2;
+        }
+
         double dotProduct = 0.0;
         double magnitudeVec1 = 0.0;
         double magnitudeVec2 = 0.0;

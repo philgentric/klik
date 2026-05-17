@@ -2181,9 +2181,15 @@ public class Virtual_landscape
     {
 
         Sort_files_by file_sort_by = Sort_files_by.get_sort_files_by(path_list_provider.get_key(), owner,logger);
+        if (
+                ( window_type == Window_type.Song_playlist)
+        )
+        {
+            file_sort_by = Sort_files_by.PLAYLIST_ORDER;
+        }
         if (file_sort_by == null)
         {
-            return "Status: OK";
+            return "Status: OK, for: " + path_list_provider.get_key();
         }
         else
         {
@@ -2979,6 +2985,7 @@ public class Virtual_landscape
 
 
     private AtomicBoolean is_redrawing =  new AtomicBoolean(false);
+    private AtomicBoolean pending =  new AtomicBoolean(false);
     //**********************************************************
     private void redraw_all_internal(Redraw_command rc, Window owner, double x, double y)
     //**********************************************************
@@ -2988,6 +2995,7 @@ public class Virtual_landscape
             logger.log("is_redrawing.set(true)");
 
             logger.log("redraw_all_internal skipped, is_redrawing");
+            pending.set(true);
             return;
         }
         logger.log("redraw_all_internal YES");
@@ -3259,26 +3267,20 @@ public class Virtual_landscape
                 Image denied = Look_and_feel_manager.get_denied_icon(icon_size, owner, logger);
                 ImageView iv_denied = new ImageView(denied);
                 show_error_icon(iv_denied, top_delta_y);
-                progress_window.ifPresent(Hourglass::close);
-                is_redrawing.set(false);
-                logger.log("is_redrawing.set(false)");
+                exit_redraw(progress_window, is_redrawing);
                 return;
             }
             if (error_type == Error_type.NOT_FOUND) {
                 ImageView not_found = new ImageView(Look_and_feel_manager.get_not_found_icon(icon_size, owner, logger));
                 show_error_icon(not_found, top_delta_y);
-                progress_window.ifPresent(Hourglass::close);
-                is_redrawing.set(false);
-                logger.log("is_redrawing.set(false)");
+                exit_redraw(progress_window, is_redrawing);
                 return;
             }
             if (error_type == Error_type.ERROR) {
                 ImageView unknown_error = new ImageView(
                         Look_and_feel_manager.get_unknown_error_icon(icon_size, owner, logger));
                 show_error_icon(unknown_error, top_delta_y);
-                progress_window.ifPresent(Hourglass::close);
-                is_redrawing.set(false);
-                logger.log("is_redrawing.set(false)");
+                exit_redraw(progress_window, is_redrawing);
                 return;
             }
 
@@ -3341,15 +3343,26 @@ public class Virtual_landscape
                         scroll_to();
 
                         on_scroll(reason + " map_buttons_and_icons ");
-                        progress_window.ifPresent(Hourglass::close);
-                        is_redrawing.set(false);
-                        logger.log("is_redrawing.set(false)");
+                        exit_redraw(progress_window, is_redrawing);
 
                     }, logger);
                 }
             };
             Actor_engine.execute(r, "compute_geometry, threaded part", logger);
 
+        }
+    }
+
+    //**********************************************************
+    private void exit_redraw(Optional<Hourglass> progress_window, AtomicBoolean is_redrawing)
+    //**********************************************************
+    {
+        progress_window.ifPresent(Hourglass::close);
+        is_redrawing.set(false);
+        if ( pending.get())
+        {
+            pending.set(false);
+            redraw_fx(true,"pending",true);
         }
     }
 
@@ -3422,6 +3435,9 @@ public class Virtual_landscape
                 local_file_comparator = new Last_access_comparator(logger);
                 break;
             case FILE_SIZE:
+                local_file_comparator = new File_size_comparator();
+                break;
+            case FILE_AND_FOLDER_SIZE:
                 local_file_comparator = new Decreasing_disk_footprint_comparator(aborter, owner);
                 break;
 

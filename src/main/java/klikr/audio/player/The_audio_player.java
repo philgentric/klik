@@ -188,7 +188,6 @@ public class The_audio_player implements Media_callbacks
     //**********************************************************
     {
         int ID = Window_manager.register();
-        //this.browser = browser;
         this.application = application;
         this.owner = owner;
         Consumer<Path> consumer = this::play_song_internal;
@@ -240,6 +239,21 @@ public class The_audio_player implements Media_callbacks
         if ( instance == null) return;
         instance.die();
         instance = null;
+    }
+
+    //**********************************************************
+    public static void set_browser_is_null()
+    //**********************************************************
+    {
+        if ( instance == null) return;
+        instance.browser_is_null();
+    }
+
+    //**********************************************************
+    private void browser_is_null()
+    //**********************************************************
+    {
+        browser = null;
     }
 
     //**********************************************************
@@ -349,6 +363,7 @@ public class The_audio_player implements Media_callbacks
             {
                 Stage stage = (Stage)(browser.get_owner());
                 stage.toFront();
+                logger.log("showing song browser");
                 return;
             }
             Path_list_provider path_list_provider = navigator.get_path_list_provider();
@@ -359,6 +374,7 @@ public class The_audio_player implements Media_callbacks
             }
             else if(path_list_provider instanceof Path_list_provider_for_playlist)
             {
+                logger.log("creating new song playlist browser");
                 browser = (Browser_for_song_playlist) Window_builder.additional_no_past(application, Window_type.Song_playlist, path_list_provider, owner, logger);
                 browser.set_unique_selected_item(current);
             }

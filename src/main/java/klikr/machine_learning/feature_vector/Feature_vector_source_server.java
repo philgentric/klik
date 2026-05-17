@@ -64,7 +64,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
     }
 
     //**********************************************************
-    public Optional<Feature_vector> get_feature_vector_from_server(Path path, Window owner, Aborter can_be_null, Logger logger)
+    public Optional<Feature_vector_double> get_feature_vector_from_server(Path path, Window owner, Aborter can_be_null, Logger logger)
     //**********************************************************
     {
         if(can_be_null != null) {
@@ -88,7 +88,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
             return Optional.empty();
         }
 
-        Optional<Feature_vector> op = Feature_vector_source_server.get_feature_vector_from_server_generic(path, random_port, owner, can_be_null,logger);
+        Optional<Feature_vector_double> op = Feature_vector_source_server.get_feature_vector_from_server_generic(path, random_port, owner, can_be_null,logger);
 
         if ( op.isEmpty())
         {
@@ -120,7 +120,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
     }
 
     //**********************************************************
-    static Feature_vector parse_json(String response, Logger logger)
+    static Feature_vector_double parse_json(String response, Logger logger)
     //**********************************************************
     {
         //logger.log("going to parse a JSON feature vector ->" + response + "<-");
@@ -176,14 +176,14 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
                 return null;
             }
         }
-        Feature_vector_double fv = new Feature_vector_double(features);
+        Feature_vector_double fv = new Feature_vector_double(features,"from_json");
         if ( dbg) logger.log("parsed a feature vector, length: " + fv.features.length);
         return fv;
 
     }
 
     //**********************************************************
-    static Optional<Feature_vector> get_feature_vector_from_server_generic(Path path, int random_port, Window owner, Aborter can_be_null, Logger logger)
+    static Optional<Feature_vector_double> get_feature_vector_from_server_generic(Path path, int random_port, Window owner, Aborter can_be_null, Logger logger)
     //**********************************************************
     {
         if ( can_be_null != null) {
@@ -362,7 +362,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
         }
         String json = sb.toString();
         //logger.log("json ="+json);
-        Feature_vector fv = Feature_vector_source_server.parse_json(json,logger);
+        Feature_vector_double fv = Feature_vector_source_server.parse_json(json,logger);
         if ( fv == null) {
             logger.log("json parsing failed: feature vector is null");
             return Optional.empty();

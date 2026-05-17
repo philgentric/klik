@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 public class Javalin_common
 //**********************************************************
 {
+    private static final boolean dbg = false;
     //**********************************************************
     public static int find_free_port(Logger logger)
     //**********************************************************
@@ -52,7 +53,7 @@ public class Javalin_common
                             encoded_title + "&isReadOnly="+read_only
             );
 
-            logger.log(Stack_trace_getter.get_stack_trace("Javalin_common opening browser: "+uri));
+            if (dbg) logger.log(Stack_trace_getter.get_stack_trace("Javalin_common opening browser: "+uri));
             application.getHostServices().showDocument(uri.toString());
 
             /*

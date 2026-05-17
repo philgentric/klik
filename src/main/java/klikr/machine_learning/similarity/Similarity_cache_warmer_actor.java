@@ -96,7 +96,7 @@ public class Similarity_cache_warmer_actor implements Actor
                     continue;
                 }
             }
-            double diff = emb1.distance(emb2);
+            double diff = emb1.distance(emb2,logger);
 
             // to avoid 'OutOfMemoryError: Java heap space'
             // we limit the number of entries

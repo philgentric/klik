@@ -4,6 +4,7 @@
 package klikr.machine_learning.song_similarity;
 
 import javafx.stage.Window;
+import klikr.machine_learning.feature_vector.Feature_vector_double;
 import klikr.settings.String_constants;
 import klikr.util.External_application;
 import klikr.settings.boolean_features.Booleans;
@@ -36,7 +37,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
     }
 
     //**********************************************************
-    public Optional<Feature_vector> get_feature_vector(Path path, Window owner, Aborter aborter, Logger logger)
+    public Optional<Feature_vector_double> get_feature_vector(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         //logger.log("Feature_vector_source_for_song_similarity get_feature_vector");
@@ -46,6 +47,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
             logger.log("call_ffmpeg_to_convert_to_wav failed");
             return Optional.empty();
         }
+        logger.log("call_ffmpeg_to_convert_to_wav ok");
 
         String result = call_fpcalc_to_get_embedding(wav_path, owner, logger);
         if (result == null)
@@ -66,9 +68,12 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
             logger.log("call_fpcalc_to_get_embedding failed");
             return Optional.empty();
         }
+        logger.log("call_fpcalc_to_get_embedding ok string length : "+result.length());
 
         new File(wav_path).delete();
-        return Optional.of(new Feature_vector_for_song(result,logger));
+        Feature_vector_double fv = Feature_vector_for_song.get_fv(result, path, logger);
+        if ( fv == null ) return Optional.empty();
+        return Optional.of( fv);
     }
 
     //**********************************************************

@@ -47,7 +47,7 @@ public class Javalin_monaco
     //**********************************************************
     {
         init(application, logger);
-        instance.open(path);
+        instance.open_write_allowed(path);
     }
 
     //**********************************************************
@@ -93,7 +93,7 @@ public class Javalin_monaco
 
 
     //**********************************************************
-    private void open(Path path)
+    private void open_write_allowed(Path path)
     //**********************************************************
     {
         page_title = "Editing: "+path.getFileName().toString();
@@ -126,7 +126,7 @@ public class Javalin_monaco
         };
         logger.log(("Javalin_Monaco EDITOR mode"));
         set_source_and_sink(text_source,text_sink);
-        Javalin_common.open_browser(application,true,page_title,port_number,logger);
+        Javalin_common.open_browser(application,false,page_title,port_number,logger);
     }
 
     //**********************************************************

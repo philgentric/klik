@@ -437,7 +437,7 @@ public class Static_files_and_paths_utilities
     {
         if ( !path.toFile().isDirectory())
         {
-            logger.log(Stack_trace_getter.get_stack_trace("get_size_on_disk_concurrent: not a folder: "+path));
+            logger.log(("Warning, ignoring, get_size_on_disk_concurrent: not a folder: "+path));
             return 0L;
         }
         // this is a blocking call

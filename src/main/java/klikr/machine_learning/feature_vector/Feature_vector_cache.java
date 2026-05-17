@@ -147,7 +147,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
         // look in mmap
         byte[] bytes = Mmap.instance.read_bytes(key);
         if (bytes != null) {
-            Feature_vector feature_vector = new Feature_vector_double(bytes_to_doubles(bytes));
+            Feature_vector feature_vector = new Feature_vector_double(bytes_to_doubles(bytes),"from_mmap_cache");
             //the_cache.put(key, feature_vector);  // Promote to RAM cache
             if (dbg) logger.log("feature_vector loaded from mmap for " + p);
             if (tr != null) tr.has_ended("loaded from mmap", null);
@@ -177,7 +177,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
                 logger.log("❌ PANIC null Feature_vector in cache after blocking call for "+p);
                 return null;
             }
-            Feature_vector x = new Feature_vector_double(bytes_to_doubles(the_bytes));
+            Feature_vector x = new Feature_vector_double(bytes_to_doubles(the_bytes),"made");
             return x;
         }
         Actor_engine.run(feature_vector_creation_actor,imp,tr,logger);
@@ -204,10 +204,9 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             byte[] bytes = doubles_to_bytes(fvd.features);
             Mmap.instance.write_bytes(key, bytes, true);
         }
-        else if (fv instanceof Feature_vector_for_song fvfs)
+        else
         {
-            byte[] bytes = doubles_to_bytes(fvfs.features);
-            Mmap.instance.write_bytes(key, bytes, true);
+            logger.log("❌ BAD WARNING... cannot cache but Feature_vector_double");
         }
     }
 

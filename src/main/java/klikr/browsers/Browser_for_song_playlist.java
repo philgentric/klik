@@ -6,6 +6,7 @@ package klikr.browsers;
 import javafx.stage.Window;
 import javafx.scene.paint.Color;
 import klikr.Window_builder;
+import klikr.audio.player.The_audio_player;
 import klikr.browser_core.Abstract_browser;
 import klikr.browser_core.Window_manager;
 import klikr.path_lists.Path_list_provider;
@@ -48,6 +49,7 @@ public class Browser_for_song_playlist extends Abstract_browser
         my_Stage.the_Stage.setOnCloseRequest(event ->
             {
                 Window_manager.unregister(ID,logger);
+                The_audio_player.set_browser_is_null();
             });
     }
 

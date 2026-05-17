@@ -282,7 +282,7 @@ public class Similarity_cache implements Clearable_RAM_cache
                     }
                     logger.log(Stack_trace_getter.get_stack_trace("trying twice worked!!!!"));
                 }
-                return  fvi.distance(fvj);
+                return  fvi.distance(fvj,logger);
             }
         };
 

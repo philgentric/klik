@@ -4,25 +4,20 @@
 package klikr.machine_learning.song_similarity;
 
 import klikr.machine_learning.feature_vector.Feature_vector;
+import klikr.machine_learning.feature_vector.Feature_vector_double;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
+import java.nio.file.Path;
+
 //**********************************************************
-public class Feature_vector_for_song implements Feature_vector
+public class Feature_vector_for_song //implements Feature_vector
 //**********************************************************
 {
     public static final String FINGERPRINT = "FINGERPRINT=";
 
-    public final String original_string;
-    public final double[] features;
-    Logger logger;
 
-    //**********************************************************
-    public Feature_vector_for_song(String result, Logger logger)
-    //**********************************************************
-    {
-        this.logger = logger;
-        original_string = result;
+    public static Feature_vector_double get_fv(String result, Path path, Logger logger) {
 
         // the "raw format is like this:
         // DURATION=120
@@ -31,19 +26,17 @@ public class Feature_vector_for_song implements Feature_vector
         int fingerprint_index = result.indexOf(FINGERPRINT);
         if ( fingerprint_index == -1)
         {
-            logger.log("fpcalc parsing failed: no FINGERPRINT=  found");
-            features = null;
-            return;
+            logger.log("fpcalc parsing failed: no FINGERPRINT=  found for: " + path);
+            return null;
         }
         String array_string = result.substring(fingerprint_index + FINGERPRINT.length()).trim();
         if ( array_string.isEmpty())
         {
-            logger.log("fpcalc parsing failed: empty FINGERPRINT array");
-            features = null;
-            return;
+            logger.log("fpcalc parsing failed: empty FINGERPRINT array for: " + path);
+            return null;
         }
         String[] parts = array_string.split(",");
-        features = new double[parts.length];
+        double[] features = new double[parts.length];
         for ( int i = 0; i < parts.length; i++)
         {
             try
@@ -52,36 +45,18 @@ public class Feature_vector_for_song implements Feature_vector
             }
             catch ( NumberFormatException e)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("parse_json: NumberFormatException for part="+parts[i]+" "+e));
-                return;
+                logger.log(Stack_trace_getter.get_stack_trace(path+ " parse_json: NumberFormatException for part="+parts[i]+" "+e));
+                return null;
             }
         }
+        logger.log("fpcalc parsing OK: FINGERPRINT array has "+parts.length+" doubles for: " + path);
 
+        return new Feature_vector_double(features,"song_fv");
     }
 
+    /*
     //**********************************************************
-    public String to_string()
-    //**********************************************************
-    {
-        return original_string;
-    }
-
-    //**********************************************************
-    public double distance(Feature_vector feature_vector)
-    //**********************************************************
-    {
-        if ( feature_vector instanceof Feature_vector_for_song other)
-        {
-            return cosine_distance(other);
-        }
-        else
-        {
-            logger.log("❌ PANIC feature_vector_bitmap.compare called with non eature_vector_bitmap");
-            return 0;
-        }
-    }
-    //**********************************************************
-    public double cosine_distance(Feature_vector other_feature_vector_)
+    private double cosine_distance(Feature_vector other_feature_vector_)
     //**********************************************************
     {
         Feature_vector_for_song other_feature_vector = (Feature_vector_for_song) other_feature_vector_;
@@ -89,6 +64,10 @@ public class Feature_vector_for_song implements Feature_vector
         if ( other_feature_vector.features.length < n)
         {
             n = other_feature_vector.features.length;
+            logger.log("WARNING: chromaprint fingerprints differ in length "+n+" vs "+features.length);
+        }
+        if ( n < other_feature_vector.features.length )
+        {
             logger.log("WARNING: chromaprint fingerprints differ in length "+n+" vs "+features.length);
         }
         double dotProduct = 0.0;
@@ -118,4 +97,5 @@ public class Feature_vector_for_song implements Feature_vector
     {
         return features.length*Double.SIZE/8;
     }
+    */
 }

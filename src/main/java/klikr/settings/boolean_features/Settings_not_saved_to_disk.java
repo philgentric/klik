@@ -15,5 +15,5 @@ public class Settings_not_saved_to_disk
     // they are CPU consuming, so the user would wait
     // every time the folder is visited again
     public static final Sort_files_by[] never_saved_to_disk ={
-            Sort_files_by.FILE_SIZE};
+            Sort_files_by.FILE_AND_FOLDER_SIZE};
 }

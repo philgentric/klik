@@ -265,8 +265,8 @@ public class Stage_with_2_images
 		{
 			HBox hbox2 = new HBox();
 			{
-				String size_in_kB = file.length()/1000+"kB";
-				Label label = new Label("File length: "+size_in_kB);
+				String size = Static_files_and_paths_utilities.get_1_line_string_with_size(file.toPath(),owner,logger);
+				Label label = new Label("File length: "+size);
 				Look_and_feel_manager.set_region_look(label,stage,logger);
 				label.setMinWidth(w);
 				label.setWrapText(true);

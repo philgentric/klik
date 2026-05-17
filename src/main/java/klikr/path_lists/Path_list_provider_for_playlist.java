@@ -229,10 +229,11 @@ public class Path_list_provider_for_playlist implements Path_list_provider
         try {
             Files.delete(the_playlist_file_path);
             Files.write(the_playlist_file_path,paths,java.nio.charset.StandardCharsets.UTF_8, StandardOpenOption.CREATE);
-            List<String> lines = Files.readAllLines(the_playlist_file_path, StandardCharsets.UTF_8);
+            logger.log("Playlist saved :"+the_playlist_file_path);
             if ( dbg)
             {
                 logger.log("####### Playlist AFTER SAVE:");
+                List<String> lines = Files.readAllLines(the_playlist_file_path, StandardCharsets.UTF_8);
                 for (String s : lines) {
                     logger.log(s);
                 }
@@ -416,7 +417,14 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     {
         logger.log("Path_list_provider_for_playlist.delete(): "+path.toAbsolutePath().toString());
         //dump("paths before delete");
-        paths.remove(path.toAbsolutePath().toString());
+        if(paths.remove(path.toAbsolutePath().toString()))
+        {
+            logger.log("Path_list_provider_for_playlist.delete() SUCCESS : "+path.toAbsolutePath().toString());
+        }
+        else
+        {
+            logger.log("Path_list_provider_for_playlist.delete() FAILED, no such path : "+path.toAbsolutePath().toString());
+        }
         //dump("paths after delete");
         save();
         //dump("paths after save");
@@ -466,8 +474,15 @@ public class Path_list_provider_for_playlist implements Path_list_provider
                 if ( aborter.should_abort()) return;
                 if ( !paths.contains(s))
                 {
-                    //logger.log("Path_list_provider_for_playlist.reload(): adding "+s);
-                    paths.add(s);
+                    // check if this a valid path
+                    if ( !is_a_valid_path(s))
+                    {
+                        logger.log("Path_list_provider_for_playlist.reload(): NOT adding "+s+ "(this is not a path)");
+                    }
+                    else
+                    {
+                        paths.add(s);
+                    }
                 }
             }
         }
@@ -481,8 +496,20 @@ public class Path_list_provider_for_playlist implements Path_list_provider
         change_broadcaster.call_all_change_subscribers();
     }
 
+    //**********************************************************
+    private boolean is_a_valid_path(String s)
+    //**********************************************************
+    {
+        Path  p = Path.of(s);
+        File f = p.toFile();
+        return f.exists();
+    }
+
+    //**********************************************************
     @Override
-    public Change_broadcaster get_change_broadcaster() {
+    public Change_broadcaster get_change_broadcaster()
+    //**********************************************************
+    {
         return change_broadcaster;
     }
 

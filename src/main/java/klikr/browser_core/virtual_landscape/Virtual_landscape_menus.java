@@ -600,7 +600,7 @@ public class Virtual_landscape_menus
     private void create_image_similarity_deduplication_menu(Menu clean)
     //**********************************************************
     {
-        String txt = My_I18n.get_I18n_string("File_ML_similarity_deduplication",owner,logger);
+        String txt = My_I18n.get_I18n_string("Image_ML_similarity_deduplication",owner,logger);
         Menu menu = new Menu(txt);
         Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
         clean.getItems().add(menu);
@@ -657,7 +657,7 @@ public class Virtual_landscape_menus
     private void create_song_similarity_deduplication_menu(Menu clean)
     //**********************************************************
     {
-        String txt = "Song similarity";//My_I18n.get_I18n_string("File_ML_similarity_deduplication",owner,logger);
+        String txt = My_I18n.get_I18n_string("Song_ML_similarity_deduplication",owner,logger);
         Menu menu = new Menu(txt);
         Look_and_feel_manager.set_menu_item_look(menu,owner,logger);
         clean.getItems().add(menu);
@@ -1660,8 +1660,8 @@ public class Virtual_landscape_menus
                 }
                 if ( actual != sort_by)
                 {
-                    Sort_files_by.set_sort_files_by_for_folder(virtual_landscape.path_list_provider.get_key(),sort_by, true, owner,logger);
                     logger.log("new file/image sorting order= "+sort_by);
+                    Sort_files_by.set_sort_files_by_for_folder(virtual_landscape.path_list_provider.get_key(),sort_by, true, owner,logger);
                     Window_builder.replace_same_folder(
                             virtual_landscape.application,
                             virtual_landscape.shutdown_target,

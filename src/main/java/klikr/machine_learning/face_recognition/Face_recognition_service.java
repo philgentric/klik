@@ -1091,7 +1091,7 @@ public class Face_recognition_service
             }
             if ( ok)
             {
-                Feature_vector fv = new Feature_vector_double(values);
+                Feature_vector fv = new Feature_vector_double(values,"face_reco");
                 return new Light_embeddings_prototype(fv,label,tag);
                 //return new Heavy_embeddings_prototype(face, fv, label, tag);
             }
@@ -1432,7 +1432,7 @@ public class Face_recognition_service
         Feature_vector the_feature_vector_to_be_identified = null;
         for ( int i = 0; i < 3; i ++)
         {
-            Optional<Feature_vector> op = feature_vector_source.get_feature_vector(face, owner, aborter, logger);
+            Optional<Feature_vector_double> op = feature_vector_source.get_feature_vector(face, owner, aborter, logger);
             if (op.isPresent())
             {
                 error = false;
@@ -1462,7 +1462,7 @@ public class Face_recognition_service
         for (Embeddings_prototype embeddings_prototype : embeddings_prototypes)
         {
 
-            double distance = the_feature_vector_to_be_identified.distance(embeddings_prototype.feature_vector());
+            double distance = the_feature_vector_to_be_identified.distance(embeddings_prototype.feature_vector(),logger);
             //nearests.put(distance,embeddings_prototype);
             Eval_result_for_one_prototype r = new Eval_result_for_one_prototype(distance,embeddings_prototype);
             if ( dbg) logger.log("   at distance ="+String.format("%.4f",distance)+"  =>   "+embeddings_prototype.label());

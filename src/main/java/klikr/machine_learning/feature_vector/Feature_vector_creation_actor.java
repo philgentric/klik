@@ -59,7 +59,7 @@ public class Feature_vector_creation_actor implements Actor
             return "aborted";
         }
 
-        Optional<Feature_vector> fv = fvs.get_feature_vector(image_feature_vector_message.path, image_feature_vector_message.owner, image_feature_vector_message.aborter, image_feature_vector_message.logger);
+        Optional<Feature_vector_double> fv = fvs.get_feature_vector(image_feature_vector_message.path, image_feature_vector_message.owner, image_feature_vector_message.aborter, image_feature_vector_message.logger);
         if ( cl != null) cl.release();
 
         if ( fv.isEmpty())

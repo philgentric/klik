@@ -299,7 +299,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             Double distance  = read_similarity_from_cache(path0, path1);
             if (distance == null)
             {
-                    distance = fv0.distance(fv1);
+                    distance = fv0.distance(fv1,logger);
                     logger.log("Distance " + distance + " between " + path0 + " and " + path1);
                     save_similarity_in_cache(distance, path0, path1);
             }
@@ -375,7 +375,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             Double distance = null;
             distance = read_similarity_from_cache(path0, path1);
             if (distance == null) {
-                distance = fv0.distance(fv1);
+                distance = fv0.distance(fv1,logger);
                 if (dbg) logger.log("distance " + distance + " between " + path0 + " and " + path1);
                 save_similarity_in_cache(distance, path0, path1);
             }

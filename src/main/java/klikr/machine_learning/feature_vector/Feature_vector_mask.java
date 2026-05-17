@@ -5,14 +5,18 @@ package klikr.machine_learning.feature_vector;
 
 import klikr.util.log.Logger;
 
+//**********************************************************
 public class Feature_vector_mask
+//**********************************************************
 {
     public final double[] mins;
     public final double[] maxs;
     public final double[] diffs;
     public final boolean[] mask;
 
+    //**********************************************************
     public Feature_vector_mask(Feature_vector_double fv1, Feature_vector_double fv2, boolean not_same, Logger logger)
+    //**********************************************************
     {
         mins = new double[fv1.features.length];
         maxs = new double[fv1.features.length];
@@ -69,12 +73,17 @@ public class Feature_vector_mask
         }
     }
 
-    public Double similarity_with_mask(Feature_vector fv0, Feature_vector fv1)
+    //**********************************************************
+    public Double similarity_with_mask(Feature_vector fv0, Feature_vector fv1, Logger logger)
+    //**********************************************************
     {
-        return similarity_with_mask_shorter(fv0,fv1);
+        return similarity_with_mask_shorter(fv0,fv1, logger);
         //return similarity_with_mask_stronger(fv0,fv1);
     }
-    public Double similarity_with_mask_shorter(Feature_vector fv0_, Feature_vector fv1_)
+
+    //**********************************************************
+    public Double similarity_with_mask_shorter(Feature_vector fv0_, Feature_vector fv1_, Logger logger)
+    //**********************************************************
     {
         Feature_vector_double fv0 = (Feature_vector_double) fv0_;
         Feature_vector_double fv1 = (Feature_vector_double) fv1_;
@@ -95,12 +104,14 @@ public class Feature_vector_mask
                 j++;
             }
         }
-        Feature_vector_double fv0_masked = new Feature_vector_double(fv0_short);
-        Feature_vector_double fv1_masked = new Feature_vector_double(fv1_short);
-        return fv0_masked.cosine_similarity(fv1_masked);
+        Feature_vector_double fv0_masked = new Feature_vector_double(fv0_short,"masked");
+        Feature_vector_double fv1_masked = new Feature_vector_double(fv1_short,"masked");
+        return fv0_masked.cosine_similarity(fv1_masked, logger);
     }
 
-    public Double similarity_with_mask_stronger(Feature_vector_double fv0, Feature_vector_double fv1)
+    //**********************************************************
+    public Double similarity_with_mask_stronger(Feature_vector_double fv0, Feature_vector_double fv1, Logger logger)
+    //**********************************************************
     {
         int size = mask.length;
         double[] fv0_short = new double[size];
@@ -118,8 +129,8 @@ public class Feature_vector_mask
                 fv1_short[i] = mins[i];
             }
         }
-        Feature_vector_double fv0_masked = new Feature_vector_double(fv0_short);
-        Feature_vector_double fv1_masked = new Feature_vector_double(fv1_short);
-        return fv0_masked.cosine_similarity(fv1_masked);
+        Feature_vector_double fv0_masked = new Feature_vector_double(fv0_short,"mask2");
+        Feature_vector_double fv1_masked = new Feature_vector_double(fv1_short,"mask2");
+        return fv0_masked.cosine_similarity(fv1_masked, logger);
     }
 }

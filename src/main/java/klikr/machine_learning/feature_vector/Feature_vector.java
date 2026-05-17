@@ -3,12 +3,14 @@
 
 package klikr.machine_learning.feature_vector;
 
+import klikr.util.log.Logger;
+
 //**********************************************************
 public interface Feature_vector
 //**********************************************************
 {
     String to_string();
-    double distance(Feature_vector feature_vector);
+    double distance(Feature_vector feature_vector, Logger logger);
 
     int size(); // in bytes
 }

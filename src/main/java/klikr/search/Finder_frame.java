@@ -34,6 +34,7 @@ import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.log.Logger;
 import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -44,6 +45,7 @@ public class Finder_frame implements Search_receiver
 {
 	public static final int MIN_WIDTH = 600;
 	private static final String BASE_ = "<type new keyword>";
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(Finder_frame.class);
 	private Button start;
 	private Button stop;
 	Label visited_folders;
@@ -93,8 +95,9 @@ public class Finder_frame implements Search_receiver
 		this.path_comparator_source = path_comparator_source;
 		this.logger = logger;
 		this.look_only_for_images = look_only_for_images;
-		Path target_folder_path = path_list_provider.get_folder_path();
-		if( target_folder_path != null) {
+		target_folder_path = path_list_provider.get_folder_path();
+		if( target_folder_path != null)
+		{
 			if (!target_folder_path.toFile().isDirectory())
 			{
 				logger.log(Stack_trace_getter.get_stack_trace("Not a directory: " + path_list_provider.get_key()));
@@ -103,6 +106,7 @@ public class Finder_frame implements Search_receiver
 		else
 		{
 			// this is a playlist !
+			logger.log(Stack_trace_getter.get_stack_trace("target_folder_path=null " + path_list_provider.get_folder_path()));
 		}
 		stage = new Stage();
         stage.initOwner(owner);
@@ -199,6 +203,7 @@ public class Finder_frame implements Search_receiver
 
 				settings_vbox.getChildren().add(up);
 
+				logger.log(" search parent : button created");
 				up.setOnAction((ActionEvent e) -> {
 					session.stop_search();
 					Path parent = target_folder_path.getParent();

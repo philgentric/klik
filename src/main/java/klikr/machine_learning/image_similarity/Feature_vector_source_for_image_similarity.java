@@ -5,6 +5,7 @@ package klikr.machine_learning.image_similarity;
 
 import javafx.stage.Window;
 import klikr.machine_learning.Load_balancer;
+import klikr.machine_learning.feature_vector.Feature_vector_double;
 import klikr.machine_learning.monitoring.UDP_traffic_monitor;
 import klikr.machine_learning.ML_server_type;
 import klikr.settings.boolean_features.Feature;
@@ -49,7 +50,7 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
     }
 
     //**********************************************************
-    public Optional<Feature_vector> get_feature_vector(Path path, Window owner, Aborter aborter, Logger logger)
+    public Optional<Feature_vector_double> get_feature_vector(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         return get_feature_vector_from_server(path, owner, aborter, logger);
