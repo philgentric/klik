@@ -199,12 +199,19 @@ tasks.register('undo', JavaExec) {
 
 tasks.register('monaco', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klikr.javalin_monaco.Javalin_monaco_app'
+    mainClass = 'klikr.javalin.monaco.Javalin_monaco_app'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
     return
 }
 
+tasks.register('javalin_active_lists', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.javalin.active_list.Javalin_history_and_undo_app'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
 
 
 
@@ -219,6 +226,11 @@ run{
     //jvmArgs = ['--enable-native-access=ALL-UNNAMED','-Djava.library.path=/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib']
 }
 
+tasks.register('javalin_history_test', JavaExec) {
+    mainClass = 'klikr.javalin.active_list.Javalin_history_and_undo_app'
+    classpath(sourceSets.main.runtimeClasspath)
+    group = 'test-applications'
+}
 
 shadowJar {
     archiveFileName.set("klikr.jar")

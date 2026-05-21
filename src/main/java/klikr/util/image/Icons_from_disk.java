@@ -235,7 +235,7 @@ public class Icons_from_disk
         Rotation rot = Fast_rotation_from_exif_metadata_extractor.get_rotation_from_InputStream(is2,path_for_dbg,logger);
         if ( rot == null )
         {
-            logger.log(Stack_trace_getter.get_stack_trace(" WARNING rotation not found for "+path_for_dbg));
+            //logger.log(Stack_trace_getter.get_stack_trace(" WARNING rotation not found for "+path_for_dbg));
             rot = Rotation.normal;
         }
         return new Image_and_properties(image,new Image_properties(image.getWidth(),image.getHeight(),rot,false));

@@ -97,7 +97,7 @@ public class Runnable_for_finding_duplicate_file_pairs implements Runnable
 		}
 
 
-		logger.log(Stack_trace_getter.get_stack_trace("found duplicates:  "+deduplication_engine.duplicates_found.doubleValue()));
+		//logger.log(Stack_trace_getter.get_stack_trace("found duplicates:  "+deduplication_engine.duplicates_found.doubleValue()));
 		deduplication_engine.threads_in_flight.decrement();
         double remaining = deduplication_engine.threads_in_flight.doubleValue();
         if ( remaining != 0)

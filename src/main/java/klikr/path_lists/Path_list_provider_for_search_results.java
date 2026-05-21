@@ -19,6 +19,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 //**********************************************************
@@ -39,7 +41,7 @@ public class Path_list_provider_for_search_results implements Path_list_provider
     // cached:
     private final String key;
     // we need a list to keep the same order when we rename
-    public final ConcurrentLinkedQueue<String> paths = new ConcurrentLinkedQueue<>();
+    public final Set<String> paths = ConcurrentHashMap.newKeySet();
     private Redrawer redrawer;
     //**********************************************************
     public Path_list_provider_for_search_results(
@@ -366,19 +368,20 @@ public class Path_list_provider_for_search_results implements Path_list_provider
         List<Path> path_set = path_sets.computeIfAbsent(keys, (s) -> new ArrayList<>());
         path_set.add(sr.path());
 
+        if ( is_max) logger.log("plpfsr is max for : " + keys);
         //make_one_button(keys, is_max, sr.path(),window);
         for (Path p : path_set) {
             logger.log("plpfsr adding: " + p.toAbsolutePath().toString());
             paths.add(p.toAbsolutePath().toString());
         }
-        redraw("inject_search_results");
+        redraw("plpfsr inject_search_results");
     }
 
     //**********************************************************
     public void erase_all_non_max()
     //**********************************************************
     {
-        /*
+
         List<String> to_be_deleted = new ArrayList<>();
         for (String keys : path_sets.keySet())
         {
@@ -404,15 +407,15 @@ public class Path_list_provider_for_search_results implements Path_list_provider
                 }
             }
         }
-        redraw("erase_all_non_max");
-        */
+        redraw("plpfsr erase_all_non_max");
+
     }
 
     //**********************************************************
     public void has_ended()
     //**********************************************************
     {
-        redraw("has_ended");
+        redraw("plpfsr has_ended");
 
     }
 
@@ -420,7 +423,7 @@ public class Path_list_provider_for_search_results implements Path_list_provider
     private void redraw(String reason)
     //**********************************************************
     {
-        logger.log(("plp for sr "+reason));
+        logger.log(("plpfsr, redraw: "+reason));
         redrawer.redraw("path_list_privider_fpr_search_results "+reason);
     }
 }

@@ -41,7 +41,7 @@ public enum Sort_files_by {
     //SIMILARITY_BY_PAIRS,
     //SIMILARITY_BY_PURSUIT,
 
-    public final static boolean dbg = true;
+    public final static boolean dbg = false;
 
     public static final String SORT_FILES_BY_FOR_ALL_FOLDERS = "sort_files_by_for_all_folders";
     public static final String SORT_FILES_BY_FOR_FOLDER_ = "sort_files_by_for_folder_";

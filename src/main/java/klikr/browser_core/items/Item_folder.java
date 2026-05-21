@@ -15,6 +15,7 @@ import klikr.Window_builder;
 import klikr.Window_type;
 import klikr.browser_core.icons.image_properties_cache.Image_properties;
 import klikr.util.cache.Klikr_cache;
+import klikr.util.cache.RAM_caches;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser_core.*;
@@ -444,7 +445,6 @@ public class Item_folder extends Item implements Icon_destination
             Button button,
             String text,
             Path path,
-            Map<Path, Long> folder_file_count_cache,
             Aborter aborter,
             Logger logger)
     //**********************************************************
@@ -452,11 +452,11 @@ public class Item_folder extends Item implements Icon_destination
         count.increment();
 
         Runnable r = () -> {
-            Long how_many_files_deep = folder_file_count_cache.get(path);
+            Long how_many_files_deep = RAM_caches.folder_file_count_cache.get(path);
             if ( how_many_files_deep == null)
             {
                 how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, owner, logger);
-                folder_file_count_cache.put(path,how_many_files_deep);
+                RAM_caches.folder_file_count_cache.put(path,how_many_files_deep);
             }
             count.decrement();
             String extended_text =  text + " (" + how_many_files_deep + " files)";
@@ -472,22 +472,20 @@ public class Item_folder extends Item implements Icon_destination
 
 
     //**********************************************************
-    public void add_total_size_deep_folder(LongAdder count, Button button, String text, Path path,
-                                           Map<Path, Long> folder_total_sizes,
-                                           Logger logger)
+    public void add_total_size_deep_folder(LongAdder count, Button button, String text, Path path, Logger logger)
     //**********************************************************
     {
         count.increment();
         Runnable r = () -> {
 
-            Long bytes = folder_total_sizes.get(path);
+            Long bytes = RAM_caches.folder_total_size_cache.get(path);
             if ( bytes == null)
             {
                 //logger.log(path+" length not found in cache");
                 Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, owner, logger);
                 bytes = (Long) sizes.bytes();
                 //logger.log(path+" not found in cache, length is "+bytes+ "bytes");
-                folder_total_sizes.put(path,bytes);
+                RAM_caches.folder_total_size_cache.put(path,bytes);
             }
             else
             {

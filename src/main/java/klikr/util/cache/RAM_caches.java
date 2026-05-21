@@ -11,6 +11,7 @@ import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,13 +20,18 @@ public class RAM_caches
 //**********************************************************
 {
     private static final boolean dbg = false;
-    public final static Map<String, Image_cache_interface> image_caches = new ConcurrentHashMap<>();
     public final static Map<String, Klikr_cache<Path, Image_properties>> image_properties_cache_of_caches = new ConcurrentHashMap<>();
+    public final static Map<String, Image_cache_interface> image_caches = new ConcurrentHashMap<>();
     public final static Map<String, Similarity_cache> similarity_cache_of_caches = new ConcurrentHashMap<>();
-    public final static Map<String, Feature_vector_cache> fv_cache_of_caches = new ConcurrentHashMap<>();
     public final static Map<String, Similarity_comparator> similarity_comparator_cache = new ConcurrentHashMap<>();
+
+    public final static Map<String, Feature_vector_cache> fv_cache_of_caches = new ConcurrentHashMap<>();
     public static Klikr_cache<Path, Double> duration_cache;
     public static Klikr_cache<Path, Double> bitrate_cache;
+
+    public final static Map<Path, Long> folder_file_count_cache = new HashMap<>();
+    public final static Map<Path,Long> folder_total_size_cache = new HashMap<>();
+    public final static Map<Path,Long> file_size_cache = new HashMap<>();
 
 
     //**********************************************************
@@ -34,11 +40,11 @@ public class RAM_caches
     {
         double total = 0;
 
-        for ( String s  : image_properties_cache_of_caches.keySet())
+        for (Klikr_cache<Path, Image_properties> kc : image_properties_cache_of_caches.values())
         {
-            Klikr_cache<Path, Image_properties> x = image_properties_cache_of_caches.get(s);
-            total += x.clear_RAM();
+            total += kc.clear_RAM();
         }
+        image_properties_cache_of_caches.clear();
         if ( dbg) logger.log("✅ All image properties RAM caches cleared");
 
 
@@ -46,6 +52,7 @@ public class RAM_caches
         {
             total += ici.clear_RAM();
         }
+        image_caches.clear();
         if ( dbg) logger.log("✅ All image RAM caches cleared");
 
 
@@ -57,12 +64,16 @@ public class RAM_caches
         if ( dbg) logger.log("✅ All similarity RAM caches cleared");
 
 
-        for (Klikr_cache<Path, Image_properties> rc : image_properties_cache_of_caches.values())
+        for (Similarity_comparator sc : similarity_comparator_cache.values())
         {
-            total += rc.clear_RAM();
+            total += sc.clear_RAM();
         }
-        image_properties_cache_of_caches.clear();
-        if ( dbg) logger.log("✅ All image properties RAM caches cleared");
+        similarity_comparator_cache.clear();
+        if ( dbg) logger.log("✅ All similarity comparator RAM caches cleared");
+
+
+
+
 
 
         for (Feature_vector_cache fvc : fv_cache_of_caches.values())
@@ -72,11 +83,21 @@ public class RAM_caches
         fv_cache_of_caches.clear();
         if ( dbg) logger.log("✅ All feature vector RAM caches cleared");
 
+
         if (duration_cache != null) total += duration_cache.clear_RAM();
         if ( dbg) logger.log("✅ song duration cache cleared");
 
         if (bitrate_cache !=null) total += bitrate_cache.clear_RAM();
         if ( dbg) logger.log("✅ song bitrate cache cleared");
+
+
+        total += folder_file_count_cache.size();
+        folder_file_count_cache.clear();
+        total += folder_total_size_cache.size();
+        folder_total_size_cache.clear();
+        total += file_size_cache.size();
+        file_size_cache.clear();
+
 
         total += Scroll_position_cache.scroll_position_cache_clear();
         if ( dbg) logger.log("✅ scroll position cache cleared");
@@ -86,71 +107,6 @@ public class RAM_caches
     }
 
 
-    //**********************************************************
-    public static void clear_image_comparators_caches()
-    //**********************************************************
-    {
-        for ( Similarity_comparator x : RAM_caches.similarity_comparator_cache.values())
-        {
-            x.clear_RAM();
-        }
-    }
 
 
-    //**********************************************************
-    public static void clear_image_feature_vector_RAM_cache()
-    //**********************************************************
-    {
-        for( Feature_vector_cache x : RAM_caches.fv_cache_of_caches.values())
-        {
-            x.clear_RAM();
-        }
-        RAM_caches.fv_cache_of_caches.clear();
-    }
-
-    /*
-    //**********************************************************
-    public static void clear_all_disk_caches(List<Disk_cleared> cleared_folders, Window owner, Aborter aborter, Logger logger)
-    //**********************************************************
-    {
-
-        for ( String s  : image_properties_cache_of_caches.keySet())
-        {
-            Klikr_cache<Path, Image_properties> x = image_properties_cache_of_caches.get(s);
-            cleared_folders.add(x.clear_folder(owner, aborter, logger));
-        }
-        if ( dbg) logger.log("✅ All image properties disk caches cleared");
-
-        for (Similarity_cache sc : similarity_cache_of_caches.values())
-        {
-            cleared_folders.add(sc.clear_folder(owner, aborter, logger));
-        }
-        similarity_cache_of_caches.clear();
-        if ( dbg) logger.log("✅ All similarity disk caches cleared");
-
-        for (Klikr_cache<Path, Image_properties> rc : image_properties_cache_of_caches.values())
-        {
-            cleared_folders.add(rc.clear_folder(owner, aborter, logger));
-        }
-        image_properties_cache_of_caches.clear();
-        if ( dbg) logger.log("✅ All image properties disk caches cleared");
-
-        for (Feature_vector_cache fvc : fv_cache_of_caches.values())
-        {
-            cleared_folders.add(fvc.clear_folder(owner, aborter, logger));
-        }
-        fv_cache_of_caches.clear();
-        if ( dbg) logger.log("✅ All feature vector disk caches cleared");
-
-        double total = 0;
-        for ( Disk_cleared dc : cleared_folders)
-        {
-            if ( dbg) logger.log("✅ Cleared folder: " + dc.path()+ " "+dc.bytes()+ " bytes");
-            total += dc.bytes();
-        }
-        String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(total,owner,logger);
-
-        logger.log("✅ Total cleared disk bytes: " + size_in_bytes);
-    }
-*/
 }

@@ -3,25 +3,17 @@
 
 package klikr.browser_core.comparators;
 
-import javafx.stage.Window;
-import klikr.util.Shared_services;
 import klikr.util.cache.Clearable_RAM_cache;
+import klikr.util.cache.RAM_caches;
 import klikr.util.cache.Size_;
-import klikr.util.execute.actor.Aborter;
-import klikr.util.files_and_paths.Sizes;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
-import klikr.util.log.Logger;
 
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 //**********************************************************
 public class File_size_comparator implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
-    static Map<Path,Long> file_sizes_cache = new HashMap<>();
 
     //**********************************************************
     public File_size_comparator()
@@ -34,8 +26,8 @@ public class File_size_comparator implements Comparator<Path>, Clearable_RAM_cac
     public double clear_RAM()
     //**********************************************************
     {
-        double returned = Size_.of_Map(file_sizes_cache,Size_.of_Path_F(),Size_.of_Long_F());
-        file_sizes_cache.clear();
+        double returned = Size_.of_Map(RAM_caches.file_size_cache,Size_.of_Path_F(),Size_.of_Long_F());
+        RAM_caches.file_size_cache.clear();
         return returned;
     }
 
@@ -47,7 +39,7 @@ public class File_size_comparator implements Comparator<Path>, Clearable_RAM_cac
         Integer x = Hidden_files.show_last(p1, p2);
         if (x != null) return x;
 
-        if ( file_sizes_cache.containsKey(p1) ) {
+        if ( RAM_caches.file_size_cache.containsKey(p1) ) {
 
         }
 
@@ -66,10 +58,10 @@ public class File_size_comparator implements Comparator<Path>, Clearable_RAM_cac
     private long from_cache(Path p)
     //**********************************************************
     {
-        Long r = file_sizes_cache.get(p);
+        Long r = RAM_caches.file_size_cache.get(p);
         if (r != null) return r;
         r = p.toFile().length();
-        file_sizes_cache.put(p,r);
+        RAM_caches.file_size_cache.put(p,r);
         return r;
     }
 

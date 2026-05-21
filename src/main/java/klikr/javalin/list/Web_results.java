@@ -1,11 +1,11 @@
-package klikr.search;
+package klikr.javalin.list;
 
 import javafx.application.Application;
 import javafx.stage.Window;
 import klikr.browser_core.virtual_landscape.Path_comparator_source;
-import klikr.javalin.list.Javalin_for_list;
-import klikr.javalin.list.List_item;
 import klikr.path_lists.Path_list_provider;
+import klikr.search.Results;
+import klikr.search.Search_result;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.log.Logger;
 

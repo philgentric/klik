@@ -150,10 +150,12 @@ public abstract class Abstract_browser implements
 
         Look_and_feel_manager.set_icon_for_main_window(my_Stage.the_Stage, badge, Look_and_feel_manager.Icon_type.KLIK, my_Stage.the_Stage, logger);
 
-        //record in history
-        String path_for_history = get_path_for_history();
-        if ( path_for_history != null) History_engine.get(get_owner()).record(path_for_history);
-
+        if ( window_builder.window_type != Window_type.Search_results)
+        {
+            //record in history
+            String path_for_history = get_path_for_history();
+            if (path_for_history != null) History_engine.get(get_owner()).record(path_for_history);
+        }
 
         Change_gang.register(change_receiver, aborter, logger);
         set_title();

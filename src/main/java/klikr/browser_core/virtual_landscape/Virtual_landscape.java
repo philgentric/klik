@@ -162,8 +162,6 @@ public class Virtual_landscape
 
     final Path_list_provider path_list_provider;
 
-    Map<Path, Long> folder_total_sizes_cache;
-    Map<Path, Long> folder_file_count_cache;
 
     private final List<Item> future_pane_content = new ArrayList<>();
     public Vertical_slider vertical_slider;
@@ -1388,8 +1386,8 @@ public class Virtual_landscape
                 if (show_total_size_deep_in_each_folder_done)
                 {
                     Comparator<Path> comp = (p1, p2) -> {
-                        Long l1 = folder_total_sizes_cache.get(p1);
-                        Long l2 = folder_total_sizes_cache.get(p2);
+                        Long l1 = RAM_caches.folder_total_size_cache.get(p1);
+                        Long l2 = RAM_caches.folder_total_size_cache.get(p2);
                         if (l1 == null && l2 == null)
                             return 0;
                         if (l1 == null)
@@ -1403,8 +1401,8 @@ public class Virtual_landscape
                 else if (show_how_many_files_deep_in_each_folder_done)
                 {
                     Comparator<Path> comp = (p1, p2) -> {
-                        Long l1 = folder_file_count_cache.get(p1);
-                        Long l2 = folder_file_count_cache.get(p2);
+                        Long l1 = RAM_caches.folder_file_count_cache.get(p1);
+                        Long l2 = RAM_caches.folder_file_count_cache.get(p2);
                         if (l1 == null && l2 == null)
                             return 0;
                         if (l1 == null)
@@ -1500,7 +1498,7 @@ public class Virtual_landscape
                 String tmp = folder_path.getFileName().toString();
 
                 if (show_how_many_files_deep_in_each_folder_done) {
-                    Long how_many_files_deep = folder_file_count_cache.get(folder_path);
+                    Long how_many_files_deep = RAM_caches.folder_file_count_cache.get(folder_path);
                     if (how_many_files_deep == null) {
                         logger.log("❌ FATAL: folder_file_count_cache not found in cache for " + folder_path);
                     } else {
@@ -1510,7 +1508,7 @@ public class Virtual_landscape
                     }
                 } else if (show_total_size_deep_in_each_folder_done) {
 
-                    Long bytes = folder_total_sizes_cache.get(folder_path);
+                    Long bytes = RAM_caches.folder_total_size_cache.get(folder_path);
                     if (bytes == null) {
                         logger.log("❌ FATAL: folder_total_sizes_cache not found in cache for " + folder_path);
                     } else {
@@ -1685,8 +1683,6 @@ public class Virtual_landscape
     {
         show_total_size_deep_in_each_folder_done = false;
 
-        folder_file_count_cache = new HashMap<>();
-
         LongAdder count = new LongAdder();
         double x = owner.getX() + 100;
         double y = owner.getY() + 100;
@@ -1710,7 +1706,6 @@ public class Virtual_landscape
                                 ini.get_button(),
                                 ini.text,
                                 folder_path,
-                                folder_file_count_cache,
                                 aborter,
                                 logger);
                     }
@@ -1756,7 +1751,6 @@ public class Virtual_landscape
             Sort_files_by.set_sort_files_by(path_list_provider.get_key(), Sort_files_by.FILE_NAME, owner, logger);
         }*/
         show_how_many_files_deep_in_each_folder_done = false;
-        folder_total_sizes_cache = new HashMap<>();
         logger.log("✅ Virtual_landscape: show_total_size_deep_in_each_folder");
         LongAdder count = new LongAdder();
         double x = owner.getX() + 100;
@@ -1779,8 +1773,7 @@ public class Virtual_landscape
                 if ( folder_path != null ) {
                     if (Files.isDirectory(folder_path)) {
                         item2_folder.add_total_size_deep_folder(count, item2_folder.get_button(), item2_folder.text,
-                                folder_path,
-                                folder_total_sizes_cache, logger);
+                                folder_path, logger);
                     }
                 }
             }
@@ -3408,7 +3401,7 @@ public class Virtual_landscape
     private Comparator<Path> create_fast_file_comparator()
     //**********************************************************
     {
-        logger.log(Stack_trace_getter.get_stack_trace("create_fast_file_comparator"));
+        //logger.log(Stack_trace_getter.get_stack_trace("create_fast_file_comparator"));
         Comparator<Path> local_file_comparator = null;
         switch (Sort_files_by.get_sort_files_by(path_list_provider.get_key(), owner,logger)) {
             case ASPECT_RATIO:
