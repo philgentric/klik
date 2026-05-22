@@ -1149,19 +1149,7 @@ public class Virtual_landscape_menus
                 }
                 item.setOnAction(event ->
                 {
-                    Path path = Path.of(hi.value);
-                    if ( Guess_file_type.is_this_path_extension_an_audio_playlist(path,logger))
-                    {
-                        Window_builder.additional_no_past(application,Window_type.Song_playlist,new Path_list_provider_for_playlist(path,  owner, aborter, logger),owner,logger);
-                    }
-                    Window_builder.replace_different_folder(
-                            application,
-                            shutdown_target,
-                            window_type,
-                            new Path_list_provider_for_file_system(path,owner,logger),
-                            path_list_provider.get_folder_path(),
-                            path,
-                            owner,logger);
+                    on_history_item_clicked(Path.of(hi.value), application, shutdown_target, window_type, owner, aborter, logger);
                 });
                 path_already_done.put(hi.value,hi);
                 history_menu.getItems().add(item);
@@ -1189,6 +1177,25 @@ public class Virtual_landscape_menus
                 add_to_whole_history(the_whole_history, hi);
             }
         }
+    }
+
+    public static void on_history_item_clicked(
+            Path folder_path,
+            Application application,
+            Shutdown_target shutdown_target, Window_type window_type,
+            Window owner, Aborter aborter, Logger logger) {
+        if ( Guess_file_type.is_this_path_extension_an_audio_playlist(folder_path, logger))
+        {
+            Window_builder.additional_no_past(application,Window_type.Song_playlist,new Path_list_provider_for_playlist(folder_path, owner, aborter, logger), owner, logger);
+        }
+        Window_builder.replace_different_folder(
+                application,
+                shutdown_target,
+                window_type,
+                new Path_list_provider_for_file_system(folder_path, owner, logger),
+                folder_path,
+                folder_path,
+                owner, logger);
     }
 
     //**********************************************************

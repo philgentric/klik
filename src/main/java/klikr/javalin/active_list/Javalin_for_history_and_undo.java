@@ -175,9 +175,9 @@ public class Javalin_for_history_and_undo {
         CountDownLatch started = new CountDownLatch(1);
         Runnable r = () -> {
             javalin = Javalin.create(config -> {
-                config.staticFiles.add("/javalin_history_and_undo/history",
+                config.staticFiles.add("/history",
                         io.javalin.http.staticfiles.Location.CLASSPATH);
-                config.staticFiles.add("/javalin_history_and_undo/undo",
+                config.staticFiles.add("/undos",
                         io.javalin.http.staticfiles.Location.CLASSPATH);
             }).start(port_number);
 
@@ -185,8 +185,8 @@ public class Javalin_for_history_and_undo {
             javalin.get("/index.html", ctx -> {
                 ListType type = currentListType.get();
                 String htmlPath = (type == ListType.HISTORY)
-                    ? "/javalin_history_and_undo/history/index.html"
-                    : "/javalin_history_and_undo/undo/index.html";
+                    ? "/history/index.html"
+                    : "/undos/index.html";
 
                 try {
                     java.io.InputStream is = getClass().getClassLoader().getResourceAsStream(

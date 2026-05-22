@@ -188,15 +188,6 @@ tasks.register('mmap', JavaExec) {
 }
 
 
-tasks.register('undo', JavaExec) {
-    dependsOn 'classes'
-    mainClass = 'klikr.change.undo.Undo_test_app'
-    classpath = sourceSets.main.runtimeClasspath
-    group = 'applications'
-    return
-}
-
-
 tasks.register('monaco', JavaExec) {
     dependsOn 'classes'
     mainClass = 'klikr.javalin.monaco.Javalin_monaco_app'
@@ -205,9 +196,17 @@ tasks.register('monaco', JavaExec) {
     return
 }
 
-tasks.register('javalin_active_lists', JavaExec) {
+tasks.register('undos', JavaExec) {
     dependsOn 'classes'
-    mainClass = 'klikr.javalin.active_list.Javalin_history_and_undo_app'
+    mainClass = 'klikr.javalin.undos.Javalin_undos_app'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+tasks.register('history', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.javalin.history.Javalin_history_app'
     classpath = sourceSets.main.runtimeClasspath
     group = 'applications'
     return
