@@ -49,7 +49,7 @@ public class Debug_console
             {
                 String folder = folder_tf.getText();
                 String cmd = cmd_tf.getText();
-                Script_executor.execute(List.of(cmd),Path.of(folder), true, logger);
+                Script_executor.execute_in_folder(List.of(cmd),Path.of(folder), true, logger);
             });
         }
         {

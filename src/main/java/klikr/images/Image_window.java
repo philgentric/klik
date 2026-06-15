@@ -177,10 +177,10 @@ public class Image_window
                 if (forward_size > 10) forward_size = 10;
                 //logger.log("cache_slots="+cache_slots);
 
-                Path folder_path = path_list_provider.get_folder_path();
-                if ( folder_path != null)
+                Optional<Path> folder_path = path_list_provider.get_folder_path();
+                if ( folder_path .isPresent())
                 {
-                    image_cache = RAM_caches.image_caches.get(folder_path.toAbsolutePath().toString());
+                    image_cache = RAM_caches.image_caches.get(folder_path.get().toAbsolutePath().toString());
                 };
 
                 if ( image_cache == null)
@@ -191,9 +191,9 @@ public class Image_window
                     } else {
                         image_cache = new Image_cache_cafeine(forward_size, owner, aborter, logger);
                     }
-                    if(folder_path != null)
+                    if(folder_path .isPresent())
                     {
-                        RAM_caches.image_caches.put(folder_path.toAbsolutePath().toString(), image_cache);
+                        RAM_caches.image_caches.put(folder_path.get().toAbsolutePath().toString(), image_cache);
                     };
                 }
             }
@@ -360,6 +360,7 @@ public class Image_window
     KeyCombination find;
     KeyCombination copy;
     KeyCombination rename;
+    KeyCombination browse;
     KeyCombination delete;
     KeyCombination open;
     KeyCombination pix_for_pix;
@@ -544,6 +545,20 @@ public class Image_window
             });
         }
 
+        {
+            // Browse
+            browse = new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(browse, () -> {
+                if (Browser_for_file_system_in_2D.kbd_dbg) logger.log("character is ctrl or meta B = browse");
+                if ( image_display_handler.get_image_context().isEmpty()) return;
+                Window_builder.additional_no_past(
+                        Klikr_application.application,
+                        Window_type.File_system_2D,
+                        new Path_list_provider_for_file_system(image_display_handler.get_image_context().get().path.getParent(), stage,logger),
+                        stage,
+                        logger);
+            });
+        }
 
         {
             // FULLSCREEN

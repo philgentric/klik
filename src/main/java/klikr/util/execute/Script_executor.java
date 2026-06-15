@@ -2,11 +2,13 @@ package klikr.util.execute;
 
 
 import javafx.application.Platform;
+import javafx.stage.Window;
 import klikr.Klikr_application;
 import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job;
+import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.Text_frame;
@@ -51,6 +53,19 @@ public class Script_executor
 
     //**********************************************************
     public static void execute(List<String> lines,
+                               boolean debug_mode,
+                               Window owner,
+                               Logger logger)
+    //**********************************************************
+    {
+        Path tmp_folder = Static_files_and_paths_utilities.get_trash_dir(owner, logger);
+        execute_in_folder(lines, tmp_folder,debug_mode, logger);
+    }
+
+
+
+    //**********************************************************
+    public static void execute_in_folder(List<String> lines,
                                Path tmp_folder,
                                boolean debug_mode,
                                Logger logger)
@@ -58,6 +73,7 @@ public class Script_executor
     {
         Actor_engine.execute(()->execute_internal(lines,tmp_folder, debug_mode,logger),"Script_executor "+String.join(" ",lines),logger);
     }
+
 
 
     //**********************************************************

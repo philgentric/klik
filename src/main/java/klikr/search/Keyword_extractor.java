@@ -40,9 +40,11 @@ public class Keyword_extractor
         Set<String> local_keywords = new TreeSet<>();
         String regex = "_|\\.";
         once(from, local_keywords, regex);
-        // going UP ONCE
-        from = from.getParent();
-        once(from, local_keywords, regex);
+        // going UP ONCE, this is weird ,
+        // if a picture in in a folder called 'apple'
+        // it becomes a keyword for search on names IN the folder ???
+        //from = from.getParent();
+        //once(from, local_keywords, regex);
         return local_keywords;
     }
 
@@ -62,10 +64,10 @@ public class Keyword_extractor
     private void extract_keywords(String name, String regex, Set<String> local_keywords)
     //**********************************************************
     {
-        name = Extensions.get_base_name(name);
         if ( name == null) return;
+        name = Extensions.get_base_name(name);
         String[] res = name.split(regex);
-        logger.log("found" + res.length + " pieces in " + name);
+        logger.log("found " + res.length + " pieces in " + name);
 
         for (String re : res) {
             if (re.isEmpty()) continue;

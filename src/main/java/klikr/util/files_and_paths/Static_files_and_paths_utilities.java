@@ -126,7 +126,7 @@ public class Static_files_and_paths_utilities
             logger.log("nothing to delete");
             return;
         }
-        Path trash_dir = get_trash_dir(paths.get(0),owner,logger);
+        Path trash_dir = get_trash_dir_of(paths.get(0),owner,logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString()))
         {
             Popups.popup_warning("❗" + My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
@@ -144,10 +144,18 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
+    public static Path get_trash_dir(Window owner, Logger logger)
+    //**********************************************************
+    {
+        // works on all OSES
+        return Static_files_and_paths_utilities.get_trash_dir_of(Path.of(""),owner,logger);
+    }
+
+    //**********************************************************
     public static void move_to_trash(Path path, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path trash_dir = get_trash_dir(path,owner,logger);
+        Path trash_dir = get_trash_dir_of(path,owner,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
             Popups.popup_warning("❗ "+ My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_explanation", owner,logger), false, owner,logger);
             return;
@@ -1188,7 +1196,7 @@ public class Static_files_and_paths_utilities
 
     // returns a directory using that relative name
     //**********************************************************
-    public static Path get_trash_dir(Path for_this, Window owner, Logger logger)
+    public static Path get_trash_dir_of(Path for_this, Window owner, Logger logger)
     //**********************************************************
     {
         // the idea of having multiple trash dirs is that when you are moving file to trash,

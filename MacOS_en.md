@@ -13,11 +13,11 @@ or follow instructions at:
 
 ### install gradle
 
-**sdk install gradle 9.0.0**
+**sdk install gradle x.y.z (x,y,z = whatever latest version)**
 
-### install java24 (with fx)
+### install java26 with fx
 
-**sdk install java 24.fx-zulu**
+**sdk install java 26.fx-zulu**
 
 ### install git
 
@@ -39,41 +39,6 @@ this will create a folder "klikr"
 
 **gradle run**
 
-(this starts the launcher, and then you can start both klikr and the music player)
-
-to start klikr directly:
+or:
 
 **gradle klikr**
-
-to start the music player directly:
-
-**gradle audio_player**
-
-(note well: you can run only one player at a time)
-
-
-### Install ffmpeg
-
-(klikr uses ffmpeg to make several things including animated icons for videos)
-
-**brew install ffmpeg**
-
-### Install graphicsmagick
-
-(klikr uses graphicsmagick to make icons for PDF files and animated icons for folders)
-
-**brew install graphicsmagick**
-
-
-
-
-
-Note1: as an alternative to gradle, you can use jbang:
-
-**sdk install jbang**
-
-**jbang src/main/java/klikr/Klikr_application.java**
-
-Note2: as an alternative to gradle, you can use the mill:
-
-read mill.MD

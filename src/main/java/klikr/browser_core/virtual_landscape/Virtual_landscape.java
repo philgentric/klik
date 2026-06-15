@@ -666,11 +666,13 @@ public class Virtual_landscape
             Path destination = null;
             if( path_list_provider instanceof Path_list_provider_for_file_system plpffs)
             {
-                destination = plpffs.get_folder_path();
-                if (destination == null)
+                Optional<Path> p = plpffs.get_folder_path();
+                if (p.isEmpty())
                 {
                     logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN: no folder path provided"));
+                    return;
                 }
+                destination = p.get();
             }
             else if( path_list_provider instanceof Path_list_provider_for_playlist plpfpl)
             {
@@ -1142,15 +1144,15 @@ public class Virtual_landscape
 
         if ( dbg) logger.log("MAKING image_properties_cache");
         String tag;
-        Path folder_path = path_list_provider.get_folder_path();
-        if ( folder_path == null)
+        Optional<Path> folder_path = path_list_provider.get_folder_path();
+        if ( folder_path.isEmpty())
         {
             // happens for playlists
             tag = Cache_folder.image_properties_cache.name()+path_list_provider.get_key();
         }
         else
         {
-            tag = Cache_folder.image_properties_cache.name()+folder_path.getFileName();
+            tag = Cache_folder.image_properties_cache.name()+folder_path.get().getFileName();
         }
         String cache_file_name = UUID.nameUUIDFromBytes(tag.getBytes()) + ".properties";
         Path dir = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home(Cache_folder.image_properties_cache.name(), false, owner, logger);
@@ -1247,14 +1249,14 @@ public class Virtual_landscape
         Function<String,Path> K_maker = new Function<String, Path>() {
             @Override
             public Path apply(String s) {
-                if (folder_path == null)
+                if (folder_path.isEmpty())
                 {
                     if ( path_list_provider instanceof Path_list_provider_for_playlist local) {
                         return Path.of(s);
                     }
                     return null; // will crash
                 }
-                return folder_path.resolve(s);
+                return folder_path.get().resolve(s);
             }
         };
 
@@ -1277,9 +1279,9 @@ public class Virtual_landscape
 
 
         String cache_tag = "default_cache_tag";
-        if (folder_path != null)
+        if (folder_path.isPresent())
         {
-            cache_tag = folder_path.toAbsolutePath().normalize().toString();
+            cache_tag = folder_path.get().toAbsolutePath().normalize().toString();
         }
         else
         {
@@ -2060,7 +2062,7 @@ public class Virtual_landscape
     Scene define_UI()
     //**********************************************************
     {
-        Path folder_path = path_list_provider.get_folder_path();
+        Optional<Path> folder_path = path_list_provider.get_folder_path();
         double font_size = Non_booleans_properties.get_font_size(owner, logger);
         double height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
 
@@ -2068,7 +2070,7 @@ public class Virtual_landscape
         if (window_type == Window_type.File_system_2D)
         {
             // need a UP button
-            if( folder_path != null )
+            if( folder_path .isPresent() )
             {
                 String go_up_text = "";
                 // single exception if parh is "/" or "c:", there is no parent, no up button
@@ -2077,12 +2079,12 @@ public class Virtual_landscape
                     go_up_text = My_I18n.get_I18n_string("Parent_Folder", owner, logger);
                 
                     up_button = virtual_landscape_menus.make_button_that_behaves_like_a_folder(
-                        folder_path.getParent(),
+                        folder_path.get().getParent(),
                         go_up_text,
                         height,
                         MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
                         false,
-                        folder_path,
+                        folder_path.get(),
                         logger);
 
                     Image icon = Look_and_feel_manager.get_up_icon(height, owner, logger);
@@ -2111,7 +2113,7 @@ public class Virtual_landscape
             String trash_text = My_I18n.get_I18n_string("Trash", owner, logger);// to: " +
             // parent.toAbsolutePath().toString();
             trash = virtual_landscape_menus.make_button_that_behaves_like_a_folder(
-                    Static_files_and_paths_utilities.get_trash_dir(Paths.get(path_list_provider.get_key()), owner, logger),
+                    Static_files_and_paths_utilities.get_trash_dir_of(Paths.get(path_list_provider.get_key()), owner, logger),
                     trash_text,
                     height,
                     MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
@@ -2515,8 +2517,8 @@ public class Virtual_landscape
                 Virtual_landscape_menus.make_bookmarks_menu(
                 application, Paths.get(path_list_provider.get_key()), top_left, shutdown_target, window_type, owner, logger));
 
-        Path folder_path = path_list_provider.get_folder_path();
-        if(folder_path != null )
+        Optional<Path> folder_path = path_list_provider.get_folder_path();
+        if(folder_path.isPresent() )
         {
             undo_bookmark_history_menu.getItems().add(Virtual_landscape_menus.make_history_menu(
                 application,
@@ -2528,7 +2530,7 @@ public class Virtual_landscape
                 owner, aborter, logger));
             undo_bookmark_history_menu.getItems().add(Virtual_landscape_menus.make_roots_menu(
                     application,
-                    folder_path,
+                    folder_path.get(),
                     top_left,
                     shutdown_target,
                     window_type,
@@ -2864,13 +2866,13 @@ public class Virtual_landscape
     public void you_are_backup_destination()
     //**********************************************************
     {
-        Path folder_path =  path_list_provider.get_folder_path();
-        if ( folder_path == null )
+        Optional<Path> folder_path =  path_list_provider.get_folder_path();
+        if ( folder_path.isEmpty() )
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
-        Static_backup_paths.set_backup_destination(folder_path);
+        Static_backup_paths.set_backup_destination(folder_path.get());
         logger.log("✅ backup destination = " + path_list_provider.get_key());
 
         set_text_background("BACKUP\nDESTINATION");
@@ -2881,13 +2883,13 @@ public class Virtual_landscape
     public void you_are_backup_source()
     //**********************************************************
     {
-        Path folder_path =  path_list_provider.get_folder_path();
-        if ( folder_path == null )
+        Optional<Path> folder_path =  path_list_provider.get_folder_path();
+        if ( folder_path.isEmpty() )
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
-        Static_backup_paths.set_backup_source(folder_path);
+        Static_backup_paths.set_backup_source(folder_path.get());
         logger.log("✅ backup source = " + path_list_provider.get_key());
 
         set_text_background("BACKUP\nSOURCE");
@@ -2898,13 +2900,13 @@ public class Virtual_landscape
     public void you_are_fusk_destination()
     //**********************************************************
     {
-        Path folder_path =  path_list_provider.get_folder_path();
-        if ( folder_path == null )
+        Optional<Path> folder_path =  path_list_provider.get_folder_path();
+        if ( folder_path.isEmpty() )
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
-        Static_fusk_paths.set_fusk_destination(folder_path);
+        Static_fusk_paths.set_fusk_destination(folder_path.get());
         logger.log("✅ fusk destination = " + path_list_provider.get_key());
 
         set_text_background("FUSK\nDESTINATION");
@@ -2915,13 +2917,13 @@ public class Virtual_landscape
     public void you_are_fusk_source()
     //**********************************************************
     {
-        Path folder_path =  path_list_provider.get_folder_path();
-        if ( folder_path == null )
+        Optional<Path> folder_path =  path_list_provider.get_folder_path();
+        if ( folder_path.isEmpty() )
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
-        Static_fusk_paths.set_fusk_source(folder_path);
+        Static_fusk_paths.set_fusk_source(folder_path.get());
         logger.log("✅ fusk source = " + path_list_provider.get_key());
 
         set_text_background("FUSK\nSOURCE");

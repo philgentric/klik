@@ -21,6 +21,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser_core.virtual_landscape.Path_comparator_source;
@@ -43,9 +44,8 @@ import java.util.*;
 public class Finder_frame implements Search_receiver
 //**********************************************************
 {
-	public static final int MIN_WIDTH = 600;
+	public static final int MIN_WIDTH = 800;
 	private static final String BASE_ = "<type new keyword>";
-	private static final org.slf4j.Logger log = LoggerFactory.getLogger(Finder_frame.class);
 	private Button start;
 	private Button stop;
 	Label visited_folders;
@@ -53,7 +53,8 @@ public class Finder_frame implements Search_receiver
 	Logger logger;
 	private final Aborter aborter;
 
-	private Path target_folder_path;
+	// we can search folders or playlosts or search results
+	private final Path_list_provider path_list_provider;
 
 	final private Map<String, Keyword_slot> keyword_to_slot =  new HashMap<>(); // this is the textfield to report the number of matches
 	final Stage stage;
@@ -71,7 +72,6 @@ public class Finder_frame implements Search_receiver
 	VBox bottom_keyword_vbox;
 	private boolean extension_textfield_is_red = false;
 	private boolean new_keyword_textfield_is_red = false;
-	private final Path_list_provider path_list_provider;
 	private final Path_comparator_source path_comparator_source;
 	private final Application application;
     private Optional<Hourglass> hourglass;
@@ -95,19 +95,8 @@ public class Finder_frame implements Search_receiver
 		this.path_comparator_source = path_comparator_source;
 		this.logger = logger;
 		this.look_only_for_images = look_only_for_images;
-		target_folder_path = path_list_provider.get_folder_path();
-		if( target_folder_path != null)
-		{
-			if (!target_folder_path.toFile().isDirectory())
-			{
-				logger.log(Stack_trace_getter.get_stack_trace("Not a directory: " + path_list_provider.get_key()));
-			}
-		}
-		else
-		{
-			// this is a playlist !
-			logger.log(Stack_trace_getter.get_stack_trace("target_folder_path=null " + path_list_provider.get_folder_path()));
-		}
+		//target_folder_path = path_list_provider.get_folder_path();
+
 		stage = new Stage();
         stage.initOwner(owner);
 
@@ -186,31 +175,38 @@ public class Finder_frame implements Search_receiver
 	//**********************************************************
 	{
 		extension_tf = new TextField("");
-		if ( !extension.trim().isEmpty())
-		{
-			use_extension = true;
-			extension_tf.setText(extension.trim());
+		if (extension!=null) {
+			if (!extension.trim().isEmpty()) {
+				use_extension = true;
+				extension_tf.setText(extension.trim());
+			}
 		}
 		VBox settings_vbox = new VBox();
 		{
 			Label target_folder_label = new Label(path_list_provider.get_key());
+			//Label target_folder_label = new Label(target_folder_path.toAbsolutePath().toString());
 			settings_vbox.getChildren().add(target_folder_label);
 
-			if ( target_folder_path != null)
+			if ( path_list_provider instanceof Path_list_provider_for_file_system)
 			{
 				Button up = new Button(My_I18n.get_I18n_string("Search_Parent_Folder", stage, logger));
 				Look_and_feel_manager.set_button_look(up, true, stage, logger);
 
 				settings_vbox.getChildren().add(up);
 
-				logger.log(" search parent : button created");
+				//logger.log(" search parent : button created");
 				up.setOnAction((ActionEvent e) -> {
 					session.stop_search();
-					Path parent = target_folder_path.getParent();
-					if (parent != null) {
-						target_folder_path = parent;
-						target_folder_label.setText(target_folder_path.toAbsolutePath().toString());
-						start_search();
+					Optional<Path> target_folder_path = path_list_provider.get_folder_path();
+					if (target_folder_path.isPresent())
+					{
+						Path parent = target_folder_path.get().getParent();
+						if (parent != null)
+						{
+							//target_folder_path = parent;
+							target_folder_label.setText(target_folder_path.get().toAbsolutePath().toString());
+							start_search();
+						}
 					}
 				});
 			}
@@ -370,16 +366,24 @@ public class Finder_frame implements Search_receiver
 		stop.setDisable(true);
         start.setDisable(false);
 		stop.setOnAction((ActionEvent e) -> {
-            session.stop_search();
-            stop.setDisable(true);
-            start.setDisable(false);
-        });
+			stop_now();
+		});
 		settings_vbox.getChildren().add(stop);
 		Look_and_feel_manager.set_button_look(stop,true,stage,logger);
 		settings_vbox.getChildren().add(vertical_spacer());
 
 
 		return settings_vbox;
+	}
+
+	//**********************************************************
+	private void stop_now()
+	//**********************************************************
+	{
+		session.stop_search();
+		stop.setDisable(true);
+		start.setDisable(false);
+		hourglass.ifPresent(Hourglass::close);
 	}
 
 
@@ -450,16 +454,17 @@ public class Finder_frame implements Search_receiver
             for (String input_keyword: keyword_to_slot.keySet())
             {
                 Keyword_slot ks = keyword_to_slot.get(input_keyword);
-                Label t = ks.get_result_label();
-                if (t == null) {
+                Label label = ks.get_result_label();
+                if (label == null) {
                     System.out.println("SHOULD NOT HAPPEN: no Text component in UI for keyword ->" + input_keyword + "<-");
                 } else {
                     if (search_statistics.matched_keyword_counts().get(input_keyword) == null )
                     {
-                        t.setText(String.valueOf( 0));
+                        label.setText(String.valueOf( 0));
                     }
-                    else {
-                        t.setText(String.valueOf( search_statistics.matched_keyword_counts().get(input_keyword)));
+                    else
+					{
+                        label.setText(String.valueOf( search_statistics.matched_keyword_counts().get(input_keyword)));
                     }
                 }
             }
@@ -486,18 +491,8 @@ public class Finder_frame implements Search_receiver
 				}
 			}
 		}
-		if ( search_status == Search_status.invalid)
-		{
-			Jfx_batch_injector.inject(() -> {
-                stop.setDisable(true);
-                start.setDisable(false);
-            },logger);
-			return;
-		}
-		Jfx_batch_injector.inject(() -> {
-            stop.setDisable(true);
-            start.setDisable(false);
-        },logger);
+
+		Jfx_batch_injector.inject(this::stop_now,logger);
 
 	}
 
@@ -526,6 +521,7 @@ public class Finder_frame implements Search_receiver
 				}
 			}
 		}
+		//Path_list_provider path_list_provider = new Path_list_provider_for_file_system(target_folder_path,stage,logger);
 		Search_config search_config = new Search_config(path_list_provider,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, ignore_hidden, check_case);
 		session = new Search_session(
 				application,

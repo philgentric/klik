@@ -232,7 +232,7 @@ public class Launcher extends Application implements UI_change_target
                 logger).orElse(null);
 
         String cmd = "gradle "+app_name+ " "+com.get_port();
-        Script_executor.execute(List.of(cmd),Path.of("."),true,logger);
+        Script_executor.execute(List.of(cmd),true,stage,logger);
 
     }
 

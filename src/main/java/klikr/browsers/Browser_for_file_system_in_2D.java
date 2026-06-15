@@ -73,6 +73,7 @@ import klikr.util.ui.Jfx_batch_injector;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 
 //**********************************************************
@@ -132,13 +133,13 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         boolean monitor_this_folder = false;
 
         // ALWAYS monitor external drives
-        Path folder_path = path_list_provider.get_folder_path();
-        if (folder_path == null)
+        Optional<Path> folder_path = path_list_provider.get_folder_path();
+        if (folder_path.isEmpty())
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
-        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(folder_path, logger);
+        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(folder_path.get(), logger);
 
 
         if (!monitor_this_folder)
@@ -152,7 +153,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         if (monitor_this_folder)
         {
             Runnable r = () -> {
-                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(folder_path, FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, aborter, logger);
+                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(folder_path.get(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, aborter, logger);
                 if (filesystem_item_modification_watcher == null)
                 {
                     logger.log("❗ WARNING: cannot monitor folder " + folder_path);
@@ -248,8 +249,8 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         //    return;
         //}
 
-        Path folder_path = path_list_provider.get_folder_path();
-        if( folder_path == null)
+        Optional<Path> folder_path = path_list_provider.get_folder_path();
+        if( folder_path.isEmpty() )
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
@@ -257,7 +258,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
 
         logger.log("Browser_for_file_system_in_2D for: "+folder_path+ ", CHANGE GANG CALL received");
 
-        switch (Change_gang.is_my_directory_impacted(folder_path, l, logger))
+        switch (Change_gang.is_my_directory_impacted(folder_path.get(), l, logger))
         {
             case more_changes: {
                 //if (dbg)
@@ -271,7 +272,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
                     // recording its new path would be a bad bug
                     if ( oan.new_Path != null)
                     {
-                        if (oan.new_Path.startsWith(folder_path))
+                        if (oan.new_Path.startsWith(folder_path.get()))
                         {
                             // make sure the window will scroll to the landing point of the displaced file
                             Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_key(),oan.new_Path.toAbsolutePath().normalize().toString(),"Change_broadcaster Gang event received = new item in folder",logger);
@@ -299,9 +300,9 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
     public String get_Change_receiver_string()
     //**********************************************************
     {
-        Path folder_path = path_list_provider.get_folder_path();
-        if ( folder_path == null) return "Browser_for_file_system_in_2D NO PATH ?";
-        return "Browser_for_file_system_in_2D:" + folder_path.toAbsolutePath() + " " + ID;
+        Optional<Path> folder_path = path_list_provider.get_folder_path();
+        if ( folder_path.isEmpty()) return "Browser_for_file_system_in_2D NO PATH ?";
+        return "Browser_for_file_system_in_2D:" + folder_path.get().toAbsolutePath() + " " + ID;
     }
 
 

@@ -163,17 +163,17 @@ public enum Sort_files_by {
             Path_list_provider path_list_provider, Window owner,double x, double y, Logger logger)
     //**********************************************************
     {
-        Path folder_path = path_list_provider.get_folder_path();
-        if ( folder_path == null )
+        Optional<Path> folder_path = path_list_provider.get_folder_path();
+        if ( folder_path.isEmpty() )
         {
             logger.log(Stack_trace_getter.get_stack_trace("folder_path == null"));
             return null;
         }
-        Similarity_cache similarity_cache = RAM_caches.similarity_cache_of_caches.get(folder_path.toAbsolutePath().toString());
+        Similarity_cache similarity_cache = RAM_caches.similarity_cache_of_caches.get(folder_path.get().toAbsolutePath().toString());
         if (similarity_cache == null)
         {
             similarity_cache = new Similarity_cache(fvs, path_list_provider, owner, x, y, Shared_services.aborter(), logger);
-            RAM_caches.similarity_cache_of_caches.put(folder_path.toAbsolutePath().toString(), similarity_cache);
+            RAM_caches.similarity_cache_of_caches.put(folder_path.get().toAbsolutePath().toString(), similarity_cache);
         }
         return similarity_cache;
     }

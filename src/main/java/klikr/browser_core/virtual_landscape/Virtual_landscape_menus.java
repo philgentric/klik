@@ -247,10 +247,10 @@ public class Virtual_landscape_menus
     public void show_where_are_images()
     //**********************************************************
     {
-        Path p = virtual_landscape.path_list_provider.get_folder_path();
-        if ( p != null)
+        Optional<Path> p = virtual_landscape.path_list_provider.get_folder_path();
+        if ( p.isPresent() )
         {
-            Folders_with_large_images_locator.locate(virtual_landscape.application, p, 10, 200_000, owner, logger);
+            Folders_with_large_images_locator.locate(virtual_landscape.application, p.get(), 10, 200_000, owner, logger);
         };
     }
 
@@ -318,10 +318,10 @@ public class Virtual_landscape_menus
             {
                 // TODO: check if this is useful
                 // since perform_safe_moves_in_a_thread will trigger the Chang_gang?
-                Path displayed_folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                if ( displayed_folder_path != null) {
+                Optional<Path> displayed_folder_path = virtual_landscape.path_list_provider.get_folder_path();
+                if ( displayed_folder_path.isPresent()) {
                     List<Old_and_new_Path> l = new ArrayList<>();
-                    l.add(new Old_and_new_Path(displayed_folder_path, displayed_folder_path, Command.command_unknown, Status.move_done, false));
+                    l.add(new Old_and_new_Path(displayed_folder_path.get(), displayed_folder_path.get(), Command.command_unknown, Status.move_done, false));
                     Change_gang.report_changes(l, owner);
                 }
             }
@@ -391,9 +391,9 @@ public class Virtual_landscape_menus
 
         StringBuilder sb = null;
         if ( dbg) sb = new StringBuilder();
-        Path p = virtual_landscape.path_list_provider.get_folder_path();
-        if (p == null) return;
-        File wd = p.toFile();
+        Optional<Path> p = virtual_landscape.path_list_provider.get_folder_path();
+        if (p.isEmpty()) return;
+        File wd = p.get().toFile();
         Execute_result res = Execute_command.execute_command_list(graphicsMagick_command_line, wd, 2000, sb, logger);
         if ( !res.status())
         {
@@ -414,7 +414,7 @@ public class Virtual_landscape_menus
             else
             {
                 logger.log("✅ contact sheet generated : "+ CONTACT_SHEET_FILE_NAME);
-                System_open_actor.open_with_system(virtual_landscape.application,Path.of(p.toAbsolutePath().toString(), CONTACT_SHEET_FILE_NAME),owner,virtual_landscape.aborter,logger);
+                System_open_actor.open_with_system(virtual_landscape.application,Path.of(p.get().toAbsolutePath().toString(), CONTACT_SHEET_FILE_NAME),owner,virtual_landscape.aborter,logger);
 
                 Platform.runLater(() ->virtual_landscape.set_status("Contact sheet generated : "+ CONTACT_SHEET_FILE_NAME));
             }
@@ -442,8 +442,8 @@ public class Virtual_landscape_menus
             for (int i = 0; i < 10; i++)
             {
                 try {
-                    Path p = virtual_landscape.path_list_provider.get_folder_path();
-                    if ( p != null) {
+                    Optional<Path> p = virtual_landscape.path_list_provider.get_folder_path();
+                    if ( p.isPresent()) {
                         Path new_dir = virtual_landscape.path_list_provider.resolve(new_name);
                         if ( new_dir != null) {
                             Files.createDirectory(new_dir);
@@ -609,15 +609,15 @@ public class Virtual_landscape_menus
         Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_similar_images_of_same_size",null,
                 event -> {
                     //logger.log("Deduplicate manually");
-                    Path folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                    if (folder_path != null) {
+                    Optional<Path> folder_path = virtual_landscape.path_list_provider.get_folder_path();
+                    if (folder_path.isPresent()) {
                         Deduplication_by_similarity_engine pbse = new Deduplication_by_similarity_engine(
                                 virtual_landscape.application,
                                 true,
                                 virtual_landscape.path_list_provider,
                                 virtual_landscape,
                                 too_far_away_image,
-                                folder_path.toFile(),
+                                folder_path.get().toFile(),
                                 virtual_landscape.get_image_properties_cache(),
                                 get_image_fv_cache,
                                 owner,
@@ -631,8 +631,8 @@ public class Virtual_landscape_menus
                 event ->
                 {
                     //logger.log("Deduplicate manually");
-                    Path folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                    if (folder_path != null)
+                    Optional<Path> folder_path = virtual_landscape.path_list_provider.get_folder_path();
+                    if (folder_path.isPresent())
                     {
                         Deduplication_by_similarity_engine dbse = new Deduplication_by_similarity_engine(
                                 virtual_landscape.application,
@@ -640,7 +640,7 @@ public class Virtual_landscape_menus
                                 virtual_landscape.path_list_provider,
                                 virtual_landscape,
                                 too_far_away_image,
-                                folder_path.toFile(),
+                                folder_path.get().toFile(),
                                 null, // does not check image sizes
                                 get_image_fv_cache,
                                 owner,
@@ -665,15 +665,15 @@ public class Virtual_landscape_menus
         Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_quasi_similar_songs",null,
                 event -> {
                     //logger.log("Deduplicate manually");
-                    Path folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                    if(folder_path != null) {
+                    Optional<Path> folder_path = virtual_landscape.path_list_provider.get_folder_path();
+                    if(folder_path.isPresent()) {
                         Deduplication_by_similarity_engine dse = new Deduplication_by_similarity_engine(
                                 virtual_landscape.application,
                                 false,
                                 virtual_landscape.path_list_provider,
                                 virtual_landscape,
                                 too_far_away_song / 10,
-                                folder_path.toFile(),
+                                folder_path.get().toFile(),
                                 null,
                                 get_song_fv_cache,
                                 owner,
@@ -685,15 +685,15 @@ public class Virtual_landscape_menus
         Menu_items.add_menu_item_for_menu("Deduplicate_with_confirmation_songs_sounding_a_bit_the_same",null,
                 event -> {
                     //logger.log("Deduplicate manually");
-                    Path folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                    if(folder_path != null) {
+                    Optional<Path> folder_path = virtual_landscape.path_list_provider.get_folder_path();
+                    if(folder_path.isPresent()) {
                         Deduplication_by_similarity_engine dse = new Deduplication_by_similarity_engine(
                                 virtual_landscape.application,
                                 false,
                                 virtual_landscape.path_list_provider,
                                 virtual_landscape,
                                 too_far_away_song,
-                                folder_path.toFile(),
+                                folder_path.get().toFile(),
                                 null,
                                 get_song_fv_cache,
                                 owner,
@@ -756,18 +756,18 @@ public class Virtual_landscape_menus
 
         Menu_items.add_menu_item_for_menu("Deduplicate_count",null,
                 event -> {
-                    Path folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                    if(folder_path != null) {
-                        Deduplication_engine de = new Deduplication_engine(virtual_landscape.application, owner, folder_path.toFile(), virtual_landscape.path_list_provider, virtual_landscape, logger);
+                    Optional<Path> folder_path = virtual_landscape.path_list_provider.get_folder_path();
+                    if(folder_path.isPresent()) {
+                        Deduplication_engine de = new Deduplication_engine(virtual_landscape.application, owner, folder_path.get().toFile(), virtual_landscape.path_list_provider, virtual_landscape, logger);
                         de.count(false);
                     }
                 },menu,owner,logger);
         Menu_items.add_menu_item_for_menu("Deduplicate_manual", null,event -> {
             //logger.log("Deduplicate manually");
-            Path folder_path = virtual_landscape.path_list_provider.get_folder_path();
-            if(folder_path != null)
+            Optional<Path> folder_path = virtual_landscape.path_list_provider.get_folder_path();
+            if(folder_path.isPresent())
             {
-                Deduplication_engine de = new Deduplication_engine(virtual_landscape.application, owner, folder_path.toFile(), virtual_landscape.path_list_provider,virtual_landscape,logger);
+                Deduplication_engine de = new Deduplication_engine(virtual_landscape.application, owner, folder_path.get().toFile(), virtual_landscape.path_list_provider,virtual_landscape,logger);
                 de.do_your_job(false);
             }
         },menu,owner,logger);
@@ -779,9 +779,9 @@ public class Virtual_landscape_menus
 
                     if ( !Popups.popup_ask_for_confirmation( "❗ EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",owner,logger)) return;
 
-                    Path folder_path = virtual_landscape.path_list_provider.get_folder_path();
-                    if(folder_path != null) {
-                        Deduplication_engine de = new Deduplication_engine(virtual_landscape.application, owner, folder_path.toFile(), virtual_landscape.path_list_provider, virtual_landscape, logger);
+                    Optional<Path> folder_path = virtual_landscape.path_list_provider.get_folder_path();
+                    if(folder_path.isPresent()) {
+                        Deduplication_engine de = new Deduplication_engine(virtual_landscape.application, owner, folder_path.get().toFile(), virtual_landscape.path_list_provider, virtual_landscape, logger);
                         de.do_your_job(true);
                     }
                 },menu,owner,logger);
@@ -931,12 +931,12 @@ public class Virtual_landscape_menus
     public Optional<MenuItem> make_whole_folder_face_recog_menu_item()
     //**********************************************************
     {
-        Path p = virtual_landscape.path_list_provider.get_folder_path();
-        if ( p == null) return Optional.empty();
+        Optional<Path> p = virtual_landscape.path_list_provider.get_folder_path();
+        if (p.isEmpty()) return Optional.empty();
 
         return Optional.of(Menu_items.make_menu_item_i18n(
                 "Do_Face_Recognition_On_Whole_Folder",null,
-                event -> Face_recognition_service.do_folder(virtual_landscape.application, p,owner,logger),
+                event -> Face_recognition_service.do_folder(virtual_landscape.application, p.get(),owner,logger),
                 owner,logger));
 
     }
@@ -1134,10 +1134,10 @@ public class Virtual_landscape_menus
                 MenuItem item = new MenuItem(displayed_string);
                 Look_and_feel_manager.set_menu_item_look(item, owner, logger);
                 item.setMnemonicParsing(false);
-                Path folder_path = path_list_provider.get_folder_path();
-                if (folder_path != null)
+                Optional<Path> folder_path = path_list_provider.get_folder_path();
+                if (folder_path.isPresent())
                 {
-                    if (hi.value.equals(folder_path.toAbsolutePath().toString()))
+                    if (hi.value.equals(folder_path.get().toAbsolutePath().toString()))
                     {
                         // show the one we are in as inactive
                         item.setDisable(true);
@@ -1218,13 +1218,15 @@ public class Virtual_landscape_menus
             Window owner,Logger logger)
     //**********************************************************
     {
+        Optional<Path> p = path_list_provider.get_folder_path();
+        if ( p.isEmpty()) return;
         Active_list_stage_action action = text -> {
             Window_builder.replace_different_folder(
                     application,
                     shutdown_target,
                     window_type,
                     new Path_list_provider_for_file_system(Path.of(text),owner,logger),
-                    path_list_provider.get_folder_path(),
+                    p.get(),
                     top_left,
                     owner, logger);
         };
@@ -1802,13 +1804,13 @@ public class Virtual_landscape_menus
     {
         if ( !Popups.popup_ask_for_confirmation( "❗ EXPERIMENTAL! Are you sure?","Name cleaning will try to change all names in this folder, which may have very nasty consequences in a home or system folder",owner,logger)) return;
 
-        Path dir = virtual_landscape.path_list_provider.get_folder_path();
-        if ( dir == null)
+        Optional<Path> dir = virtual_landscape.path_list_provider.get_folder_path();
+        if ( dir.isEmpty())
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
-        File[] files = dir.toFile().listFiles();
+        File[] files = dir.get().toFile().listFiles();
         if (files == null) return;
         List<Old_and_new_Path> l = new ArrayList<>();
         for (File f : files)
@@ -1842,8 +1844,8 @@ public class Virtual_landscape_menus
     void remove_corrupted_images_fx()
     //**********************************************************
     {
-        Path dir = virtual_landscape.path_list_provider.get_folder_path();
-        if ( dir == null)
+        Optional<Path> dir = virtual_landscape.path_list_provider.get_folder_path();
+        if ( dir.isEmpty())
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;

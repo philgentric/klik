@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //**********************************************************
 public class Path_list_provider_for_file_system implements Path_list_provider
@@ -84,11 +85,11 @@ public class Path_list_provider_for_file_system implements Path_list_provider
     public boolean is_rescan_needed()
     //**********************************************************
     {
-        Path path = get_folder_path();
-        if (  path == null) return  false;
+        Optional<Path> path = get_folder_path();
+        if (  path.isEmpty()) return  false;
         if ( timestamp < 0) return true;
         try {
-            long as_of_now = Files.getLastModifiedTime( path).toMillis();
+            long as_of_now = Files.getLastModifiedTime( path.get()).toMillis();
             boolean returned = false;
             if ( as_of_now > timestamp) returned = true;
             timestamp = as_of_now;
@@ -101,10 +102,10 @@ public class Path_list_provider_for_file_system implements Path_list_provider
 
     //**********************************************************
     @Override
-    public Path get_folder_path()
+    public Optional<Path> get_folder_path()
     //**********************************************************
     {
-        return folder_path;
+        return Optional.of(folder_path);
     }
 
 
@@ -400,8 +401,8 @@ public class Path_list_provider_for_file_system implements Path_list_provider
     Files_and_folders load_cache_from_disk(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path path = get_folder_path();
-        if (  path == null)
+        Optional<Path> path = get_folder_path();
+        if (  path.isEmpty())
         {
             logger.log(Stack_trace_getter.get_stack_trace("PANIC "));
             return null;
@@ -479,14 +480,14 @@ public class Path_list_provider_for_file_system implements Path_list_provider
     boolean save_cache_to_disk(Files_and_folders faf, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Path folder_path = get_folder_path();
-        if (  folder_path == null)
+        Optional<Path> folder_path = get_folder_path();
+        if (  folder_path.isEmpty())
         {
             logger.log(Stack_trace_getter.get_stack_trace("PANIC "));
             return false;
         }
         try (MessageBufferPacker packer = MessagePack.newDefaultBufferPacker()) {
-            packer.packString(folder_path.toAbsolutePath().toString());
+            packer.packString(folder_path.get().toAbsolutePath().toString());
             long now = System.currentTimeMillis();
             set_cache_creation_time(now);
             packer.packLong(now);

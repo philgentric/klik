@@ -19,9 +19,10 @@ Download the [MSI](https://github.com/philgentric/klikr/releases/download/1rc1/K
 
 
 For more advanced users: run Klikr from source!
+- (ypu need to be administrator)
 - get updates in 1 click
 - change the JVM max memory 
-- modify the appearance (CSS) or even create your own look and feel!
+- ...(you are frv-savvy: create your own look and feel!)
 
 
 [Installation for macOS](MacOS_en.md)

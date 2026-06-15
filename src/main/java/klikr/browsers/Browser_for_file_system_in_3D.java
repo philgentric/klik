@@ -116,14 +116,14 @@ public class Browser_for_file_system_in_3D implements Owner_provider, Selection_
         aborter = new Aborter("Browser_for_file_system_in_3D", logger);
 
         String title = "Circle 3D";
-        if( window_builder.path_list_provider.get_folder_path() == null)
+        if( window_builder.path_list_provider.get_folder_path().isEmpty())
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             this.the_path = null;
             this.item_source = null;
         }
         else {
-            this.the_path = window_builder.path_list_provider.get_folder_path();
+            this.the_path = window_builder.path_list_provider.get_folder_path().get();
             //History_engine.get(get_owner()).add(the_path.toAbsolutePath().toString());
             this.item_source = new Image_source_from_files( the_path,small_icon_size,large_icon_size,stage,aborter,logger);
             title = the_path.toAbsolutePath().toString();

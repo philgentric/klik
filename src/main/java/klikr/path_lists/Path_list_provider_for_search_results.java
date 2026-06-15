@@ -3,7 +3,6 @@
 
 package klikr.path_lists;
 
-import javafx.scene.Node;
 import javafx.stage.Window;
 import klikr.browser_core.virtual_landscape.Image_found;
 import klikr.search.Search_result;
@@ -16,19 +15,14 @@ import klikr.browser_core.virtual_landscape.Redrawer;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 //**********************************************************
 public class Path_list_provider_for_search_results implements Path_list_provider
 //**********************************************************
 {
     public static final boolean dbg = false;
-    public static final String KLIKR_IMAGE_PLAYLIST_EXTENSION = "klikr_image_playlist";
     HashMap<String, Search_result> search_results;
     HashMap<String, List<Path>> path_sets;
     HashMap<String, Boolean> search_results_is_max;
@@ -90,11 +84,11 @@ public class Path_list_provider_for_search_results implements Path_list_provider
 
     //**********************************************************
     @Override
-    public Path get_folder_path()
+    public Optional<Path> get_folder_path()
     //**********************************************************
     {
-        // does not have a meaning for a playlist
-        return null;
+        // does not have a meaning
+        return Optional.empty();
     }
 
 

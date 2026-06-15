@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //**********************************************************
 public class Path_list_provider_for_playlist implements Path_list_provider
@@ -93,11 +94,11 @@ public class Path_list_provider_for_playlist implements Path_list_provider
 
     //**********************************************************
     @Override
-    public Path get_folder_path()
+    public Optional<Path> get_folder_path()
     //**********************************************************
     {
         // does not have a meaning for a playlist
-        return null;
+        return Optional.empty();
     }
 
 

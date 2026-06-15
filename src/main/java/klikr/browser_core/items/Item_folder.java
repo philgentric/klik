@@ -166,7 +166,8 @@ public class Item_folder extends Item implements Icon_destination
 
     @Override
     public Path get_item_path() {
-        return path_list_provider.get_folder_path();
+        Optional<Path> p = path_list_provider.get_folder_path();
+        return p.orElse(null);
     }
 
     //public ImageView get_image_view(){return null;}

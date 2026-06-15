@@ -49,7 +49,7 @@ public enum External_application
                 logger.log("FATAL get_command_string_to_install() returns null for "+name());
                 return;
             }
-            Script_executor.execute(List.of(line),Path.of("."),enable_install_debug,logger);
+            Script_executor.execute(List.of(line),enable_install_debug,owner, logger);
         };
 
         return Items_with_explanation.make_hbox_with_button_and_explanation(

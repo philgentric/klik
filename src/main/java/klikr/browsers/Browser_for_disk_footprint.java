@@ -21,6 +21,7 @@ import klikr.look.Look_and_feel_manager;
 import klikr.look.my_i18n.My_I18n;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
+import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 
@@ -52,8 +53,16 @@ public class Browser_for_disk_footprint implements Owner_provider, Selection_man
     //*******************************************************
     {
         this.logger = logger;
+
         stage = new Stage();
         ID = Window_manager.register();
+        Optional<Path> p = window_builder.path_list_provider.get_folder_path();
+        if (p.isEmpty())
+        {
+            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+            return;
+        }
+
 
         BorderPane root = new BorderPane();
         Look_and_feel_manager.set_region_look(root,stage,logger);
@@ -85,6 +94,8 @@ public class Browser_for_disk_footprint implements Owner_provider, Selection_man
 
         up_button.setOnAction(e -> {
             if (current_root == null) return;
+
+
 
             // Case 1: navigated into a subfolder of the scan tree → go up within the tree
             if (scan_root != null && current_root != scan_root)
@@ -118,7 +129,7 @@ public class Browser_for_disk_footprint implements Owner_provider, Selection_man
         stage.setOnCloseRequest(event->{
             shutdown();
         });
-        start_scan(window_builder.path_list_provider.get_folder_path().toFile());
+        start_scan(p.get().toFile());
 
     }
 

@@ -126,7 +126,7 @@ public class Moving_files
         // WHY create a copy of the list ?
         List<Old_and_new_Path> l2 = new ArrayList<>();
         for (Old_and_new_Path oanf : l) {
-            Path trash_dir = Static_files_and_paths_utilities.get_trash_dir(oanf.old_Path,owner,logger);
+            Path trash_dir = Static_files_and_paths_utilities.get_trash_dir_of(oanf.old_Path,owner,logger);
             Path new_Path = (Paths.get(trash_dir.toString(), oanf.old_Path.getFileName().toString()));
             Old_and_new_Path oanf2 = new Old_and_new_Path(oanf.old_Path, new_Path, oanf.cmd, oanf.status,false);
             l2.add(oanf2);
@@ -337,7 +337,7 @@ public class Moving_files
 
                     // the contents are the same
                     // then the "old" file goes to trash
-                    Path new_path = generate_safe_name(Static_files_and_paths_utilities.get_trash_dir(oandn.old_Path, owner, logger), oandn.old_Path.getFileName().toString(), logger);
+                    Path new_path = generate_safe_name(Static_files_and_paths_utilities.get_trash_dir_of(oandn.old_Path, owner, logger), oandn.old_Path.getFileName().toString(), logger);
                     Old_and_new_Path oandn2 = new Old_and_new_Path(
                             oandn.old_Path,
                             new_path,

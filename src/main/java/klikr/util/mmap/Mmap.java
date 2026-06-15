@@ -288,7 +288,7 @@ public class Mmap
     public Optional<Image_and_properties> read_image_as_pixels(String tag)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
+        Speed speed = new Speed();
         Meta meta_from_index  = main_index.get(tag);
         if ( meta_from_index == null )
         {
@@ -309,23 +309,45 @@ public class Mmap
         }
         Optional<Image_and_properties> returned = p.read_image_as_pixels(meta);
 
-        long end = System.currentTimeMillis();
-        long elapsed = end - start;
-        elapseds.add(elapsed);
-        counter++;
-        if ( counter%100 == 0)
-        {
-            double tot = 0;
-            for ( long l : elapseds ) tot += l;
-            logger.log(" average READ for 'read_image_as_pixels' "+tot/(double)counter+" ms");
-        }
+        if(stats_dbg) speed.print(logger);
         return returned;
+    }
+
+
+    //**********************************************************
+    private static class Speed
+    //**********************************************************
+    {
+        long start;
+        //**********************************************************
+        public Speed()
+        //**********************************************************
+        {
+            if ( stats_dbg) start = System.currentTimeMillis();
+        }
+
+        //**********************************************************
+        public void print(Logger logger)
+        //**********************************************************
+        {
+            if (!stats_dbg) return;
+            long end = System.currentTimeMillis();
+            long elapsed = end - start;
+            elapseds.add(elapsed);
+            counter++;
+            if ( counter%100 == 0)
+            {
+                double tot = 0;
+                for ( long l : elapseds ) tot += l;
+                logger.log(" average READ for 'read_image_as_file' "+tot/(double)counter+" ms");
+            }
+        }
     }
     //**********************************************************
     public Optional<Image_and_properties> read_image_as_file(Path path)
     //**********************************************************
     {
-        long start = System.currentTimeMillis();
+        Speed speed = new Speed();
         String tag = path.toAbsolutePath().toString();
         Image_as_file_metadata meta = (Image_as_file_metadata) main_index.get(tag);
         if ( meta == null )
@@ -341,16 +363,8 @@ public class Mmap
             usage.merge(tag, 1, Integer::sum);;
         }
         Image_and_properties returned =  p.read_image_as_file(tag, meta);
-        long end = System.currentTimeMillis();
-        long elapsed = end - start;
-        elapseds.add(elapsed);
-        counter++;
-        if ( counter%100 == 0)
-        {
-            double tot = 0;
-            for ( long l : elapseds ) tot += l;
-            logger.log(" average READ for 'read_image_as_file' "+tot/(double)counter+" ms");
-        }
+
+        if ( stats_dbg) speed.print(logger);
         return Optional.of(returned);
     }
 

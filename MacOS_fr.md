@@ -52,7 +52,7 @@ cette opération va créer un dossier 'klikr' avec le code source.
 
 **cd klikr**
 
-**gradle klilr**
+**gradle klilr** 
 
 ### Installez ffmpeg
 
@@ -65,7 +65,6 @@ Utilisez le bouton dans le menu "plus de préférences" ou bien:
 ### Installez graphicsmagick
 
 (klikr utilise graphicsmagick pour fabriquer les icônes des fichiers PDF, les icônes animées des dossiers etc)
-
 
 Utilisez le bouton dans le menu "plus de préférences" ou bien:
 
@@ -103,7 +102,7 @@ R: Vérifiez que vous êtes dans le dossier 'klikr' du code source de klikr. (le
 
 Q: Je n'ai plus de place sur mon disque.
 
-R: Allez dans le menu Préférences et effacez les caches. Visitez la poubelle pour vérifier que ce qu'elle contient peut partir au paradis des bits avant de faire "vider la poubelle".
+R: Allez dans le menu Préférences et effacez les caches sur le disque. Visitez la poubelle pour vérifier que ce qu'elle contient peut partir au paradis des bits avant de faire "vider la poubelle".
 
 Q: Quand klikr tourne, les autres applications manquent de RAM.
 

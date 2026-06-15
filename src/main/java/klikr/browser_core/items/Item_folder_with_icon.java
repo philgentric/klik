@@ -148,7 +148,8 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     public Path get_item_path()
     //**********************************************************
     {
-        return path_list_provider.get_folder_path();
+        Optional<Path> p= path_list_provider.get_folder_path();
+        return p.orElse(null);
     }
 
     //**********************************************************

@@ -487,7 +487,7 @@ public class The_audio_player implements Media_callbacks
             else if ( path_list_provider instanceof Path_list_provider_for_file_system path_list_provider_for_file_system)
             {
                 Move_provider move_provider = path_list_provider_for_file_system.get_move_in_provider();
-                move_provider.move(path_list_provider_for_file_system.get_folder_path(),false,the_list2,owner,100,100,aborter,logger);
+                move_provider.move(path_list_provider_for_file_system.get_folder_path().get(),false,the_list2,owner,100,100,aborter,logger);
             }
 
             // tell the source

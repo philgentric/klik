@@ -10,7 +10,6 @@ import klikr.util.External_application;
 import klikr.settings.boolean_features.Booleans;
 import klikr.util.execute.Execute_result;
 import klikr.util.execute.actor.Aborter;
-import klikr.machine_learning.feature_vector.Feature_vector;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
 import klikr.util.execute.Execute_command;
 import klikr.util.files_and_paths.Extensions;
@@ -113,7 +112,7 @@ public class Feature_vector_source_for_song_similarity implements Feature_vector
     private String call_ffmpeg_to_convert_to_wav(Path path, Window owner, Logger logger)
     //**********************************************************
     {
-        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir_of(Path.of("").toAbsolutePath(),owner,logger);
         String base = Extensions.get_base_name(path.getFileName().toString());
         String wav_path = klik_trash.resolve(base+".wav").toString();
 

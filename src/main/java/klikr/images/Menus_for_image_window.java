@@ -257,7 +257,7 @@ public class Menus_for_image_window
             Image_context ic = image_window.image_display_handler.get_image_context().get();
             Path to_be_deleted = ic.path;
 
-            Path trash_dir = Static_files_and_paths_utilities.get_trash_dir(to_be_deleted, image_window.owner, image_window.logger);
+            Path trash_dir = Static_files_and_paths_utilities.get_trash_dir_of(to_be_deleted, image_window.owner, image_window.logger);
             Path new_Path = (Paths.get(trash_dir.toString(), to_be_deleted.getFileName().toString()));
             List<Old_and_new_Path> l = new ArrayList<>();
 
@@ -283,15 +283,17 @@ public class Menus_for_image_window
         return get_browse_menu_item_effective("Browse_folder_3D", image_window, Window_type.File_system_3D);
     }
     //**********************************************************
-    private static MenuItem get_browse_menu_item_effective(String button_text_key,Image_window image_window, Window_type context_type)
+    private static MenuItem get_browse_menu_item_effective(String button_text_key,Image_window image_window, Window_type window_type)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n(button_text_key,null,
+        String addendum;
+        return Menu_items.make_menu_item_i18n(button_text_key,
+                image_window.browse.getDisplayText(),
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
              Window_builder.additional_no_past(
                      Klikr_application.application,
-                     context_type,
+                     window_type,
                       new Path_list_provider_for_file_system(image_window.image_display_handler.get_image_context().get().path.getParent(), image_window.stage,image_window.logger),
                      image_window.stage,
                      image_window.logger);

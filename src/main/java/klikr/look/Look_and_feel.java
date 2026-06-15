@@ -333,7 +333,7 @@ public abstract class Look_and_feel
     protected URL get_CSS_URL2(String css, Window owner)
     //**********************************************************
     {
-        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir_of(Path.of("").toAbsolutePath(),owner,logger);
         try {
             Path script_path = klik_trash.resolve("tmp.css");
             Files.write(script_path, css.getBytes());

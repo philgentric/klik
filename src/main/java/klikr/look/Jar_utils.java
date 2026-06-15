@@ -7,8 +7,6 @@ import javafx.scene.image.*;
 import javafx.stage.Window;
 import klikr.Klikr_application;
 import klikr.browser_core.Image_and_properties;
-import klikr.browser_core.icons.image_properties_cache.Image_properties;
-import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.util.execute.Application_jar;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.image.Static_image_utilities;
@@ -22,7 +20,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.Optional;
 
 //**********************************************************
 public class Jar_utils
@@ -109,7 +106,7 @@ public class Jar_utils
             y2++;
         }
 
-        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir(Path.of("").toAbsolutePath(),owner,logger);
+        Path klik_trash = Static_files_and_paths_utilities.get_trash_dir_of(Path.of("").toAbsolutePath(),owner,logger);
         String tmp_icon_file_name = klik_trash.resolve("tmp_klik_icon.png").toString();
 
         // create a conformant png file from the bytes

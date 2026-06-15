@@ -837,7 +837,7 @@ public abstract class Item implements Icon_destination
                     }
                     local_button.setText(new_item_name);
                     local_button.setGraphic(restored);
-                    path_list_provider = Path_list_provider.get_approriate(window_type,new_path,owner,aborter,logger);//new Path_list_provider_for_file_system(new_path,owner,logger);
+                    path_list_provider = Path_list_provider.get_appropriate(window_type,new_path,owner,aborter,logger);//new Path_list_provider_for_file_system(new_path,owner,logger);
                 }
                 else
                 {

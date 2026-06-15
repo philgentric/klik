@@ -50,7 +50,7 @@ public class ML_servers_util
             {
                 Tmp_file_in_trash.create_copy_in_trash("create_venv_for_windows.ps1",owner,logger);
                 List<String> cmds = List.of(".\\"+"create_venv_for_windows.ps1");
-                Script_executor.execute(cmds,trash(owner,logger),dbg,logger);
+                Script_executor.execute(cmds,dbg,owner, logger);
             }
             case MacOS, Linux ->
             {
@@ -62,7 +62,7 @@ public class ML_servers_util
                         macOS_commands_to_install_tensorflow,
                         macOS_commands_to_install_requirements
                 );
-                Script_executor.execute(cmds,trash(owner,logger),dbg,logger);
+                Script_executor.execute(cmds,dbg,owner, logger);
             }
         }
     }
@@ -116,7 +116,7 @@ public class ML_servers_util
                     cmds.add(macOS_commands_to_activate_venv);
                     // execute the script directly using python3
                     cmds.add("nohup python3 " + scriptName + " " + argsStr+" &");
-                    Script_executor.execute(cmds, trash(owner, logger), dbg, logger);
+                    Script_executor.execute(cmds,  dbg, owner, logger);
                 }
                 case Windows -> {
                     // Activate venv
@@ -127,7 +127,7 @@ public class ML_servers_util
                     // `/K` keeps the command prompt open,
                     // preventing the JVM from sending a termination signal to the child.
                     cmds.add("cmd /k python " + scriptName + " " + argsStr);
-                    Script_executor.execute(cmds, trash(owner, logger), dbg, logger);
+                    Script_executor.execute(cmds,  dbg, owner, logger);
                 }
             }
         }, "launching " + scriptName, logger);
@@ -148,7 +148,7 @@ public class ML_servers_util
             {
                 String cmd1 = "pids=$(pgrep -f MobileNet_embeddings_server  || true)";
                 String cmd2 = "if [[ -n $pids ]]; then kill -9 $pids; fi";
-                Script_executor.execute(List.of(cmd1, cmd2),trash(owner,logger),dbg,logger);
+                Script_executor.execute(List.of(cmd1, cmd2),dbg,owner, logger);
             }
 
             case Windows ->
@@ -156,7 +156,7 @@ public class ML_servers_util
                 List<String> cmds = new ArrayList<>();
                 cmds.add("$procList = Get-CimInstance -ClassName Win32_Process | Where-Object { $_.CommandLine -match 'MobileNet_embeddings_server' }");
                 cmds.add("if ($procList) { Stop-Process -Id $procList.ProcessId -Force -ErrorAction SilentlyContinue }");
-                Script_executor.execute(cmds,trash(owner,logger),dbg,logger);
+                Script_executor.execute(cmds,dbg,owner, logger);
             }
         }
 
@@ -178,7 +178,7 @@ public class ML_servers_util
                      cmds.add("pids=$(pgrep -f " + name + " || true)");
                      cmds.add("if [[ -n $pids ]]; then kill -9 $pids; fi");
                  }
-                 Script_executor.execute(cmds, trash(owner, logger), dbg, logger);
+                 Script_executor.execute(cmds,  dbg, owner, logger);
            }
 
             case Windows ->
@@ -188,7 +188,7 @@ public class ML_servers_util
                     cmds.add("$procList = Get-CimInstance -ClassName Win32_Process | Where-Object { $_.CommandLine -match '" + name + "' }");
                     cmds.add("if ($procList) { Stop-Process -Id $procList.ProcessId -Force -ErrorAction SilentlyContinue }");
                 }
-                Script_executor.execute(cmds, trash(owner, logger), dbg, logger);
+                Script_executor.execute(cmds, dbg, owner, logger);
             }
         }
         ML_registry.all_servers_killed(ML_server_type.MTCNN);
@@ -200,13 +200,7 @@ public class ML_servers_util
 
     }
 
-    //**********************************************************
-    private static Path trash(Window owner,Logger logger)
-    //**********************************************************
-    {
-        // works on all OSES
-        return Static_files_and_paths_utilities.get_trash_dir(Path.of(""),owner,logger);
-    }
+
 
     //**********************************************************
     public static Path venv()

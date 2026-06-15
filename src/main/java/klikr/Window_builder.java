@@ -16,6 +16,7 @@ import klikr.path_lists.Path_list_provider;
 import klikr.util.log.Logger;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 //**********************************************************
 public class Window_builder
@@ -233,12 +234,12 @@ public class Window_builder
                     "replace_different_folder",logger);
         };
 
-        Path folder_path = path_list_provider.get_folder_path();
-        if(folder_path != null)
+        Optional<Path> folder_path = path_list_provider.get_folder_path();
+        if(folder_path.isPresent())
         {
             // this is a file system
-            if ( dbg) logger.log("replace_different_folder new path: " + folder_path.toAbsolutePath());
-            Last_access_comparator.set_last_access(folder_path,logger);
+            if ( dbg) logger.log("replace_different_folder new path: " + folder_path.get().toAbsolutePath());
+            Last_access_comparator.set_last_access(folder_path.get(),logger);
         }
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
@@ -283,10 +284,10 @@ public class Window_builder
     private static void record_last_access(Path_list_provider path_list_provider, Logger logger)
     //**********************************************************
     {
-        Path p = path_list_provider.get_folder_path();
-        if ( p != null)
+        Optional<Path> p = path_list_provider.get_folder_path();
+        if ( p.isPresent() )
         {
-            Last_access_comparator.set_last_access(p, logger);
+            Last_access_comparator.set_last_access(p.get(), logger);
         };
     }
 

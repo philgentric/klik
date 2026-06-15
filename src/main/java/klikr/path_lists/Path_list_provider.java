@@ -12,6 +12,7 @@ import klikr.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 //**********************************************************
 public interface Path_list_provider
@@ -33,7 +34,7 @@ public interface Path_list_provider
 
     String get_key(); // never null (absolute path of *folder*) or (absolute path of *playlist file*)
 
-    Path get_folder_path();
+    Optional<Path> get_folder_path();
     Path resolve(String string);
 
     Change_broadcaster get_change_broadcaster();
@@ -52,7 +53,7 @@ public interface Path_list_provider
 
     int how_many_files_and_folders(boolean force_rescan, boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter);
 
-    static Path_list_provider get_approriate(Window_type window_type, Path path, Window owner, Aborter aborter, Logger logger)
+    static Path_list_provider get_appropriate(Window_type window_type, Path path, Window owner, Aborter aborter, Logger logger)
     {
         switch (window_type)
         {
@@ -68,15 +69,14 @@ public interface Path_list_provider
     default boolean has_parent()
     //**********************************************************
     {
-        Path folder_path = get_folder_path();
-        if (folder_path == null)
+        Optional<Path> folder_path = get_folder_path();
+        if (folder_path.isEmpty())
         {
-            // calling this on a playlist?
             System.out.println(Stack_trace_getter.get_stack_trace(""));
             return false;
         }
 
-        return folder_path.getParent()!=null;
+        return folder_path.get().getParent()!=null;
     }
 
 }

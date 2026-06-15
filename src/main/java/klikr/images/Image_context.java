@@ -370,14 +370,14 @@ public class Image_context
     void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source, Aborter aborter, Window owner)
     //**********************************************************
     {
-        logger.log("Image_context search_using_keywords_from_the_name");
+        if(dbg) logger.log("Image_context search_using_keywords_from_the_name");
         Keyword_extractor ke = new Keyword_extractor(logger, List.of());
         Set<String> keywords_set = ke.extract_keywords_from_file_and_dir_names(path);
         if (keywords_set == null) {
             logger.log("❌ FATAL null keywords ??? ");
             return;
         }
-        String extension = Extensions.get_extension(path.getFileName().toString());
+        //String extension = Extensions.get_extension(path.getFileName().toString());
         if (keywords_set.isEmpty())
         {
             // this happens when the image name does not contain text at all
@@ -390,17 +390,17 @@ public class Image_context
             keywords.add(k.toLowerCase());
         }
 
-        logger.log("---- looking at keywords -------");
+        logger.log("---- Going to search for keywords: -------");
         for (String s : keywords) {
             logger.log("->" + s + "<-");
         }
-        logger.log("--------------------------------");
+        logger.log("------------------------------------------");
 
         Finder.find(
                 Klikr_application.application,
                 path_list_provider,
                 path_comparator_source,
-                keywords,extension,true,aborter,owner,logger);
+                keywords,null,true,aborter,owner,logger);
     }
 
 
