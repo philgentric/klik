@@ -53,7 +53,19 @@ public class Path_list_provider_for_file_system implements Path_list_provider
             this.key = null;
             return;
         }
-        this.key = folder_path.toAbsolutePath().normalize().toString();
+        String home =  System.getProperty("user.home");
+        String p = folder_path.toAbsolutePath().normalize().toString();
+        if (p.equals(home))
+        {
+            this.key = p;
+            return;
+        }
+        if( p.startsWith(home) ) {
+            this.key = p.substring(home.length());
+        }
+        else {
+            this.key = p;
+        }
     }
 
     //**********************************************************
