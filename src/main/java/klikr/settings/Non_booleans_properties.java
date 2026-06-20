@@ -30,7 +30,7 @@ public class Non_booleans_properties
 
     // cached values
 
-    private static double font_size_cache = -1.0;
+    private static int font_size_cache = -1;
     private static int icon_size = -1;
     private static int folder_icon_size = -1;
     private static int video_length = -1;
@@ -129,20 +129,26 @@ public class Non_booleans_properties
             Window owner)
     //**********************************************************
     {
-        Integer returned;
         // first time, we look it up on disk
-        String video_length_s = Shared_services.main_properties().get(ID);
-        if (video_length_s == null)
+        String s = Shared_services.main_properties().get(ID);
+        if (s == null)
         {
             Shared_services.main_properties().set_and_save(ID, String.valueOf(default_value));
             return default_value;
         }
         else
         {
-            double d_video_length = Double.parseDouble(video_length_s);
-            returned  = (int) d_video_length;
+            try
+            {
+                int returned = Integer.parseInt(s);
+                return returned;
+            }
+            catch (NumberFormatException e)
+            {
+                Shared_services.main_properties().set_and_save(ID, String.valueOf(default_value));
+                return default_value;
+            }
         }
-        return returned;
     }
 
     //**********************************************************
@@ -162,16 +168,19 @@ public class Non_booleans_properties
         Double returned;
         // first time, we look it up on disk
         String s = Shared_services.main_properties().get(ID);
-        if (s == null)
+        if (s != null)
         {
-            Shared_services.main_properties().set_and_save(ID, String.valueOf(default_value));
-            return default_value;
+            try
+            {
+                return Double.parseDouble(s);
+            }
+            catch (NumberFormatException e)
+            {
+
+            }
         }
-        else
-        {
-            returned = Double.parseDouble(s);
-        }
-        return returned;
+        Shared_services.main_properties().set_and_save(ID, String.valueOf(default_value));
+        return default_value;
     }
 
     //**********************************************************
@@ -191,21 +200,45 @@ public class Non_booleans_properties
         File_storage pm = Shared_services.main_properties();
         String x_s = pm.get(key + String_constants.SCREEN_TOP_LEFT_X);
         if (x_s == null) return default_rectangle();
-        double x = Double.parseDouble(x_s);
-
+        double x = 0;
+        try {
+            x = Double.parseDouble(x_s);
+        }
+        catch (NumberFormatException e)
+        {
+            return default_rectangle();
+        }
         String y_s = pm.get(key + String_constants.SCREEN_TOP_LEFT_Y);
         if (y_s == null) return default_rectangle();
-        double y = Double.parseDouble(y_s);
+        double y = 0;
+        try {
+            y = Double.parseDouble(y_s);
+        }
+        catch (NumberFormatException e)
+        {
+            return default_rectangle();
+        }
 
         String w_s = pm.get(key + String_constants.SCREEN_WIDTH);
         if (w_s == null) return default_rectangle();
-        double w = Double.parseDouble(w_s);
-
+        double w = 0;
+        try {
+            w = Double.parseDouble(w_s);
+        }
+        catch (NumberFormatException e)
+        {
+            return default_rectangle();
+        }
         String h_s = pm.get(key + String_constants.SCREEN_HEIGHT);
         if (h_s == null) return default_rectangle();
-        double h = Double.parseDouble(h_s);
-
-        Rectangle2D target = new Rectangle2D(x, y, w, h);
+        double h = 0;
+        try {
+            h = Double.parseDouble(h_s);
+        }
+        catch (NumberFormatException e) {
+            return default_rectangle();
+        }
+            Rectangle2D target = new Rectangle2D(x, y, w, h);
         // before returning this rectangle, let us check if there is a screen that contains this rectangle
 
         ObservableList<Screen> all_screens = Screen.getScreens();
@@ -360,21 +393,21 @@ public class Non_booleans_properties
 
 
     //**********************************************************
-    public static double get_font_size(Window owner,Logger logger)
+    public static int get_font_size(Window owner,Logger logger)
     //**********************************************************
     {
         if (font_size_cache > 0) return font_size_cache;
-        font_size_cache = get_double(String_constants.FONT_SIZE,16.0,owner);
+        font_size_cache = get_int(String_constants.FONT_SIZE,16,owner);
         return font_size_cache;
     }
 
 
     //**********************************************************
-    public static void set_font_size(double value, Window owner)
+    public static void set_font_size(int value, Window owner)
     //**********************************************************
     {
         font_size_cache = value;
-        set_double(value,String_constants.FONT_SIZE,owner);
+        set_int(value,String_constants.FONT_SIZE,owner);
     }
 
 

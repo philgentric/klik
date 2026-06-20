@@ -662,22 +662,18 @@ public abstract class Item implements Icon_destination
                     return;
                 }
                 My_colors.save_color(item_path,my_color.java_name(),logger);
+                double font_size = Non_booleans_properties.get_font_size(owner,logger);
+                double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                 if ( this instanceof Item_file_no_icon ifni)
                 {
-                    double font_size = Non_booleans_properties.get_font_size(owner,logger);
-                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(ifni.button, icon_height, color,owner,logger);
                 }
                 if ( this instanceof Item_folder itf)
                 {
-                    double font_size = Non_booleans_properties.get_font_size(owner, logger);
-                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(itf.button, icon_height, color,owner,logger);
                 }
                 if ( this instanceof Item_folder_with_icon itfwi)
                 {
-                    double font_size = Non_booleans_properties.get_font_size(owner, logger);
-                    double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
                     Look_and_feel_manager.set_button_look_as_folder(itfwi.button, icon_height, color,owner,logger);
                 }
             }

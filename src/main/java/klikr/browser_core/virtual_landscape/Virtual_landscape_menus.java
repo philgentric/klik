@@ -1587,7 +1587,7 @@ public class Virtual_landscape_menus
     }
 
     //**********************************************************
-    public void create_menu_item_for_one_font_size( Menu menu, double target_size, List<CheckMenuItem> all_check_menu_items)
+    public void create_menu_item_for_one_font_size( Menu menu, int target_size, List<CheckMenuItem> all_check_menu_items)
     //**********************************************************
     {
         CheckMenuItem item = new CheckMenuItem(My_I18n.get_I18n_string("Font_size",virtual_landscape.owner,logger) + " = " +target_size);
@@ -1780,17 +1780,17 @@ public class Virtual_landscape_menus
         Menu menu = new Menu(text);
         Look_and_feel_manager.set_menu_item_look(menu,virtual_landscape.owner, logger);
 
-        List<Double> possible_sizes = new ArrayList<>();
-        possible_sizes.add(Double.valueOf(Non_booleans_properties.get_font_size(owner,logger)));
+        List<Integer> possible_sizes = new ArrayList<>();
+        possible_sizes.add(Non_booleans_properties.get_font_size(owner,logger));
 
-        double[] possible_font_sizes = {8,10,12,14,16,18,20,22,24,26,28,30};
-        for (double candidateSize : possible_font_sizes) {
-            if (possible_sizes.contains((Double)candidateSize)) continue;
-            possible_sizes.add((Double)candidateSize);
+        int[] possible_font_sizes = {8,10,12,14,16,18,20,22,24,26,28,30,32};
+        for (int candidateSize : possible_font_sizes) {
+            if (possible_sizes.contains(candidateSize)) continue;
+            possible_sizes.add(candidateSize);
         }
         Collections.sort(possible_sizes);
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
-        for ( Double i : possible_sizes)
+        for ( int i : possible_sizes)
         {
             create_menu_item_for_one_font_size( menu, i, all_check_menu_items);
         }

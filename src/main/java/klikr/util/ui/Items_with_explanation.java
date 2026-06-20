@@ -128,7 +128,7 @@ public class Items_with_explanation
         ) {
             tf.setStyle(
                 "-fx-background-color: #1a1f2c;" +
-                "-fx-font-family: 'Atkinson Hyperlegible';" +
+                "-fx-font-family: \"Atkinson Hyperlegible\";" +
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: white;" +
                 "-fx-control-inner-background: #1a1f2c;" +  // Important for the inner background
@@ -140,7 +140,7 @@ public class Items_with_explanation
 
             scene.getRoot().setStyle(
                 "-fx-background-color: #1a1f2c;" +
-                "-fx-font-family: 'Atkinson Hyperlegible';" +
+                "-fx-font-family: \"Atkinson Hyperlegible\";" +
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: white;"
             );

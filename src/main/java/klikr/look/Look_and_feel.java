@@ -320,7 +320,7 @@ public abstract class Look_and_feel
         // here, we just load the font in the javafx cache
         if ( font != null)
         {
-            logger.log("✅ load_font: "+file_name+" loaded, resulting font name= "+font.getName()+" resulting font family= "+font.getFamily());
+            logger.log("✅ load_font: "+file_name+" loaded, resulting font name= "+font.getName()+" resulting font family (THIS IS KEY as it is the registered name)= "+font.getFamily());
             return true;
         }
         else

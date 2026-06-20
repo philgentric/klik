@@ -235,12 +235,13 @@ public class Window_builder
         };
 
         Optional<Path> folder_path = path_list_provider.get_folder_path();
-        if(folder_path.isPresent())
+        if(folder_path.isEmpty())
         {
-            // this is a file system
-            if ( dbg) logger.log("replace_different_folder new path: " + folder_path.get().toAbsolutePath());
-            Last_access_comparator.set_last_access(folder_path.get(),logger);
+            return;
         }
+
+        if ( dbg) logger.log("replace_different_folder new path: " + folder_path.get().toAbsolutePath());
+        Last_access_comparator.set_last_access(folder_path.get(),logger);
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
         Window_builder window_builder =  new Window_builder(

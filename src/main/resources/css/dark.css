@@ -3,7 +3,7 @@
 .root {
     -fx-text-fill: #fefcff;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size:24px;
+    -fx-font-size:24pt;
     -fx-font-weight: bold;
 }
 
@@ -113,7 +113,7 @@
 
 
 .menu-item {
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-family: "Atkinson Hyperlegible";
     -fx-font-weight: bold;
     -fx-text-fill: #fefcff;
@@ -156,7 +156,7 @@
     -fx-border-color: white;
 }
 .my_dialog > *.label.content{
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
     -fx-text-fill: white;
     -fx-background-color: #1a1f2c;
@@ -168,7 +168,7 @@
     -fx-border-color: white;
 }
 .my_dialog:header *.header-panel *.label{
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-style: italic;
     -fx-background-color: #1a1f2c;
     -fx-text-fill: white;
@@ -196,7 +196,7 @@
 .alert-dialog > .label {
     -fx-text-fill: white;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
 }
 
 .alert-dialog > .button-bar > .container {
@@ -222,7 +222,7 @@
 .alert-dialog:header *.header-panel *.label {
     -fx-text-fill: white;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-style: italic;
 }
 

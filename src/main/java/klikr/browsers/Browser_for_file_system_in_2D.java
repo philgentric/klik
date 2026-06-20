@@ -87,7 +87,12 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
     {
         super(Color.WHITE, logger_);
         path_list_provider = window_builder.path_list_provider;
-        if ( dbg) logger.log("\n\n\n\n\n\nNEW BROWSER "+path_list_provider.get_folder_path());
+        Optional<Path> op = path_list_provider.get_folder_path();
+        if ( op.isEmpty()) logger.log(Stack_trace_getter.get_stack_trace("FATAL)"));
+        if ( dbg)
+        {
+            op.ifPresent(path -> logger.log("\n\n\n\n\n\nNEW BROWSER " + path));
+        }
 
         aborter = new Aborter("Browser_for_file_system_in_2D_"+window_builder.path_list_provider.get_key(),logger_);
         init_abstract_browser(
@@ -190,8 +195,8 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
     //**********************************************************
     {
         if ( path_list_provider == null) return null;
-        if ( path_list_provider.get_folder_path() == null) return null;
-        return path_list_provider.get_folder_path().toString();
+        if (path_list_provider.get_folder_path().isEmpty()) return null;
+        return path_list_provider.get_folder_path().get().toString();
     }
 
     //**********************************************************
@@ -226,8 +231,12 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
             // can be super slow on network drives or slow drives
             // (e.g. USB)  ==> run in a thread
             int how_many_files = path_list_provider.how_many_files_and_folders(false,Feature_cache.get(Feature.Show_hidden_files), Feature_cache.get(Feature.Show_hidden_folders),aborter);
-
-            Jfx_batch_injector.inject(() -> my_Stage.the_Stage.setTitle(name + " :     " + (long) how_many_files + " files & folders"), logger);
+            String s = name + " :     " + (long) how_many_files + " files & folders";
+            virtual_landscape.set_status(s);
+            Jfx_batch_injector.inject(() ->
+            {
+                my_Stage.the_Stage.setTitle(s);
+            }, logger);
 
         };
         Actor_engine.execute(r, "Compute and display how many files", logger);
@@ -249,20 +258,20 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         //    return;
         //}
 
-        Optional<Path> folder_path = path_list_provider.get_folder_path();
-        if( folder_path.isEmpty() )
+        Optional<Path> op = path_list_provider.get_folder_path();
+        if( op.isEmpty() )
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
 
-        logger.log("Browser_for_file_system_in_2D for: "+folder_path+ ", CHANGE GANG CALL received");
+        logger.log("Browser_for_file_system_in_2D for: "+op.get()+ ", CHANGE GANG CALL received");
 
-        switch (Change_gang.is_my_directory_impacted(folder_path.get(), l, logger))
+        switch (Change_gang.is_my_directory_impacted(op.get(), l, logger))
         {
             case more_changes: {
                 //if (dbg)
-                    logger.log("1 Browser_for_file_system_in_2D of: " + folder_path + " RECOGNIZED change gang notification: " + l);
+                    logger.log("1 Browser_for_file_system_in_2D of: " + op.get() + " RECOGNIZED change gang notification: " + l);
 
                 for ( Old_and_new_Path oan : l)
                 {
@@ -272,7 +281,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
                     // recording its new path would be a bad bug
                     if ( oan.new_Path != null)
                     {
-                        if (oan.new_Path.startsWith(folder_path.get()))
+                        if (oan.new_Path.startsWith(op.get()))
                         {
                             // make sure the window will scroll to the landing point of the displaced file
                             Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_key(),oan.new_Path.toAbsolutePath().normalize().toString(),"Change_broadcaster Gang event received = new item in folder",logger);
@@ -280,13 +289,13 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
                     }
                 }
                 logger.log("redraw_fx due to change gang");
-                virtual_landscape.redraw_fx(true,"change gang for dir: " + folder_path,true);
+                virtual_landscape.redraw_fx(true,"change gang for dir: " + op.get(),true);
             }
             break;
             case one_new_file, one_file_gone: {
-                if (dbg) logger.log("CHANGE GANG received: Browser_for_file_system_in_2D of: " + folder_path + " RECOGNIZED change gang notification: " + l);
+                if (dbg) logger.log("CHANGE GANG received: Browser_for_file_system_in_2D of: " + op.get() + " RECOGNIZED change gang notification: " + l);
                 logger.log("redraw_fx due to change gang");
-                virtual_landscape.redraw_fx(true,"change gang for dir: " + folder_path, true);
+                virtual_landscape.redraw_fx(true,"change gang for dir: " + op.get(), true);
             }
             break;
             default:

@@ -26,10 +26,7 @@ import klikr.util.log.Stack_trace_getter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -564,8 +561,11 @@ public class Path_list_provider_for_playlist implements Path_list_provider
         command_line_for_ytdlp.add(youtube_url);
 
         StringBuilder sb = new StringBuilder();
+        // destination is home/Downloads
         String home = System.getProperty(String_constants.USER_HOME);
-        Execute_result res = Execute_command.execute_command_list(command_line_for_ytdlp, new File(home), 20 * 1000, sb,
+        Path download_path = Paths.get(home,"Downloads");
+        File folder = download_path.toFile();
+        Execute_result res = Execute_command.execute_command_list(command_line_for_ytdlp, folder, 20 * 1000, sb,
                 logger);
         if (!res.status()) {
             List<String> verif = new ArrayList<>();

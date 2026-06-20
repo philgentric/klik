@@ -54,7 +54,7 @@ public class Finder_frame implements Search_receiver
 	private final Aborter aborter;
 
 	// we can search folders or playlosts or search results
-	private final Path_list_provider path_list_provider;
+	private Path_list_provider path_list_provider;
 
 	final private Map<String, Keyword_slot> keyword_to_slot =  new HashMap<>(); // this is the textfield to report the number of matches
 	final Stage stage;
@@ -203,7 +203,7 @@ public class Finder_frame implements Search_receiver
 						Path parent = target_folder_path.get().getParent();
 						if (parent != null)
 						{
-							//target_folder_path = parent;
+							path_list_provider = new Path_list_provider_for_file_system(parent, stage, logger);
 							target_folder_label.setText(target_folder_path.get().toAbsolutePath().toString());
 							start_search();
 						}
@@ -521,7 +521,7 @@ public class Finder_frame implements Search_receiver
 				}
 			}
 		}
-		//Path_list_provider path_list_provider = new Path_list_provider_for_file_system(target_folder_path,stage,logger);
+
 		Search_config search_config = new Search_config(path_list_provider,keywords,look_only_for_images,local_extension, search_folders_names,search_files_names, ignore_hidden, check_case);
 		session = new Search_session(
 				application,

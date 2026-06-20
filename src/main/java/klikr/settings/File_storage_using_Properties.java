@@ -25,7 +25,7 @@ public class File_storage_using_Properties implements File_storage
     private final static boolean dbg = false;
     private final static boolean dbg_set= false;
     private final static boolean dbg_get= false;
-    public static final String AGE = "_K6L3C534ZS424552_age";
+    public static final String AGE = "_age";
     private final Logger logger;
     private final String tag;
     private final Path path;

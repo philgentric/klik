@@ -16,7 +16,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
     -fx-text-fill: white;
     -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.3), 2, 0.0, 0, 1);
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
     -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
     linear-gradient(#000000, #1a1a1a),
@@ -34,7 +34,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
     -fx-text-fill: white;
     -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.3), 2, 0.0, 0, 1);
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
     -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
     linear-gradient(#000000, #1a1a1a),
@@ -60,7 +60,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
     -fx-text-fill: white;
     -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.4), 3, 0.0, 0, 1);
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
     -fx-background-color: linear-gradient(#686868 0%, #2a2a2a 25%, #353535 75%, #787878 100%),
     linear-gradient(#0a0a0a, #2a2a2a),
@@ -85,7 +85,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
     -fx-text-fill: white;
     -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.3), 2, 0.0, 0, 1);
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
     -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
     linear-gradient(#000000, #1a1a1a),
@@ -133,7 +133,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
 .my_context_menu .menu-item .label {
     -fx-text-fill: white;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 1, 0.0, 0, 1);
 }
@@ -194,7 +194,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
 .context-menu .menu-item .label {
     -fx-text-fill: white;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
 }
 
@@ -232,7 +232,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
 .menu-bar .menu .label {
     -fx-text-fill: white;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
 }
 
@@ -252,7 +252,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
 .image-window {
     -fx-text-fill: white;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
     -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
     linear-gradient(#000000, #1a1a1a),
@@ -281,7 +281,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
 .my_dialog > *.label.content {
     -fx-background-color: transparent;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
     -fx-text-fill: white;
 }
@@ -293,7 +293,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
 .my_dialog:header *.header-panel *.label {
     -fx-background-color: transparent;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-style: italic;
     -fx-text-fill: white;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 1, 0.0, 0, 1);
@@ -303,7 +303,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
 .my_dialog .button {
     -fx-text-fill: white;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.3), 2, 0.0, 0, 1);
     -fx-background-color: linear-gradient(#505050 0%, #1a1a1a 25%, #252525 75%, #606060 100%),
@@ -361,7 +361,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
 
 
 .menu-item {
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-font-family: "Atkinson Hyperlegible";
     -fx-font-weight: bold;
     -fx-text-fill: #fefcff;
@@ -463,7 +463,7 @@ Combined with increased dropshadow for that premium glow. ✨🖤
     -fx-background-radius: 9, 8, 5;
     -fx-text-fill: white;
     -fx-font-family: "Atkinson Hyperlegible";
-    -fx-font-size: 24px;
+    -fx-font-size: 24pt;
     -fx-padding: 6 10 6 10;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.7), 8, 0.0, 0, 3);
 }

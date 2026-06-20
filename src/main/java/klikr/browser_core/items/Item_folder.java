@@ -36,6 +36,7 @@ import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.ui.Popups;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -50,6 +51,7 @@ public class Item_folder extends Item implements Icon_destination
 //**********************************************************
 {
     public static final boolean dbg = false;
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(Item_folder.class);
     public Button button;
     //public Label label;
     public final boolean is_trash;
@@ -522,7 +524,11 @@ public class Item_folder extends Item implements Icon_destination
 
     @Override
     public double get_Width() {
-        return button.getWidth();
+        if ( button != null ) {
+            return button.getWidth();
+        }
+        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+        return 0;
     }
 
 

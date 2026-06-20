@@ -840,7 +840,7 @@ public class Virtual_landscape
     {
 
         Text t = new Text(text);
-        t.setStyle("-fx-font-length: 70;");
+        t.setStyle("-fx-font-size: 70;");
         Scene dummy_scene = new Scene(new VBox(t));
         WritableImage wi = dummy_scene.snapshot(null);
         Paint ppp = new ImagePattern(wi);
@@ -2189,7 +2189,6 @@ public class Virtual_landscape
         else
         {
             return "Status: OK, sorting order: " + file_sort_by.name() + " for: " + path_list_provider.get_key();
-            //return "Status: OK, " + path_list_provider.get_key();
         }
 
     }
