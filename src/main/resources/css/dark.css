@@ -124,6 +124,10 @@
     -fx-mark-color:white;
 }
 
+.check-menu-item .left-container .check {
+      -fx-padding: 0.2em;
+}
+
 
 .look_and_feel_drag {
     -fx-background-color: #88ffff;

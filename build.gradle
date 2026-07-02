@@ -154,6 +154,19 @@ tasks.register('song_playlist_application', JavaExec) {
     return
 }
 
+
+tasks.register('Test_boolean_preferences', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.javalin.boolean_preferences.Test_boolean_preferences'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
+
+
+
 tasks.register('simple_audio', JavaExec) {
     dependsOn 'classes'
     mainClass = 'klikr.audio.simple_player.Simple_audio_player_application'

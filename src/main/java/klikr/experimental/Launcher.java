@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr;
+package klikr.experimental;
 
 //SOURCES ./audio/Audio_player_access.java
 //SOURCES ./image_ml/ML_servers_util.java
@@ -16,6 +16,8 @@ import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import klikr.System_info;
+import klikr.UI_change_target;
 import klikr.util.Installers;
 import klikr.util.Shared_services;
 import klikr.util.execute.Script_executor;
@@ -30,7 +32,6 @@ import klikr.util.log.Logger;
 import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -59,6 +60,7 @@ import java.util.function.Consumer;
 // which then propagates them to the audio player, on the audio player port
 
 //**********************************************************
+@Deprecated
 public class Launcher extends Application implements UI_change_target
 //**********************************************************
 {

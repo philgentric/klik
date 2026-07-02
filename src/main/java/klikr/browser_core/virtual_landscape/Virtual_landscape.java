@@ -2282,7 +2282,10 @@ public class Virtual_landscape
     {
         Region color_strip = new Region();
         color_strip.setMinHeight(8);
-        color_strip.setStyle("-fx-background-color: #"+background_color.toString().substring(2,8)+";");
+        String sss = background_color.toString();
+        logger.log("background_color: " + sss);
+        if ( sss.length()>=8) sss = sss.substring(2,8);
+        color_strip.setStyle("-fx-background-color: #"+sss+";");
         top_pane.getChildren().add(color_strip);
         //the_Pane.setBackground(new Background(new BackgroundFill(background_color, CornerRadii.EMPTY, Insets.EMPTY)));
     }

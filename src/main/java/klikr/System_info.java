@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-//import java.lang.management.ManagementFactory;
-//import com.sun.management.OperatingSystemMXBean;
 
 //**********************************************************
 public class System_info
@@ -66,7 +64,8 @@ public class System_info
                     java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()));
                     String line = reader.readLine();
                     if (line != null && line.startsWith("hw.memsize: ")) {
-                        String s = line.substring(12).trim();
+                        String s = line;
+                        if (line.length()>12) line = line.substring("hw.memsize: ".length()).trim();
                         long bytes = Long.parseLong(s);
                         return Optional.of((int)(bytes / (1024L * 1024L * 1024L)));
                     }
@@ -113,7 +112,7 @@ public class System_info
                     java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()));
                     String line = reader.readLine();
                     if (line != null && line.startsWith("MemTotal:")) {
-                        String s = line.substring(9).trim();
+                        String s = line.substring("MemTotal:".length()).trim();
                         s = s.substring(0, s.length() - 3).trim(); // remove kB
                         long kbytes = Long.parseLong(s);
                         return Optional.of((int) (kbytes / (1024L * 1024L)));

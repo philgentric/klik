@@ -167,11 +167,12 @@ public abstract class Abstract_browser implements
         my_Stage.the_Stage.xProperty().addListener(change_listener);
         my_Stage.the_Stage.yProperty().addListener(change_listener);
 
-        my_Stage.set_escape_event_handler(this);
 
         monitor_current_path_list_source();
         virtual_landscape = new Virtual_landscape(window_builder.application,window_builder.window_type,get_Path_list_provider(),my_Stage.the_Stage, background_color,this,this,this,this,aborter, logger);
         virtual_landscape.redraw_fx(true,"AbstractBrowser constructor", true);
+
+        my_Stage.set_escape_event_handler(this);
 
         my_Stage.the_Stage.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (dbg) logger.log("new browser width =" + newValue.doubleValue());

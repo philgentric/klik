@@ -4,7 +4,7 @@
 package klikr.settings.boolean_features;
 //SOURCES ../../Launcher.java
 import javafx.stage.Window;
-import klikr.Launcher;
+import klikr.experimental.Launcher;
 import klikr.util.Shared_services;
 import klikr.util.http.Klikr_communicator;
 import klikr.util.log.Logger;

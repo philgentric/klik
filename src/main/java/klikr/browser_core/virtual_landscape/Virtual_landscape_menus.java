@@ -1123,15 +1123,18 @@ public class Virtual_landscape_menus
                 {
                     continue;
                 }
-                String displayed_string = hi.value;
+                String local_displayed_string = hi.value;
+                // remove home
+                String home = System.getProperty(String_constants.USER_HOME);
+                if ( local_displayed_string.startsWith(home) )local_displayed_string = local_displayed_string.substring(home.length());
 
-                if ( displayed_string.length() > MAX_MENU_ITEM_STRING_LENGTH)
+                if ( local_displayed_string.length() > MAX_MENU_ITEM_STRING_LENGTH)
                 {
                     // trick to avoid that the menu is not displayed when items are very wide
                     // which may happens with the largest fonts
-                    displayed_string = displayed_string.substring(0,MAX_MENU_ITEM_STRING_LENGTH)+" ...";
+                    local_displayed_string = local_displayed_string.substring(0,MAX_MENU_ITEM_STRING_LENGTH)+" ...";
                 }
-                MenuItem item = new MenuItem(displayed_string);
+                MenuItem item = new MenuItem(local_displayed_string);
                 Look_and_feel_manager.set_menu_item_look(item, owner, logger);
                 item.setMnemonicParsing(false);
                 Optional<Path> folder_path = path_list_provider.get_folder_path();
@@ -1180,21 +1183,23 @@ public class Virtual_landscape_menus
     }
 
     public static void on_history_item_clicked(
-            Path folder_path,
+            Path target_folder_path,
             Application application,
             Shutdown_target shutdown_target, Window_type window_type,
-            Window owner, Aborter aborter, Logger logger) {
-        if ( Guess_file_type.is_this_path_extension_an_audio_playlist(folder_path, logger))
+            Window owner, Aborter aborter, Logger logger)
+    {
+        logger.log("on_history_item_clicked "+target_folder_path);
+        if ( Guess_file_type.is_this_path_extension_an_audio_playlist(target_folder_path, logger))
         {
-            Window_builder.additional_no_past(application,Window_type.Song_playlist,new Path_list_provider_for_playlist(folder_path, owner, aborter, logger), owner, logger);
+            Window_builder.additional_no_past(application,Window_type.Song_playlist,new Path_list_provider_for_playlist(target_folder_path, owner, aborter, logger), owner, logger);
         }
         Window_builder.replace_different_folder(
                 application,
                 shutdown_target,
                 window_type,
-                new Path_list_provider_for_file_system(folder_path, owner, logger),
-                folder_path,
-                folder_path,
+                new Path_list_provider_for_file_system(target_folder_path, owner, logger),
+                target_folder_path,
+                target_folder_path,
                 owner, logger);
     }
 

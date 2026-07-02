@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boolean Preferences</title>
+  <style>
+    * {
+      margin: 0;
+      font-size: inherit;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .header h1 {
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .search-box {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      width: 250px;
+    }
+
+    .status {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .status.connected {
+      color: #2ecc71;
+    }
+
+    .status.disconnected {
+      color: #e74c3c;
+    }
+
+    .container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .category {
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .category.hidden {
+      display: none;
+    }
+
+    .category-header {
+      background: #34495e;
+      color: white;
+      padding: 12px 20px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .category-header:hover {
+      background: #2c3e50;
+    }
+
+    .category-header .toggle-icon {
+      transition: transform 0.2s;
+    }
+
+    .category-header.collapsed .toggle-icon {
+      transform: rotate(-90deg);
+    }
+
+    .category-content {
+      padding: 10px 0;
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .category-content.collapsed {
+      max-height: 0;
+    }
+
+    .preference-item {
+      padding: 12px 20px;
+      border-bottom: 1px solid #ecf0f1;
+      display: flex;
+      align-items: flex-start;
+      transition: background-color 0.15s;
+    }
+
+    .preference-item:last-child {
+      border-bottom: none;
+    }
+
+    .preference-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .checkbox-wrapper {
+      position: relative;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    input[type="checkbox"] {
+      width: 1.2em;
+      height: 1.2em;
+      cursor: pointer;
+      margin: 0;
+      font-size: inherit;
+    }
+
+    .preference-label {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .preference-title {
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #2c3e50;
+      margin-bottom: 4px;
+    }
+
+    .preference-explanation {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      line-height: 1.4;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #95a5a6;
+    }
+
+    .empty-state h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      font-size: 1rem;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #ecf0f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #95a5a6;
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #7f8c8d;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: #95a5a6;
+      background: white;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1 id="pageTitle">Boolean Preferences</h1>
+  <div class="header-controls">
+    <input type="text" class="search-box" id="searchBox" placeholder="Search preferences...">
+    <span class="status" id="status">Connecting...</span>
+  </div>
+</div>
+
+<div class="container" id="container">
+  <div class="empty-state">
+    <h2>Loading preferences...</h2>
+  </div>
+</div>
+
+<script>
+  let ws;
+  let allPreferences = [];
+  const urlParams = new URLSearchParams(window.location.search);
+  const titleParam = urlParams.get("title");
+  if (titleParam) {
+    document.title = titleParam;
+    document.getElementById("pageTitle").innerText = titleParam;
+  }
+
+  function connectWebSocket() {
+    const status = document.getElementById("status");
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = protocol + "//" + window.location.host + "/preferences-ws";
+
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = function () {
+      status.innerText = "Connected";
+      status.className = "status connected";
+      ws.send("REQUEST_INIT");
+    };
+
+    ws.onmessage = function (event) {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (Array.isArray(data)) {
+          // Initial data load
+          allPreferences = data;
+          renderPreferences(allPreferences);
+        } else if (data.type === "UPDATE") {
+          // Single preference update
+          updatePreference(data.id, data.value);
+        }
+      } catch (e) {
+        console.error("Error parsing message:", e);
+      }
+    };
+
+    ws.onclose = function () {
+      status.innerText = "Disconnected";
+      status.className = "status disconnected";
+      setTimeout(connectWebSocket, 2000); // Auto-reconnect
+    };
+
+    ws.onerror = function (err) {
+      console.error("WebSocket Error", err);
+      ws.close();
+    };
+  }
+
+  function renderPreferences(preferences) {
+    const container = document.getElementById("container");
+
+    if (!preferences || preferences.length === 0) {
+      container.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No preferences found</h2>
+                        <p>There are no boolean preferences to display</p>
+                    </div>
+                `;
+      return;
+    }
+
+    // Group by category
+    const grouped = {};
+    preferences.forEach(pref => {
+      if (!grouped[pref.category]) {
+        grouped[pref.category] = [];
+      }
+      grouped[pref.category].push(pref);
+    });
+
+    // Sort categories
+    const sortedCategories = Object.keys(grouped).sort();
+
+    // Render
+    container.innerHTML = sortedCategories.map(category => {
+      const items = grouped[category];
+      return `
+                    <div class="category" data-category="${escapeHtml(category)}">
+                        <div class="category-header" onclick="toggleCategory(this)">
+                            <span>${escapeHtml(category)}</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="category-content">
+                            ${items.map(pref => `
+                                <div class="preference-item" data-id="${escapeHtml(pref.id)}">
+                                    <label class="checkbox-container">
+                                        <div class="checkbox-wrapper">
+                                            <input type="checkbox"
+                                                   id="pref-${escapeHtml(pref.id)}"
+                                                   ${pref.value ? 'checked' : ''}
+                                                   onchange="togglePreference('${escapeHtml(pref.id)}')">
+                                        </div>
+                                        <div class="preference-label">
+                                            <div class="preference-title">${escapeHtml(pref.label)}</div>
+                                            ${pref.explanation ? `<div class="preference-explanation">${escapeHtml(pref.explanation)}</div>` : ''}
+                                        </div>
+                                    </label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+    }).join('');
+  }
+
+  function toggleCategory(header) {
+    header.classList.toggle('collapsed');
+    const content = header.nextElementSibling;
+    content.classList.toggle('collapsed');
+  }
+
+  function togglePreference(id) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send("TOGGLE:" + id);
+      console.log("Toggled preference:", id);
+    }
+  }
+
+  function updatePreference(id, newValue) {
+    const checkbox = document.getElementById("pref-" + id);
+    if (checkbox) {
+      checkbox.checked = newValue;
+    }
+
+    // Update in allPreferences array
+    const pref = allPreferences.find(p => p.id === id);
+    if (pref) {
+      pref.value = newValue;
+    }
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Search functionality
+  document.getElementById('searchBox').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase().trim();
+
+    if (!searchTerm) {
+      // Show all categories and items
+      document.querySelectorAll('.category').forEach(cat => {
+        cat.classList.remove('hidden');
+        cat.querySelectorAll('.preference-item').forEach(item => {
+          item.style.display = '';
+        });
+      });
+      return;
+    }
+
+    let hasResults = false;
+
+    document.querySelectorAll('.category').forEach(category => {
+      let categoryHasVisibleItems = false;
+
+      category.querySelectorAll('.preference-item').forEach(item => {
+        const label = item.querySelector('.preference-title').textContent.toLowerCase();
+        const explanation = item.querySelector('.preference-explanation')?.textContent.toLowerCase() || '';
+
+        if (label.includes(searchTerm) || explanation.includes(searchTerm)) {
+          item.style.display = '';
+          categoryHasVisibleItems = true;
+          hasResults = true;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      if (categoryHasVisibleItems) {
+        category.classList.remove('hidden');
+      } else {
+        category.classList.add('hidden');
+      }
+    });
+
+    if (!hasResults) {
+      const existingNoResults = document.querySelector('.no-results');
+      if (!existingNoResults) {
+        const container = document.getElementById('container');
+        const noResults = document.createElement('div');
+        noResults.className = 'no-results';
+        noResults.innerHTML = `<h3>No preferences found</h3><p>No preferences match "${escapeHtml(searchTerm)}"</p>`;
+        container.appendChild(noResults);
+      }
+    } else {
+      const existingNoResults = document.querySelector('.no-results');
+      if (existingNoResults) {
+        existingNoResults.remove();
+      }
+    }
+  });
+
+  // Initialize WebSocket connection
+  connectWebSocket();
+</script>
+</body>
+</html>

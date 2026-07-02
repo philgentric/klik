@@ -372,6 +372,10 @@ Combined with increased dropshadow for that premium glow. ✨🖤
     -fx-mark-color: white;
 }
 
+.check-menu-item .left-container .check {
+     -fx-padding: 0.2em;
+}
+
 /* ============================================
    SCROLL BARS - AQUA GLOSSY STYLE
    ============================================ */

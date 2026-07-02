@@ -104,7 +104,9 @@
 //SOURCES util/Sys_init.java
 //SOURCES ./Start_context.java
 
-package klikr;
+package klikr.experimental;
+
+import klikr.Klikr_application;
 
 // this is a hack to try to fix a mysterious fatal runtime issue
 // with native compilation using either graalvm or gluon

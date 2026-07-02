@@ -537,6 +537,7 @@ public class Item_folder extends Item implements Icon_destination
     public double get_Height()
     //**********************************************************
     {
+        if ( button == null ) return 0;
         if ( button.getHeight() == 0)
         {
             // until it is laid out, the button height is zero

@@ -62,7 +62,7 @@ public class Binary_file_engine<V> implements Disk_engine<V>
             {
                 if ( aborter.should_abort())
                 {
-                    logger.log("aborting cal reload "+aborter.reason());
+                    if (dbg) logger.log("aborting cal reload "+aborter.reason());
                     return reloaded;
                 }
                 String key = dis.readUTF();
@@ -70,7 +70,7 @@ public class Binary_file_engine<V> implements Disk_engine<V>
                 V value = value_deserializer.apply(dis);
                 if ( value == null)
                 {
-                    logger.log(Stack_trace_getter.get_stack_trace("FATAL"));
+                    if (dbg) logger.log(Stack_trace_getter.get_stack_trace("FATAL"));
                     return reloaded;
                 }
                 if (ultra_dbg) logger.log("value "+value);
@@ -78,16 +78,16 @@ public class Binary_file_engine<V> implements Disk_engine<V>
                 if ( k%10000 == 0) logger.log(k +" items loaded from disk ....");
                 reloaded++;
             }
-            logger.log("Done: "+reloaded+" items loaded from disk");
+            if (dbg) logger.log("Done: "+reloaded+" items loaded from disk");
             return reloaded;
         }
         catch (FileNotFoundException e)
         {
-            logger.log("first time in this folder: "+e);
+            if (dbg) logger.log("first time in this folder: "+e);
         }
         catch (IOException e)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""+e));
+            if (dbg) logger.log(Stack_trace_getter.get_stack_trace(""+e));
         }
         logger.log("reloading "+reloaded+" similarities from disk took "+(System.currentTimeMillis()-start)+" ms");
 

@@ -13,7 +13,7 @@ import klikr.util.log.Logger;
 public class Font_size
 //**********************************************************
 {
-    private final static boolean dbg = true;
+    private final static boolean dbg = false;
     public static final String FX_FONT_SIZE = "-fx-font-size:";
     public static final String PT = "pt;";
 

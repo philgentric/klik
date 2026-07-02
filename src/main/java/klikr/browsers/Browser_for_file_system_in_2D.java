@@ -138,13 +138,13 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         boolean monitor_this_folder = false;
 
         // ALWAYS monitor external drives
-        Optional<Path> folder_path = path_list_provider.get_folder_path();
-        if (folder_path.isEmpty())
+        Optional<Path> op = path_list_provider.get_folder_path();
+        if (op.isEmpty())
         {
             logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
-        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(folder_path.get(), logger);
+        monitor_this_folder = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(op.get(), logger);
 
 
         if (!monitor_this_folder)
@@ -158,14 +158,14 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         if (monitor_this_folder)
         {
             Runnable r = () -> {
-                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(folder_path.get(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, aborter, logger);
+                filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(op.get(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, aborter, logger);
                 if (filesystem_item_modification_watcher == null)
                 {
-                    logger.log("❗ WARNING: cannot monitor folder " + folder_path);
+                    logger.log("❗ WARNING: cannot monitor folder " + op.get());
                 }
                 else
                 {
-                    logger.log("✅ Started monitoring folder " + folder_path);
+                    logger.log("✅ Started monitoring folder " + op.get());
 
                 }
             };
@@ -175,7 +175,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         {
             if ( filesystem_item_modification_watcher != null)
             {
-                logger.log("✅ Stopped monitoring folder " + folder_path);
+                logger.log("✅ Stopped monitoring folder " + op.get());
                 filesystem_item_modification_watcher.cancel();
             }
         }
@@ -232,7 +232,15 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
             // (e.g. USB)  ==> run in a thread
             int how_many_files = path_list_provider.how_many_files_and_folders(false,Feature_cache.get(Feature.Show_hidden_files), Feature_cache.get(Feature.Show_hidden_folders),aborter);
             String s = name + " :     " + (long) how_many_files + " files & folders";
-            virtual_landscape.set_status(s);
+            //virtual_landscape.set_status(s);
+            if(virtual_landscape != null)
+            {
+                virtual_landscape.set_status(s);
+            }
+            else
+            {
+                logger.log(Stack_trace_getter.get_stack_trace("weird: virtual_landscape == null"));
+            }
             Jfx_batch_injector.inject(() ->
             {
                 my_Stage.the_Stage.setTitle(s);

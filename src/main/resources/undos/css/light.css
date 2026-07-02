@@ -189,6 +189,7 @@ https://www.w3.org/TR/CSS/#css
        Increase these numbers to make the arrow larger relative to text. */
     -fx-padding: 0.4em 0.25em 0.4em 0.25em;
     -fx-background-color: black;
+         -fx-padding: 0.2em;
 }
 
 .context-menu .menu:hover > .right-container > .arrow {
@@ -204,6 +205,7 @@ https://www.w3.org/TR/CSS/#css
 
 .check-box .mark {
     -fx-background-color: transparent;
+         -fx-padding: 0.2em;
 }
 
 .check-box:hover .box {
@@ -213,6 +215,7 @@ https://www.w3.org/TR/CSS/#css
 
 .check-box:hover .mark {
     -fx-background-color: transparent;
+         -fx-padding: 0.2em;
 }
 
 .check-box:selected .box {
@@ -244,8 +247,8 @@ https://www.w3.org/TR/CSS/#css
 
 .check-menu-item .left-container {
     -fx-padding: 0 8 0 0;
-    -fx-min-width: 20px;
-    -fx-pref-width: 20px;
+    -fx-min-width: 1.5em;
+    -fx-pref-width: 1.5em;
 }
 /* Add gap between checkmark area and the graphic/text */
 .check-menu-item {
@@ -257,11 +260,13 @@ https://www.w3.org/TR/CSS/#css
 /* Normal state - no checkmark visible */
 .check-menu-item:unchecked .left-container .check {
     -fx-background-color: transparent;
+         -fx-padding: 0.2em;
 }
 
 /* Checked state - show the checkmark */
 .check-menu-item:checked .left-container .check {
     -fx-background-color: black;
+         -fx-padding: 0.2em;
 }
 
 /* Hover on checked item */
@@ -269,6 +274,7 @@ https://www.w3.org/TR/CSS/#css
 .check-menu-item:checked:focused .left-container .check,
 .check-menu-item:checked:showing .left-container .check {
     -fx-background-color: black;
+         -fx-padding: 0.2em;
 }
 
 /* If you want the whole row to change on hover */

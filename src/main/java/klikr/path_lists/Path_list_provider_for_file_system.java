@@ -168,7 +168,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
                 if ( Guess_file_type.should_ignore(file,logger)) continue;
                 if ( Guess_file_type.is_this_path_extension_an_image(file,owner,logger))
                 {
-                    imgfnd.image_found();
+                    if ( imgfnd!=null) imgfnd.image_found();
                 }
             }
             file_paths.add(file);
@@ -413,8 +413,8 @@ public class Path_list_provider_for_file_system implements Path_list_provider
     Files_and_folders load_cache_from_disk(Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Optional<Path> path = get_folder_path();
-        if (  path.isEmpty())
+        Optional<Path> op = get_folder_path();
+        if (  op.isEmpty())
         {
             logger.log(Stack_trace_getter.get_stack_trace("PANIC "));
             return null;

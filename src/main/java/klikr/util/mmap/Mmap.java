@@ -362,10 +362,11 @@ public class Mmap
         {
             usage.merge(tag, 1, Integer::sum);;
         }
-        Image_and_properties returned =  p.read_image_as_file(tag, meta);
+        Image_and_properties iap =  p.read_image_as_file(tag, meta);
 
         if ( stats_dbg) speed.print(logger);
-        return Optional.of(returned);
+        if (iap == null) return Optional.empty();
+        return Optional.of(iap);
     }
 
 
