@@ -110,12 +110,12 @@ public class RAM_and_threads_meters_stage
 
         scene.setOnContextMenuRequested(event -> {
             ContextMenu context_menu = new ContextMenu();
-            Menu_items.add_menu_item_for_context_menu_i18n("Call_GC",null,
+            Menu_items.add_menu_item_for_context_menu("Call_GC",true,null,
                     event2 -> {
                         System.gc();
                         logger.log("Garbage collector was called");
                     },context_menu,stage,logger);
-            Menu_items.add_menu_item_for_context_menu_i18n("List_threads",null,
+            Menu_items.add_menu_item_for_context_menu("List_threads",true,null,
                     event3 -> {
                         Actor_engine.list_jobs(logger);
                     },context_menu,stage,logger);

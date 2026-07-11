@@ -68,7 +68,7 @@ public class Menus_for_image_window
     private static MenuItem get_undo_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n("Undo_LAST_move_or_delete",
+        return Menu_items.make_menu_item("Undo_LAST_move_or_delete",true,
                 image_window.undo.getDisplayText(),
                 e -> {
             image_window.logger.log("undoing last move");
@@ -173,7 +173,7 @@ public class Menus_for_image_window
     private static MenuItem get_search_by_autoextracted_keyword_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n("Search_by_keywords_from_this_ones_name",
+        return Menu_items.make_menu_item("Search_by_keywords_from_this_ones_name",true,
                 image_window.find.getDisplayText(),
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -189,7 +189,7 @@ public class Menus_for_image_window
     private static MenuItem get_copy_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n("Copy",
+        return Menu_items.make_menu_item("Copy",true,
                 image_window.copy.getDisplayText(),
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -201,7 +201,7 @@ public class Menus_for_image_window
     private static MenuItem get_print_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n("Print", null, event -> print(image_window), image_window.stage, image_window.logger);
+        return Menu_items.make_menu_item("Print",true, null, event -> print(image_window), image_window.stage, image_window.logger);
     }
 
     private static void print(Image_window image_window) {
@@ -232,7 +232,7 @@ public class Menus_for_image_window
     private static MenuItem get_rename_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n("Rename",
+        return Menu_items.make_menu_item("Rename",true,
                 image_window.rename.getDisplayText(),
 
                 event -> {
@@ -248,7 +248,7 @@ public class Menus_for_image_window
     private static MenuItem get_delete_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n("Delete",
+        return Menu_items.make_menu_item("Delete",true,
                 image_window.delete.getDisplayText(),
 
                 event -> {
@@ -287,7 +287,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         String addendum;
-        return Menu_items.make_menu_item_i18n(button_text_key,
+        return Menu_items.make_menu_item(button_text_key,true,
                 image_window.browse.getDisplayText(),
                 event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -306,7 +306,7 @@ public class Menus_for_image_window
     private static MenuItem make_open_with_system_file_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n("Open_File",null,
+        return Menu_items.make_menu_item("Open_File",true,null,
                 event ->
         {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -327,8 +327,8 @@ public class Menus_for_image_window
             Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n(
-                "Perform_face_recognition",null,
+        return Menu_items.make_menu_item(
+                "Perform_face_recognition",true,null,
                 event -> perform_face_reco(image_window),
                 image_window.stage, image_window.logger);
     }
@@ -338,8 +338,8 @@ public class Menus_for_image_window
             Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n(
-                "Perform_face_recognition_service_DIRECTLY",null,
+        return Menu_items.make_menu_item(
+                "Perform_face_recognition_service_DIRECTLY",true,null,
                 event -> perform_face_reco_directly(image_window),
                 image_window.stage, image_window.logger);
     }
@@ -419,7 +419,7 @@ public class Menus_for_image_window
     private static MenuItem make_edit_menu_item(Image_window image_window)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n("Edit_File",
+        return Menu_items.make_menu_item("Edit_File",true,
                 image_window.open.getDisplayText(),
         event -> {
             if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
@@ -431,7 +431,7 @@ public class Menus_for_image_window
     private static MenuItem make_open_with_registered_application_menu_item(Image_window image_window, Logger logger)
     //**********************************************************
     {
-        return Menu_items.make_menu_item_i18n("Open_With_Registered_Application",
+        return Menu_items.make_menu_item("Open_With_Registered_Application",true,
                 null,
                 event -> {
 

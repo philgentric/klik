@@ -784,6 +784,59 @@ public class Look_and_feel_manager
         }
     }
 
+
+    //**********************************************************
+    public static void set_menubutton_and_image_look(MenuButton button,
+                                                 Image icon,
+                                                 double height,
+                                                 Color color,
+                                                 boolean is_dir,
+                                                 Window owner, Logger logger) // Button is a Region
+    //**********************************************************
+    {
+        Look_and_feel laf = get_instance(owner,logger);
+        if (laf.style_sheet_url_string != null)
+        {
+            button.getStylesheets().clear();
+            button.getStylesheets().add(laf.style_sheet_url_string);
+            //button.getStyleClass().clear();
+            button.getStyleClass().add(Look_and_feel.LOOK_AND_FEEL_MY_BUTTON);
+        }
+
+        if ( icon != null)
+        {
+            ImageView image_view = new ImageView(icon);
+            image_view.setPreserveRatio(true);
+            {
+                //if (H < Non_booleans_properties.get_font_size()) H = Non_booleans_properties.get_font_size();
+                image_view.setFitHeight(height);
+            }
+            if (color == null) {
+                button.setGraphic(image_view);
+            }
+            else
+            {
+                HBox hbox = new HBox();
+                Circle dot = new Circle(height/4,color);
+                dot.setTranslateY(height/4);
+                hbox.getChildren().add(dot);
+                hbox.getChildren().add(image_view);
+                button.setGraphic(hbox);
+            }
+        }
+
+        if (look_dbg) logger.log(Stack_trace_getter.get_stack_trace("set_button_look"));
+        if (is_dir)
+        {
+            give_button_a_directory_style(button,owner,logger);
+        }
+        else
+        {
+            give_button_a_file_style(button,owner,logger);
+        }
+    }
+
+
     //**********************************************************
     public static void set_button_look(Region region, boolean with_border, Window owner, Logger logger) // Button is a Region
     //**********************************************************

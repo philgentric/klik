@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -277,18 +278,18 @@ public class Browser_for_file_system_in_3D implements Owner_provider, Selection_
             });
             buttons_box.getChildren().add(up);
         }
-
+/*
         {
-            Button undo_and_bookmark_and_history = Virtual_landscape.make_button_undo_and_bookmark_and_history(
+            MenuButton mb = Virtual_landscape.make_button_history(
                     application,
                     the_whole_history,
                     path_list_provider,
                     null,
                     null,
             Window_type.File_system_3D,20, stage, aborter, logger);
-            buttons_box.getChildren().add(undo_and_bookmark_and_history);
+            buttons_box.getChildren().add(mb);
         }
-
+*/
         setupClickHandling(scene,logger);
 
         scene.setOnMousePressed(me -> mouse_old_X = me.getSceneX());

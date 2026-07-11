@@ -95,24 +95,24 @@ public class Scrollable_text_field extends Region
         //logger.log("Look_and_feel_manager name ==="+Look_and_feel_manager.get_instance(owner,logger).name);
         //Look_and_feel_manager.set_context_menu_look(context_menu,owner,logger);
         if ( path == null) return;
-        Menu_items.add_menu_item_for_context_menu_i18n("Open_With_System",null,
+        Menu_items.add_menu_item_for_context_menu("Open_With_System",true,null,
                 actionEvent -> {
                     System_open_actor.open_with_system(application, path, owner,Shared_services.aborter(),logger);
                 },context_menu,owner,logger);
-        Menu_items.add_menu_item_for_context_menu_i18n("Open_With_Registered_Application",null,
+        Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",true,null,
                 actionEvent -> {
                     System_open_actor.open_with_registered_application(path, owner,Shared_services.aborter(),logger);
                 },context_menu,owner,logger);
         Menu_items.create_delete_menu_item(context_menu,path,owner,aborter,logger);
         if (Files.isDirectory(path))
         {
-            Menu_items.add_menu_item_for_context_menu_i18n(
-                    "Get_folder_size", null,
+            Menu_items.add_menu_item_for_context_menu(
+                    "Get_folder_size",true, null,
                     event2 -> Folder_size_stage.get_folder_size(path, owner, logger),
                     context_menu, owner, logger);
 
-            Menu_items.add_menu_item_for_context_menu_i18n(
-                    "Browse_in_new_window",
+            Menu_items.add_menu_item_for_context_menu(
+                    "Browse_in_new_window",true,
                     (new KeyCodeCombination(KeyCode.N, KeyCodeCombination.SHORTCUT_DOWN)).getDisplayText(),
                     event3 -> {
                         if (dbg) logger.log("Browse in new window!");
@@ -121,8 +121,8 @@ public class Scrollable_text_field extends Region
 
             if (Feature_cache.get(Feature.Enable_3D))
             {
-                Menu_items.add_menu_item_for_context_menu_i18n(
-                        "Browse_in_new_3D_window", null,
+                Menu_items.add_menu_item_for_context_menu(
+                        "Browse_in_new_3D_window",true, null,
                         event4 -> {
                             if (dbg) logger.log("Browse in new window!");
                             Window_builder.additional_no_past(application,Window_type.File_system_3D, new Path_list_provider_for_file_system(path, owner, logger), owner, logger);
@@ -131,8 +131,8 @@ public class Scrollable_text_field extends Region
         }
         else
         {
-            Menu_items.add_menu_item_for_context_menu_i18n(
-                    "Browse_in_new_window",
+            Menu_items.add_menu_item_for_context_menu(
+                    "Browse_in_new_window",true,
                     (new KeyCodeCombination(KeyCode.N,KeyCodeCombination.SHORTCUT_DOWN)).getDisplayText(),
                     event3 -> {
                         if (dbg) logger.log("Browse in new window!");
@@ -140,8 +140,8 @@ public class Scrollable_text_field extends Region
                     }, context_menu, owner, logger);
 
             if (Feature_cache.get(Feature.Enable_3D)) {
-                Menu_items.add_menu_item_for_context_menu_i18n(
-                        "Browse_in_new_3D_window",null,
+                Menu_items.add_menu_item_for_context_menu(
+                        "Browse_in_new_3D_window",true,null,
                         event4 -> {
                             if (dbg) logger.log("Browse in new window!");
                             Window_builder.additional_no_past(application,Window_type.File_system_3D, new Path_list_provider_for_file_system(path.getParent(), owner, logger), owner, logger);

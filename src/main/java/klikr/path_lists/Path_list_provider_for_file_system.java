@@ -68,6 +68,23 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         }
     }
 
+    public static String short_path_string(Path p)
+    {
+        String home =  System.getProperty("user.home");
+        String full = p.toAbsolutePath().normalize().toString();
+        if (full.equals(home))
+        {
+            return full;
+        }
+        if( full.startsWith(home) ) {
+            return full.substring(home.length());
+        }
+        else {
+            return full;
+        }
+
+    }
+
     //**********************************************************
     @Override
     public void set_cache_creation_time(long cache_creation_time)     //**********************************************************

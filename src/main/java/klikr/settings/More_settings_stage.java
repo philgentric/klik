@@ -333,7 +333,7 @@ public class More_settings_stage
     }
 
     //**********************************************************
-    public void create_menu_item_for_one_max_cache_life( MenuButton menu, int length, List<CheckMenuItem> all_check_menu_items)
+    public void create_menu_item_for_one_max_cache_life( MenuButton mb, int length, List<CheckMenuItem> all_check_menu_items)
     //**********************************************************
     {
         String text = My_I18n.get_I18n_string("Life_Time_Of_Cache_Files",owner,logger);
@@ -351,7 +351,7 @@ public class More_settings_stage
                 Non_booleans_properties.set_cache_files_max_life_in_days(length,owner);
             }
         });
-        menu.getItems().add(item);
+        mb.getItems().add(item);
         all_check_menu_items.add(item);
     }
 

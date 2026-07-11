@@ -55,6 +55,7 @@ public class Bookmarks
     public void add(String s)
     //**********************************************************
     {
+        logger.log("adding bookmark:"+s);
         pb.add(s);
     }
     //**********************************************************

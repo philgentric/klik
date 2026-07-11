@@ -7,10 +7,7 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -44,7 +41,7 @@ public class Menu_items
     public static void create_open_with_registered_application_menu_item(ContextMenu context_menu, Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Menu_items.add_menu_item_for_context_menu_i18n("Open_With_Registered_Application",
+        Menu_items.add_menu_item_for_context_menu("Open_With_Registered_Application",true,
                 null,
                 e -> {
                     logger.log("Open_With_Registered_Application");
@@ -59,7 +56,7 @@ public class Menu_items
     {
         KeyCodeCombination kc = new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
 
-        add_menu_item_for_context_menu_i18n("Browse_in_new_window",kc.getDisplayText(),
+        add_menu_item_for_context_menu("Browse_in_new_window",true, kc.getDisplayText(),
                 e -> {
                     //logger.log("Browse_in_new_window");
                     Path local = path;
@@ -74,7 +71,7 @@ public class Menu_items
     {
         KeyCodeCombination kc = new KeyCodeCombination(KeyCode.BACK_SPACE);
 
-        Menu_items.add_menu_item_for_context_menu_i18n("Delete",kc.getDisplayText(),
+        Menu_items.add_menu_item_for_context_menu("Delete",true,kc.getDisplayText(),
                 event -> {
                     if (dbg) logger.log("Deleting!");
                     double x = owner.getX()+100;
@@ -86,7 +83,7 @@ public class Menu_items
     public static void create_show_file_size_menu_item(ContextMenu context_menu, Path path, Window owner, Logger logger)
     //**********************************************************
     {
-        Menu_items.add_menu_item_for_context_menu_i18n("Show_file_size",null,
+        Menu_items.add_menu_item_for_context_menu("Show_file_size",true,null,
                 event -> {
                     show_file_size(path, owner, logger);
                 }, context_menu,owner,logger);
@@ -124,8 +121,9 @@ public class Menu_items
     }
 
     //**********************************************************
-    public static void add_menu_item_for_context_menu_i18n(
-            String i18n_key, // this is the My_I18n key
+    public static void add_menu_item_for_context_menu(
+            String key,
+            boolean is_18n,// this is the My_I18n key
             String addendum, // may be null
             EventHandler<ActionEvent> action,
             ContextMenu context_menu,
@@ -133,7 +131,7 @@ public class Menu_items
             Logger logger)
     //**********************************************************
     {
-        MenuItem mi = make_menu_item_i18n(i18n_key,addendum,action,owner,logger);
+        MenuItem mi = make_menu_item(key,is_18n,addendum,action,owner,logger);
         context_menu.getItems().add(mi);
     }
 
@@ -147,12 +145,13 @@ public class Menu_items
             Logger logger)
     //**********************************************************
     {
-        MenuItem mi = make_menu_item(menu_text,addendum,action,owner,logger);
+        MenuItem mi = make_menu_item(menu_text,false,addendum,action,owner,logger);
         context_menu.getItems().add(mi);
     }
 
     //**********************************************************
     public static void add_menu_item_for_menu(String key, // this is the My_I18n key@
+                                              boolean is_18n,
                                               String addendum,
                                               EventHandler<ActionEvent> action,
                                               Menu menu,
@@ -160,20 +159,39 @@ public class Menu_items
                                               Logger logger)
     //**********************************************************
     {
-        MenuItem mi = make_menu_item_i18n(key,addendum,action,owner,logger);
+        MenuItem mi = make_menu_item(key,is_18n,addendum,action,owner,logger);
         menu.getItems().add(mi);
     }
 
     //**********************************************************
-    public static MenuItem make_menu_item_i18n(
-            String i18n_key,
+    public static void add_menu_item_for_menubutton(String key,
+                                                    boolean is_18n, // key is the My_I18n key@
+                                              String addendum,
+                                              EventHandler<ActionEvent> action,
+                                              MenuButton mb,
+                                              Window owner,
+                                              Logger logger)
+    //**********************************************************
+    {
+        logger.log("add_menu_item_for_menubutton->"+key+"<-");
+        MenuItem mi = make_menu_item(key,is_18n,addendum,action,owner,logger);
+
+        mb.getItems().add(mi);
+    }
+
+    //**********************************************************
+    public static MenuItem make_menu_item(
+            String key,
+            boolean is_18n,
             String addendum, // maybe null
             EventHandler<ActionEvent> ev,
             Window owner,
             Logger logger)
     //**********************************************************
     {
-        String menu_text = My_I18n.get_I18n_string(i18n_key, owner, logger);
+        String menu_text = key;
+        if ( is_18n) menu_text =My_I18n.get_I18n_string(key, owner, logger);
+        if(menu_text==null) menu_text = key;
         if ( addendum!=null) if ( !addendum.isEmpty()) menu_text +=" ("+addendum+")";
         MenuItem menu_item = new MenuItem(menu_text);
         menu_item.setMnemonicParsing(false);
@@ -184,7 +202,7 @@ public class Menu_items
 
 
     //**********************************************************
-    public static MenuItem make_menu_item(
+    public static MenuItem make_menu_item2(
             String menu_text,
             String addendum, // maybe null
             EventHandler<ActionEvent> ev,

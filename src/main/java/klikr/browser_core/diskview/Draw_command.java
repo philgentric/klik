@@ -14,6 +14,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Window;
 import klikr.Window_builder;
 import klikr.Window_type;
+import klikr.browser_core.virtual_landscape.Virtual_landscape;
 import klikr.images.Image_window;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.util.execute.actor.Aborter;
@@ -261,6 +262,7 @@ public class Draw_command
     //*******************************************************
     {
         ContextMenu context_menu = new ContextMenu();
+        Virtual_landscape.attach_menu_to_browser(owner, context_menu);
 
         {
             if ( !node.is_this_a_directory())
@@ -268,8 +270,8 @@ public class Draw_command
                 Path p = node.get_file().toPath();
                 if (Guess_file_type.is_this_path_extension_an_image(p,owner,logger))
                 {
-                    Menu_items.add_menu_item_for_context_menu_i18n(
-                        "Show_Image",
+                    Menu_items.add_menu_item_for_context_menu(
+                        "Show_Image",true,
                         null,//(new KeyCodeCombination(KeyCode.N,KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                         event -> {
                             Image_window.get_Image_window(p, new Path_list_provider_for_file_system(p.getParent(),owner,logger),null, owner,new Aborter("Image_viewer",logger),logger);
@@ -282,8 +284,8 @@ public class Draw_command
             }
         }
         {
-            Menu_items.add_menu_item_for_context_menu_i18n(
-                    "Browse_in_new_window",
+            Menu_items.add_menu_item_for_context_menu(
+                    "Browse_in_new_window",true,
                     null,//(new KeyCodeCombination(KeyCode.N,KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                     event -> {
                         if (dbg) logger.log("Browse in new window!");
