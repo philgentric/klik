@@ -244,56 +244,68 @@ public class System_open_actor implements Actor
             som.logger.log("open with os-specific aborted");
             return false;
         }
-        StringBuilder sb = new StringBuilder();
         File wd = som.path.toFile().getParentFile();
 
-        // on macOS the app 'does not show' because the JVM puts kikr back on top TOO FAST
-        //  trick: we hide the app for a while
-        Platform.runLater(()->{
-            ((Stage)som.owner).hide();
-        });
+        if (os == Operating_system.MacOS) {
+            // on macOS the app 'does not show' because the JVM puts kikr back on top TOO FAST
+            //  trick: we hide the app for a while
+            Platform.runLater(() -> {
+                ((Stage) som.owner).hide();
+            });
+        }
+
+
+
 
         Execute_result res = Execute_command.execute_command_list_no_wait(list, wd, som.logger);
         if ( !res.status())
         {
-            som.logger.log("open with "+os.name()+" failed:\n"+ sb +"\n\n\n");
+            som.logger.log("open with "+os.name()+" failed:\n"+ res.output() +"\n\n\n");
             return false;
         }
-        som.logger.log("\n\n\n open with "+os.name()+" output :\n"+ sb +"\n\n\n");
+        som.logger.log("\n\n\n open with "+os.name()+" output :\n"+ res.output() +"\n\n\n");
 
 
-        // then we un-hide, with transparency
-        Actor_engine.execute(()->{
-            try
-            {
-                Thread.sleep(500);
-            }
-            catch (InterruptedException e)
-            {
-                som.logger.log(""+e);
-                return;
-            }Platform.runLater(()->{
-                ((Stage)som.owner).show();
-                ((Stage)som.owner).setOpacity(0.3);
-            });
-            try
-            {
-                Thread.sleep(3000);
-            }
-            catch (InterruptedException e)
-            {
-                som.logger.log(""+e);
-                return;
-            }
-            // then we restore klikr ..
-            // Case A: (with a bit of luck) klikr is now UNDER the app
-            // case B: klikr is on top, but the user could SEE that the other app HAS OPENED
-            Platform.runLater(()->{
-                ((Stage)som.owner).show();
-                ((Stage)som.owner).setOpacity(1);
-            });
+        if (os == Operating_system.MacOS)
+        {
 
-        },"macos trick",som.logger);
+            // then we un-hide, with transparency
+            Actor_engine.execute(() ->
+            {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    som.logger.log("" + e);
+                    return;
+                }
+                Platform.runLater(() ->
+                {
+                    ((Stage) som.owner).show();
+                    ((Stage) som.owner).setOpacity(0.3);
+                });
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    som.logger.log("" + e);
+                    return;
+                }
+                // then we restore klikr ..
+                // Case A: (with a bit of luck) klikr is now UNDER the app
+                // case B: klikr is on top, but the user could SEE that the other app HAS OPENED
+                Platform.runLater(() ->
+                {
+                    ((Stage) som.owner).show();
+                    ((Stage) som.owner).setOpacity(1);
+                });
+
+            }, "macos trick", som.logger);
+        }
+
+
+
+
+
+
 
         return true;
     }

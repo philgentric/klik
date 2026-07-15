@@ -135,8 +135,9 @@ public class Menu_items
         context_menu.getItems().add(mi);
     }
 
+    /*
     //**********************************************************
-    public static void add_menu_item_for_context_menu(
+    public static void add_menu_item_for_context_menu_B(
             String menu_text,
             String addendum, // may be null
             EventHandler<ActionEvent> action,
@@ -148,7 +149,7 @@ public class Menu_items
         MenuItem mi = make_menu_item(menu_text,false,addendum,action,owner,logger);
         context_menu.getItems().add(mi);
     }
-
+*/
     //**********************************************************
     public static void add_menu_item_for_menu(String key, // this is the My_I18n key@
                                               boolean is_18n,

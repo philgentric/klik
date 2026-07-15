@@ -435,7 +435,7 @@ public abstract class Item implements Icon_destination
         {
             menu_text = My_I18n.get_I18n_string("Remove_From_Playlist",owner,logger);
         }
-        Menu_items.add_menu_item_for_context_menu(menu_text,
+        Menu_items.add_menu_item_for_context_menu(menu_text,false,
                 null,//(new KeyCodeCombination(KeyCode.BACK_SPACE)).getDisplayText(),
                 event -> {
                     if (dbg) logger.log("Deleting!");

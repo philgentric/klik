@@ -21,6 +21,7 @@ import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -2363,7 +2364,7 @@ public class Virtual_landscape
     {
         if ( window_type == Window_type.File_system_2D)
         {
-            show_UNDO_menubar_item(top_pane, height);
+            show_BACK_menubar_item(top_pane, height);
             show_HISTORY_menubar_item(top_pane, height);
             show_BOOKMARK_menubar_item(top_pane, height);
             show_FILES_menubar_item(top_pane, height);
@@ -2379,7 +2380,7 @@ public class Virtual_landscape
         }
         if ( window_type == Window_type.File_system_2D)
         {
-            show_BACK_menubar_item(top_pane, height);
+            show_UNDO_menubar_item(top_pane, height);
         }
     }
 
@@ -2778,9 +2779,11 @@ BOOKMARK
                 event -> show_how_many_files_deep_in_each_folder(), context_menu, owner, logger);
         Menu_items.add_menu_item_for_context_menu("Show_Each_Folder_Total_Size",true, null, event -> show_total_size_deep_in_each_folder(),
                 context_menu, owner, logger);
-        Menu_items.make_menu_item("About_klik",true, null, event -> About_klikr_stage.show(owner, logger),
-                context_menu, logger);
-        Menu_items.make_menu_item("Refresh", true,refresh.getDisplayText(), event -> redraw_fx(true,"refresh",true), context_menu, logger);
+        Menu_items.add_menu_item_for_context_menu("About_klik",true,null, event -> About_klikr_stage.show(owner, logger),context_menu,
+                owner, logger);
+        EventHandler<ActionEvent> xx = event -> {redraw_fx(true,"refresh",true); refresh.getDisplayText();};
+
+        Menu_items.add_menu_item_for_context_menu("Refresh",true,null, xx, context_menu, owner,logger);
         if (!change_events_off)
             Menu_items.add_menu_item_for_context_menu("Disable_change_events",true, null, event -> change_events_off = true, context_menu, owner,
                     logger);

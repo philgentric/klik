@@ -230,7 +230,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         Runnable r = () -> {
             // can be super slow on network drives or slow drives
             // (e.g. USB)  ==> run in a thread
-            int how_many_files = path_list_provider.how_many_files_and_folders(false,Feature_cache.get(Feature.Show_hidden_files), Feature_cache.get(Feature.Show_hidden_folders),aborter);
+            int how_many_files = path_list_provider.how_many_files_and_folders(true,Feature_cache.get(Feature.Show_hidden_files), Feature_cache.get(Feature.Show_hidden_folders),aborter);
             String s = name + " :     " + (long) how_many_files + " files & folders";
             //virtual_landscape.set_status(s);
             if(virtual_landscape != null)

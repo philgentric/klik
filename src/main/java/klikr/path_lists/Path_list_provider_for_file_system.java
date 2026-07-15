@@ -149,20 +149,43 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         for (Path file : faf.files())
         {
             if ( aborter.should_abort()) return 0;
-            if (! consider_also_hidden_files)
+            if ( Guess_file_type.should_ignore(file,logger))
             {
-                if ( Guess_file_type.should_ignore(file,logger)) continue;
+                if (consider_also_hidden_files)
+                {
+                    returned++;
+                    logger.log(file.toString()+ " hidden, but counted");
+                }
+                else {
+                    logger.log(file.toString()+ " hidden, not counted");
+                }
+
             }
-            returned++;
+            else
+            {
+                logger.log(file.toString()+ " not hidden, counted");
+
+                returned++;
+            }
         }
-        for (Path folder : faf.files())
+        for (Path folder : faf.folders())
         {
             if ( aborter.should_abort()) return 0;
-            if (! consider_also_hidden_folders)
+            if ( Guess_file_type.should_ignore(folder,logger))
             {
-                if ( Guess_file_type.should_ignore(folder,logger)) continue;
+                if (consider_also_hidden_folders)
+                {
+                    returned++;
+                }
+                else
+                {
+
+                }
             }
-            returned++;
+            else
+            {
+                    returned++;
+            }
         }
         return returned;
     }
