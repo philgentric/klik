@@ -4,15 +4,11 @@
 //SOURCES ./Disk_foot_print_receiver.java
 package klikr.browser_core.items;
 
-import javafx.application.Application;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Window;
-import klikr.Window_type;
 import klikr.path_lists.Files_and_folders;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
@@ -25,7 +21,6 @@ import klikr.util.animated_gifs.Animated_gif_from_folder_content;
 import klikr.browser_core.icons.image_properties_cache.Image_properties;
 import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.browser_core.virtual_landscape.*;
-import klikr.path_lists.Path_list_provider;
 import klikr.util.image.decoding.Fast_rotation_from_exif_metadata_extractor;
 import klikr.look.Look_and_feel_manager;
 import klikr.look.my_i18n.My_I18n;
@@ -65,50 +60,33 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
 
     //**********************************************************
     public Item_folder_with_icon(
-            Application application,
-            Window_type window_type,
-            Window owner,
-            Scene scene,
-            Selection_handler selection_handler,
+            Item_context item_context, Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
-            Color color,
             String text_,
             int column_width_,
             double height,
             Klikr_cache<Path, Image_properties> image_properties_cache,
             Shutdown_target shutdown_target,
-            Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
-            Top_left_provider top_left_provider,
-            Aborter aborter,
-            Logger logger)
+            Top_left_provider top_left_provider)
     //**********************************************************
     {
         super(
-                application,
-                window_type,
-                scene,
+                item_context,
                 selection_handler,
                 icon_factory_actor,
-                color,
                 text_,
                 height,
-                false,
-                null,
                 image_properties_cache,
                 shutdown_target,
-                path_list_provider,
                 path_comparator_source,
-                top_left_provider,
-                owner,
-                aborter,
-                logger);
+                top_left_provider);
         column_width = column_width_;
         this.image_properties_cache = image_properties_cache;
-        folder_icon_size = Non_booleans_properties.get_folder_icon_size(owner);
+        folder_icon_size = Non_booleans_properties.get_folder_icon_size(item_context.owner);
         // launch content icon fabrication:
         text = text_;
-        double font_size = Non_booleans_properties.get_font_size(owner,logger);
+        double font_size = Non_booleans_properties.get_font_size(item_context.owner,item_context.logger);
         estimated_text_label_height = klikr.look.Look_and_feel.MAGIC_HEIGHT_FACTOR*font_size;
 
         //button = new Button(text);
@@ -123,7 +101,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         button.setGraphic(the_image_pane);
         button.setContentDisplay(ContentDisplay.BOTTOM);
 
-        Look_and_feel_manager.set_button_look(button,true,owner,logger);
+        Look_and_feel_manager.set_button_look(button,true,item_context.owner,item_context.logger);
 
 
         resize_the_box(button);
@@ -135,20 +113,13 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         return Iconifiable_item_type.folder;
     }
 
-    //**********************************************************
-    @Override
-    void set_new_path(Path newPath)
-    //**********************************************************
-    {
-        logger.log(Stack_trace_getter.get_stack_trace("set_new_path???"));
-    }
 
     //**********************************************************
-    @Override
+    @Override // <icon_destination
     public Path get_item_path()
     //**********************************************************
     {
-        Optional<Path> p= path_list_provider.get_folder_path();
+        Optional<Path> p= item_context.path_list_provider.get_folder_path();
         return p.orElse(null);
     }
 
@@ -187,8 +158,8 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     {
         if ( Feature_cache.get(Feature.Show_single_column_with_details))
         {
-            button.setPrefWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
-            button.setMinWidth(owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setPrefWidth(item_context.owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
+            button.setMinWidth(item_context.owner.getWidth()- Virtual_landscape.RIGHT_SIDE_SINGLE_COLUMN_MARGIN);
         }
         else
         {
@@ -207,7 +178,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
-        Jfx_batch_injector.inject(() -> set_icon(image_and_rotation),logger);
+        Jfx_batch_injector.inject(() -> set_icon(image_and_rotation),item_context.logger);
     }
 
     //**********************************************************
@@ -217,7 +188,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         if ( image_and_properties.image() == null)
         {
             the_image_view = null;
-            logger.log(Stack_trace_getter.get_stack_trace("image==null for "+get_item_path()));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("image==null for "+get_item_path()));
             return;
         }
         if ( the_image_view == null)
@@ -235,21 +206,21 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         Image_properties properties = image_and_properties.properties();
         if (properties == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
         }
         else
         {
             Rotation rotation = properties.rotation();
             if (rotation == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+                item_context.logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
                 Path pfd = get_path_for_display(false);
                 if ( pfd == null)
                 {
-                    logger.log(Stack_trace_getter.get_stack_trace(""));
+                    item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
                     return;
                 }
-                rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(pfd, dbg, owner, aborter, logger);
+                rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(pfd, dbg, item_context.owner, item_context.aborter, item_context.logger);
                 if ( rotation == null) rotation = Rotation.normal;
                 the_image_pane.setRotate(rotation.as_double());
             }
@@ -277,28 +248,27 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     {
         if ( !try_deep)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN"));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN"));
             return null;
         }
 
         // try to find an icon for the folder
-        Path item_path = get_item_path();
-        if ( item_path == null)
+        if ( item_context.item_path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
             return null;
         }
-        Files_and_folders faf = path_list_provider.files_and_folders(
+        Files_and_folders faf = item_context.path_list_provider.files_and_folders(
                 true,
                 null,
                 Feature_cache.get(Feature.Show_hidden_files),
                 Feature_cache.get(Feature.Show_hidden_folders),
-                aborter);
+                item_context.aborter);
 
 
         if ( (faf.folders().isEmpty()) &&(faf.files().isEmpty()))
         {
-            if ( dbg) logger.log("✅ dir is empty: "+get_item_path());
+            if ( dbg) item_context.logger.log("✅ dir is empty: "+get_item_path());
             create_label_for_sizes("Empty folder");
             return null;
         }
@@ -306,10 +276,10 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         List<Path> images_in_folder = new ArrayList<>();
         for ( Path file : faf.files())
         {
-            if (!Guess_file_type.is_this_path_extension_an_image(file,owner,logger)) continue; // ignore non images
-            if (Guess_file_type.is_this_path_extension_a_gif(file,logger))
+            if (!Guess_file_type.is_this_path_extension_an_image(file,item_context.owner,item_context.logger)) continue; // ignore non images
+            if (Guess_file_type.is_this_path_extension_a_gif(file,item_context.logger))
             {
-                if (Guess_file_type.is_this_path_a_animated_gif(file, owner, aborter, logger))
+                if (Guess_file_type.is_this_path_a_animated_gif(file, item_context.owner, item_context.aborter, item_context.logger))
                 {
                     return file;
                 }
@@ -326,9 +296,9 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 Arrays.sort(files2);
                 for (File f2 : files2) {
                     if (f2.isDirectory()) continue; // ignore folders
-                    if (!Guess_file_type.is_this_file_extension_an_image(f2,owner,logger)) continue; // ignore non images
-                    if (Guess_file_type.is_this_path_extension_a_gif(f2.toPath(),logger)) {
-                        if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), owner,aborter, logger)) {
+                    if (!Guess_file_type.is_this_file_extension_an_image(f2,item_context.owner,item_context.logger)) continue; // ignore non images
+                    if (Guess_file_type.is_this_path_extension_a_gif(f2.toPath(),item_context.logger)) {
+                        if (Guess_file_type.is_this_path_a_animated_gif(f2.toPath(), item_context.owner,item_context.aborter, item_context.logger)) {
                             return f2.toPath();
                         }
                         continue; // ignore not animated gifs
@@ -338,28 +308,28 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
 
             }
             create_label_for_sizes("...computing sizes...");
-            launch_disk_foot_print_thread(this, item_path, aborter, owner, logger);
+            launch_disk_foot_print_thread(this, item_context.item_path, item_context.aborter, item_context.owner, item_context.logger);
             return null;
         }
 
         Optional<Path> returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
-                owner,
-                new Path_list_provider_for_file_system(item_path,owner,logger),
-                path_comparator_source,
-                images_in_folder, image_properties_cache, aborter,logger);
+                item_context.owner,
+                new Path_list_provider_for_file_system(item_context.item_path,item_context.owner,item_context.logger),
+                item_context.path_comparator_source,
+                images_in_folder, image_properties_cache, item_context.aborter,item_context.logger);
         if ( returned.isPresent())
         {
-            if (dbg) logger.log("✅ animated gif made");
+            if (dbg) item_context.logger.log("✅ animated gif made");
             return returned.get();
         }
         if (images_in_folder.isEmpty())
         {
-            if (dbg) logger.log("✅ no images");
+            if (dbg) item_context.logger.log("✅ no images");
             return null;
         }
         else
         {
-            if (dbg) logger.log("✅ picking first image");
+            if (dbg) item_context.logger.log("✅ picking first image");
             return images_in_folder.get(0);
         }
     }
@@ -369,21 +339,14 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     //**********************************************************
     {
         label_for_sizes = new Label(s);
-        Look_and_feel_manager.set_label_look(label_for_sizes,owner,logger);
+        Look_and_feel_manager.set_label_look(label_for_sizes,item_context.owner,item_context.logger);
         Jfx_batch_injector.inject(() -> {
             the_image_pane.getChildren().clear();
             the_image_pane.getChildren().add(label_for_sizes);
-        },logger);
+        },item_context.logger);
     }
 
 
-    //**********************************************************
-    @Override
-    public boolean is_trash()
-    //**********************************************************
-    {
-        return false;
-    }
 
 
 
@@ -425,7 +388,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     {
         if (label_for_sizes == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
             return;
         }
         boolean on_one_line;
@@ -440,26 +403,26 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
             label_for_sizes.setWrapText(true);
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),owner,logger));
+        sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),item_context.owner,item_context.logger));
 
         intercalaire(on_one_line, sb);
 
         sb.append(sizes.folders());
-        String folders = My_I18n.get_I18n_string("Folders",owner,logger);
+        String folders = My_I18n.get_I18n_string("Folders",item_context.owner,item_context.logger);
         sb.append(" ");
         sb.append(folders);
 
         intercalaire(on_one_line, sb);
 
         sb.append(sizes.files());
-        String files = My_I18n.get_I18n_string("Files",owner,logger);
+        String files = My_I18n.get_I18n_string("Files",item_context.owner,item_context.logger);
         sb.append(" ");
         sb.append(files);
 
         intercalaire(on_one_line, sb);
 
         sb.append(sizes.images());
-        String images = My_I18n.get_I18n_string("Images",owner,logger);
+        String images = My_I18n.get_I18n_string("Images",item_context.owner,item_context.logger);
         sb.append(" ");
         sb.append(images);
         label_for_sizes.setText(sb.toString());

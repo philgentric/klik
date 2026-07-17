@@ -8,18 +8,15 @@
 
 package klikr.browser_core.items;
 
-import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Window;
 import klikr.Window_builder;
 import klikr.Window_type;
@@ -75,46 +72,28 @@ public class Item_file_with_icon extends Item_file
 
     //**********************************************************
     public Item_file_with_icon(
-            Application application,
-            Window_type window_type,
-            Scene scene,
+            Item_context item_context,
             Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
-            Color color,
             Double aspect_ratio,
-            Supplier<Feature_vector_cache> fv_cache_supplier,
-            Path path_,
-            Path_list_provider path_list_provider,
-            Path_comparator_source path_comparator_source,
-            Window owner,
-            Aborter aborter,
-            Logger logger)
+            Supplier<Feature_vector_cache> fv_cache_supplier)
 
     //**********************************************************
     {
         super(
-                application,
-                window_type,
-                scene,
+                item_context,
                 selection_handler,
-                icon_factory_actor,
-                color,
-                path_,
-                path_list_provider,
-                path_comparator_source,
-                owner,
-                aborter,
-                logger);
+                icon_factory_actor);
         this.aspect_ratio = aspect_ratio;
         //this.image_properties_RAM_cache = image_properties_RAM_cache;
         this.fv_cache_supplier = fv_cache_supplier;
         double actual_icon_size = icon_size / 3.0;
         if ( default_icon == null)
         {
-            default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size, owner, logger);
+            default_icon = Look_and_feel_manager.get_default_icon(actual_icon_size, item_context.owner, item_context.logger);
             if ( default_icon == null)
             {
-                logger.log("FATAL: Default image not found ");
+                item_context.logger.log("FATAL: Default image not found ");
             }
         }
 
@@ -123,7 +102,7 @@ public class Item_file_with_icon extends Item_file
         image_view.setPickOnBounds(true); // allow click on transparent areas
         if (Feature_cache.get(Feature.Show_file_names_as_tooltips))
         {
-            Tooltip.install(image_view, new Tooltip(path.getFileName().toString()));
+            Tooltip.install(image_view, new Tooltip(item_context.item_path.getFileName().toString()));
         }
         image_pane = new StackPane(image_view);
         button = new Button();
@@ -131,7 +110,7 @@ public class Item_file_with_icon extends Item_file
         button.setStyle("-fx-padding: 0; -fx-background-insets: 0; -fx-border-insets: 0;");
 
         if ( dbg)
-            logger.log("item_file_with_icon: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+path);
+            item_context.logger.log("item_file_with_icon: loading default icon in the image view, w=" +default_icon.getWidth()+", h="+default_icon.getHeight()+" FOR:  "+item_context.item_path);
         image_view.setPreserveRatio(true);
         image_view.setSmooth(true);
         image_view.setFitWidth(actual_icon_size);
@@ -140,16 +119,16 @@ public class Item_file_with_icon extends Item_file
         //image_view.setCacheHint(CacheHint.SPEED);
 
 
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,item_context.item_path,item_context.logger);
 
         button.setOnContextMenuRequested((ContextMenuEvent event) -> {
             Path p = get_item_path();
             if ( p == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace(""));
+                item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
                 return;
             }
-            if ( dbg) logger.log("show context menu of image_view:"+ p.toAbsolutePath());
+            if ( dbg) item_context.logger.log("show context menu of image_view:"+ p.toAbsolutePath());
             ContextMenu context_menu = make_context_menu();
             context_menu.show(button, event.getScreenX(), event.getScreenY());
         });
@@ -157,41 +136,35 @@ public class Item_file_with_icon extends Item_file
 
         //give_a_menu_to_the_button(button,new Label("toto"));
         button.setOnAction(event -> {
-            on_mouse_clicked(logger);
+            on_mouse_clicked();
             event.consume();
         });
 
     }
 
 
-    @Override
-    void set_new_path(Path newPath) {
-        path = newPath;
-    }
-
-    @Override
+    @Override // Icon_destination
     public Path get_item_path() {
-        return path;
+        return item_context.item_path;
     }
 
     //**********************************************************
-    private void on_mouse_clicked(Logger logger)
+    private void on_mouse_clicked()
     //**********************************************************
     {
         selection_handler.reset_selection(); // will clear all selections
-        Path p = get_item_path();
-        if ( p == null)
+        if ( item_context.item_path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
-        if ( Guess_file_type.is_this_path_extension_an_image(p,owner,logger))
+        if ( Guess_file_type.is_this_path_extension_an_image(item_context.item_path,item_context.owner,item_context.logger))
         {
-            open_an_image(path_list_provider,path_comparator_source,p,owner,logger);
+            open_an_image(item_context.path_list_provider,item_context.path_comparator_source,item_context.item_path,item_context.owner,item_context.logger);
         }
         else
         {
-            System_open_actor.open_with_system(application,p, owner,aborter,logger);
+            System_open_actor.open_with_system(item_context.application,item_context.item_path, item_context.owner,item_context.aborter,item_context.logger);
         }
     }
 
@@ -236,21 +209,8 @@ public class Item_file_with_icon extends Item_file
         return get_item_path();
     }
 
-    //**********************************************************
-    @Override
-    public boolean is_trash()
-    //**********************************************************
-    {
-        return false;
-    }
 
-    //**********************************************************
-    @Override
-    public Path is_parent_of()
-    //**********************************************************
-    {
-        return null;
-    }
+
 
     //**********************************************************
     public ContextMenu make_context_menu()
@@ -259,50 +219,49 @@ public class Item_file_with_icon extends Item_file
         //logger.log(Stack_trace_getter.get_stack_trace("Item_file_with_icon make_context_menu"));
 
         ContextMenu context_menu = new ContextMenu();
-        Look_and_feel_manager.set_context_menu_look(context_menu,owner,logger);
+        Look_and_feel_manager.set_context_menu_look(context_menu,item_context.owner,item_context.logger);
 
-        Path p = get_item_path();
-        if ( p == null)
+        if ( item_context.item_path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
             return context_menu;
         }
 
-        double x = owner.getX()+100;
-        double y = owner.getY()+100;
-        create_open_exif_frame_menu_item(p,context_menu);
+        double x = item_context.owner.getX()+100;
+        double y = item_context.owner.getY()+100;
+        create_open_exif_frame_menu_item(context_menu,item_context);
 
         if ( Feature_cache.get(Feature.Enable_image_similarity))
         {
             if (!Check_remaining_RAM.low_memory.get()) {
                 context_menu.getItems().add(create_show_similar_menu_item(
-                        p,
+                        item_context.item_path,
                         fv_cache_supplier,
-                        path_comparator_source,
-                        owner,
-                        aborter,
-                        logger));
+                        item_context.path_comparator_source,
+                        item_context.owner,
+                        item_context.aborter,
+                        item_context.logger));
             }
         }
 
         {
-            Menu menu = get_open_Menu(p,owner,x, y, aborter,logger);
+            Menu menu = get_open_Menu(item_context.item_path,item_context.owner,x, y, item_context.aborter,item_context.logger);
             context_menu.getItems().add(menu);
         }
 
         {
-            MenuItem menu_item = get_rename_MenuItem(p,owner,x, y, aborter,logger);
+            MenuItem menu_item = get_rename_MenuItem(item_context.item_path,item_context.owner,x, y, item_context.aborter,item_context.logger);
             context_menu.getItems().add(menu_item);
         }
 
-        create_delete_menu_item(context_menu);
-        create_copy_menu_item(context_menu);
-        create_show_file_size_menu_item(context_menu);
+        create_delete_menu_item(context_menu,item_context);
+        create_copy_menu_item(context_menu,item_context);
+        create_show_file_size_menu_item(context_menu,item_context);
 
 
         if ( this.item_type == Iconifiable_item_type.video)
         {
-            make_menu_items_for_videos(p,owner,context_menu,dbg, aborter,logger);
+            make_menu_items_for_videos(item_context.item_path,item_context.owner,context_menu,dbg, item_context.aborter,item_context.logger);
         }
         return context_menu;
 
@@ -334,7 +293,7 @@ public class Item_file_with_icon extends Item_file
                     null,
                     event -> {
                         if (dbg) logger.log("Opening with system: "+path);
-                        System_open_actor.open_with_system(application,path, owner,aborter,logger);
+                        System_open_actor.open_with_system(item_context.application,path, owner,aborter,logger);
                     },
                     owner, logger);
             returned.getItems().add(mi);
@@ -344,7 +303,7 @@ public class Item_file_with_icon extends Item_file
                     "Browse_in_new_window",true,
                     null,//(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                     (ActionEvent e) ->
-                            Window_builder.additional_no_past(application,Window_type.File_system_2D, new Path_list_provider_for_file_system(path.getParent(), owner, logger), owner, logger),
+                            Window_builder.additional_no_past(item_context.application,Window_type.File_system_2D, new Path_list_provider_for_file_system(path.getParent(), owner, logger), owner, logger),
                     owner, logger);
             returned.getItems().add(mi);
         }
@@ -355,7 +314,7 @@ public class Item_file_with_icon extends Item_file
                     null,
                             event -> {
                                 if (dbg) logger.log("Browse in new window!");
-                                Window_builder.additional_no_past(application,Window_type.File_system_3D, new Path_list_provider_for_file_system(path.getParent(), owner, logger), owner, logger);
+                                Window_builder.additional_no_past(item_context.application,Window_type.File_system_3D, new Path_list_provider_for_file_system(path.getParent(), owner, logger), owner, logger);
                             }, owner, logger);
             returned.getItems().add(mi);
         }
@@ -472,11 +431,11 @@ public class Item_file_with_icon extends Item_file
     public void receive_icon(Image_and_properties iap)
     //**********************************************************
     {
-        if ( dbg) logger.log("ITEM FILE WITH ICON RECEIVING icon");
+        if ( dbg) item_context.logger.log("ITEM FILE WITH ICON RECEIVING icon");
         // this is NOT on the FX thread
         if ( image_view == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❗ image_view == null"));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("❗ image_view == null"));
             return;
         }
 
@@ -485,28 +444,28 @@ public class Item_file_with_icon extends Item_file
             // this happen if between the time the icon was request and now,
             // the item is not visible anymore typically because the user scrolled away
             if ( dbg)
-                logger.log("❗ visible_in_scene.get() : calling you_are_invisible");
-            Jfx_batch_injector.inject(this::you_are_invisible,logger);
+                item_context.logger.log("❗ visible_in_scene.get() : calling you_are_invisible");
+            Jfx_batch_injector.inject(this::you_are_invisible,item_context.logger);
             return;
         }
         if ( iap == null)
         {
             if ( dbg)
-                logger.log("❗ image_and_rotation == null ");
+                item_context.logger.log("❗ image_and_rotation == null ");
             //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
         if ( iap.properties() == null)
         {
             if ( dbg)
-                logger.log("❗ image_and_rotation.properties() == null");
+                item_context.logger.log("❗ image_and_rotation.properties() == null");
             //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
         if ( iap.image() == null)
         {
             if ( dbg)
-                logger.log("❗ image_and_rotation.image() == null");
+                item_context.logger.log("❗ image_and_rotation.image() == null");
             //Jfx_batch_injector.inject(() -> you_are_invisible(),logger);
             return;
         }
@@ -514,11 +473,11 @@ public class Item_file_with_icon extends Item_file
 
         if ( (iap.image().getHeight()  < 1) || (iap.image().getWidth() < 1))
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❗ WARNING: empty image, not set "+path.toAbsolutePath()));
-            Jfx_batch_injector.inject(this::you_are_invisible,logger);
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("❗ WARNING: empty image, not set "+item_context.item_path.toAbsolutePath()));
+            Jfx_batch_injector.inject(this::you_are_invisible,item_context.logger);
             return;
         }
-        Jfx_batch_injector.inject(() -> receive_icon_in_fx_thread(iap),logger);
+        Jfx_batch_injector.inject(() -> receive_icon_in_fx_thread(iap),item_context.logger);
     }
 
     //**********************************************************
@@ -537,15 +496,15 @@ public class Item_file_with_icon extends Item_file
         {
             if ( image_and_properties.image() ==null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL receive_icon_in_fx_thread image_and_properties.image() ==null, for: "+get_item_path()));
+                item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL receive_icon_in_fx_thread image_and_properties.image() ==null, for: "+get_item_path()));
                 return;
             }
             if ( image_and_properties.properties() ==null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL receive_icon_in_fx_thread image_and_properties.properties() ==null, for: "+get_item_path()));
+                item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL receive_icon_in_fx_thread image_and_properties.properties() ==null, for: "+get_item_path()));
                 return;
             }
-            logger.log("✅ receive_icon_in_fx_thread," +
+            item_context.logger.log("✅ receive_icon_in_fx_thread," +
                     "\n   w icon=          "+image_and_properties.image().getWidth()+
                     "\n   h icon=          "+image_and_properties.image().getHeight()+
                     "\n   w image=         "+image_and_properties.properties().w()+
@@ -565,20 +524,20 @@ public class Item_file_with_icon extends Item_file
                 if (p != null)
                 {
                     if (Files.exists(p)) {
-                        if ((Guess_file_type.is_this_path_extension_a_video(p, logger))
+                        if ((Guess_file_type.is_this_path_extension_a_video(p, item_context.logger))
                         ||
-                        (Guess_file_type.is_this_path_extension_a_pdf(p, logger)))
+                        (Guess_file_type.is_this_path_extension_a_pdf(p, item_context.logger)))
                         {
-                            if (dbg) logger.log("✅ PDF or video => rot=0");
+                            if (dbg) item_context.logger.log("✅ PDF or video => rot=0");
                             rotation = Rotation.normal;
                         }
                         else
                         {
-                            rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(p, true, owner, aborter, logger);
+                            rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(p, true, item_context.owner, item_context.aborter, item_context.logger);
                             if( rotation == null) rotation = Rotation.normal;
                         }
                     } else {
-                        logger.log(Stack_trace_getter.get_stack_trace("❌ Bad"));
+                        item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ Bad"));
                         you_are_invisible();
                         return;
                     }
@@ -590,9 +549,9 @@ public class Item_file_with_icon extends Item_file
         {
             if (aspect_ratio == null)
             {
-                logger.log("❌ SHOULD NOT HAPPEN");
+                item_context.logger.log("❌ SHOULD NOT HAPPEN");
                 double local = image_and_properties.image().getWidth()/image_and_properties.image().getHeight();
-                if( dbg) logger.log(Stack_trace_getter.get_stack_trace("setting aspect ratio for PDF from icon: "+ local));
+                if( dbg) item_context.logger.log(Stack_trace_getter.get_stack_trace("setting aspect ratio for PDF from icon: "+ local));
                 aspect_ratio = (Double) local;
             }
         }
@@ -605,20 +564,20 @@ public class Item_file_with_icon extends Item_file
         }
 
         image_view.setSmooth(true);
-        if ( dbg) logger.log("Setting icon !!"+image_and_properties.image().getWidth()+"x"+image_and_properties.image().getHeight());
+        if ( dbg) item_context.logger.log("Setting icon !!"+image_and_properties.image().getWidth()+"x"+image_and_properties.image().getHeight());
         image_view.setImage(image_and_properties.image());
 
         if (( image_and_properties.image().getHeight() >= icon_size) && (image_and_properties.image().getWidth() >= icon_size))
         {
             // this happens when the icon is PDF as we dont scale PDF icons
-            if (dbg) logger.log("✅ icon larger than target HAPPENS1 for: "+get_item_path());
+            if (dbg) item_context.logger.log("✅ icon larger than target HAPPENS1 for: "+get_item_path());
             image_view.setFitWidth(icon_size);
             image_view.setFitHeight(icon_size);
             if ((rotation == Rotation.rot_90_clockwise) || (rotation == Rotation.rot_90_anticlockwise))
             {
                 // this actually NEVER HAPPENS now since a PDF icon is never rotated
                 //if (dbg)
-                    logger.log("❌ HAPPENS2 for: "+get_item_path());
+                item_context.logger.log("❌ HAPPENS2 for: "+get_item_path());
                 image_view.setFitWidth(image_and_properties.image().getHeight());
                 image_view.setFitHeight(image_and_properties.image().getWidth());
             }
@@ -631,7 +590,7 @@ public class Item_file_with_icon extends Item_file
                 if ( image_and_properties.image().getHeight() < image_and_properties.image().getWidth())
                 {
                     if (dbg)
-                        logger.log("✅ HAPPENS3A for: "+get_item_path());
+                        item_context.logger.log("✅ HAPPENS3A for: "+get_item_path());
                     image_view.setFitWidth(icon_size);
                     image_view.setFitHeight(-1);
                 }
@@ -640,7 +599,7 @@ public class Item_file_with_icon extends Item_file
                     // this happens rarely as it is an image that is rotated AND wider than high after rotation
                     //(most of the rotated images are portrait shot by turning the camera
                     if (dbg)
-                        logger.log("✅ HAPPENS3B for: "+get_item_path());
+                        item_context.logger.log("✅ HAPPENS3B for: "+get_item_path());
                     image_view.setFitWidth(-1);
                     image_view.setFitHeight(icon_size);
                 }
@@ -648,7 +607,7 @@ public class Item_file_with_icon extends Item_file
             else
             {
                 if (dbg)
-                    logger.log("✅ HAPPENS4 for: "+get_item_path());
+                    item_context.logger.log("✅ HAPPENS4 for: "+get_item_path());
                 image_view.setFitWidth(image_and_properties.image().getWidth());
                 image_view.setFitHeight(image_and_properties.image().getHeight());
             }
@@ -658,7 +617,7 @@ public class Item_file_with_icon extends Item_file
         }
         else
         {
-            if ( dbg) logger.log("❗ image_and_rotation.rotation() is null");
+            if ( dbg) item_context.logger.log("❗ image_and_rotation.rotation() is null");
         }
     }
 
@@ -678,7 +637,7 @@ public class Item_file_with_icon extends Item_file
         //logger.log("item_file_with_icon::you_are_visible_specific "+get_item_path());
         if ( default_icon == null)
         {
-            logger.log("❌ BAD WARNING: item_file_with_icon: default_icon == null");
+            item_context.logger.log("❌ BAD WARNING: item_file_with_icon: default_icon == null");
             return;
         }
 

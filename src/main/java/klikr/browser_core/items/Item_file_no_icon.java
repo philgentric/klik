@@ -6,13 +6,9 @@
 
 package klikr.browser_core.items;
 
-import javafx.application.Application;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Window;
 import klikr.Window_builder;
 import klikr.Window_type;
 import klikr.audio.player.The_audio_player;
@@ -32,7 +28,6 @@ import klikr.util.animated_gifs.Animated_gif_from_folder_content;
 import klikr.browser_core.virtual_landscape.*;
 import klikr.look.Font_size;
 import klikr.look.Look_and_feel_manager;
-import klikr.path_lists.Path_list_provider;
 import klikr.settings.Non_booleans_properties;
 import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
@@ -70,70 +65,54 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     public Button button;
     public Label details; // may be null, as this is the text displayed when 'Show_single_column_with_details' == true
     public String text;
-    private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private static final DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     private final Klikr_cache<Path, Image_properties> image_properties_cache;
-    private final Path_comparator_source path_comparator_source;
     private final Feature_change_target feature_change_target;
 
     //**********************************************************
     public Item_file_no_icon(
-            Application application,
-            Window_type window_type,
-            Scene scene,
+            Item_context item_context,
             Selection_handler selection_handler,
             Feature_change_target feature_change_target,
             Icon_factory_actor icon_factory_actor,
-            Color color,
             String text_,
-            Klikr_cache<Path, Image_properties> image_properties_cache,
-            Path path,
-            Path_list_provider path_list_provider,
-            Path_comparator_source path_comparator_source,
-            Window owner,
-            Aborter aborter,
-            Logger logger)
+            Klikr_cache<Path, Image_properties> image_properties_cache)
     //**********************************************************
     {
-        super(application,window_type,scene,selection_handler,icon_factory_actor,color, path, path_list_provider,path_comparator_source,owner,aborter, logger);
+        super(item_context,selection_handler,icon_factory_actor);
         this.feature_change_target = feature_change_target;
         this.image_properties_cache = image_properties_cache;
-         this.path_comparator_source = path_comparator_source;
         text = text_;
-        if (path == null) {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: path is null"));
+        if (item_context.item_path == null) {
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: path is null"));
             return;
         }
 
-        double button_width = Non_booleans_properties.get_column_width(owner);
+        double button_width = Non_booleans_properties.get_column_width(item_context.owner);
         if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
         button_for_a_non_image_file( text,button_width);
 
-        Look_and_feel_manager.set_button_look(button,false,owner,logger);
+        Look_and_feel_manager.set_button_look(button,false,item_context.owner,item_context.logger);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
         if (Feature_cache.get(Feature.Show_file_names_as_tooltips))
         {
-            Tooltip.install(button, new Tooltip(path.toString()));
+            Tooltip.install(button, new Tooltip(  item_context.item_path.toString()));
         }
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,path,logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,item_context.item_path,item_context.logger);
     }
 
-    //**********************************************************
-    @Override
-    void set_new_path(Path newPath) {
-        path = newPath;
-    }
-    //**********************************************************
+
 
     //**********************************************************
-    @Override
+    @Override // Icon_destination
     public Path get_item_path()
     //**********************************************************
     {
-        return path;
+        return item_context.item_path;
     }
 
     //**********************************************************
@@ -174,7 +153,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
-        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+        item_context.logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
     }
 
 
@@ -190,7 +169,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     public Path get_path_for_display_icon_destination()
     //**********************************************************
     {
-        logger.log("Item_file_no_icon get_path_for_display_icon_destination DEEP !???");
+        item_context.logger.log("Item_file_no_icon get_path_for_display_icon_destination DEEP !???");
         return get_path_for_display(true);
     }
 
@@ -241,12 +220,12 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         File[] files = dir.listFiles();
         if ( files == null)
         {
-            if ( dbg) logger.log("❗ WARNING: dir is access denied: "+local_path);
+            if ( dbg) item_context.logger.log("❗ WARNING: dir is access denied: "+local_path);
             return null;
         }
         if ( files.length == 0)
         {
-            if ( dbg) logger.log("❗ dir is empty: "+local_path);
+            if ( dbg) item_context.logger.log("❗ dir is empty: "+local_path);
             return null;
         }
         Arrays.sort(files);
@@ -258,7 +237,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_this_file_extension_an_image(f,owner,logger)) continue; // ignore non images
+            if (!Guess_file_type.is_this_file_extension_an_image(f,item_context.owner,item_context.logger)) continue; // ignore non images
             if( make_animated_gif)
             {
                 images_in_folder.add(f.toPath());
@@ -271,7 +250,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         }
         if( make_animated_gif)
         {
-            logger.log("✅ make_animated_gif");
+            item_context.logger.log("✅ make_animated_gif");
 
             if ( images_in_folder.isEmpty())
             {
@@ -279,15 +258,15 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             }
 
             Optional<Path> returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
-                    owner,
-                    new Path_list_provider_for_file_system(local_path,owner,logger),
-                    path_comparator_source,
+                    item_context.owner,
+                    new Path_list_provider_for_file_system(local_path,item_context.owner,item_context.logger),
+                    item_context.path_comparator_source,
                     images_in_folder,
                     image_properties_cache,
-                    aborter, logger);
+                    item_context.aborter, item_context.logger);
             if ( returned.isEmpty())
             {
-                if (dbg) logger.log("❗ make_animated_gif_from_all_images_in_folder fails");
+                if (dbg) item_context.logger.log("❗ make_animated_gif_from_all_images_in_folder fails");
                 // use the first image as icon, if any
                 if (!images_in_folder.isEmpty())
                 {
@@ -296,7 +275,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             }
             else
             {
-                if (dbg) logger.log("✅ make_animated_gif_from_all_images_in_folder OK");
+                if (dbg) item_context.logger.log("✅ make_animated_gif_from_all_images_in_folder OK");
                 return returned.get();
             }
         }
@@ -312,13 +291,13 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     {
         if (selected)
         {
-            if( dbg) logger.log("Item_file_no_icon set_selected_look for " + path);
-            Look_and_feel_manager.give_button_a_selected_file_style(button, owner, logger);
+            if( dbg) item_context.logger.log("Item_file_no_icon set_selected_look for " + item_context.item_path);
+            Look_and_feel_manager.give_button_a_selected_file_style(button, item_context.owner, item_context.logger);
         }
         else
         {
-            if( dbg) logger.log("Item_file_no_icon unset_selected_look for "+path);
-            Look_and_feel_manager.give_button_a_file_style(button,owner,logger);
+            if( dbg) item_context.logger.log("Item_file_no_icon unset_selected_look for "+item_context.item_path);
+            Look_and_feel_manager.give_button_a_file_style(button,item_context.owner,item_context.logger);
         }
     }
 
@@ -330,9 +309,8 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     //**********************************************************
     {
 
-        Path item_path = get_item_path();
-        if (item_path == null) {
-            logger.log(Stack_trace_getter.get_stack_trace(""));
+        if (item_context.item_path == null) {
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
 
@@ -341,22 +319,22 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             StringBuilder sb = new StringBuilder();
             try {
 
-                FileTime x = Files.readAttributes(item_path, BasicFileAttributes.class).creationTime();
+                FileTime x = Files.readAttributes(item_context.item_path, BasicFileAttributes.class).creationTime();
                 LocalDateTime ldt = x.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 sb.append(ldt.format(date_time_formatter));
                 sb.append("                 ");
-                sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(item_path.toFile().length(),owner,logger));
+                sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(item_context.item_path.toFile().length(),item_context.owner,item_context.logger));
                 sb.append("                 ");
-                if (!item_path.toFile().canWrite())
+                if (!item_context.item_path.toFile().canWrite())
                 {
                     sb.append("❗ Not Writable!                 ");
                 }
             } catch (IOException e) {
-                logger.log_exception("",e);
+                item_context.logger.log_exception("",e);
             }
             details = new Label(sb.toString());
             //Font_size.set_preferred_font_size(label,logger);
-            Font_size.apply_global_font_size_to_Node(details,owner,logger);
+            Font_size.apply_global_font_size_to_Node(details,item_context.owner,item_context.logger);
             button = new Button(text, details);
         }
         else
@@ -367,58 +345,58 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         button.setMinWidth(width);
         button.setPrefWidth(width);
         //Font_size.set_preferred_font_size(button,logger);
-        Font_size.apply_global_font_size_to_Node(button,owner,logger);
+        Font_size.apply_global_font_size_to_Node(button,item_context.owner,item_context.logger);
 
-        Look_and_feel_manager.give_button_a_file_style(button,owner,logger);
+        Look_and_feel_manager.give_button_a_file_style(button,item_context.owner,item_context.logger);
         button.setTextAlignment(TextAlignment.RIGHT);
 
         button.setOnAction(event -> {
 
-            if ( !item_path.toFile().exists())
+            if ( !item_context.item_path.toFile().exists())
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning( "❌  impossible, this path does not exist: " + item_path.toAbsolutePath(), "Sorry", false,owner,logger), logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning( "❌  impossible, this path does not exist: " + item_context.item_path.toAbsolutePath(), "Sorry", false,item_context.owner,item_context.logger), item_context.logger);
 
-                logger.log("❌  impossible, this path does not exist: " + item_path.toAbsolutePath());
+                item_context.logger.log("❌  impossible, this path does not exist: " + item_context.item_path.toAbsolutePath());
                 return;
             }
-            logger.log("✅ ON ACTION " + item_path.toAbsolutePath());
+            item_context.logger.log("✅ ON ACTION " + item_context.item_path.toAbsolutePath());
 
-            if ( Guess_file_type.is_this_path_extension_a_text(item_path,owner,logger))
+            if ( Guess_file_type.is_this_path_extension_a_text(item_context.item_path,item_context.owner,item_context.logger))
             {
-                logger.log("✅ opening text: " + item_path.toAbsolutePath());
+                item_context.logger.log("✅ opening text: " + item_context.item_path.toAbsolutePath());
                 if ( Feature_cache.get(Feature.Use_monaco_for_text_edition))
                 {
-                    Javalin_monaco.read_only(application,item_path,logger);
+                    Javalin_monaco.read_only(item_context.application,item_context.item_path,item_context.logger);
                 }
                 else
                 {
-                    Text_frame.show(item_path, logger);
+                    Text_frame.show(item_context.item_path, item_context.logger);
                 }
                 return;
             }
-            if ( Guess_file_type.is_this_path_extension_an_audio_playlist(item_path,logger))
+            if ( Guess_file_type.is_this_path_extension_an_audio_playlist(item_context.item_path,item_context.logger))
             {
-                logger.log("✅ opening audio playlist: " + item_path.toAbsolutePath());
-                Window_builder.additional_no_past(application,Window_type.Song_playlist,new Path_list_provider_for_playlist(path,  owner, aborter, logger),owner,logger);
+                item_context.logger.log("✅ opening audio playlist: " + item_context.item_path.toAbsolutePath());
+                Window_builder.additional_no_past(item_context.application,Window_type.Song_playlist,new Path_list_provider_for_playlist(item_context.item_path,  item_context.owner, item_context.aborter, item_context.logger),item_context.owner,item_context.logger);
                 return;
             }
 
-            if ( Guess_file_type.is_this_path_extension_a_music(item_path,logger))
+            if ( Guess_file_type.is_this_path_extension_a_music(item_context.item_path,item_context.logger))
             {
-                if ( Guess_file_type.does_this_file_contain_an_audio_track(item_path,owner,logger))
+                if ( Guess_file_type.does_this_file_contain_an_audio_track(item_context.item_path,item_context.owner,item_context.logger))
                 {
-                    logger.log("✅ Item_file_no_icn, opening audio file: " + item_path.toAbsolutePath());
-                    logger.log("path_list_provider="+path_list_provider.to_string());
+                    item_context.logger.log("✅ Item_file_no_icn, opening audio file: " + item_context.item_path.toAbsolutePath());
+                    item_context.logger.log("path_list_provider="+item_context.path_list_provider.to_string());
 
-                    The_audio_player.play_song_in_folder(application,item_path,owner,logger);
+                    The_audio_player.play_song_in_folder(item_context.application,item_context.item_path,item_context.owner,item_context.logger);
                     return;
                 }
             }
-            logger.log("✅ asking the system to open: " + item_path.toAbsolutePath());
-            System_open_actor.open_with_system(application, item_path, owner,aborter,logger);
+            item_context.logger.log("✅ asking the system to open: " + item_context.item_path.toAbsolutePath());
+            System_open_actor.open_with_system(item_context.application, item_context.item_path, item_context.owner,item_context.aborter,item_context.logger);
         });
 
-        give_a_menu_to_the_button(button, details);
+        give_a_menu_to_the_button(item_context,button, details);
     }
 
     /*
@@ -486,7 +464,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             Long how_many_files_deep = folder_file_count_cache.get(path);
             if ( how_many_files_deep == null)
             {
-                how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter,  owner, logger);
+                how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter,  item_context.owner, logger);
                 folder_file_count_cache.put(path,how_many_files_deep);
             }
             count.decrement();
@@ -515,7 +493,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             if ( bytes == null)
             {
                 //logger.log(path+" length not found in cache");
-                Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, owner, logger);
+                Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, item_context.owner, logger);
                 bytes = (Long) sizes.bytes();
                 //logger.log(path+" not found in cache, length is "+bytes+ "bytes");
                 folder_total_sizes.put(path,bytes);
@@ -529,7 +507,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             StringBuilder sb =  new StringBuilder();
             sb.append(text);
             sb.append("       ");
-            sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,owner,logger));
+            sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,item_context.owner,logger));
 
             //sb.append(", ");
             //sb.append(sizes.files());
@@ -572,22 +550,8 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         return button.getHeight();
     }
 
-    //**********************************************************
-    @Override
-    public boolean is_trash()
-    //**********************************************************
-    {
-        return false;
-    }
 
 
-    //**********************************************************
-    @Override
-    public Path is_parent_of()
-    //**********************************************************
-    {
-        return null;
-    }
 
     //**********************************************************
     @Override
@@ -598,7 +562,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         Path p = get_item_path();
         if ( p == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
             return "Item_file_no_icon no path ?" ;
         }
         return "Item_file_no_icon, file: " + p.toAbsolutePath();

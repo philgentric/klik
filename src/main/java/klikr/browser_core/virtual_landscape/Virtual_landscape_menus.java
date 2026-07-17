@@ -30,6 +30,8 @@ import javafx.scene.input.KeyCombination;
 import javafx.stage.Window;
 import klikr.Window_builder;
 import klikr.audio.player.The_audio_player;
+import klikr.browser_core.items.Iconifiable_item_type;
+import klikr.browser_core.items.Item_context;
 import klikr.path_lists.Files_and_folders;
 import klikr.path_lists.Path_list_provider_for_playlist;
 import klikr.util.External_application;
@@ -251,7 +253,7 @@ public class Virtual_landscape_menus
         if ( p.isPresent() )
         {
             Folders_with_large_images_locator.locate(virtual_landscape.application, p.get(), 10, 200_000, owner, logger);
-        };
+        }
     }
 
     //**********************************************************
@@ -801,8 +803,7 @@ public class Virtual_landscape_menus
             double height,
             double min_width,
             boolean is_trash_button,
-            Path is_parent_of,
-            Logger logger)
+            Path is_parent_of)
     //**********************************************************
     {
         if ( path == null) 
@@ -812,29 +813,13 @@ public class Virtual_landscape_menus
         }
         Path_list_provider path_list_provider =  new Path_list_provider_for_file_system(path,owner,logger);
 
-        // we make a Item_button but are only interested in the button...
-        Item_folder dummy = new Item_folder(
-                virtual_landscape.application,
-                virtual_landscape.window_type,
-                virtual_landscape.the_Scene,
-                virtual_landscape.selection_handler,
-                virtual_landscape.icon_factory_actor,
-                null,
-                text,
-                height,
-                is_trash_button,
-                is_parent_of,
-                virtual_landscape.get_image_properties_cache(),
-                virtual_landscape.shutdown_target,
-                path_list_provider,
-                virtual_landscape,
-                virtual_landscape,
-                
-                owner,
-                virtual_landscape.aborter,
-                logger);
-        dummy.button_for_a_directory(text, is_trash_button, min_width, height, null);
-        return dummy.button;
+        Item_context item_context = new Item_context(false,
+                path.getParent(),path, Iconifiable_item_type.folder,
+                null, virtual_landscape.the_Scene,
+                virtual_landscape,virtual_landscape.application,virtual_landscape.window_type,owner,logger,virtual_landscape.aborter,path_list_provider);
+
+
+        return Item_folder.button_for_a_directory(virtual_landscape, virtual_landscape.shutdown_target,item_context,text, min_width, height);
     }
 
 

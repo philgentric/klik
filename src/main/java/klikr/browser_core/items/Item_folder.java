@@ -4,13 +4,9 @@
 //SOURCES ../../util/ui/Text_frame_with_labels.java
 package klikr.browser_core.items;
 
-import javafx.application.Application;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Window;
 import klikr.Window_builder;
 import klikr.Window_type;
 import klikr.browser_core.icons.image_properties_cache.Image_properties;
@@ -25,18 +21,15 @@ import klikr.browser_core.icons.Icon_factory_actor;
 import klikr.util.animated_gifs.Animated_gif_from_folder_content;
 import klikr.browser_core.virtual_landscape.*;
 import klikr.look.Look_and_feel_manager;
-import klikr.path_lists.Path_list_provider;
 import klikr.settings.Non_booleans_properties;
 import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.files_and_paths.Guess_file_type;
 import klikr.util.files_and_paths.Sizes;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
-import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.ui.Popups;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -51,11 +44,8 @@ public class Item_folder extends Item implements Icon_destination
 //**********************************************************
 {
     public static final boolean dbg = false;
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(Item_folder.class);
-    public Button button;
+    public final Button button;
     //public Label label;
-    public final boolean is_trash;
-    public final Path is_parent_of; // can be null
     public String text;
     private static DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
@@ -66,51 +56,31 @@ public class Item_folder extends Item implements Icon_destination
 
     //**********************************************************
     public Item_folder(
-            Application application,
-            Window_type window_type,
-            Scene scene,
+            Item_context item_context,
             Selection_handler selection_handler,
             Icon_factory_actor icon_factory_actor,
-            Color color,
             String text_,
             double height,
-            boolean is_trash_,
-            Path is_parent_of,
             Klikr_cache<Path, Image_properties> image_properties_cache,
             Shutdown_target shutdown_target,
-            Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
-            Top_left_provider top_left_provider,
-            Window owner,
-            Aborter aborter,
-            Logger logger)
+            Top_left_provider top_left_provider)
     //**********************************************************
     {
         super(
-                application,
-                window_type,
-                scene,
+                item_context,
                 selection_handler,
-                icon_factory_actor,
-                color,
-                path_list_provider,
-                path_comparator_source,
-                owner,
-                aborter,
-                logger);
+                icon_factory_actor);
         this.image_properties_cache = image_properties_cache;
         this.shutdown_target = shutdown_target;
         this.top_left_provider = top_left_provider;
         text = text_;
-        is_trash = is_trash_;
-        this.is_parent_of = is_parent_of;
 
 
-        double button_width = Non_booleans_properties.get_column_width(owner);
+        double button_width = Non_booleans_properties.get_column_width(item_context.owner);
         if ( button_width < Virtual_landscape.MIN_COLUMN_WIDTH) button_width = Virtual_landscape.MIN_COLUMN_WIDTH;
 
-        Path local = get_item_path();
-        if ( local == null)
+        if ( item_context.item_path == null)
         {
             if ( text.isEmpty())
             {
@@ -118,38 +88,39 @@ public class Item_folder extends Item implements Icon_destination
             }
             else
             {
-                logger.log("❗ Warning PATH is null in item folder for ->"+text+"<-");
+                item_context.logger.log("❗ Warning PATH is null in item folder for ->"+text+"<-");
             }
+            button = null;
             return;
         }
-        if (Files.isDirectory(local))
+        if (Files.isDirectory(item_context.item_path))
         {
-            button_for_a_directory(text, is_trash, button_width, height, color);
+            button = button_for_a_directory(top_left_provider,shutdown_target, item_context,text, button_width, height);
         }
         else
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN Item_folder path is not a directory ->"+local+"<- text: ->"+text+"<-"));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN Item_folder path is not a directory ->"+item_context.item_path+"<- text: ->"+text+"<-"));
+            button = null;
             return;
         }
-        Look_and_feel_manager.set_button_look(button,false,owner,logger);
+        Look_and_feel_manager.set_button_look(button,false,item_context.owner,item_context.logger);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
-        Path p = get_item_path();
-        if ( p == null)
+        if ( item_context.item_path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
             return;
         }
         if (Feature_cache.get(Feature.Show_file_names_as_tooltips))
         {
 
-            if (p.getFileName() != null)
+            if (item_context.item_path.getFileName() != null)
             {
-                Tooltip.install(button, new Tooltip(p.getFileName().toString()));
+                Tooltip.install(button, new Tooltip(item_context.item_path.getFileName().toString()));
             }
         }
-        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,p,logger);
+        Drag_and_drop.init_drag_and_drop_sender_side(get_Node(),selection_handler,item_context.item_path,item_context.logger);
 
     }
 
@@ -157,18 +128,13 @@ public class Item_folder extends Item implements Icon_destination
 
     @Override
     public Iconifiable_item_type get_item_type() {
-        return null;
+        return Iconifiable_item_type.folder;
     }
 
-
-    @Override
-    void set_new_path(Path newPath) {
-        logger.log(Stack_trace_getter.get_stack_trace("set_new_path???"));
-    }
 
     @Override
     public Path get_item_path() {
-        Optional<Path> p = path_list_provider.get_folder_path();
+        Optional<Path> p = item_context.path_list_provider.get_folder_path();
         return p.orElse(null);
     }
 
@@ -213,7 +179,7 @@ public class Item_folder extends Item implements Icon_destination
     public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
-        logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN"));
+        item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN"));
     }
 
 
@@ -227,7 +193,7 @@ public class Item_folder extends Item implements Icon_destination
     @Override // Icon_destination
     public Path get_path_for_display_icon_destination()
     {
-        logger.log("✅ Item_button get_path_for_display_icon_destination DEEP !???");
+        item_context.logger.log("✅ Item_button get_path_for_display_icon_destination DEEP !???");
         return get_path_for_display(true);
     }
 
@@ -238,12 +204,12 @@ public class Item_folder extends Item implements Icon_destination
     public Path get_path_for_display(boolean try_deep)
     //**********************************************************
     {
-        if (is_trash) return null;
-        if (is_parent_of!=null) return null;
+        if (item_context.is_trash) return null;
+        if (item_context.is_parent_of!=null) return null;
         Path item_path = get_item_path();
         if ( item_path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
             return null;
         }
         // for a file the displayed icon is built from the file itself, if supported:
@@ -282,12 +248,12 @@ public class Item_folder extends Item implements Icon_destination
         File[] files = dir.listFiles();
         if ( files == null)
         {
-            if ( dbg) logger.log("❗ WARNING: dir is access denied: "+local_path);
+            if ( dbg) item_context.logger.log("❗ WARNING: dir is access denied: "+local_path);
             return null;
         }
         if ( files.length == 0)
         {
-            if ( dbg) logger.log("✅ dir is empty: "+local_path);
+            if ( dbg) item_context.logger.log("✅ dir is empty: "+local_path);
             return null;
         }
         Arrays.sort(files);
@@ -299,7 +265,7 @@ public class Item_folder extends Item implements Icon_destination
         for ( File f : files)
         {
             if (f.isDirectory()) continue; // ignore folders
-            if (!Guess_file_type.is_this_file_extension_an_image(f,owner,logger)) continue; // ignore non images
+            if (!Guess_file_type.is_this_file_extension_an_image(f,item_context.owner,item_context.logger)) continue; // ignore non images
             if( make_animated_gif)
             {
                 Objects.requireNonNull(images_in_folder).add(f.toPath());
@@ -311,7 +277,7 @@ public class Item_folder extends Item implements Icon_destination
         }
         if( make_animated_gif)
         {
-            logger.log("✅ make_animated_gif");
+            item_context.logger.log("✅ make_animated_gif");
 
             if ( Objects.requireNonNull(images_in_folder).isEmpty())
             {
@@ -319,15 +285,15 @@ public class Item_folder extends Item implements Icon_destination
             }
 
             Optional<Path> returned = Animated_gif_from_folder_content.make_animated_gif_from_images_in_folder(
-                    owner,
-                    new Path_list_provider_for_file_system(local_path,owner,logger),
-                    path_comparator_source,
+                    item_context.owner,
+                    new Path_list_provider_for_file_system(local_path,item_context.owner,item_context.logger),
+                    item_context.path_comparator_source,
                     images_in_folder,
                     image_properties_cache,
-                    aborter, logger);
+                    item_context.aborter, item_context.logger);
             if ( returned.isEmpty())
             {
-                logger.log("❌ make_animated_gif_from_all_images_in_folder fails");
+                item_context.logger.log("❌ make_animated_gif_from_all_images_in_folder fails");
                 if (!images_in_folder.isEmpty())
                 {
                     return images_in_folder.get(0);
@@ -335,7 +301,7 @@ public class Item_folder extends Item implements Icon_destination
             }
             else
             {
-                logger.log("✅ make_animated_gif_from_all_images_in_folder OK");
+                item_context.logger.log("✅ make_animated_gif_from_all_images_in_folder OK");
 
                 return returned.get();
             }
@@ -352,11 +318,11 @@ public class Item_folder extends Item implements Icon_destination
     {
         if ( selected )
         {
-            Look_and_feel_manager.give_button_a_selected_file_style(button, owner, logger);
+            Look_and_feel_manager.give_button_a_selected_file_style(button, item_context.owner, item_context.logger);
         }
         else
         {
-            Look_and_feel_manager.give_button_a_file_style(button,owner,logger);
+            Look_and_feel_manager.give_button_a_file_style(button,item_context.owner,item_context.logger);
         }
     }
 
@@ -365,80 +331,80 @@ public class Item_folder extends Item implements Icon_destination
 
 
     //**********************************************************
-    public void button_for_a_directory(String text, boolean is_trash, double width, double height, Color color)
+    public static Button button_for_a_directory(Top_left_provider top_left_provider, Shutdown_target shutdown_target, Item_context  item_context, String text, double width, double height)
     //**********************************************************
     {
         String extended_text = text;
-        Path item_path = get_item_path();
-        if ( item_path != null)
+        if ( item_context.item_path != null)
         {
-            if (Files.isSymbolicLink(item_path))
+            if (Files.isSymbolicLink(item_context.item_path))
             {
                 extended_text += " **Symbolic link** ";
             }
         }
-        button = new Button(extended_text);
-        button.setMnemonicParsing(false);// avoid suppression of first underscore in names
+        Button returned = new Button(extended_text);
+        returned.setMnemonicParsing(false);// avoid suppression of first underscore in names
 
-        Look_and_feel_manager.set_button_look_as_folder(button, height, color,owner,logger);
-        button.setTextAlignment(TextAlignment.RIGHT);
+        Look_and_feel_manager.set_button_look_as_folder(returned, height, item_context.color,item_context.owner,item_context.logger);
+        returned.setTextAlignment(TextAlignment.RIGHT);
         //double computed_text_width = icons_width + estimate_text_width(text2);
 
-        if (item_path == null)
+        if (item_context.item_path == null)
         {
             // protect crash when going up: root has no parent
-            if ( !text.isEmpty()) logger.log("✅ WARNING no action for folder ->"+text+"<-");
+            if ( !text.isEmpty()) item_context.logger.log("✅ WARNING no action for folder ->"+text+"<-");
 
-            if ( is_trash) {
-                button.setOnAction(event -> {
-                    Popups.popup_warning("❗ WARNING","NO trash on this media: probably it is read only",true,owner,logger);
+            if ( item_context.is_trash) {
+                returned.setOnAction(event -> {
+                    Popups.popup_warning("❗ WARNING","NO trash on this media: probably it is read only",true,item_context.owner,item_context.logger);
                 });
             }
-            return;
+            return returned;
         }
 
-        button.setOnAction(event -> {
-            if ( dbg) logger.log("Button pressed for folder:"+text);
-            Path local_item_path = get_item_path();
-            if (local_item_path == null)
+        returned.setOnAction(event -> {
+            if ( dbg) item_context.logger.log("Button pressed for folder:"+text);
+            //Path local_item_path = get_item_path();
+            if (item_context.item_path == null)
             {
                 // protect crash when going up: root has no parent
-                logger.log("❗ WARNING no action for folder:"+text);
+                item_context.logger.log("❗ WARNING no action for folder:"+text);
                 return;
             }
 
             // as the button represents a folder, clicking on it "opens" that folder
             // = we create a NEW browser, as a replacement
 
-            if( dbg) logger.log("Item_folder button setOnAction calling replace_different_folder");
+            if( dbg) item_context.logger.log("Item_folder button setOnAction calling replace_different_folder");
 
             // this works when going "down", path is the new target path, therefore going back is the parent of that
-            Path old_folder_path = local_item_path.getParent();
-            if ( is_parent_of() != null)
+            Path old_folder_path = item_context.item_path.getParent();
+            if ( item_context.is_parent_of != null)
             {
                 // this works when gping up
                 //if ( dbg)
-                    logger.log("is_up_button");
-                old_folder_path = is_parent_of();
+                item_context.logger.log("is_up_button");
+                old_folder_path = item_context.is_parent_of;
             }
-            logger.log("old_folder_path="+old_folder_path);
-            logger.log("top_left_provider.get_top_left()="+top_left_provider.get_top_left());
+            item_context.logger.log("old_folder_path="+old_folder_path);
+            item_context.logger.log("top_left_provider.get_top_left()="+top_left_provider.get_top_left());
 
             Window_builder.replace_different_folder(
-                    application,
+                    item_context.application,
                     shutdown_target,
                     Window_type.File_system_2D,
-                    new Path_list_provider_for_file_system(item_path,owner,logger),
+                    new Path_list_provider_for_file_system(item_context.item_path,item_context.owner,item_context.logger),
                     old_folder_path,
                     top_left_provider.get_top_left(),
-                    owner,
-                    logger);
+                    item_context.owner,
+                    item_context.logger);
 
         });
 
-        Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_in_provider(),get_Node(),owner,item_path,is_trash(),logger);
+        Drag_and_drop.init_drag_and_drop_receiver_side(item_context.path_list_provider.get_move_in_provider(),returned,item_context.owner,item_context.item_path,item_context.is_trash,item_context.logger);
 
-        give_a_menu_to_the_button(button,null);
+        give_a_menu_to_the_button(item_context,returned,null);
+        return returned;
     }
 
 
@@ -448,8 +414,7 @@ public class Item_folder extends Item implements Icon_destination
             Button button,
             String text,
             Path path,
-            Aborter aborter,
-            Logger logger)
+            Aborter aborter)
     //**********************************************************
     {
         count.increment();
@@ -458,7 +423,7 @@ public class Item_folder extends Item implements Icon_destination
             Long how_many_files_deep = RAM_caches.folder_file_count_cache.get(path);
             if ( how_many_files_deep == null)
             {
-                how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, owner, logger);
+                how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, item_context.owner, item_context.logger);
                 RAM_caches.folder_file_count_cache.put(path,how_many_files_deep);
             }
             count.decrement();
@@ -468,14 +433,14 @@ public class Item_folder extends Item implements Icon_destination
             Jfx_batch_injector.inject(() -> {
                 button.setText(finalExtended_text);
                 //browser.scene_geometry_changed("number of files in button", true);
-            },logger);
+            },item_context.logger);
         };
-        Actor_engine.execute(r, "Compute how many files deep", logger);
+        Actor_engine.execute(r, "Compute how many files deep", item_context.logger);
     }
 
 
     //**********************************************************
-    public void add_total_size_deep_folder(LongAdder count, Button button, String text, Path path, Logger logger)
+    public void add_total_size_deep_folder(LongAdder count, Button button, String text, Path path)
     //**********************************************************
     {
         count.increment();
@@ -485,21 +450,21 @@ public class Item_folder extends Item implements Icon_destination
             if ( bytes == null)
             {
                 //logger.log(path+" length not found in cache");
-                Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, owner, logger);
+                Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, item_context.aborter, item_context.owner, item_context.logger);
                 bytes = (Long) sizes.bytes();
                 //logger.log(path+" not found in cache, length is "+bytes+ "bytes");
                 RAM_caches.folder_total_size_cache.put(path,bytes);
             }
             else
             {
-                logger.log(path+" length found in cache "+bytes);
+                item_context.logger.log(path+" length found in cache "+bytes);
             }
             count.decrement();
 
             StringBuilder sb =  new StringBuilder();
             sb.append(text);
             sb.append("       ");
-            sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,owner,logger));
+            sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,item_context.owner,item_context.logger));
 
             //sb.append(", ");
             //sb.append(sizes.files());
@@ -509,9 +474,9 @@ public class Item_folder extends Item implements Icon_destination
             Jfx_batch_injector.inject(() -> {
                 button.setText(extended_text);
                 //browser.scene_geometry_changed("number of files in button", true);
-            },logger);
+            },item_context.logger);
         };
-        Actor_engine.execute(r, "Add total length in a folder's button", logger);
+        Actor_engine.execute(r, "Add total length in a folder's button", item_context.logger);
     }
 
 
@@ -527,7 +492,7 @@ public class Item_folder extends Item implements Icon_destination
         if ( button != null ) {
             return button.getWidth();
         }
-        logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+        item_context.logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
         return 0;
     }
 
@@ -543,28 +508,12 @@ public class Item_folder extends Item implements Icon_destination
             // until it is laid out, the button height is zero
             // so this entity CANNOT be used for "layout"... unless...
             // one cheats
-            //logger.log("implausible button.getHeight() == 0");
+            //logger.log("implausible button.getHeight()");
             return 40;
         }
         return button.getHeight();
     }
 
-    //**********************************************************
-    @Override
-    public boolean is_trash()
-    //**********************************************************
-    {
-        return is_trash;
-    }
-
-
-    //**********************************************************
-    @Override
-    public Path is_parent_of()
-    //**********************************************************
-    {
-        return is_parent_of;
-    }
 
     //**********************************************************
     @Override
@@ -574,7 +523,7 @@ public class Item_folder extends Item implements Icon_destination
         Path item_path = get_item_path();
         if ( item_path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
             return "Folder has no path ?";
         }
         return "is dir: " + item_path.toAbsolutePath();

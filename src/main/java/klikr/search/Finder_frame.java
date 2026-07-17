@@ -35,7 +35,6 @@ import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.log.Logger;
 import klikr.util.ui.progress.Hourglass;
 import klikr.util.ui.progress.Progress_window;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.*;

@@ -1111,21 +1111,15 @@ public class Virtual_landscape
                 }
                 getting_image_properties_from_cache += System.currentTimeMillis() - local_incr;
 
+                Item_context item_context = new Item_context(false,
+                        path.getParent(),path,Iconifiable_item_type.other,
+                        null, the_Scene, this,application,window_type,owner,logger,aborter,path_list_provider);
                 Item item = new Item_file_with_icon(
-                        application,
-                        window_type,
-                        the_Scene,
+                        item_context,
                         selection_handler,
                         icon_factory_actor,
-                        null,
                         cache_aspect_ratio,
-                        fv_cache_supplier,
-                        path,
-                        path_list_provider,
-                        this,
-                        owner,
-                        aborter,
-                        logger);
+                        fv_cache_supplier);
                 all_items_map.put(path_to_string(path), item);
                 // logger.log("item created: "+path);
             }
@@ -1381,22 +1375,17 @@ public class Virtual_landscape
                 if (item == null) {
                     // logger.log("Item_file_no_icon (3) path="+path);
 
+                    Item_context item_context = new Item_context(false,
+                            path.getParent(),path,Iconifiable_item_type.other,
+                            null, the_Scene, this,application,window_type,owner,logger,aborter,path_list_provider);
+
                     item = new Item_file_no_icon(
-                            application,
-                            window_type,
-                            the_Scene,
+                            item_context,
                             selection_handler,
                             this,
                             icon_factory_actor,
-                            null,
                             text,
-                            get_image_properties_cache(),
-                            path,
-                            path_list_provider,
-                            this,
-                            owner,
-                            aborter,
-                            logger);
+                            get_image_properties_cache());
                     all_items_map.put(path_to_string(path), item);
                 }
                 // item.get_Node().setVisible(false);
@@ -1522,24 +1511,24 @@ public class Virtual_landscape
                 if (dbg)
                     logger.log("✅ WARNING:Item_folder_with_icon NO path for" + folder_path);
 
-                folder_item = new Item_folder_with_icon(
-                        application,
-                        window_type,
-                        owner,
-                        the_Scene,
+
+                Item_context item_context = new Item_context(false,
+                        folder_path.getParent(),folder_path,Iconifiable_item_type.other,
+                        null, the_Scene,
+                        this,application,window_type,owner,logger,aborter,
+                        new Path_list_provider_for_file_system(folder_path, owner, logger));
+
+
+                        folder_item = new Item_folder_with_icon(item_context,
                         selection_handler,
                         icon_factory_actor,
-                        color,
-                        folder_path.getFileName().toString(),
+                        "text3433",
                         (int) column_increment,
                         100,
                         get_image_properties_cache(),
                         shutdown_target,
-                        new Path_list_provider_for_file_system(folder_path, owner, logger),
                         this,
-                        this,
-                        aborter,
-                        logger);
+                        this);
                 all_items_map.put(path_to_string(folder_path), folder_item);
             }
             p = new_Point_for_files_and_dirs(p, folder_item, column_increment, row_increment, scene_width,
@@ -1590,26 +1579,21 @@ public class Virtual_landscape
                     }
                 }
 
+                Item_context item_context = new Item_context(false,
+                        folder_path.getParent(),folder_path,Iconifiable_item_type.other,
+                        null, the_Scene, this,application,window_type,owner,logger,aborter,                        new Path_list_provider_for_file_system(folder_path, owner, logger)
+                        );
+
                 folder_item = new Item_folder(
-                        application,
-                        window_type,
-                        the_Scene,
+                        item_context,
                         selection_handler,
                         icon_factory_actor,
-                        color,
                         tmp,
                         icon_height_for_folders,
-                        false,
-                        null,
                         get_image_properties_cache(),
                         shutdown_target,
-                        new Path_list_provider_for_file_system(folder_path, owner, logger),
                         this,
-                        this,
-
-                        owner,
-                        aborter,
-                        logger);
+                        this);
                 all_items_map.put(path_to_string(folder_path), folder_item);
             }
 
@@ -1776,8 +1760,7 @@ public class Virtual_landscape
                                 ini.get_button(),
                                 ini.text,
                                 folder_path,
-                                aborter,
-                                logger);
+                                aborter);
                     }
                 }
             }
@@ -1843,7 +1826,7 @@ public class Virtual_landscape
                 if ( folder_path != null ) {
                     if (Files.isDirectory(folder_path)) {
                         item2_folder.add_total_size_deep_folder(count, item2_folder.get_button(), item2_folder.text,
-                                folder_path, logger);
+                                folder_path);
                     }
                 }
             }
@@ -2073,7 +2056,8 @@ public class Virtual_landscape
         double x_max = -Double.MAX_VALUE;
         double y_min = Double.MAX_VALUE;
         virtual_landscape_height = -Double.MAX_VALUE;
-        for (Item item : all_items_map.values()) {
+        for (Item item : all_items_map.values())
+        {
             if (item.get_javafx_x() < x_min)
                 x_min = item.get_javafx_x();
             if (item.get_javafx_x() + item.get_Width() > x_max) {
@@ -2152,8 +2136,7 @@ public class Virtual_landscape
                         height,
                         MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
                         false,
-                        folder_path.get(),
-                        logger);
+                        folder_path.get());
 
                     Image icon = Look_and_feel_manager.get_up_icon(height, owner, logger);
                     if (icon == null) {
@@ -2186,8 +2169,7 @@ public class Virtual_landscape
                     height,
                     MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
                     true,
-                    null,
-                    logger);
+                    null);
             if ( trash == null)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("trash button is null ?"));

@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.Window_builder;
 import klikr.Window_type;
+import klikr.browser_core.items.Item_context;
 import klikr.look.Font_size;
 import klikr.look.Look_and_feel_manager;
 import klikr.look.my_i18n.My_I18n;
@@ -80,13 +81,13 @@ public class Menu_items
                 },context_menu,owner,logger);
     }
     //**********************************************************
-    public static void create_show_file_size_menu_item(ContextMenu context_menu, Path path, Window owner, Logger logger)
+    public static void create_show_file_size_menu_item(ContextMenu context_menu, Item_context item_context)
     //**********************************************************
     {
         Menu_items.add_menu_item_for_context_menu("Show_file_size",true,null,
                 event -> {
-                    show_file_size(path, owner, logger);
-                }, context_menu,owner,logger);
+                    show_file_size(item_context.item_path, item_context.owner, item_context.logger);
+                }, context_menu,item_context.owner,item_context.logger);
     }
 
     //**********************************************************

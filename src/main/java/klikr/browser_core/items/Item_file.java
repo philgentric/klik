@@ -24,40 +24,28 @@ import java.util.Optional;
 public abstract class Item_file extends Item
 //**********************************************************
 {
-    protected Path path;
     public final int icon_size;
     public final Iconifiable_item_type item_type;
 
 
     //**********************************************************
     public Item_file(
-            Application application,
-            Window_type window_type,
-            Scene scene,
+            Item_context item_context,
             Selection_handler selection_handler,
-            Icon_factory_actor icon_factory_actor,
-            Color color,
-            Path path_,
-            Path_list_provider path_list_provider,
-            Path_comparator_source path_comparator_source,
-            Window owner,
-            Aborter aborter,
-            Logger logger)
+            Icon_factory_actor icon_factory_actor)
     //**********************************************************
     {
-        super(application,window_type, scene, selection_handler, icon_factory_actor, color, path_list_provider, path_comparator_source, owner, aborter, logger);
-        if ( path_ == null )
+        super(item_context, selection_handler, icon_factory_actor);
+        if ( item_context.item_path == null )
         {
-            logger.log(Stack_trace_getter.get_stack_trace("path_ == null ???"));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("item_path == null ???"));
         }
-        this.path = path_;
-        Path item_path = get_item_path();
-        if ( item_path == null)
+        if ( item_context.item_path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace(""));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
         }
-        item_type = Iconifiable_item_type.determine(item_path,owner,aborter,logger);
-        icon_size = Non_booleans_properties.get_icon_size(owner);
+        item_type = Iconifiable_item_type.determine(item_context.item_path,item_context.owner,item_context.aborter,item_context.logger);
+        icon_size = Non_booleans_properties.get_icon_size(item_context.owner);
     }
 
     //**********************************************************
@@ -73,7 +61,7 @@ public abstract class Item_file extends Item
     public String get_string()
     //**********************************************************
     {
-        return "is file: " + path;
+        return "is file: " + item_context.item_path;
     }
 
 }
