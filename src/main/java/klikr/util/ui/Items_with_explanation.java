@@ -63,7 +63,7 @@ public class Items_with_explanation
     {
         HBox hb = new HBox();
         Button b = new Button(My_I18n.get_I18n_string(key, owner, logger));
-        Look_and_feel_manager.set_button_look(b,true,owner,logger);
+        Look_and_feel_manager.set_region_look(b,true,owner,logger);
         //look_and_feel.set_Button_look(b, width, icon_size, null, owner, logger);
         b.setOnAction(handler);
         hb.getChildren().add(b);
@@ -98,7 +98,7 @@ public class Items_with_explanation
             explanation = My_I18n.get_I18n_string(key, owner, logger).replaceAll("_", " ");
         }
         button.setTooltip(new Tooltip(explanation));
-        Look_and_feel_manager.set_button_look(button, true,owner, logger);
+        Look_and_feel_manager.set_region_look(button, true,owner, logger);
         String finalExplanation = explanation;
         button.setOnAction(event -> show_explanation(finalExplanation, owner, logger));
         return button;

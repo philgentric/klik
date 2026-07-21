@@ -70,9 +70,9 @@ public class Browser_for_disk_footprint implements Owner_provider, Selection_man
         ToolBar toolBar = new ToolBar();
         Look_and_feel_manager.set_region_look(toolBar,stage,logger);
         Button refresh_button = new Button(My_I18n.get_I18n_string("Refresh",stage,logger));
-        Look_and_feel_manager.set_button_look(refresh_button,true,stage,logger);
+        Look_and_feel_manager.set_region_look(refresh_button,true,stage,logger);
         up_button = new Button(My_I18n.get_I18n_string("Parent_Folder",stage,logger));
-        Look_and_feel_manager.set_button_look(up_button,true,stage,logger);
+        Look_and_feel_manager.set_region_look(up_button,true,stage,logger);
         status_label = new Label("OK");
         Look_and_feel_manager.set_region_look(status_label,stage,logger);
 
@@ -102,9 +102,12 @@ public class Browser_for_disk_footprint implements Owner_provider, Selection_man
             {
                 Optional<Hourglass> x = Progress_window.show("Scanning disk",20*60,stage.getX()+100,stage.getY()+100,stage,logger);
                 File_node parent = find_parent(scan_root, current_root);
-                if (parent != null) {
+                if (parent != null)
+                {
                     navigate_to(parent,x);
-                } else {
+                }
+                else
+                {
                     navigate_to(scan_root, x);
                 }
                 x.ifPresent(Hourglass::close);
@@ -178,6 +181,8 @@ public class Browser_for_disk_footprint implements Owner_provider, Selection_man
             status_label.setText(node.get_file().getAbsolutePath() + " — " + format_size_internal(node.get_size()));
             refresh();
             stage.setTitle("Disk footprint of: "+node.get_file().getAbsolutePath());
+            x.ifPresent(Hourglass::close);
+
 
         });
 

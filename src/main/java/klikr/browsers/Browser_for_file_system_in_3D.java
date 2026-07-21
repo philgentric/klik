@@ -9,7 +9,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -30,7 +29,6 @@ import klikr.*;
 import klikr.browser_core.Window_manager;
 import klikr.browser_core.in3D.*;
 import klikr.browser_core.virtual_landscape.Shutdown_target;
-import klikr.browser_core.virtual_landscape.Virtual_landscape;
 import klikr.path_lists.Path_list_provider;
 import klikr.settings.Sort_files_by;
 import klikr.settings.boolean_features.Feature;
@@ -248,7 +246,7 @@ public class Browser_for_file_system_in_3D implements Owner_provider, Selection_
         if ( the_path.getParent() != null)
         {
             Button up = new Button("Up");
-            Look_and_feel_manager.set_button_look(up, true, stage, logger);
+            Look_and_feel_manager.set_region_look(up, true, stage, logger);
             up.setOnAction(event -> {
                 Window_builder.replace_different_folder(
                         application,
@@ -264,7 +262,7 @@ public class Browser_for_file_system_in_3D implements Owner_provider, Selection_
         }
         {
             Button up = new Button("2D");
-            Look_and_feel_manager.set_button_look(up, true, stage, logger);
+            Look_and_feel_manager.set_region_look(up, true, stage, logger);
             up.setOnAction(event -> {
                 Window_builder.replace_same_folder(
                         application,

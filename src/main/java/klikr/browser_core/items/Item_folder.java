@@ -103,18 +103,18 @@ public class Item_folder extends Item implements Icon_destination
             button = null;
             return;
         }
-        Look_and_feel_manager.set_button_look(button,false,item_context.owner,item_context.logger);
+        Look_and_feel_manager.set_region_look(button,false,item_context.owner,item_context.logger);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);
-        if ( item_context.item_path == null)
-        {
-            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
-            return;
-        }
+
         if (Feature_cache.get(Feature.Show_file_names_as_tooltips))
         {
-
+            if ( item_context.item_path == null)
+            {
+                item_context.logger.log(Stack_trace_getter.get_stack_trace("FATAL"));
+                return;
+            }
             if (item_context.item_path.getFileName() != null)
             {
                 Tooltip.install(button, new Tooltip(item_context.item_path.getFileName().toString()));
@@ -205,7 +205,7 @@ public class Item_folder extends Item implements Icon_destination
     //**********************************************************
     {
         if (item_context.is_trash) return null;
-        if (item_context.is_parent_of!=null) return null;
+        //if (item_context.is_parent_of!=null) return null;
         Path item_path = get_item_path();
         if ( item_path == null)
         {
@@ -379,12 +379,12 @@ public class Item_folder extends Item implements Icon_destination
 
             // this works when going "down", path is the new target path, therefore going back is the parent of that
             Path old_folder_path = item_context.item_path.getParent();
-            if ( item_context.is_parent_of != null)
+            if ( item_context.item_path.getParent() != null)
             {
-                // this works when gping up
+                // this works when going up
                 //if ( dbg)
                 item_context.logger.log("is_up_button");
-                old_folder_path = item_context.is_parent_of;
+                old_folder_path = item_context.item_path.getParent();
             }
             item_context.logger.log("old_folder_path="+old_folder_path);
             item_context.logger.log("top_left_provider.get_top_left()="+top_left_provider.get_top_left());

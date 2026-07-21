@@ -34,8 +34,6 @@ import javafx.stage.Window;
 import klikr.Window_builder;
 import klikr.Window_type;
 import klikr.browser_core.Image_and_properties;
-import klikr.browser_core.icons.image_properties_cache.Image_properties;
-import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.look.Look_and_feel_manager;
 import klikr.machine_learning.ML_server_type;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
@@ -836,7 +834,7 @@ public class Face_recognition_service
             {
                 HBox hBox = new HBox();
                 Button add = new Button("Add to training set");
-                Look_and_feel_manager.set_button_look(add,true,stage,logger);
+                Look_and_feel_manager.set_region_look(add,true,stage,logger);
 
                 if (eval_result != null) add.setDisable(!eval_result.adding());
                 add.setOnAction(e -> {
@@ -866,7 +864,7 @@ public class Face_recognition_service
             {
                 HBox hBox = new HBox();
                 Button skip = new Button("Skip this face, do not add it to the training set");
-                Look_and_feel_manager.set_button_look(skip,true,stage,logger);
+                Look_and_feel_manager.set_region_look(skip,true,stage,logger);
                 skip.setOnAction(e -> {
                     stage.close();
                 });
@@ -876,7 +874,7 @@ public class Face_recognition_service
             if (eval_result != null) {
                 HBox hBox = new HBox();
                 Button remove = new Button("REMOVE this face from the training set (bad face or wrong label)");
-                Look_and_feel_manager.set_button_look(remove,true,stage,logger);
+                Look_and_feel_manager.set_region_look(remove,true,stage,logger);
                 remove.setDisable(!eval_result.adding());
                 remove.setOnAction(e -> {
 

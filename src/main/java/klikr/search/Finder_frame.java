@@ -30,7 +30,6 @@ import klikr.settings.boolean_features.Feature;
 import klikr.util.files_and_paths.Ding;
 import klikr.look.Look_and_feel_manager;
 import klikr.look.my_i18n.My_I18n;
-import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.log.Logger;
 import klikr.util.ui.progress.Hourglass;
@@ -189,7 +188,7 @@ public class Finder_frame implements Search_receiver
 			if ( path_list_provider instanceof Path_list_provider_for_file_system)
 			{
 				Button up = new Button(My_I18n.get_I18n_string("Search_Parent_Folder", stage, logger));
-				Look_and_feel_manager.set_button_look(up, true, stage, logger);
+				Look_and_feel_manager.set_region_look(up, true, stage, logger);
 
 				settings_vbox.getChildren().add(up);
 
@@ -342,7 +341,7 @@ public class Finder_frame implements Search_receiver
 			hbox.getChildren().add(horizontal_spacer(stage,logger));
 
 			Button add_keyword = new Button(My_I18n.get_I18n_string("Add_Keyword", stage,logger));
-			Look_and_feel_manager.set_button_look(add_keyword,true,stage,logger);
+			Look_and_feel_manager.set_region_look(add_keyword,true,stage,logger);
 			add_keyword.setOnAction((ActionEvent e) -> new_keyword_action(new_keyword_textfield));
 			hbox.getChildren().add(add_keyword);
 			top_keyword_vbox.getChildren().add(hbox);
@@ -358,7 +357,7 @@ public class Finder_frame implements Search_receiver
 		start = new Button(My_I18n.get_I18n_string("Start_Search", stage,logger));
 		start.setOnAction((ActionEvent e) -> start_search());
 		settings_vbox.getChildren().add(start);
-		Look_and_feel_manager.set_button_look(start,true,stage,logger);
+		Look_and_feel_manager.set_region_look(start,true,stage,logger);
 
 		settings_vbox.getChildren().add(vertical_spacer());
 		stop = new Button(My_I18n.get_I18n_string("Stop_Search", stage,logger));
@@ -368,7 +367,7 @@ public class Finder_frame implements Search_receiver
 			stop_now();
 		});
 		settings_vbox.getChildren().add(stop);
-		Look_and_feel_manager.set_button_look(stop,true,stage,logger);
+		Look_and_feel_manager.set_region_look(stop,true,stage,logger);
 		settings_vbox.getChildren().add(vertical_spacer());
 
 

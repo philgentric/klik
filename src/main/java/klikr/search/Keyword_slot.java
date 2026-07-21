@@ -80,7 +80,7 @@ public class Keyword_slot
             hbox1.getChildren().add(Finder_frame.horizontal_spacer(finder_frame.stage,logger));
 
             Button t4 = new Button(My_I18n.get_I18n_string("Remove_This_Keyword", finder_frame.stage,logger));
-            Look_and_feel_manager.set_button_look(t4, true,finder_frame.stage,logger);
+            Look_and_feel_manager.set_region_look(t4, true,finder_frame.stage,logger);
             t4.setOnAction(new EventHandler<>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {

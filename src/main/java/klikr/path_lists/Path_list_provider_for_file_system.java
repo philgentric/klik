@@ -154,17 +154,16 @@ public class Path_list_provider_for_file_system implements Path_list_provider
                 if (consider_also_hidden_files)
                 {
                     returned++;
-                    logger.log(file.toString()+ " hidden, but counted");
+                    //logger.log(file.toString()+ " hidden, but counted");
                 }
                 else {
-                    logger.log(file.toString()+ " hidden, not counted");
+                    //logger.log(file.toString()+ " hidden, not counted");
                 }
 
             }
             else
             {
-                logger.log(file.toString()+ " not hidden, counted");
-
+                //logger.log(file.toString()+ " not hidden, counted");
                 returned++;
             }
         }

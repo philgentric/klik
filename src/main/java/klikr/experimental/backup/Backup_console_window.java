@@ -90,7 +90,7 @@ public class Backup_console_window
                 Backup_singleton.abort();
             });
         }
-        Look_and_feel_manager.set_button_look(cancel,true,stage,logger);
+        Look_and_feel_manager.set_region_look(cancel,true,stage,logger);
         vbox.getChildren().add(cancel);
 
         {

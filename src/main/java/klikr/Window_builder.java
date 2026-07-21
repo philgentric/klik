@@ -195,10 +195,12 @@ public class Window_builder
     {
         if ( top_left != null)
         {
-            Scroll_position_cache.scroll_position_cache_write(
-                    key_for_scroll_position_cache,
-                    top_left.toAbsolutePath().normalize().toString(),
-                    "replace same folder",logger);
+            if (key_for_scroll_position_cache!=null) {
+                Scroll_position_cache.scroll_position_cache_write(
+                        key_for_scroll_position_cache,
+                        top_left.toAbsolutePath().normalize().toString(),
+                        "replace same folder", logger);
+            }
         };
 
         Rectangle2D rectangle = new Rectangle2D(originator.getX(),originator.getY(),originator.getWidth(),originator.getHeight());
@@ -228,10 +230,12 @@ public class Window_builder
     {
         if ( top_left != null)
         {
-            Scroll_position_cache.scroll_position_cache_write(
-                    key_for_scroll_position_cache.toAbsolutePath().normalize().toString(),
-                    top_left.toAbsolutePath().normalize().toString(),
-                    "replace_different_folder",logger);
+            if (  key_for_scroll_position_cache != null) {
+                Scroll_position_cache.scroll_position_cache_write(
+                        key_for_scroll_position_cache.toAbsolutePath().normalize().toString(),
+                        top_left.toAbsolutePath().normalize().toString(),
+                        "replace_different_folder", logger);
+            }
         };
 
         Optional<Path> folder_path = path_list_provider.get_folder_path();

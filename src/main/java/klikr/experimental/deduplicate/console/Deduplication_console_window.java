@@ -98,7 +98,7 @@ public class Deduplication_console_window
             }
         });
         Button cancel = new Button("Cancel");
-        Look_and_feel_manager.set_button_look(cancel,true,owner,logger);
+        Look_and_feel_manager.set_region_look(cancel,true,owner,logger);
         {
             cancel.setOnAction(new EventHandler<ActionEvent>() {
                 @Override

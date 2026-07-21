@@ -16,8 +16,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.machine_learning.*;
-import klikr.settings.boolean_features.Feature;
-import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.Check_remaining_RAM;
 import klikr.util.Shared_services;
 import klikr.look.Look_and_feel_manager;
@@ -31,11 +29,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 //**********************************************************
 public class ML_servers_monitor //implements AutoCloseable
@@ -159,7 +152,7 @@ public class ML_servers_monitor //implements AutoCloseable
         //big_hbox.setSpacing(10);
         {
             Button port_button = new Button(""+ml_server.port());
-            Look_and_feel_manager.set_button_look(port_button, true, stage, logger);
+            Look_and_feel_manager.set_region_look(port_button, true, stage, logger);
             big_hbox.getChildren().add(port_button);
             port_button.setOnAction(event -> {
                 Stage stage = new Stage();

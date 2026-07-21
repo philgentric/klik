@@ -53,7 +53,7 @@ public class Folder_chooser
         if (icon == null)
         {
             logger.log("WARNING: could not load " + Look_and_feel_manager.get_instance(owner,logger).get_up_icon_path());
-            Look_and_feel_manager.set_button_look(up_button, true,owner, logger);
+            Look_and_feel_manager.set_region_look(up_button, true,owner, logger);
         }
         else
         {
@@ -99,11 +99,11 @@ public class Folder_chooser
         pane.setCenter(list);
 
         Button choose_that = new Button("Choose folder");
-        Look_and_feel_manager.set_button_look(choose_that, true,owner, logger);
+        Look_and_feel_manager.set_region_look(choose_that, true,owner, logger);
         //choose_that.disableProperty().bind(list.getSelectionModel().selectedItemProperty().isNull());
 
         Button cancel_button = new Button("Cancel");
-        Look_and_feel_manager.set_button_look(cancel_button, true,owner, logger);
+        Look_and_feel_manager.set_region_look(cancel_button, true,owner, logger);
         choose_that.setDefaultButton(true);
         cancel_button.setCancelButton(true);
         HBox bottom = new HBox(8, choose_that, cancel_button);

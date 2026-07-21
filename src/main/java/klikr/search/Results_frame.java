@@ -159,11 +159,11 @@ public class Results_frame implements Results
 		//Look_and_feel_manager.set_button_look(b, true,owner,logger);
 		if (Files.isDirectory(path))
         {
-            Look_and_feel_manager.set_button_look(b, true,owner,logger);
+            Look_and_feel_manager.set_region_look(b, true,owner,logger);
 		}
         else
         {
-            Look_and_feel_manager.set_button_look(b, false,owner,logger);
+            Look_and_feel_manager.set_region_look(b, false,owner,logger);
         }
 		the_result_vbox.getChildren().add(b);
 		b.setOnAction((ActionEvent e) -> {

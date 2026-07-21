@@ -1111,8 +1111,7 @@ public class Virtual_landscape
                 }
                 getting_image_properties_from_cache += System.currentTimeMillis() - local_incr;
 
-                Item_context item_context = new Item_context(false,
-                        path.getParent(),path,Iconifiable_item_type.other,
+                Item_context item_context = new Item_context(false,path,Iconifiable_item_type.other,
                         null, the_Scene, this,application,window_type,owner,logger,aborter,path_list_provider);
                 Item item = new Item_file_with_icon(
                         item_context,
@@ -1375,8 +1374,7 @@ public class Virtual_landscape
                 if (item == null) {
                     // logger.log("Item_file_no_icon (3) path="+path);
 
-                    Item_context item_context = new Item_context(false,
-                            path.getParent(),path,Iconifiable_item_type.other,
+                    Item_context item_context = new Item_context(false,path,Iconifiable_item_type.other,
                             null, the_Scene, this,application,window_type,owner,logger,aborter,path_list_provider);
 
                     item = new Item_file_no_icon(
@@ -1512,9 +1510,8 @@ public class Virtual_landscape
                     logger.log("✅ WARNING:Item_folder_with_icon NO path for" + folder_path);
 
 
-                Item_context item_context = new Item_context(false,
-                        folder_path.getParent(),folder_path,Iconifiable_item_type.other,
-                        null, the_Scene,
+                Item_context item_context = new Item_context(false,folder_path,Iconifiable_item_type.other,
+                        color, the_Scene,
                         this,application,window_type,owner,logger,aborter,
                         new Path_list_provider_for_file_system(folder_path, owner, logger));
 
@@ -1579,9 +1576,8 @@ public class Virtual_landscape
                     }
                 }
 
-                Item_context item_context = new Item_context(false,
-                        folder_path.getParent(),folder_path,Iconifiable_item_type.other,
-                        null, the_Scene, this,application,window_type,owner,logger,aborter,                        new Path_list_provider_for_file_system(folder_path, owner, logger)
+                Item_context item_context = new Item_context(false,folder_path,Iconifiable_item_type.other,
+                        color, the_Scene, this,application,window_type,owner,logger,aborter,                        new Path_list_provider_for_file_system(folder_path, owner, logger)
                         );
 
                 folder_item = new Item_folder(
@@ -1646,25 +1642,27 @@ public class Virtual_landscape
         double pane_height = the_Pane.getHeight();
         int icon_size = Non_booleans_properties.get_icon_size(owner);
         double min_y = Double.MAX_VALUE;
-        for (Item item : all_items_map.values()) {
+        for (Item item : all_items_map.values())
+        {
             // if (item.get_y() + item.get_Height() - current_vertical_offset < 0)
             // if (item.get_javafx_y() + item.get_Height() < current_vertical_offset
             // -icon_size)
-            if (item.get_javafx_y() + item.get_Height() < current_vertical_offset) {
+            if (item.get_javafx_y() + item.get_Height() < current_vertical_offset)
+            {
                 if (invisible_dbg)
                     logger.log("✅ " + item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y()
                             + " item height=" + item.get_Height());
                 item.process_is_invisible(current_vertical_offset);
-                the_Pane.getChildren().remove(item.get_Node());
-                // if ( item instanceof Item2_image ii) Item2_image.currently.remove(ii);
+                Node node = item.get_Node();
+                if ( node != null) the_Pane.getChildren().remove(node);
                 continue;
             }
             if (item.get_javafx_y() > pane_height + current_vertical_offset + icon_size) {
                 if (invisible_dbg)
                     logger.log("✅ " + item.get_item_path() + " invisible (too far down)");
                 item.process_is_invisible(current_vertical_offset);
-                the_Pane.getChildren().remove(item.get_Node());
-                // if ( item instanceof Item2_image ii) Item2_image.currently.remove(ii);
+                Node node = item.get_Node();
+                if ( node != null) the_Pane.getChildren().remove(node);
                 continue;
             }
             if (visible_dbg)
@@ -1673,7 +1671,6 @@ public class Virtual_landscape
             item.process_is_visible(current_vertical_offset);
             if (!the_Pane.getChildren().contains(item.get_Node())) {
                 the_Pane.getChildren().add(item.get_Node());
-                // if ( item instanceof Item2_image ii) Item2_image.currently.add(ii);
             }
 
             // look for top left
@@ -1689,7 +1686,6 @@ public class Virtual_landscape
 
         // logger.log(top_left + " is now top left at y=" + min_y);
 
-        // logger.log("currently Item2_image (s): "+Item2_image.currently.length());
     }
 
     private static final double margin = 20;
@@ -2556,12 +2552,10 @@ BOOKMARK
     }
 
 
-    public static void attach_menu_to_browser(Window owner, ContextMenu cm) {
+
+
+    public static void attach_contextmenu_to_browser(Window owner, ContextMenu cm) {
         cm.setOnShowing(event -> {
-
-            //why go pick the recorded pos ?
-            //Rectangle2D bounds = Non_booleans_properties.get_window_bounds(BROWSER_WINDOW, owner);
-
 
             cm.setX(owner.getX() + 10);
             cm.setY(owner.getY() + 10);
@@ -2586,7 +2580,7 @@ BOOKMARK
     {
         ContextMenu cm = new ContextMenu();
 
-        attach_menu_to_browser(owner, cm);
+        attach_contextmenu_to_browser(owner, cm);
 
 
         Look_and_feel_manager.set_context_menu_look(cm, owner, logger);

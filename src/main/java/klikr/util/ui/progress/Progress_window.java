@@ -216,7 +216,7 @@ public class Progress_window implements Hourglass
         if ( show_abort_button)
 		{
 			Button abort = new Button(My_I18n.get_I18n_string("Abort",owner,logger));
-            Look_and_feel_manager.set_button_look(abort,true,stage,logger);
+            Look_and_feel_manager.set_region_look(abort,true,stage,logger);
 			//abort.setBorder(Look_and_feel_manager.get_border(owner,logger));
 			vbox.getChildren().add(abort);
 			abort.setOnAction(e -> {

@@ -335,14 +335,14 @@ public class The_audio_player implements Media_callbacks
         Look_and_feel_manager.set_region_look(returned, stage, logger);
 
         previous = new Button(My_I18n.get_I18n_string("Jump_To_Previous_Song", stage, logger));
-        Look_and_feel_manager.set_button_look(previous, true, stage, logger);
+        Look_and_feel_manager.set_region_look(previous, true, stage, logger);
         previous.setOnAction((ActionEvent e) ->{
             if ( navigator!=null) navigator.previous(aborter,browser);
         } );
         returned.getChildren().add(previous);
 
         next = new Button(My_I18n.get_I18n_string("Jump_To_Next_Song", stage, logger));
-        Look_and_feel_manager.set_button_look(next, true, stage, logger);
+        Look_and_feel_manager.set_region_look(next, true, stage, logger);
         next.setOnAction((ActionEvent e) ->{
             if ( navigator!=null) navigator.next(aborter,browser);
         } );
@@ -357,7 +357,7 @@ public class The_audio_player implements Media_callbacks
         returned.getChildren().add(auto_next_cb);
 
         browse_source = new Button(My_I18n.get_I18n_string("Browse_Playlist", stage, logger));
-        Look_and_feel_manager.set_button_look(browse_source, true, stage, logger);
+        Look_and_feel_manager.set_region_look(browse_source, true, stage, logger);
         browse_source.setOnAction((ActionEvent e) ->{
             if (browser != null)
             {
@@ -403,7 +403,7 @@ public class The_audio_player implements Media_callbacks
     {
         String drop = My_I18n.get_I18n_string("Drop_Here", stage, logger);
         Button landing_zone = new Button(drop);
-        Look_and_feel_manager.set_button_look(landing_zone, true, stage, logger);
+        Look_and_feel_manager.set_region_look(landing_zone, true, stage, logger);
         landing_zone.setMinHeight(100);
         BackgroundFill background_fill = new BackgroundFill(Color.LIGHTCORAL, CornerRadii.EMPTY, Insets.EMPTY);
         landing_zone.setBackground(new Background(background_fill));
@@ -528,7 +528,7 @@ public class The_audio_player implements Media_callbacks
         define_timeline_slider();
         returned.getChildren().add(the_timeline_slider);
 
-        Look_and_feel_manager.set_button_look(returned, true, stage, logger);
+        Look_and_feel_manager.set_region_look(returned, true, stage, logger);
         return returned;
     }
 
@@ -580,7 +580,7 @@ public class The_audio_player implements Media_callbacks
         Button b = define_reset_balance_button();
         balance_vbox.getChildren().add(b);
 
-        Look_and_feel_manager.set_button_look(balance_vbox, true, stage, logger);
+        Look_and_feel_manager.set_region_look(balance_vbox, true, stage, logger);
         return balance_vbox;
 
     }
@@ -610,7 +610,7 @@ public class The_audio_player implements Media_callbacks
     //**********************************************************
     {
         Button reset_balance = new Button(My_I18n.get_I18n_string("Reset_Balance", stage, logger));
-        Look_and_feel_manager.set_button_look(reset_balance, true, stage, logger);
+        Look_and_feel_manager.set_region_look(reset_balance, true, stage, logger);
         reset_balance.setOnAction((ActionEvent e) -> {
             balance_slider.setValue(0);
             Media_instance_statics.set_balance(0);
@@ -628,7 +628,7 @@ public class The_audio_player implements Media_callbacks
 
         String mute_string = My_I18n.get_I18n_string("Mute", stage, logger);
         Button mute = new Button(mute_string);
-        Look_and_feel_manager.set_button_look(mute, true, stage, logger);
+        Look_and_feel_manager.set_region_look(mute, true, stage, logger);
         mute.setOnAction((ActionEvent e) -> {
             if (Media_instance_statics.toggle_mute()) {
                 mute.setText(mute_string);
@@ -639,7 +639,7 @@ public class The_audio_player implements Media_callbacks
             }
         });
         returned.getChildren().add(mute);
-        Look_and_feel_manager.set_button_look(returned, true, stage, logger);
+        Look_and_feel_manager.set_region_look(returned, true, stage, logger);
 
         return returned;
     }
@@ -715,7 +715,7 @@ public class The_audio_player implements Media_callbacks
         }
 
         Button rewind = new Button(My_I18n.get_I18n_string("Rewind", stage, logger));
-        Look_and_feel_manager.set_button_look(rewind, true, stage, logger);
+        Look_and_feel_manager.set_region_look(rewind, true, stage, logger);
         rewind.setOnAction((ActionEvent e) -> {
             rewind();
         });
@@ -729,7 +729,7 @@ public class The_audio_player implements Media_callbacks
         }
 
         play_pause_button = new Button(pause_string);
-        Look_and_feel_manager.set_button_look(play_pause_button, true, stage, logger);
+        Look_and_feel_manager.set_region_look(play_pause_button, true, stage, logger);
         play_pause_button.setOnAction((ActionEvent e) -> toggle_play_stop());
         hbox.getChildren().add(play_pause_button);
 
@@ -890,7 +890,7 @@ public class The_audio_player implements Media_callbacks
             the_equalizer_vbox.getChildren().add(the_equalizer_hbox);
             Button reset_equalizer_button = make_reset_equalizer_button();
             the_equalizer_vbox.getChildren().add(reset_equalizer_button);
-            Look_and_feel_manager.set_button_look(the_equalizer_vbox, true, stage, logger);
+            Look_and_feel_manager.set_region_look(the_equalizer_vbox, true, stage, logger);
         }
     }
 
@@ -899,7 +899,7 @@ public class The_audio_player implements Media_callbacks
     //**********************************************************
     {
         Button reset_button = new Button(My_I18n.get_I18n_string("Reset_Equalizer", stage, logger));
-        Look_and_feel_manager.set_button_look(reset_button, true, stage, logger);
+        Look_and_feel_manager.set_region_look(reset_button, true, stage, logger);
         reset_button.setOnAction(actionEvent -> {
             for (int i = 0; i < equalizer_bands.size(); i++)
             {

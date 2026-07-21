@@ -175,7 +175,7 @@ public class Menu_items
                                               Logger logger)
     //**********************************************************
     {
-        logger.log("add_menu_item_for_menubutton->"+key+"<-");
+        //logger.log("add_menu_item_for_menubutton->"+key+"<-");
         MenuItem mi = make_menu_item(key,is_18n,addendum,action,owner,logger);
 
         mb.getItems().add(mi);

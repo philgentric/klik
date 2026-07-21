@@ -838,7 +838,7 @@ public class Look_and_feel_manager
 
 
     //**********************************************************
-    public static void set_button_look(Region region, boolean with_border, Window owner, Logger logger) // Button is a Region
+    public static void set_region_look(Region region, boolean with_border, Window owner, Logger logger) // Button is a Region
     //**********************************************************
     {
         region.setPickOnBounds(true);

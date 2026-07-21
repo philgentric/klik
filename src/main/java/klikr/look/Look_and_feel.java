@@ -361,7 +361,7 @@ public abstract class Look_and_feel
             Window owner, Logger logger)
     //**********************************************************
     {
-        Look_and_feel_manager.set_button_look(b, true,owner,logger);
+        Look_and_feel_manager.set_region_look(b, true,owner,logger);
         b.setPrefWidth(width);
         b.setAlignment(Pos.CENTER);
         b.setTextAlignment(TextAlignment.CENTER);

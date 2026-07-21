@@ -240,10 +240,10 @@ public class Animated_gifs_from_video
                 }
             }
             Button choose_folder_button = new Button("Choose folder & save");
-            Look_and_feel_manager.set_button_look(choose_folder_button,true,the_stage,logger);
+            Look_and_feel_manager.set_region_look(choose_folder_button,true,the_stage,logger);
             vb.getChildren().add(choose_folder_button);
             Button save_button = new Button("Save in ...");
-            Look_and_feel_manager.set_button_look(save_button,true,the_stage,logger);
+            Look_and_feel_manager.set_region_look(save_button,true,the_stage,logger);
             save_button.setDisable(true);
             vb.getChildren().add(save_button);
 
@@ -292,7 +292,7 @@ public class Animated_gifs_from_video
                     }
                     vb.getChildren().add(hb);
                     Button jump =  new Button("Jump to next (add current duration)");
-                    Look_and_feel_manager.set_button_look(jump,true,the_stage,logger);
+                    Look_and_feel_manager.set_region_look(jump,true,the_stage,logger);
 
                     hb.getChildren().add(jump);
                     jump.setOnAction(actionEvent -> {
@@ -414,7 +414,7 @@ public class Animated_gifs_from_video
         String d = amount+" s";
         if( amount > 0) d = " + "+d;
         Button button = new Button(d);
-        Look_and_feel_manager.set_button_look(button,true,owner,logger);
+        Look_and_feel_manager.set_region_look(button,true,owner,logger);
         button.setPrefWidth(HUNDRED[0]);
         button.setMinWidth(HUNDRED[0]);
         button.setMaxWidth(HUNDRED[0]);
@@ -432,7 +432,7 @@ public class Animated_gifs_from_video
         String d = amount+" s";
         if( amount > 0) d = " + "+d;
         Button button = new Button(d);
-        Look_and_feel_manager.set_button_look(button,true,owner,logger);
+        Look_and_feel_manager.set_region_look(button,true,owner,logger);
         button.setPrefWidth(HUNDRED[0]);
         button.setMinWidth(HUNDRED[0]);
         button.setMaxWidth(HUNDRED[0]);

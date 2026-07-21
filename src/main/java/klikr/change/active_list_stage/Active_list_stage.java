@@ -106,7 +106,7 @@ public class Active_list_stage
             b.setTextAlignment(TextAlignment.LEFT);
             b.setPrefWidth(WIDTH);
             //Font_size.apply_font_size(b,logger);
-            Look_and_feel_manager.set_button_look(b, true, stage,logger);
+            Look_and_feel_manager.set_region_look(b, true, stage,logger);
 
             if (on_action != null)
             {

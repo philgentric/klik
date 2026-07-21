@@ -101,7 +101,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
         button.setGraphic(the_image_pane);
         button.setContentDisplay(ContentDisplay.BOTTOM);
 
-        Look_and_feel_manager.set_button_look(button,true,item_context.owner,item_context.logger);
+        Look_and_feel_manager.set_region_look(button,true,item_context.owner,item_context.logger);
 
 
         resize_the_box(button);

@@ -259,7 +259,8 @@ public abstract class Item implements Icon_destination
                     event -> Folder_size_stage.get_folder_size(item_context.item_path, item_context.owner, item_context.logger),
                     context_menu, item_context.owner, item_context.logger);
 
-            if (item_context.is_trash) {
+            if (item_context.is_trash)
+            {
                 Menu_items.add_menu_item_for_context_menu(
                         "Clear_Trash_Folder", true, null,
                         event -> {
@@ -270,22 +271,17 @@ public abstract class Item implements Icon_destination
             }
 
 
-            if (!item_context.is_trash && (item_context.is_parent_of == null)) {
-                // this is for FOLDERS
+            if (!item_context.is_trash)
                 {
-                    Path target = item_context.item_path.getParent();
-                    //if ( this instanceof Item_folder)
-                    {
-                        target = item_context.item_path;
-                    }
-                    Path finalTarget = target;
+                {
+                    Path folder_path = item_context.item_path.getParent();
 
                     Menu_items.add_menu_item_for_context_menu(
                             "Browse_in_new_window", true,
                             null,//(new KeyCodeCombination(KeyCode.N,KeyCombination.SHORTCUT_DOWN)).getDisplayText(),
                             event -> {
                                 if (dbg) item_context.logger.log("Browse in new window!");
-                                Window_builder.additional_no_past(item_context.application, Window_type.File_system_2D, new Path_list_provider_for_file_system(finalTarget, item_context.owner, item_context.logger), item_context.owner, item_context.logger);
+                                Window_builder.additional_no_past(item_context.application, Window_type.File_system_2D, new Path_list_provider_for_file_system(folder_path, item_context.owner, item_context.logger), item_context.owner, item_context.logger);
                             }, context_menu, item_context.owner, item_context.logger);
 
                     if (Feature_cache.get(Feature.Enable_3D)) {
@@ -294,7 +290,7 @@ public abstract class Item implements Icon_destination
                                 null,
                                 event -> {
                                     if (dbg) item_context.logger.log("Browse in new window!");
-                                    Window_builder.additional_no_past(item_context.application, Window_type.File_system_3D, new Path_list_provider_for_file_system(finalTarget, item_context.owner, item_context.logger), item_context.owner, item_context.logger);
+                                    Window_builder.additional_no_past(item_context.application, Window_type.File_system_3D, new Path_list_provider_for_file_system(folder_path, item_context.owner, item_context.logger), item_context.owner, item_context.logger);
                                 }, context_menu, item_context.owner, item_context.logger);
                     }
 
@@ -303,7 +299,7 @@ public abstract class Item implements Icon_destination
                             null,
                             event -> {
                                 if (dbg) item_context.logger.log("Show disk view");
-                                Window_builder.additional_no_past(item_context.application, Window_type.File_system_diskview, new Path_list_provider_for_file_system(finalTarget, item_context.owner, item_context.logger), item_context.owner, item_context.logger);
+                                Window_builder.additional_no_past(item_context.application, Window_type.File_system_diskview, new Path_list_provider_for_file_system(folder_path, item_context.owner, item_context.logger), item_context.owner, item_context.logger);
                             }, context_menu, item_context.owner, item_context.logger);
                 }
                 create_open_with_system_menu_item(context_menu, item_context);
@@ -327,6 +323,8 @@ public abstract class Item implements Icon_destination
                 create_edit_color_menu_item(local_button, context_menu, item_context);
             }
         } else {
+            item_context.logger.log("crumb FILE");
+
             // this is for a FILE
             if (Guess_file_type.is_this_path_extension_an_image(item_context.item_path, item_context.owner, item_context.logger)) {
                 create_open_exif_frame_menu_item(context_menu, item_context);

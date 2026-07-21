@@ -94,7 +94,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
         button_for_a_non_image_file( text,button_width);
 
-        Look_and_feel_manager.set_button_look(button,false,item_context.owner,item_context.logger);
+        Look_and_feel_manager.set_region_look(button,false,item_context.owner,item_context.logger);
         button.setManaged(true); // means the parent tells the button its layout
         button.setMnemonicParsing(false);// avoid suppression of first underscore in names
         button.setTextOverrun(OverrunStyle.ELLIPSIS);

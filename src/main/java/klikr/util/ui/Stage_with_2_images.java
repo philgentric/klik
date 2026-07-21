@@ -129,7 +129,7 @@ public class Stage_with_2_images
 
 		Button skip = new Button("Skip this pair");
 		the_big_vbox.getChildren().add(skip);
-		Look_and_feel_manager.set_button_look(skip,true,stage,logger);
+		Look_and_feel_manager.set_region_look(skip,true,stage,logger);
 		skip.setOnAction((ActionEvent e) -> {
             againor.again();
             if ( stage != null) stage.hide();
@@ -187,7 +187,7 @@ public class Stage_with_2_images
 		double height = 0;
 
 		Button view = new Button("Open this one");
-		Look_and_feel_manager.set_button_look(view,true,stage,logger);
+		Look_and_feel_manager.set_region_look(view,true,stage,logger);
 		view.setOnAction(event -> {
 			boolean is_image = true;
 			if ( !Guess_file_type.is_this_file_extension_an_image(the_pair.f1(),owner,logger)) is_image = false;
@@ -212,7 +212,7 @@ public class Stage_with_2_images
 		the_vbox.getChildren().add(view);
 
 		Button delete_button = new Button("Delete this one");
-		Look_and_feel_manager.set_button_look(delete_button,true,stage,logger);
+		Look_and_feel_manager.set_region_look(delete_button,true,stage,logger);
 		delete_button.setOnAction(event -> {
             List<Old_and_new_Path> l = new ArrayList<>();
 			Path p = file.toPath();

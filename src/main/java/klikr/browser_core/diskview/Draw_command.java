@@ -262,7 +262,7 @@ public class Draw_command
     //*******************************************************
     {
         ContextMenu context_menu = new ContextMenu();
-        Virtual_landscape.attach_menu_to_browser(owner, context_menu);
+        Virtual_landscape.attach_contextmenu_to_browser(owner, context_menu);
 
         {
             if ( !node.is_this_a_directory())
