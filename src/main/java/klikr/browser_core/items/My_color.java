@@ -4,6 +4,8 @@
 package klikr.browser_core.items;
 
 import javafx.scene.paint.Color;
+import org.jspecify.annotations.Nullable;
 
-public record My_color(Color color, String localized_name, String java_name){}
+// for localized_nam 'no color' color is null
+public record My_color(@Nullable Color color, String localized_name){}
 

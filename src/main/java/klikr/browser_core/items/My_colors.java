@@ -33,61 +33,49 @@ public class My_colors
     {
         if ( !Platform.isFxApplicationThread() )
         {
-            logger.log("HAPPENS1 init_My_colors");
             Platform.runLater( ()->init_My_colors( owner, logger) );
         }
         all_colors.clear();
-        Color col;
         String localized_name;
         {
             localized_name = My_I18n.get_I18n_string(NO_COLOR,owner,logger);
-            col = null;
-            all_colors.put(localized_name,new My_color(col, localized_name,null));
+            all_colors.put(localized_name,new My_color(null, localized_name));
         }
         {
             localized_name = My_I18n.get_I18n_string("Color_Red",owner,logger);
-            col = Color.RED;
-            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+            all_colors.put(localized_name,new My_color(Color.RED, localized_name));
         }
         {
             localized_name = My_I18n.get_I18n_string("Color_Green", owner,logger);
-            col = Color.GREEN;
-            all_colors.put(localized_name, new My_color(col, localized_name, col.toString()));
+            all_colors.put(localized_name, new My_color(Color.GREEN, localized_name));
         }
         {
             localized_name = My_I18n.get_I18n_string("Color_Blue",owner,logger);
-            col = Color.BLUE;
-            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+            all_colors.put(localized_name,new My_color(Color.BLUE, localized_name));
         }
         {
             localized_name = "Chartreuse";
-            col = Color.CHARTREUSE;
-            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+            all_colors.put(localized_name,new My_color(Color.CHARTREUSE, localized_name));
         }
         {
             localized_name = "Cyan";
-            col = Color.CYAN;
-            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+            all_colors.put(localized_name,new My_color(Color.CYAN, localized_name));
         }
         {
             localized_name = "Bisque";
-            col = Color.BISQUE;
-            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+            all_colors.put(localized_name,new My_color(Color.BISQUE, localized_name));
         }
         {
             localized_name = "Coral";
-            col = Color.CORAL;
-            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+            all_colors.put(localized_name,new My_color(Color.CORAL, localized_name));
         }
         {
         localized_name = "Chocolate";
-        col = Color.CHOCOLATE;
-        all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+        all_colors.put(localized_name,new My_color(Color.CHOCOLATE, localized_name));
         }
         {
             localized_name = "Noir";
-            col = Color.BLACK;
-            all_colors.put(localized_name,new My_color(col, localized_name,col.toString()));
+            all_colors.put(localized_name,new My_color(Color.BLACK, localized_name));
         }
     }
 
@@ -129,21 +117,22 @@ public class My_colors
         Path color_file = Path.of(folderPath.toAbsolutePath().toString(),".color");
         try {
             List<String> lines = Files.readAllLines(color_file, StandardCharsets.UTF_8);
+            if ( lines.isEmpty()) return null;
             Collection<My_color> all_colors = My_colors.get_all_colors(owner,logger);
             for ( My_color my_color: all_colors)
             {
-                if ( my_color.java_name() == null) continue;
-                if ( my_color.java_name().equals(lines.get(0)))
+                if ( my_color == null) continue;
+                if ( my_color.toString().equals(lines.get(0)))
                 {
-                    return Color.valueOf(my_color.java_name());
+                    return my_color.color();
                 }
             }
             try {
                 Color c = Color.valueOf(lines.get(0));
-                logger.log("✅ WARNING: color not found in predefined list =>"+lines.get(0)+"<= for path: "+folderPath);
+                logger.log("✅ OK: color  identified =>"+lines.get(0)+" as" + c.toString()+"<= for path: "+folderPath);
                 return c;
             } catch ( Exception e) {
-                logger.log("❌ FATAL: color not found in predefined list =>"+lines.get(0)+"<= for path: "+folderPath);
+                logger.log("❌ WARNING: color not identified  =>"+lines.get(0)+"<= for path: "+folderPath);
                 logger.log(Stack_trace_getter.get_stack_trace(""+e));
                 return null;
             }

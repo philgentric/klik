@@ -126,8 +126,11 @@ public class Item_folder extends Item implements Icon_destination
 
 
 
+    //**********************************************************
     @Override
-    public Iconifiable_item_type get_item_type() {
+    public Iconifiable_item_type get_item_type()
+    //**********************************************************
+    {
         return Iconifiable_item_type.folder;
     }
 
@@ -342,11 +345,11 @@ public class Item_folder extends Item implements Icon_destination
                 extended_text += " **Symbolic link** ";
             }
         }
-        Button returned = new Button(extended_text);
-        returned.setMnemonicParsing(false);// avoid suppression of first underscore in names
+        Button returned_button = new Button(extended_text);
+        returned_button.setMnemonicParsing(false);// avoid suppression of first underscore in names
 
-        Look_and_feel_manager.set_button_look_as_folder(returned, height, item_context.color,item_context.owner,item_context.logger);
-        returned.setTextAlignment(TextAlignment.RIGHT);
+        Look_and_feel_manager.set_button_look_as_folder(returned_button, height, item_context.color,item_context.owner,item_context.logger);
+        returned_button.setTextAlignment(TextAlignment.RIGHT);
         //double computed_text_width = icons_width + estimate_text_width(text2);
 
         if (item_context.item_path == null)
@@ -355,14 +358,14 @@ public class Item_folder extends Item implements Icon_destination
             if ( !text.isEmpty()) item_context.logger.log("✅ WARNING no action for folder ->"+text+"<-");
 
             if ( item_context.is_trash) {
-                returned.setOnAction(event -> {
+                returned_button.setOnAction(event -> {
                     Popups.popup_warning("❗ WARNING","NO trash on this media: probably it is read only",true,item_context.owner,item_context.logger);
                 });
             }
-            return returned;
+            return returned_button;
         }
 
-        returned.setOnAction(event -> {
+        returned_button.setOnAction(event -> {
             if ( dbg) item_context.logger.log("Button pressed for folder:"+text);
             //Path local_item_path = get_item_path();
             if (item_context.item_path == null)
@@ -401,10 +404,10 @@ public class Item_folder extends Item implements Icon_destination
 
         });
 
-        Drag_and_drop.init_drag_and_drop_receiver_side(item_context.path_list_provider.get_move_in_provider(),returned,item_context.owner,item_context.item_path,item_context.is_trash,item_context.logger);
+        Drag_and_drop.init_drag_and_drop_receiver_side(item_context.path_list_provider.get_move_in_provider(),returned_button,item_context.owner,item_context.item_path,item_context.is_trash,item_context.logger);
 
-        give_a_menu_to_the_button(item_context,returned,null);
-        return returned;
+        give_a_menu_to_the_button(item_context,returned_button,null);
+        return returned_button;
     }
 
 

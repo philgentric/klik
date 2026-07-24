@@ -2117,7 +2117,7 @@ public class Virtual_landscape
         Button up_button = null;
         if (window_type == Window_type.File_system_2D)
         {
-            // need a UP button
+            //UP button
             if( folder_path .isPresent() )
             {
                 String go_up_text = "";
@@ -2131,8 +2131,7 @@ public class Virtual_landscape
                         go_up_text,
                         height,
                         MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
-                        false,
-                        folder_path.get());
+                        false);
 
                     Image icon = Look_and_feel_manager.get_up_icon(height, owner, logger);
                     if (icon == null) {
@@ -2164,8 +2163,7 @@ public class Virtual_landscape
                     trash_text,
                     height,
                     MIN_PARENT_AND_TRASH_BUTTON_WIDTH,
-                    true,
-                    null);
+                    true);
             if ( trash == null)
             {
                 logger.log(Stack_trace_getter.get_stack_trace("trash button is null ?"));
@@ -3123,13 +3121,13 @@ BOOKMARK
     {
         if ( !is_redrawing.compareAndSet(false,true))
         {
-            logger.log("is_redrawing.set(true)");
+            //logger.log("is_redrawing.set(true)");
 
-            logger.log("redraw_all_internal skipped, is_redrawing");
+            //logger.log("redraw_all_internal skipped, is_redrawing");
             pending.set(true);
             return;
         }
-        logger.log("redraw_all_internal YES");
+        //logger.log("redraw_all_internal YES");
         Optional<Hourglass> hourglass = Optional.empty();
 
         long start = System.currentTimeMillis();

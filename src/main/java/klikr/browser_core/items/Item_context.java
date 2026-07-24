@@ -14,6 +14,7 @@ import java.nio.file.Path;
 
 public class Item_context {
     public final boolean is_trash;
+    Path_list_provider path_list_provider;
     public Path item_path;
     public final Iconifiable_item_type item_type;
     Color color;
@@ -24,7 +25,6 @@ public class Item_context {
     public final Window owner;
     public final Logger logger;
     public final Aborter aborter;
-    Path_list_provider path_list_provider;
 
     public Item_context(boolean isTrash, Path itemPath, Iconifiable_item_type item_type, Color color, Scene scene, Path_comparator_source pathComparatorSource, Application application, Window_type windowType, Window owner, Logger logger, Aborter aborter, Path_list_provider pathListProvider) {
         is_trash = isTrash;

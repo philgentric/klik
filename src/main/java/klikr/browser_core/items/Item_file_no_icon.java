@@ -399,54 +399,6 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         give_a_menu_to_the_button(item_context,button, details);
     }
 
-    /*
-
-    //**********************************************************
-    public void button_for_a_directory(String text, double width, double height, Color color)
-    //**********************************************************
-    {
-        String extended_text = text;
-        if ( get_item_path() != null)
-        {
-            if (Files.isSymbolicLink(get_item_path())) {
-                extended_text += " **Symbolic link** ";
-            }
-        }
-        button = new Button(extended_text);
-        button.setMnemonicParsing(false);// avoid suppression of first underscore in names
-
-        Look_and_feel_manager.set_button_look_as_folder(button, height, color,owner,logger);
-        button.setTextAlignment(TextAlignment.RIGHT);
-        //double computed_text_width = icons_width + estimate_text_width(text2);
-
-        if (get_item_path() == null)
-        {
-            // protect crash when going up: root has no parent
-            logger.log("WARNING no action for folder:"+text);
-
-            // TODO: this work ONLY if the user-selected language is English
-            if ( text.equals("Trash")) {
-                button.setOnAction(event -> {
-                    Popups.popup_warning("WARNING","NO trash on this media: probably it is read only",true,owner,logger);
-                });
-            }
-            return;
-        }
-
-        button.setOnAction(event -> {
-            logger.log(Stack_trace_getter.get_stack_trace("BUTTON PRESSED for item file no icon :"+text));
-
-        });
-
-        Drag_and_drop.init_drag_and_drop_receiver_side(path_list_provider.get_move_provider(),get_Node(),owner,get_item_path(),is_trash(),logger);
-
-        give_a_menu_to_the_button(button,label);
-
-        //if ( Non_booleans_properties.get_show_folder_size(logger)) show_how_many_files_deep_folder(button,text,path,aborter,logger);
-
-    }
-*/
-
     //**********************************************************
     public void add_how_many_files_deep_folder(
             LongAdder count,

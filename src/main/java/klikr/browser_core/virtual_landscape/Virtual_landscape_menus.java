@@ -803,18 +803,17 @@ public class Virtual_landscape_menus
             String text,
             double height,
             double min_width,
-            boolean is_trash_button,
-            Path is_parent_of)
+            boolean is_trash_button)
     //**********************************************************
     {
-        if ( path == null) 
+        if ( path == null)
         {
             logger.log(Stack_trace_getter.get_stack_trace("❌❌❌ FATAL: cannot make button for null path"));
             return null;
         }
         Path_list_provider path_list_provider =  new Path_list_provider_for_file_system(path,owner,logger);
 
-        Item_context item_context = new Item_context(false,path, Iconifiable_item_type.folder,
+        Item_context item_context = new Item_context(is_trash_button,path, Iconifiable_item_type.folder,
                 null, virtual_landscape.the_Scene,
                 virtual_landscape,virtual_landscape.application,virtual_landscape.window_type,owner,logger,virtual_landscape.aborter,path_list_provider);
 

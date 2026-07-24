@@ -3,22 +3,10 @@
 
 package klikr.browser_core.items;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.paint.Color;
-import javafx.stage.Window;
-import klikr.Window_type;
-import klikr.util.execute.actor.Aborter;
 import klikr.browser_core.icons.Icon_factory_actor;
-import klikr.browser_core.virtual_landscape.Path_comparator_source;
-import klikr.path_lists.Path_list_provider;
 import klikr.browser_core.virtual_landscape.Selection_handler;
 import klikr.settings.Non_booleans_properties;
-import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
-
-import java.nio.file.Path;
-import java.util.Optional;
 
 //**********************************************************
 public abstract class Item_file extends Item
