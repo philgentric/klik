@@ -13,7 +13,6 @@ public abstract class Item_file extends Item
 //**********************************************************
 {
     public final int icon_size;
-    public final Iconifiable_item_type item_type;
 
 
     //**********************************************************
@@ -28,11 +27,7 @@ public abstract class Item_file extends Item
         {
             item_context.logger.log(Stack_trace_getter.get_stack_trace("item_path == null ???"));
         }
-        if ( item_context.item_path == null)
-        {
-            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
-        }
-        item_type = Iconifiable_item_type.determine(item_context.item_path,item_context.owner,item_context.aborter,item_context.logger);
+
         icon_size = Non_booleans_properties.get_icon_size(item_context.owner);
     }
 
@@ -41,7 +36,7 @@ public abstract class Item_file extends Item
     public Iconifiable_item_type get_item_type()
     //**********************************************************
     {
-        return item_type;
+        return item_context.item_type;
     }
 
     //**********************************************************

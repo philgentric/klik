@@ -259,7 +259,7 @@ public class Item_file_with_icon extends Item_file
         create_show_file_size_menu_item(context_menu,item_context);
 
 
-        if ( this.item_type == Iconifiable_item_type.video)
+        if ( this.item_context.item_type == Iconifiable_item_type.video)
         {
             make_menu_items_for_videos(item_context.item_path,item_context.owner,context_menu,dbg, item_context.aborter,item_context.logger);
         }
@@ -545,7 +545,7 @@ public class Item_file_with_icon extends Item_file
 
             }
         }
-        if ( item_type == Iconifiable_item_type.pdf)
+        if ( item_context.item_type == Iconifiable_item_type.pdf)
         {
             if (aspect_ratio == null)
             {

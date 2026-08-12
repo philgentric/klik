@@ -319,6 +319,7 @@ public class Item_folder extends Item implements Icon_destination
     public void set_selected_look_specific(boolean selected)
     //**********************************************************
     {
+        if (button == null) return;
         if ( selected )
         {
             Look_and_feel_manager.give_button_a_selected_file_style(button, item_context.owner, item_context.logger);
@@ -348,7 +349,7 @@ public class Item_folder extends Item implements Icon_destination
         Button returned_button = new Button(extended_text);
         returned_button.setMnemonicParsing(false);// avoid suppression of first underscore in names
 
-        Look_and_feel_manager.set_button_look_as_folder(returned_button, height, item_context.color,item_context.owner,item_context.logger);
+        Look_and_feel_manager.set_button_look_as_folder(returned_button, height, item_context.tag_color,item_context.owner,item_context.logger);
         returned_button.setTextAlignment(TextAlignment.RIGHT);
         //double computed_text_width = icons_width + estimate_text_width(text2);
 
@@ -491,11 +492,13 @@ public class Item_folder extends Item implements Icon_destination
 
 
     @Override
-    public double get_Width() {
-        if ( button != null ) {
+    public double get_Width()
+    {
+        if ( button != null )
+        {
             return button.getWidth();
         }
-        item_context.logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN"));
+        item_context.logger.log(Stack_trace_getter.get_stack_trace("SHOULD NOT HAPPEN "+item_context.item_path));
         return 0;
     }
 

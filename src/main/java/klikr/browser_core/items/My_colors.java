@@ -105,7 +105,12 @@ public class My_colors
         {
             if ( my_color.localized_name().equals(localized_name)) return my_color;
         }
-        return null;
+        // not found , return no-color
+        for ( My_color my_color : get_all_colors(owner,logger))
+        {
+            if ( my_color.color() ==null) return my_color;
+        }
+        return null;//bad
     }
 
 

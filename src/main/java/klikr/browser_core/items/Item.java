@@ -46,10 +46,8 @@ import klikr.path_lists.Path_list_provider;
 import klikr.browser_core.virtual_landscape.Selection_handler;
 import klikr.images.Exif_stage;
 import klikr.look.Font_size;
-import klikr.look.Look_and_feel;
 import klikr.look.Look_and_feel_manager;
 import klikr.look.my_i18n.My_I18n;
-import klikr.settings.Non_booleans_properties;
 import klikr.util.execute.System_open_actor;
 import klikr.util.files_and_paths.Moving_files;
 import klikr.util.image.Full_image_from_disk;
@@ -755,7 +753,6 @@ public abstract class Item implements Icon_destination
         List<CheckMenuItem> all_check_menu_items = new ArrayList<>();
         for (My_color color : possible_colors) {
             create_menu_item_for_one_color(
-                    //button,
                     color_tag_menu, color, all_check_menu_items, item_context);
         }
         context_menu.getItems().add(color_tag_menu);
@@ -763,7 +760,6 @@ public abstract class Item implements Icon_destination
 
     //**********************************************************
     public static void create_menu_item_for_one_color(
-            //Button button,
             Menu menu, My_color target_color, List<CheckMenuItem> all_check_menu_items, Item_context item_context)
     //**********************************************************
     {
@@ -778,13 +774,13 @@ public abstract class Item implements Icon_destination
         String txt = target_color.localized_name();
         CheckMenuItem check_menu_item = new CheckMenuItem(txt);
         check_menu_item.setGraphic(new Circle(10, target_color.color()));
-        if (item_context.color == null)
+        if ((item_context.tag_color == null) && (target_color.color() == null))
         {
-            if (target_color.color() == null) {
-                check_menu_item.setSelected(true);
-            }
-        } else {
-            check_menu_item.setSelected(item_context.color.toString().equals(target_color.color().toString()));
+            check_menu_item.setSelected(true);
+        }
+        if ((item_context.tag_color != null) && (target_color.color() != null))
+        {
+            check_menu_item.setSelected(item_context.tag_color.toString().equals(target_color.color().toString()));
         }
 
         menu.getItems().add(check_menu_item);
@@ -793,30 +789,51 @@ public abstract class Item implements Icon_destination
         check_menu_item.setOnAction(actionEvent ->
         {
             CheckMenuItem local = (CheckMenuItem) actionEvent.getSource();
-            if (local.isSelected()) {
-                for (CheckMenuItem cmi : all_check_menu_items) {
-                    if (cmi != local) cmi.setSelected(false);
-                }
-                String localized_name = local.getText();
-
-                My_color my_color = My_colors.my_color_from_localized_name(localized_name, item_context.owner, item_context.logger);
-                item_context.logger.log("is selected: ->"+localized_name+"<-");
-                item_context.color = my_color.color();
-                if (item_context.item_path == null) {
-                    item_context.logger.log(Stack_trace_getter.get_stack_trace("wtf no path ?"));
-                    return;
-                }
-                My_colors.save_color(item_context.item_path, my_color.color().toString(), item_context.logger);
-                double font_size = Non_booleans_properties.get_font_size(item_context.owner, item_context.logger);
-                double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
-                //if (button != null) {
-                //    Look_and_feel_manager.set_button_look_as_folder(button, icon_height, item_context.color, item_context.owner, item_context.logger);
-                //}
+            if (local.isSelected())
+            {
+                on_color_selected(all_check_menu_items, item_context, local);
 
 
             }
 
 
         });
+    }
+
+    //**********************************************************
+    private static void on_color_selected(List<CheckMenuItem> all_check_menu_items, Item_context item_context, CheckMenuItem local)
+    //**********************************************************
+    {
+        for (CheckMenuItem cmi : all_check_menu_items) {
+            if (cmi != local) cmi.setSelected(false);
+        }
+        String localized_name = local.getText();
+
+        My_color my_color = My_colors.my_color_from_localized_name(localized_name, item_context.owner, item_context.logger);
+        item_context.logger.log("is selected: ->"+localized_name+"<-");
+        if( my_color == null)
+        {
+            item_context.tag_color = null;
+
+        }
+        else
+        {
+            item_context.tag_color = my_color.color();
+        }
+        Window_builder.replace_same_folder(
+                item_context.application,
+                item_context.shutdown_target,
+                item_context.window_type,
+                item_context.path_list_provider,
+                item_context.path_list_provider.get_key(),
+                item_context.top_left,
+                item_context.owner,
+                item_context.logger);        if (item_context.item_path == null) {
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("should not happen: no path ?"));
+            return;
+        }
+        My_colors.save_color(item_context.item_path, my_color.color().toString(), item_context.logger);
+        //double font_size = Non_booleans_properties.get_font_size(item_context.owner, item_context.logger);
+        //double icon_height = Look_and_feel.MAGIC_HEIGHT_FACTOR * font_size;
     }
 }

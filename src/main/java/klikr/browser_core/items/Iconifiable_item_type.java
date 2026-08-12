@@ -56,7 +56,7 @@ public enum Iconifiable_item_type
         if ( path.toFile().isDirectory())
         {
             if (Files.isSymbolicLink(path)) return symbolic_link_on_folder;
-            return folder;
+            else return folder;
         }
 
         String extension = Extensions.get_extension(path.getFileName().toString());
@@ -77,7 +77,7 @@ public enum Iconifiable_item_type
         //if (Guess_file_type.is_this_extension_a_fits(extension)) return image_fits;
         if (Guess_file_type.is_this_extension_an_image_not_gif_not_png(extension)) return javafx_image_not_gif_not_png;
 
-        //System.out.println(("WARNING: from_extension returns DEFAULT 'other'' for path: " + path));
+        logger.log("WARNING: item type detector returns DEFAULT 'other'' for path: " + path);
 
         return other;
     }

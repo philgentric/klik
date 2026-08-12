@@ -85,7 +85,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
         this.image_properties_cache = image_properties_cache;
         text = text_;
         if (item_context.item_path == null) {
-            item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: path is null"));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: path is null"+item_context.path_list_provider.get_key()));
             return;
         }
 
@@ -289,7 +289,14 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     public void set_selected_look_specific(boolean selected)
     //**********************************************************
     {
-        if (selected)
+      //  return;
+
+        if (button == null) // always true?
+        {
+            item_context.logger.log("Item_file_no_icon button=null"+item_context.item_path);
+            return;
+        }
+        /*if (selected)
         {
             if( dbg) item_context.logger.log("Item_file_no_icon set_selected_look for " + item_context.item_path);
             Look_and_feel_manager.give_button_a_selected_file_style(button, item_context.owner, item_context.logger);
@@ -299,6 +306,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
             if( dbg) item_context.logger.log("Item_file_no_icon unset_selected_look for "+item_context.item_path);
             Look_and_feel_manager.give_button_a_file_style(button,item_context.owner,item_context.logger);
         }
+    */
     }
 
 
@@ -310,7 +318,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     {
 
         if (item_context.item_path == null) {
-            item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace("item_path == nul for "+text));
             return;
         }
 
@@ -482,6 +490,7 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
 
     @Override
     public double get_Width() {
+        if(button == null) return 0;
         return button.getWidth();
     }
 
@@ -491,7 +500,8 @@ public class Item_file_no_icon extends Item_file implements Icon_destination
     public double get_Height()
     //**********************************************************
     {
-        if ( button.getHeight() == 0)
+        if ( button == null) return 0;
+            if ( button.getHeight() == 0)
         {
             // until it is laid out, the button height is zero
             // so this entity CANNOT be used for "layout"... unless...
