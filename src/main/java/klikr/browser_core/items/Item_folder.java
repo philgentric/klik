@@ -386,8 +386,7 @@ public class Item_folder extends Item implements Icon_destination
             if ( item_context.item_path.getParent() != null)
             {
                 // this works when going up
-                //if ( dbg)
-                item_context.logger.log("is_up_button");
+                if ( dbg) item_context.logger.log("is_up_button");
                 old_folder_path = item_context.item_path.getParent();
             }
             item_context.logger.log("old_folder_path="+old_folder_path);

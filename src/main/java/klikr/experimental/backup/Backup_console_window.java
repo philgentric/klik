@@ -81,6 +81,13 @@ public class Backup_console_window
             vbox.getChildren().add(destination);
         }
 
+        {
+            remaining_time = new TextField("0");
+            Look_and_feel_manager.set_region_look(remaining_time,stage,logger);
+            //remaining_time.setPrefColumnCount(70);
+            //remaining_time.setAlignment(Pos.BASELINE_LEFT);
+            add_one_line(vbox, remaining_time, "Remainin g time:");
+        }
         Button cancel = new Button("cancel");
         {
             cancel.setOnAction(actionEvent -> {
@@ -153,13 +160,7 @@ public class Backup_console_window
             Look_and_feel_manager.set_region_look(max_last_minute_bytes_per_second,stage,logger);
             add_one_line(vbox,max_last_minute_bytes_per_second,"Max speed (over "+ MILLISECONDS/1000 +" seconds): ");
         }
-        {
-            remaining_time = new TextField("0");
-            Look_and_feel_manager.set_region_look(remaining_time,stage,logger);
-            //remaining_time.setPrefColumnCount(70);
-            //remaining_time.setAlignment(Pos.BASELINE_LEFT);
-            add_one_line(vbox, remaining_time, "Remaining time:");
-        }
+
         textArea = new TextArea();
         Look_and_feel_manager.set_region_look(textArea,stage,logger);
         textArea.setWrapText(true);

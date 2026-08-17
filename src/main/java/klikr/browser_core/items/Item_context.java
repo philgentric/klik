@@ -14,7 +14,10 @@ import klikr.util.log.Stack_trace_getter;
 
 import java.nio.file.Path;
 
-public class Item_context {
+//**********************************************************
+public class Item_context
+//**********************************************************
+{
     public final boolean is_trash;
     public final Shutdown_target shutdown_target;
     public final Path top_left;
@@ -30,24 +33,36 @@ public class Item_context {
     public final Logger logger;
     public final Aborter aborter;
 
+    //**********************************************************
     public Item_context(
+            Path item_path,
+            Path_list_provider path_list_provider,
             Iconifiable_item_type  item_type,
             boolean isTrash,
             Shutdown_target shutdownTarget,
-            Path topLeft,
-            Path itemPath,
             Color tag_color,
             Scene scene,
             Path_comparator_source pathComparatorSource,
             Application application,
             Window_type windowType,
+            Path topLeft,
             Window owner,
             Logger logger,
-            Aborter aborter,
-                    Path_list_provider path_list_provider) {
-        item_path = itemPath;
-        if (item_type == null) this.item_type = Iconifiable_item_type.determine(item_path,owner,aborter,logger);
-        else this.item_type = item_type;
+            Aborter aborter
+            )
+//**********************************************************
+    {
+        this.item_path = item_path;
+        logger.log(Stack_trace_getter.get_stack_trace("Item_context constructor, item_path: " + this.item_path));
+
+        if (item_type != null)
+        {
+            this.item_type = item_type;
+        }
+        else
+        {
+            this.item_type = Iconifiable_item_type.determine(item_path,owner,aborter,logger);
+        }
         logger.log("Item_context constructor, item_type: " + this.item_type);
         is_trash = isTrash;
         if ( item_path == null) logger.log(Stack_trace_getter.get_stack_trace("WARNING: null item_path" +dump_item_context()));
@@ -65,18 +80,20 @@ public class Item_context {
         this.path_list_provider = path_list_provider;
     }
 
+    //**********************************************************
     private String dump_item_context()
+    //**********************************************************
     {
         String returned =  " is_trash:"+is_trash+
-                "item_type: "+item_type.name();
-        if ( item_path != null) returned += " item_path:"+item_path.toString();
-        else returned += " item_pqth is null";
+                ", item_type: "+item_type.name();
+        if ( item_path != null) returned += ", item_path:"+item_path.toString();
+        else returned += ", item_path is null";
         if ( path_list_provider != null)
         {
-            returned += "path_list_provider"+path_list_provider.get_key();
+            returned += ", path_list_provider: "+path_list_provider.get_key();
         }
         else {
-            returned += "path_list_provider is null";
+            returned += ", path_list_provider is null";
         }
         return returned;
     }

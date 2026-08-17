@@ -813,9 +813,9 @@ public class Virtual_landscape_menus
         }
         Path_list_provider path_list_provider =  new Path_list_provider_for_file_system(path,owner,logger);
 
-        Item_context item_context = new Item_context(Iconifiable_item_type.folder, is_trash_button, virtual_landscape.shutdown_target, virtual_landscape.get_top_left(),path,
+        Item_context item_context = new Item_context(path, path_list_provider,Iconifiable_item_type.folder, is_trash_button, virtual_landscape.shutdown_target,
                 null, virtual_landscape.the_Scene,
-                virtual_landscape,virtual_landscape.application,virtual_landscape.window_type,owner,logger,virtual_landscape.aborter,path_list_provider);
+                virtual_landscape,virtual_landscape.application,virtual_landscape.window_type,virtual_landscape.get_top_left(), owner,logger,virtual_landscape.aborter);
 
 
         return Item_folder.button_for_a_directory(virtual_landscape, virtual_landscape.shutdown_target,item_context,text, min_width, height);

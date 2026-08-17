@@ -36,7 +36,7 @@ public enum Iconifiable_item_type
     {
         if ( path == null )
         {
-            System.out.println(Stack_trace_getter.get_stack_trace("path is null"));
+            logger.log(Stack_trace_getter.get_stack_trace("WARNING: path_ is null"));
             return no_path;
         }
         if ( path.getFileName() == null )

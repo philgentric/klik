@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.LongAdder;
 public class Item_file_no_icon extends Item_file implements Icon_destination
 //**********************************************************
 {
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
 
     private static final boolean make_animated_gif = true;
 

@@ -1111,8 +1111,8 @@ public class Virtual_landscape
                 }
                 getting_image_properties_from_cache += System.currentTimeMillis() - local_incr;
 
-                Item_context item_context = new Item_context(null,false,shutdown_target,top_left, path,
-                        null, the_Scene, this,application,window_type,owner,logger,aborter,path_list_provider);
+                Item_context item_context = new Item_context(path,path_list_provider,null,false,shutdown_target,
+                        null, the_Scene, this,application,window_type,top_left,owner,logger,aborter);
                 Item item = new Item_file_with_icon(
                         item_context,
                         selection_handler,
@@ -1363,25 +1363,39 @@ public class Virtual_landscape
             // manage the non-iconifed-files section
             double row_increment_for_files = 2 * Non_booleans_properties.get_font_size(owner, logger);
 
-            for (Path path : paths_holder.non_iconized)
+            for (Path item_path_ : paths_holder.non_iconized)
             {
-                if ( path == null)
+                if ( item_path_ == null)
                 {
-                    logger.log(Stack_trace_getter.get_stack_trace("null path"));
+                    logger.log(Stack_trace_getter.get_stack_trace("non_iconized item_path_ null "));
                     continue;
                 }
-                if (ultra_dbg)
-                    logger.log("✅ Virtual_landscape process_non_iconized_files " + path.toAbsolutePath());
-                String text = path.getFileName().toString();
-                long size = path.toFile().length() / 1000_000L;
-                if (Guess_file_type.is_this_path_extension_a_video(path, logger))
+                //if (ultra_dbg)
+                    logger.log("✅ Virtual_landscape process_non_iconized_files item_path_: " + item_path_.toAbsolutePath());
+                String text = item_path_.getFileName().toString();
+                long size = item_path_.toFile().length() / 1000_000L;
+                if (Guess_file_type.is_this_path_extension_a_video(item_path_, logger))
+                {
                     text = size + "MB VIDEO: " + text;
-                Item item = all_items_map.get(path_to_string(path));
-                if (item == null) {
-                    // logger.log("Item_file_no_icon (3) path="+path);
+                }
+                Item item = all_items_map.get(path_to_string(item_path_));
+                if (item == null)
+                {
+                    logger.log("NEW non_iconized  item_path_ ="+item_path_);
 
-                    Item_context item_context = new Item_context(null,false,shutdown_target, path,top_left,
-                            null, the_Scene, this,application,window_type,owner,logger,aborter,path_list_provider);
+                    Item_context item_context = new Item_context(
+                            item_path_,
+                            path_list_provider,
+                            null,
+                            false,
+                            shutdown_target,
+                            null,
+                            the_Scene,
+                            this,
+                            application,window_type,
+                            top_left,
+                            owner,logger,aborter
+                            );
 
                     item = new Item_file_no_icon(
                             item_context,
@@ -1390,8 +1404,10 @@ public class Virtual_landscape
                             icon_factory_actor,
                             text,
                             get_image_properties_cache());
-                    all_items_map.put(path_to_string(path), item);
+                    all_items_map.put(path_to_string(item_path_), item);
                 }
+
+                logger.log("item is not new :"+item_path_);
                 // item.get_Node().setVisible(false);
                 p = new_Point_for_files_and_dirs(p, item,
                         column_increment,
@@ -1531,10 +1547,9 @@ public class Virtual_landscape
                     logger.log("✅ WARNING:Item_folder_with_icon NO path for" + folder_path);
 
 
-                Item_context item_context = new Item_context(null,false,shutdown_target,top_left,folder_path,
+                Item_context item_context = new Item_context(folder_path,new Path_list_provider_for_file_system(folder_path, owner, logger),null,false,shutdown_target,
                         color, the_Scene,
-                        this,application,window_type,owner,logger,aborter,
-                        new Path_list_provider_for_file_system(folder_path, owner, logger));
+                        this,application,window_type,top_left,owner,logger,aborter);
 
 
                         folder_item = new Item_folder_with_icon(item_context,
@@ -1597,9 +1612,9 @@ public class Virtual_landscape
                     }
                 }
 
-                Item_context item_context = new Item_context(null,false,shutdown_target, top_left, folder_path,
-                        color, the_Scene, this,application,window_type,owner,logger,aborter,                        new Path_list_provider_for_file_system(folder_path, owner, logger)
-                        );
+                Item_context item_context = new Item_context(folder_path,new Path_list_provider_for_file_system(folder_path, owner, logger),
+                        null,false,shutdown_target,
+                        color, the_Scene, this,application,window_type,top_left,owner,logger,aborter);
 
                 folder_item = new Item_folder(
                         item_context,
