@@ -228,8 +228,6 @@ public class Installers
         Optional<Hourglass> local_hourglass = Progress_window.show(
                 "Please wait ... getting version",
                 30*60,
-                owner.getX()+100,
-                owner.getY()+100,
                 owner,
                 logger);
 
@@ -327,8 +325,6 @@ public class Installers
         Optional<Hourglass> local_hourglass = Progress_window.show(
                 "Please wait ... getting version",
                 30*60,
-                owner.getX()+100,
-                owner.getY()+100,
                 owner,
                 logger);
 

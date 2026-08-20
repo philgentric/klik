@@ -51,8 +51,7 @@ public class Similarity_cache implements Clearable_RAM_cache
             Feature_vector_source fvs,
             //List<Path> paths,
             Path_list_provider path_list_provider,
-            Window owner, double x, double y,
-            Aborter aborter, Logger logger)
+            Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         //this.path_list_provider = path_list_provider;
@@ -73,10 +72,10 @@ public class Similarity_cache implements Clearable_RAM_cache
         Feature_vector_cache fv_cache = RAM_caches.fv_cache_of_caches.get(path_list_provider.get_key());
         if ( fv_cache == null)
         {
-            fv_cache = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter, logger);
+            fv_cache = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, aborter, logger);
         }
         make_similarity_cache(fv_cache);
-        fill_cache_and_save_to_disk(paths, fv_cache, x,y);
+        fill_cache_and_save_to_disk(paths, fv_cache);
     }
 
 
@@ -322,8 +321,7 @@ public class Similarity_cache implements Clearable_RAM_cache
     //**********************************************************
     private void fill_cache_and_save_to_disk(
             List<Path> paths,
-            Feature_vector_cache fv_cache,
-            double x, double y)
+            Feature_vector_cache fv_cache)
     //**********************************************************
     {
         similarities.reload_cache_from_disk();
@@ -333,8 +331,6 @@ public class Similarity_cache implements Clearable_RAM_cache
                 in_flight,
                 "Wait: computing item similarities",
                 3600*60,
-                x,
-                y,
                 owner,
                 logger);
         Similarity_cache_warmer_actor actor = new Similarity_cache_warmer_actor(paths, fv_cache, similarities, logger);

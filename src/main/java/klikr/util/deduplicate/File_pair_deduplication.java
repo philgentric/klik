@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.experimental.deduplicate;
+package klikr.util.deduplicate;
 
 //**********************************************************
 public class File_pair_deduplication

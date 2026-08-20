@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.experimental.deduplicate;
+package klikr.util.deduplicate;
 
 import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
@@ -9,7 +9,6 @@ import klikr.util.files_and_paths.Guess_file_type;
 import klikr.util.files_and_paths.File_with_a_few_bytes;
 import klikr.util.files_and_paths.Name_cleaner;
 import klikr.util.log.Logger;
-import klikr.util.log.Stack_trace_getter;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;

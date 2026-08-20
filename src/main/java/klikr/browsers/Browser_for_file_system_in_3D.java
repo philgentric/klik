@@ -139,8 +139,6 @@ public class Browser_for_file_system_in_3D implements Owner_provider, Selection_
         Optional<Hourglass> hourglass = Progress_window.show(
                 "Wait, loading in 3D",
                 20000,
-                100,
-                100,
                 stage,
                 logger);
 

@@ -50,6 +50,9 @@ public class RAM_and_threads_meters_stage
     //**********************************************************
     {
         Stage stage = new Stage();
+        stage.setX(owner.getX()+100);
+        stage.setY(owner.getY()+100);
+
         //stage.initOwner(owner); dont do that as the user wants
         // this one to survive changing folder
         // and changing folder kills the stage

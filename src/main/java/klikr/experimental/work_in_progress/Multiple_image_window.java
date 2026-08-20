@@ -136,6 +136,7 @@ public class Multiple_image_window
         logger = logger_;
         logger.log("Multiple_image_stage !!!");
         the_stage = new Stage();
+
         {
             //Image image = Look_and_feel_manager.get_default_icon(300);
             //if (image != null) the_stage.getIcons().add(image);

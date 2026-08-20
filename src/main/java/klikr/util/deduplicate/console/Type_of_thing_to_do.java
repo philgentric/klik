@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.experimental.deduplicate.console;
+package klikr.util.deduplicate.console;
 
 enum Type_of_thing_to_do
 {

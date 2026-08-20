@@ -277,7 +277,7 @@ public class Path_list_provider_for_search_results implements Path_list_provider
 
     //**********************************************************
     @Override
-    public void delete(Path path, Window owner, double x, double y, Aborter aborter, Logger logger)
+    public void delete(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("Path_list_provider_for_playlist.delete(): " + path.toAbsolutePath().toString());
@@ -301,7 +301,7 @@ public class Path_list_provider_for_search_results implements Path_list_provider
 
     //**********************************************************
     @Override
-    public void delete_multiple(List<Path> paths, Window owner, double x, double y, Aborter aborter, Logger logger)
+    public void delete_multiple(List<Path> paths, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         for (Path p : paths) {

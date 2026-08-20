@@ -68,7 +68,7 @@ public class Backup_engine
     //**********************************************************
     {
 
-        backup_console_window = new Backup_console_window(this,stats,logger);
+        backup_console_window = new Backup_console_window(this,stats,owner, logger);
         update_properties(source.toAbsolutePath().toString(), destination.toAbsolutePath().toString());
         update_status(source.toAbsolutePath().toString(), destination.toAbsolutePath().toString(),"incomplete_backup");
 

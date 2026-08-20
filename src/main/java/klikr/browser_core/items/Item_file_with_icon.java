@@ -227,8 +227,6 @@ public class Item_file_with_icon extends Item_file
             return context_menu;
         }
 
-        double x = item_context.owner.getX()+100;
-        double y = item_context.owner.getY()+100;
         create_open_exif_frame_menu_item(context_menu,item_context);
 
         if ( Feature_cache.get(Feature.Enable_image_similarity))
@@ -245,12 +243,12 @@ public class Item_file_with_icon extends Item_file
         }
 
         {
-            Menu menu = get_open_Menu(item_context.item_path,item_context.owner,x, y, item_context.aborter,item_context.logger);
+            Menu menu = get_open_Menu(item_context.item_path,item_context.owner, item_context.aborter,item_context.logger);
             context_menu.getItems().add(menu);
         }
 
         {
-            MenuItem menu_item = get_rename_MenuItem(item_context.item_path,item_context.owner,x, y, item_context.aborter,item_context.logger);
+            MenuItem menu_item = get_rename_MenuItem(item_context.item_path,item_context.owner,item_context.aborter,item_context.logger);
             context_menu.getItems().add(menu_item);
         }
 
@@ -268,7 +266,7 @@ public class Item_file_with_icon extends Item_file
     }
 
     //**********************************************************
-    private Menu get_open_Menu(Path path, Window owner, double x, double y, Aborter aborter, Logger logger)
+    private Menu get_open_Menu(Path path, Window owner,  Aborter aborter, Logger logger)
     //**********************************************************
     {
         String s = My_I18n.get_I18n_string("Open", owner, logger);
@@ -365,7 +363,7 @@ public class Item_file_with_icon extends Item_file
 
 
     //**********************************************************
-    public static MenuItem get_rename_MenuItem(Path path, Window owner, double x, double y, Aborter browser_aborter, Logger logger)
+    public static MenuItem get_rename_MenuItem(Path path, Window owner, Aborter browser_aborter, Logger logger)
     //**********************************************************
     {
         MenuItem menu_item = new MenuItem(My_I18n.get_I18n_string("Rename", owner,logger)+ " "+path.getFileName());
@@ -380,7 +378,7 @@ public class Item_file_with_icon extends Item_file
             List<Old_and_new_Path> l = new ArrayList<>();
             Old_and_new_Path oandn = new Old_and_new_Path(path, new_path, Command.command_rename, Status.before_command,false);
             l.add(oandn);
-            Moving_files.perform_safe_moves_in_a_thread(l, true, x,y,owner,browser_aborter, logger);
+            Moving_files.perform_safe_moves_in_a_thread(l, true,owner,browser_aborter, logger);
         });
         return menu_item;
     }

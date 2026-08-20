@@ -432,18 +432,18 @@ public class Path_list_provider_for_file_system implements Path_list_provider
 
     //**********************************************************
     @Override
-    public void delete(Path path, Window owner, double x, double y, Aborter aborter, Logger logger)
+    public void delete(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, aborter, logger);
+        Static_files_and_paths_utilities.move_to_trash(path,owner, null, aborter, logger);
     }
 
     //**********************************************************
     @Override
-    public void delete_multiple(List<Path> paths, Window owner, double x, double y, Aborter aborter, Logger logger)
+    public void delete_multiple(List<Path> paths, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
-        Static_files_and_paths_utilities.move_to_trash_multiple(paths,owner,x,y, null, aborter, logger);
+        Static_files_and_paths_utilities.move_to_trash_multiple(paths,owner, null, aborter, logger);
     }
 
 

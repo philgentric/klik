@@ -262,9 +262,7 @@ public class Menus_for_image_window
             List<Old_and_new_Path> l = new ArrayList<>();
 
             l.add(new Old_and_new_Path(to_be_deleted, new_Path, Command.command_move_to_trash, Status.before_command,false));
-            double x = image_window.stage.getX()+100;
-            double y = image_window.stage.getY()+100;
-            Moving_files.safe_delete_files(l, x,y,image_window.stage,image_window.aborter,image_window.logger);
+            Moving_files.safe_delete_files(l,image_window.stage,image_window.aborter,image_window.logger);
             image_window.image_display_handler.change_image_relative(1,false);
             }, image_window.stage, image_window.logger);
     }

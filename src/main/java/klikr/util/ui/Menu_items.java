@@ -75,9 +75,7 @@ public class Menu_items
         Menu_items.add_menu_item_for_context_menu("Delete",true,kc.getDisplayText(),
                 event -> {
                     if (dbg) logger.log("Deleting!");
-                    double x = owner.getX()+100;
-                    double y = owner.getY()+100;
-                    Static_files_and_paths_utilities.move_to_trash(path,owner,x,y, null, aborter,logger);
+                    Static_files_and_paths_utilities.move_to_trash(path,owner, null, aborter,logger);
                 },context_menu,owner,logger);
     }
     //**********************************************************

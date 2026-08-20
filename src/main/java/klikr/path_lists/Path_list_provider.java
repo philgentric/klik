@@ -48,8 +48,8 @@ public interface Path_list_provider
     List<Path> only_folder_paths(boolean force_rescan, boolean consider_also_hidden_folders, Aborter aborter);
 
     Move_provider get_move_in_provider();
-    void delete(Path path, Window owner, double x, double y, Aborter aborter, Logger logger);
-    void delete_multiple(List<Path> paths, Window owner, double x, double y, Aborter aborter, Logger logger);
+    void delete(Path path, Window owner, Aborter aborter, Logger logger);
+    void delete_multiple(List<Path> paths, Window owner, Aborter aborter, Logger logger);
 
     int how_many_files_and_folders(boolean force_rescan, boolean consider_also_hidden_files, boolean consider_also_hidden_folders, Aborter aborter);
 

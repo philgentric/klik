@@ -36,8 +36,6 @@ public class Redo_same_move_engine
         Old_and_new_Path oanp = new Old_and_new_Path(old_path,new_path, Command.command_move, Status.before_command,false);
         List<Old_and_new_Path> ll = new ArrayList<>();
         ll.add(oanp);
-        double x = the_stage.getX()+100;
-        double y = the_stage.getY()+100;
-        Moving_files.perform_safe_moves_in_a_thread(ll, true,x,y,the_stage,new Aborter("dummy",logger), logger);
+        Moving_files.perform_safe_moves_in_a_thread(ll, true,the_stage,new Aborter("dummy",logger), logger);
     }
 }

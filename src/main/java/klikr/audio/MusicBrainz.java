@@ -312,7 +312,7 @@ public class MusicBrainz
                 {
                     List<Old_and_new_Path> ll = new ArrayList<>();
                     ll.add(new Old_and_new_Path(path, new_path, Command.command_rename, Status.before_command, false));
-                    Moving_files.perform_safe_moves_in_a_thread(ll, true, 100, 100, owner, new Aborter("dummy", logger), logger);
+                    Moving_files.perform_safe_moves_in_a_thread(ll, true, owner, new Aborter("dummy", logger), logger);
                     return true;
                 }
             }

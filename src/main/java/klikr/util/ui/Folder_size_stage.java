@@ -31,13 +31,13 @@ public class Folder_size_stage
 {
 
     private static final double icon_height = 100;
+     private static final double size_stage_height = 3*icon_height;
+    private static final double size_stage_width = 2*size_stage_height;
+/*    private static double stage_x = stage_x_start;
+    private static double stage_y = stage_y_start;
     private static final double stage_x_start = 10;
     private static final double stage_y_start = 10;
-    private static final double size_stage_height = 3*icon_height;
-    private static final double size_stage_width = 2*size_stage_height;
-    private static double stage_x = stage_x_start;
-    private static double stage_y = stage_y_start;
-
+*/
 
 
     //**********************************************************
@@ -49,15 +49,9 @@ public class Folder_size_stage
         // open a window to display what is going on and the final result
         Stage local_stage = new Stage();
         local_stage.initOwner(owner);
-        local_stage.setX(stage_x);
-        local_stage.setY(stage_y);
-        stage_y += size_stage_height;
-        if ( stage_y > 1000)
-        {
-            stage_y = stage_y_start;
-            stage_x += 100;
-            if ( stage_x > 1000) stage_x = stage_x_start;
-        }
+        local_stage.setX(owner.getX()+100);
+        local_stage.setY(owner.getY()+100);
+
 
         local_stage.setHeight(size_stage_height);
         local_stage.setWidth(size_stage_width);

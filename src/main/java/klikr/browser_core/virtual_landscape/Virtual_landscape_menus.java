@@ -56,7 +56,7 @@ import klikr.change.bookmarks.Bookmarks;
 import klikr.change.history.History_item;
 import klikr.change.undo.Undo_for_moves;
 import klikr.change.undo.Undo_item;
-import klikr.experimental.deduplicate.Deduplication_engine;
+import klikr.util.deduplicate.Deduplication_engine;
 import klikr.machine_learning.face_recognition.Face_recognition_service;
 import klikr.machine_learning.deduplication.Deduplication_by_similarity_engine;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
@@ -198,8 +198,6 @@ public class Virtual_landscape_menus
             String cleanup = My_I18n.get_I18n_string("Clean_Up",owner,logger);
             Menu m = new Menu(cleanup);
             Look_and_feel_manager.set_menu_item_look(m,owner,logger);
-            Menu_items.add_menu_item_for_menu("Remove_empty_folders",true,null,event -> remove_empty_folders_fx(false),m,owner,logger);
-
 
             Menu_items.add_menu_item_for_menu("Remove_empty_folders",true,null, event -> remove_empty_folders_fx(false),m,owner,logger);
 
@@ -207,6 +205,7 @@ public class Virtual_landscape_menus
             {
                 Menu_items.add_menu_item_for_menu("Remove_empty_folders_recursively",true, null,event -> remove_empty_folders_fx(true),m,owner,logger);
             }
+
             if (Feature_cache.get(Feature.Enable_name_cleaning) )
             {
                 Menu_items.add_menu_item_for_menu("Clean_up_names",true, null,event -> clean_up_names_fx(),m,owner,logger);
@@ -337,9 +336,7 @@ public class Virtual_landscape_menus
 
         }
 
-        double x = this.owner.getX()+100;
-        double y = this.owner.getY()+100;
-        Moving_files.perform_safe_moves_in_a_thread(moves, true, x,y, this.owner, virtual_landscape.aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(moves, true, this.owner, virtual_landscape.aborter, logger);
 
         // display will be updated because of the Change_gang
     }
@@ -358,14 +355,9 @@ public class Virtual_landscape_menus
     public void create_PDF_contact_sheet_in_a_thread()
     //**********************************************************
     {
-        double x = this.owner.getX()+100;
-        double y = this.owner.getY()+100;
-
         Hourglass hourglass = Progress_window.show(
                 "Making PDF contact sheet",
                 20_000,
-                x,
-                y,
                 owner,
                 logger).orElse(null);
         List<String> graphicsMagick_command_line = new ArrayList<>();
@@ -717,7 +709,7 @@ public class Virtual_landscape_menus
             Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner, logger);
 
             List<Path> paths = virtual_landscape.path_list_provider.only_image_paths(false, Feature_cache.get(Feature.Show_hidden_files),virtual_landscape.aborter);
-            return Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, virtual_landscape.path_list_provider, owner,owner.getX()+100, owner.getY()+100, virtual_landscape.aborter, logger);
+            return Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, virtual_landscape.path_list_provider, owner, virtual_landscape.aborter, logger);
         }
     };
 
@@ -729,7 +721,7 @@ public class Virtual_landscape_menus
         {
             Feature_vector_source fvs = new Feature_vector_source_for_song_similarity(virtual_landscape.aborter);
             List<Path> paths = virtual_landscape.path_list_provider.only_song_paths( true, Feature_cache.get(Feature.Show_hidden_files),virtual_landscape.aborter);
-            return Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, virtual_landscape.path_list_provider, owner,owner.getX()+100, owner.getY()+100, virtual_landscape.aborter, logger);
+            return Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, virtual_landscape.path_list_provider, owner, virtual_landscape.aborter, logger);
         }
     };
 
@@ -1936,10 +1928,7 @@ public class Virtual_landscape_menus
             Old_and_new_Path oandn = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status.before_command,false);
             l.add(oandn);
         }
-        double x = owner.getX()+100;
-        double y = owner.getY()+100;
-
-        Moving_files.perform_safe_moves_in_a_thread(l, true, x,y, owner,virtual_landscape.aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(l, true, owner,virtual_landscape.aborter, logger);
 
     }
 
@@ -1978,10 +1967,8 @@ public class Virtual_landscape_menus
             logger.log("no corrupted images found");
             return;
         }
-        double x = owner.getX()+100;
-        double y = owner.getY()+100;
 
-        virtual_landscape.path_list_provider.delete_multiple(to_be_deleted,owner,x,y,virtual_landscape.aborter,logger);
+        virtual_landscape.path_list_provider.delete_multiple(to_be_deleted,owner,virtual_landscape.aborter,logger);
 
     }
 

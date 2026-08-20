@@ -920,21 +920,18 @@ public class Virtual_landscape
     private List<Path> get_iconized_sorted(String reason)
     //**********************************************************
     {
-        logger.log("get_iconized_sorted");
+        //logger.log("get_iconized_sorted");
 
         // non blocking
         List<Path> returned = iconized_sorted_queue.poll();
         if (returned != null)
         {
-            logger.log("OK icons are sorted");
-
-            // OK, icons are sorted
+            //logger.log("OK icons are sorted");
             return returned;
         }
 
         // icons are not yet sorted, retry
-        // if ( dbg)
-        logger.log("RESORTING iconized items");
+         if ( dbg) logger.log("RESORTING iconized items");
         sort_iconized_items(reason);
         return iconized_sorted_queue.poll();
     }
@@ -1023,13 +1020,11 @@ public class Virtual_landscape
             Supplier<Feature_vector_cache> fv_cache_supplier = () -> {
                 if (fv_cache != null)
                     return fv_cache;
-                double x = owner.getX() + 100;
-                double y = owner.getY() + 230;
 
                 Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner,logger);
                 List<Path> paths = path_list_provider.only_image_paths(force_rescan, Feature_cache.get(Feature.Show_hidden_files),aborter);
                 fv_cache = Feature_vector_cache
-                        .preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, x, y, aborter,
+                        .preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, owner, aborter,
                                 logger);
                 return fv_cache;
             };
@@ -1370,8 +1365,7 @@ public class Virtual_landscape
                     logger.log(Stack_trace_getter.get_stack_trace("non_iconized item_path_ null "));
                     continue;
                 }
-                //if (ultra_dbg)
-                    logger.log("✅ Virtual_landscape process_non_iconized_files item_path_: " + item_path_.toAbsolutePath());
+                if (ultra_dbg) logger.log("✅ Virtual_landscape process_non_iconized_files item_path_: " + item_path_.toAbsolutePath());
                 String text = item_path_.getFileName().toString();
                 long size = item_path_.toFile().length() / 1000_000L;
                 if (Guess_file_type.is_this_path_extension_a_video(item_path_, logger))
@@ -1381,7 +1375,7 @@ public class Virtual_landscape
                 Item item = all_items_map.get(path_to_string(item_path_));
                 if (item == null)
                 {
-                    logger.log("NEW non_iconized  item_path_ ="+item_path_);
+                    //logger.log("NEW non_iconized  item_path_ ="+item_path_);
 
                     Item_context item_context = new Item_context(
                             item_path_,
@@ -1407,7 +1401,7 @@ public class Virtual_landscape
                     all_items_map.put(path_to_string(item_path_), item);
                 }
 
-                logger.log("item is not new :"+item_path_);
+                //logger.log("item is not new :"+item_path_);
                 // item.get_Node().setVisible(false);
                 p = new_Point_for_files_and_dirs(p, item,
                         column_increment,
@@ -1772,14 +1766,10 @@ public class Virtual_landscape
         show_total_size_deep_in_each_folder_done = false;
 
         LongAdder count = new LongAdder();
-        double x = owner.getX() + 100;
-        double y = owner.getY() + 100;
         Optional<Hourglass> progress_window = Progress_window.show_with_abort_button(
                 aborter,
                 "Computing file count",
                 20 * 60,
-                x,
-                y,
                 owner,
                 logger);
         for (Item i : all_items_map.values()) {
@@ -1847,8 +1837,6 @@ public class Virtual_landscape
                 new Or_aborter(local, aborter,logger),
                 "Computing folder sizes",
                 20 * 60,
-                x,
-                y,
                 owner,
                 logger);
 
@@ -1970,7 +1958,7 @@ public class Virtual_landscape
         if (max_screen_y_in_row[0] < item.get_screen_y_of_image() + height_of_this)
             max_screen_y_in_row[0] = item.get_screen_y_of_image() + height_of_this;
         if (Item.layout_dbg)
-            logger.log(item.get_item_path() + "\n" +
+            logger.log("item_path:"+item.get_item_path() + "\n" +
                     "width_of_this=" + width_of_this + " current_x=" + current_screen_x + "\n" +
                     "height_of_this=" + height_of_this + " current_y=" + current_screen_y + " max_y = "
                     + max_screen_y_in_row[0]);
@@ -3175,8 +3163,6 @@ BOOKMARK
                     aborter,
                     "Scanning",
                     20 * 60,
-                    x,
-                    y,
                     owner,
                     logger);
         }
@@ -3233,7 +3219,7 @@ BOOKMARK
             {
                 image_file_comparator = Sort_files_by.get_image_comparator(path_list_provider, this,
                         get_image_properties_cache(),
-                        owner, x, y, aborter, logger);
+                        owner, aborter, logger);
                 if ( image_file_comparator instanceof Similarity_comparator local) {
                     RAM_caches.similarity_comparator_cache.put(path_list_provider.get_key(), local);
                 }

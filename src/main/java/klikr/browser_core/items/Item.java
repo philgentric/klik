@@ -72,8 +72,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class Item implements Icon_destination
 //**********************************************************
 {
-    protected static final boolean dbg = true;
-    public static final boolean layout_dbg = true;
+    protected static final boolean dbg = false;
+    public static final boolean layout_dbg = false;
     public AtomicBoolean icon_fabrication_requested = new AtomicBoolean(false);
     Job icon_job; // this is needed to cancel the icon request when the item has become invisible
 
@@ -403,10 +403,8 @@ public abstract class Item implements Icon_destination
                 null,//(new KeyCodeCombination(KeyCode.BACK_SPACE)).getDisplayText(),
                 event -> {
                     if (dbg) item_context.logger.log("Deleting!");
-                    double x = item_context.owner.getX() + 100;
-                    double y = item_context.owner.getY() + 100;
-                    if (item_context.item_path != null) {
-                        item_context.path_list_provider.delete(item_context.item_path, item_context.owner, x, y, item_context.aborter, item_context.logger);
+                   if (item_context.item_path != null) {
+                        item_context.path_list_provider.delete(item_context.item_path, item_context.owner, item_context.aborter, item_context.logger);
                     }
                 }, context_menu, item_context.owner, item_context.logger);
     }
@@ -429,7 +427,9 @@ public abstract class Item implements Icon_destination
                     try {
                         Files.copy(item_context.item_path, new_path);
                     } catch (IOException e) {
-                        item_context.logger.log("copy failed: could not create new file for: " + item_context.item_path.getFileName() + ", Exception:" + e);
+                        String text = "copy failed for: " + new_path.getFileName() ;
+                        item_context.logger.log(text+" Exception:" + e);
+                        Popups.popup_Exception(e,200,text , item_context.owner, item_context.logger);
                     }
                 }, context_menu, item_context.owner, item_context.logger);
     }
@@ -456,8 +456,8 @@ public abstract class Item implements Icon_destination
         Stage local_stage = new Stage();
         local_stage.setHeight(200);
         local_stage.setWidth(600);
-        local_stage.setX(xxx);
-        local_stage.setY(yyy);
+        local_stage.setX(owner.getX()+xxx);
+        local_stage.setY(owner.getY()+yyy);
         yyy += 200;
         if (yyy > 600) {
             yyy = 200;
@@ -623,7 +623,7 @@ public abstract class Item implements Icon_destination
                             }
                             double x = item_context.owner.getX() + 100;
                             double y = item_context.owner.getY() + 100;
-                            Path new_path = Static_files_and_paths_utilities.change_file_name(old, new_item_name, item_context.owner, x, y, item_context.aborter, item_context.logger);
+                            Path new_path = Static_files_and_paths_utilities.change_file_name(old, new_item_name, item_context.owner, item_context.aborter, item_context.logger);
                             if (new_path == null) {
                                 item_context.logger.log("❗ rename failed");
                                 local_button.setText(original_name);

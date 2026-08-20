@@ -81,17 +81,14 @@ public class Folders_with_large_images_locator
         Folders_with_large_images_locator locator = this;
         Runnable r = new Runnable() {
             @Override
+
             public void run() {
 
-                double x = owner.getX()+100;
-                double y = owner.getY()+100;
                 Aborter private_aborter = new Aborter("large image locator",logger);
                 Optional<Hourglass> hourglass = Progress_window.show_with_abort_button(
                         private_aborter,
                         "Looking for folders with large images",
                         20000,
-                        x,
-                        y,
                         owner,
                         logger);
                 explore(top.toFile());

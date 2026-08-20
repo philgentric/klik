@@ -190,17 +190,13 @@ public class Results_frame implements Results
 						(new KeyCodeCombination(KeyCode.BACK_SPACE)).getDisplayText(),
 						e -> {
 							logger.log("Delete");
-							double x = stage.getX()+100;
-							double y = stage.getY()+100;
-							Static_files_and_paths_utilities.move_to_trash(path,stage,x,y, null, aborter, logger);
+							Static_files_and_paths_utilities.move_to_trash(path,stage, null, aborter, logger);
 							// need to remove the button from the list
 							the_result_vbox.getChildren().remove(b);
 						},context_menu,owner,logger);
 
 				{
-					double x = stage.getX()+100;
-					double y = stage.getY()+100;
-					MenuItem rename = Item_file_with_icon.get_rename_MenuItem(path,stage,x, y, aborter,logger);
+					MenuItem rename = Item_file_with_icon.get_rename_MenuItem(path,stage, aborter,logger);
 					context_menu.getItems().add(rename);
 				}
 

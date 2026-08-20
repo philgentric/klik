@@ -79,7 +79,7 @@ public class Song_playlist
                     sanitize(path,  oks,to_be_renamed_first,logger);
                 }
             }
-            Moving_files.actual_safe_moves(to_be_renamed_first, true,  owner.getX()+100, owner.getY()+ 100, owner, new Aborter("dummy",logger), logger);
+            Moving_files.actual_safe_moves(to_be_renamed_first, true, owner, new Aborter("dummy",logger), logger);
             logger.log(to_be_renamed_first.size()+ " files RENAMED to be accepted as possible songs");
 
             String last = null;

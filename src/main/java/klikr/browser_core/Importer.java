@@ -144,8 +144,8 @@ public class Importer
 
         Stage local_stage = new Stage();
         local_stage.initOwner(owner);
-        local_stage.setX(200);
-        local_stage.setY(200);
+        local_stage.setX(owner.getX()+200);
+        local_stage.setY(owner.getY()+200);
         local_stage.setHeight(400);
         local_stage.setWidth(800);
         TextArea textarea1 = new TextArea("Please wait, scanning folders...");
@@ -182,15 +182,11 @@ public class Importer
 
         ConcurrentLinkedQueue<String> wp = new ConcurrentLinkedQueue<>();
 
-        double x = local_stage.getX()+100;
-        double y = local_stage.getY()+100;
         Aborter local = new Aborter("estimate_size",logger);
         Hourglass hourglass = Progress_window.show_with_abort_button(
                 local,
                 "Wait, counting Apple Photo images",
                 20000,
-                x,
-                y,
                 owner,
                 logger).orElse(null);
 

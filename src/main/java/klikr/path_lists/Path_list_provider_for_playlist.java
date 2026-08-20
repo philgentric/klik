@@ -306,7 +306,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
                     sanitize(path_s,  oks,to_be_renamed_first,logger);
                 }
             }
-            Moving_files.actual_safe_moves(to_be_renamed_first, true,  owner.getX()+100, owner.getY()+ 100, owner, new Aborter("dummy",logger), logger);
+            Moving_files.actual_safe_moves(to_be_renamed_first, true, owner, new Aborter("dummy",logger), logger);
             logger.log(to_be_renamed_first.size()+ " files RENAMED to be accepted as possible songs");
 
             String last = null;
@@ -410,7 +410,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
 
     //**********************************************************
     @Override
-    public void delete(Path path, Window owner, double x, double y, Aborter aborter, Logger logger)
+    public void delete(Path path, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         logger.log("Path_list_provider_for_playlist.delete(): "+path.toAbsolutePath().toString());
@@ -443,7 +443,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
 
     //**********************************************************
     @Override
-    public void delete_multiple(List<Path> paths, Window owner, double x, double y, Aborter aborter, Logger logger)
+    public void delete_multiple(List<Path> paths, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         for ( Path p : paths)

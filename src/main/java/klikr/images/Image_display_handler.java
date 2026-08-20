@@ -225,7 +225,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         double x = image_window.stage.getX()+100;
         double y = image_window.stage.getY()+100;
 
-        Static_files_and_paths_utilities.move_to_trash(to_be_deleted,image_window.stage,x,y, r, aborter,logger);
+        Static_files_and_paths_utilities.move_to_trash(to_be_deleted,image_window.stage,r, aborter,logger);
     }
 
 

@@ -100,7 +100,7 @@ public class Browser_for_disk_footprint implements Owner_provider, Selection_man
             // Case 1: navigated into a subfolder of the scan tree → go up within the tree
             if (scan_root != null && current_root != scan_root)
             {
-                Optional<Hourglass> x = Progress_window.show("Scanning disk",20*60,stage.getX()+100,stage.getY()+100,stage,logger);
+                Optional<Hourglass> x = Progress_window.show("Scanning disk",20*60,stage,logger);
                 File_node parent = find_parent(scan_root, current_root);
                 if (parent != null)
                 {
@@ -199,7 +199,7 @@ public class Browser_for_disk_footprint implements Owner_provider, Selection_man
     {
         if (current_root == null) return;
 
-        Optional<Hourglass> x = Progress_window.show("Scanning disk",20*60,stage.getX()+100,stage.getY()+100,stage,logger);
+        Optional<Hourglass> x = Progress_window.show("Scanning disk",20*60,stage,logger);
         // Is clickedNode itself a direct child of currentRoot?
         File_node topChild = find_top_level_child(current_root, clickedNode);
         if (topChild != null && topChild.is_this_a_directory()) {
@@ -272,7 +272,7 @@ public class Browser_for_disk_footprint implements Owner_provider, Selection_man
 
     private void scan_in_thread(File folder)
     {
-        Optional<Hourglass> x = Progress_window.show("Scanning disk",20*60,stage.getX()+100,stage.getY()+100,stage,logger);
+        Optional<Hourglass> x = Progress_window.show("Scanning disk",20*60,stage,logger);
         try {
             File_node cacheHint = current_root;
             if (cacheHint == null || !cacheHint.get_file().equals(folder)) {

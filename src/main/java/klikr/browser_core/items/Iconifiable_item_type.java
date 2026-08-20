@@ -77,7 +77,7 @@ public enum Iconifiable_item_type
         //if (Guess_file_type.is_this_extension_a_fits(extension)) return image_fits;
         if (Guess_file_type.is_this_extension_an_image_not_gif_not_png(extension)) return javafx_image_not_gif_not_png;
 
-        logger.log("WARNING: item type detector returns DEFAULT 'other'' for path: " + path);
+        //logger.log("WARNING: item type detector returns DEFAULT 'other'' for path: " + path);
 
         return other;
     }

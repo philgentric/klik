@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.log.Logger;
 
@@ -23,13 +24,16 @@ public class Utils
 //**********************************************************
 {
     //**********************************************************
-    public static void display(int size, Image image1, Image image2, Image image3, String title, String label, Logger logger)
+    public static void display(int size, Image image1, Image image2, Image image3, String title, String label, Window owner, Logger logger)
     //**********************************************************
     {
 
 
         Runnable r = () -> {
             Stage stage = new Stage();
+
+            stage.setX(owner.getX()+100);
+            stage.setY(owner.getY()+100);
             stage.setTitle(title);
             VBox vBox = new VBox();
             HBox hBox = new HBox();

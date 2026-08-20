@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.experimental.deduplicate;
+package klikr.util.deduplicate;
 
 import klikr.util.files_and_paths.File_with_a_few_bytes;
 

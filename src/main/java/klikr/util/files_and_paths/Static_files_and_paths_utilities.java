@@ -118,7 +118,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static void move_to_trash_multiple(List<Path> paths, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
+    public static void move_to_trash_multiple(List<Path> paths, Window owner,  Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if ( paths.size() == 0)
@@ -139,7 +139,7 @@ public class Static_files_and_paths_utilities
             oanf2.run_after = after_the_move;
             l2.add(oanf2);
         }
-        Moving_files.perform_safe_moves_in_a_thread(l2, true, x,y,owner, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(l2, true, owner, aborter, logger);
 
     }
 
@@ -152,7 +152,7 @@ public class Static_files_and_paths_utilities
     }
 
     //**********************************************************
-    public static void move_to_trash(Path path, Window owner, double x, double y, Runnable after_the_move, Aborter aborter, Logger logger)
+    public static void move_to_trash(Path path, Window owner, Runnable after_the_move, Aborter aborter, Logger logger)
     //**********************************************************
     {
         Path trash_dir = get_trash_dir_of(path,owner,logger);
@@ -165,7 +165,7 @@ public class Static_files_and_paths_utilities
         Old_and_new_Path oanf2 = new Old_and_new_Path(path, new_Path, Command.command_move_to_trash, Status.before_command,false);
         oanf2.run_after = after_the_move;
         l2.add(oanf2);
-        Moving_files.perform_safe_moves_in_a_thread(l2, true, x,y,owner, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(l2, true,owner, aborter, logger);
 
     }
 
@@ -823,7 +823,7 @@ public class Static_files_and_paths_utilities
 
 
     //**********************************************************
-    public static Path change_file_name(Path old_path, String new_name, Window owner, double x, double y,Aborter aborter, Logger logger)
+    public static Path change_file_name(Path old_path, String new_name, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         if (dbg) logger.log("change_file_name, new name: " + new_name);
@@ -833,7 +833,7 @@ public class Static_files_and_paths_utilities
         Old_and_new_Path oan = new Old_and_new_Path(old_path, new_path, Command.command_rename, Status.before_command, false);
         List<Old_and_new_Path> l = new ArrayList<>();
         l.add(oan);
-        List<Old_and_new_Path> done = Moving_files.actual_safe_moves(l, true, x, y, owner, aborter, logger);
+        List<Old_and_new_Path> done = Moving_files.actual_safe_moves(l, true, owner, aborter, logger);
         if ( done.isEmpty()) return null;
 
         return new_path;

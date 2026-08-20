@@ -24,7 +24,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import klikr.audio.player.The_audio_player;
 import klikr.browser_core.Image_and_properties;
-import klikr.experimental.deduplicate.manual.Againor;
+import klikr.util.deduplicate.manual.Againor;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser_core.items.Item_file_with_icon;
@@ -220,9 +220,7 @@ public class Stage_with_2_images
 			Path new_Path = (Paths.get(trash_dir.toString(), p.getFileName().toString()));
 
 			l.add(new Old_and_new_Path(p, new_Path, Command.command_move_to_trash, Status.before_command,false));
-            double x = stage.getX()+100;
-			double y = stage.getY()+100;
-			Moving_files.safe_delete_files(l, x,y,stage,aborter,logger);
+            Moving_files.safe_delete_files(l, stage,aborter,logger);
 			count_deleted.increment();
 
 			againor.again();

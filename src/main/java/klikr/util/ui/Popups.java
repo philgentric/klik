@@ -17,13 +17,14 @@ import klikr.look.my_i18n.My_I18n;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 //**********************************************************
 public class Popups
 //**********************************************************
 {
-
 
     //**********************************************************
     public static void popup_Exception(Exception e, double icon_size, String title, Window owner, Logger logger)
@@ -53,11 +54,21 @@ public class Popups
         },logger);
     }
 
+    private static final List<String> done = new ArrayList<>();
+
     //**********************************************************
-    public static void popup_warning(String header, String content, boolean for_3_seconds_only, Window owner, Logger logger)
+    synchronized public static void popup_warning(String header, String content, boolean for_3_seconds_only, Window owner, Logger logger)
     //**********************************************************
     {
-        Jfx_batch_injector.inject(() -> {
+        String signature = header+content+for_3_seconds_only+owner.toString();
+        if ( done.contains(signature) )
+        {
+            logger.log("suppressed repeated warning "+signature);
+            return;
+        }
+        done.add(signature);
+        Jfx_batch_injector.inject(() ->
+        {
             logger.log("Warning Popup: "+header+" "+content);
             Alert alert = new Alert(Alert.AlertType.WARNING);
             if ( owner != null)

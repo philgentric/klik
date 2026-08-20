@@ -27,7 +27,6 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
             Supplier<Feature_vector_cache> fv_cache_supplier,
             Similarity_cache similarity_cache,
             Path_list_provider path_list_provider,
-            double x, double y,
             Aborter aborter,
             Logger logger)
     //**********************************************************

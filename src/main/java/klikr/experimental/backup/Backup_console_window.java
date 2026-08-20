@@ -15,6 +15,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import klikr.util.execute.actor.Aborter;
 import klikr.look.Look_and_feel_manager;
 import klikr.util.ui.Jfx_batch_injector;
@@ -55,7 +56,7 @@ public class Backup_console_window
     Stage stage;
 
     //**********************************************************
-    public Backup_console_window(Backup_engine backup_engine_, Backup_stats stats_, Logger logger)
+    public Backup_console_window(Backup_engine backup_engine_, Backup_stats stats_, Window owner, Logger logger)
     //**********************************************************
     {
         aborter =backup_engine_.dedicated_backup_aborter;
@@ -64,6 +65,8 @@ public class Backup_console_window
         this.logger = logger;
 
         stage = new Stage();
+        stage.setX(owner.getX()+Per_folder_mini_console.Mini_console_max_x);
+        stage.setY(owner.getY());
         stage.setX(Per_folder_mini_console.Mini_console_max_x);
         stage.setY(0);
         //stage.setHeight(500);

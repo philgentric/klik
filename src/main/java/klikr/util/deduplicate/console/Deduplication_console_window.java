@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 //SOURCES ../../../util/files_and_paths/File_with_a_few_bytes.java
-package klikr.experimental.deduplicate.console;
+package klikr.util.deduplicate.console;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import klikr.util.execute.actor.Aborter;
-import klikr.experimental.deduplicate.Abortable;
+import klikr.util.deduplicate.Abortable;
 import klikr.util.files_and_paths.File_with_a_few_bytes;
 import klikr.util.files_and_paths.Guess_file_type;
 import klikr.look.Look_and_feel_manager;
@@ -79,6 +79,10 @@ public class Deduplication_console_window
         //the_console = new Deduplication_console_interface(this, logger);
         Stage stage = new Stage();
         stage.initOwner(owner);
+
+        stage.setX(owner.getX()+100);
+        stage.setY(owner.getY()+100);
+
         stage.setHeight(h);
         stage.setWidth(w);
 
@@ -94,7 +98,7 @@ public class Deduplication_console_window
             public void handle(WindowEvent windowEvent) {
 
                 logger.log("Deduplication_console_window: closing the window");
-                abort();
+                abort("OnCloseRequest");
             }
         });
         Button cancel = new Button("Cancel");
@@ -104,7 +108,7 @@ public class Deduplication_console_window
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     logger.log("Deduplication_console_window: cancel button");
-                    abort();
+                    abort("user cancel");
                     stage.close();
                 }
             });
@@ -158,10 +162,10 @@ public class Deduplication_console_window
 
 
     //**********************************************************
-    public void abort()
+    public void abort(String reason)
     //**********************************************************
     {
-        abortable.abort();
+        abortable.abort(reason);
         private_aborter.abort("Deduplication_console_window::abort()");
     }
 

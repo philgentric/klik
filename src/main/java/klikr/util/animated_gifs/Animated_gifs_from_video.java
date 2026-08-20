@@ -122,16 +122,12 @@ public class Animated_gifs_from_video
         AtomicBoolean abort_reported = new AtomicBoolean(false);
         Animated_gif_generation_actor actor = new Animated_gif_generation_actor(logger);
         AtomicInteger in_flight = new AtomicInteger();
-        double x = owner.getX()+100;
-        double y = owner.getY()+100;
         Aborter local = new Aborter("generate_many_gifs_internal",logger);
         Optional<Hourglass> hourglass = Progress_window.show_with_in_flight(
                 local,
                 in_flight,
                 "Wait for animated gifs to be generated",
                 20*60,
-                x,
-                y,
                 owner,
                 logger);
         for ( int start = 0 ; start < duration_in_seconds; start+=skip_to_next)
@@ -384,7 +380,7 @@ public class Animated_gifs_from_video
         List<Old_and_new_Path> ll = new ArrayList<>();
         ll.add(oandnp);
         logger.log("moving saved animated gif from tmp:"+oandnp.old_Path+"=>"+oandnp.new_Path);
-        Moving_files.perform_safe_moves_in_a_thread(ll,false, 100,100, the_stage, aborter(), logger);
+        Moving_files.perform_safe_moves_in_a_thread(ll,false, the_stage, aborter(), logger);
     }
 
     //**********************************************************

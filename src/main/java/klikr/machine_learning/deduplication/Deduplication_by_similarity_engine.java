@@ -17,9 +17,9 @@ import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.browser_core.virtual_landscape.Path_comparator_source;
 import klikr.path_lists.Path_list_provider;
-import klikr.experimental.deduplicate.Abortable;
-import klikr.experimental.deduplicate.console.Deduplication_console_window;
-import klikr.experimental.deduplicate.manual.Againor;
+import klikr.util.deduplicate.Abortable;
+import klikr.util.deduplicate.console.Deduplication_console_window;
+import klikr.util.deduplicate.manual.Againor;
 import klikr.util.ui.Stage_with_2_images;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.machine_learning.similarity.Similarity_file_pair;
@@ -114,12 +114,12 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
 
     //**********************************************************
     @Override // Abortable
-    public void abort()
+    public void abort(String reason)
     //**********************************************************
     {
-        logger.log("Deduplication::abort()");
+        logger.log("Deduplication::abort() Reason: " + reason);
         console_window.set_end_deleted();
-        private_aborter.abort("Deduplication::abort()");
+        private_aborter.abort("Deduplication::abort() Reason: " + reason);
         if ( stage_with_2_images!=null) stage_with_2_images.close();
     }
 
@@ -213,7 +213,7 @@ public class Deduplication_by_similarity_engine implements Againor, Abortable
             {
                 logger.log("wait_for_finder_to_find_something: FINISHED, there was nothing to find ");
 
-                abort();
+                abort("deduplication by similarity : all search threads finished");
                 return false;
             }
 

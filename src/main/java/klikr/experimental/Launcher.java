@@ -228,8 +228,6 @@ public class Launcher extends Application implements UI_change_target
         hourglass = Progress_window.show(
                 "Please wait ... starting "+app_name,
                 30*60,
-                stage.getX()+100,
-                stage.getY()+100,
                 stage,
                 logger).orElse(null);
 

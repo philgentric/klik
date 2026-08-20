@@ -267,7 +267,6 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             List<Path> paths,
             Path_list_provider path_list_provider,
             Window owner,
-            double x, double y,
             Aborter browser_aborter,
             Logger logger)
     //**********************************************************
@@ -285,8 +284,6 @@ public class Feature_vector_cache implements Clearable_RAM_cache
                         in_flight,
                         "Wait, making feature vectors",
                         3600*60,
-                        x,
-                        y,
                         owner,
                         logger);
 

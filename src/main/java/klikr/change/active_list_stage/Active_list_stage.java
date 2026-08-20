@@ -60,6 +60,8 @@ public class Active_list_stage
 
         stage = new Stage();
         stage.initOwner(owner);
+        stage.setX(owner.getX()+100);
+        stage.setY(owner.getY()+100);
         stage.setHeight(600);
         stage.setWidth(1000);
 

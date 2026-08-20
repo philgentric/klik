@@ -38,7 +38,6 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
             Path_comparator_source path_comparator_source,
             Klikr_cache<Path, Image_properties> image_properties_cache,
             Window owner,
-            double x, double y,
             Aborter aborter,
             Logger logger)
     //**********************************************************

@@ -49,8 +49,6 @@ public class Progress_window implements Hourglass
 	public static Optional<Hourglass> show(
             String wait_message,
             int timeout_s,
-            double x,
-            double y,
             Window owner,
             Logger logger)
 	//**********************************************************
@@ -58,7 +56,7 @@ public class Progress_window implements Hourglass
 		if (Check_remaining_RAM.low_memory.get())
 			return Optional.empty();
 		Progress_window local = new Progress_window(false,null, timeout_s, logger);
-		launch(local, wait_message,x,y,owner,logger);
+		launch(local, wait_message,owner,logger);
 		return Optional.of(local);
 	}
 
@@ -67,14 +65,13 @@ public class Progress_window implements Hourglass
 	public static Optional<Hourglass> show_with_aborter(
 			Aborter aborter,
 			String wait_message,
-			int timeout_s,
-			double x, double y, Window owner, Logger logger)
+			int timeout_s,Window owner, Logger logger)
 	//**********************************************************
 	{
 		if (Check_remaining_RAM.low_memory.get())
 			return Optional.empty();
 		Progress_window local = new Progress_window(false,aborter, timeout_s, logger);
-		launch(local, wait_message,x,y,owner,logger);
+		launch(local, wait_message,owner,logger);
 		return Optional.of(local);
 	}
 
@@ -82,14 +79,13 @@ public class Progress_window implements Hourglass
 	public static Optional<Hourglass> show_with_abort_button(
 			Aborter aborter,
 			String wait_message,
-			int timeout_s,
-			double x, double y, Window owner, Logger logger)
+			int timeout_s, Window owner, Logger logger)
 	//**********************************************************
 	{
 		if (Check_remaining_RAM.low_memory.get())
 			return Optional.empty();
 		Progress_window local = new Progress_window(true,aborter, timeout_s, logger);
-		launch(local, wait_message,x,y,owner,logger);
+		launch(local, wait_message,owner,logger);
 		return Optional.of(local);
 	}
 
@@ -101,15 +97,13 @@ public class Progress_window implements Hourglass
             AtomicInteger in_flight,
             String wait_message,
             int timeout_s,
-            double x,
-            double y,
             Window owner,
             Logger logger)
 	//**********************************************************
 	{
 		if (Check_remaining_RAM.low_memory.get()) return Optional.empty();
 		Progress_window local = new Progress_window(false,the_aborter, timeout_s, logger);
-		launch(local, wait_message,x,y,owner,logger);
+		launch(local, wait_message,owner,logger);
 		local.report_progress_and_close_when_finished(in_flight);
 		return Optional.of(local);
 	}
@@ -120,15 +114,13 @@ public class Progress_window implements Hourglass
 			@NonNull  Aborter the_aborter,
 			String wait_message,
 			int timeout_s,
-			double x,
-			double y,
 			Window owner,
 			Logger logger)
 	//**********************************************************
 	{
 		if (Check_remaining_RAM.low_memory.get()) return Optional.empty();
 		Progress_window local = new Progress_window(true,the_aborter, timeout_s, logger);
-		launch(local, wait_message,x,y,owner,logger);
+		launch(local, wait_message,owner,logger);
 		local.report_progress_and_close_when_finished(in_flight);
 		return Optional.of(local);
 	}
@@ -138,19 +130,17 @@ public class Progress_window implements Hourglass
 	private static Hourglass launch(
             Progress_window local,
             String wait_message,
-            double x,
-            double y,
             Window owner,
             Logger logger)
 	//**********************************************************
 	{
 		if ( Platform.isFxApplicationThread())
 		{
-			local.define_fx(wait_message,owner,x,y);
+			local.define_fx(wait_message,owner);
 		}
 		else
 		{
-			Jfx_batch_injector.inject(()->local.define_fx(wait_message,owner,x,y),logger);
+			Jfx_batch_injector.inject(()->local.define_fx(wait_message,owner),logger);
 		}
 		return local;
 	}
@@ -167,7 +157,7 @@ public class Progress_window implements Hourglass
 
 
 	//**********************************************************
-	private void define_fx(String wait_message, Window owner, double x, double y)
+	private void define_fx(String wait_message, Window owner)
 	//**********************************************************
 	{
 		start = System.currentTimeMillis();
@@ -175,8 +165,8 @@ public class Progress_window implements Hourglass
 		stage = new Stage();
         stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
         stage.setMinWidth(300);
-        stage.setX(x);
-        stage.setY(y);
+		stage.setX(owner.getX()+100);
+        stage.setY(owner.getY()+100);
 
         VBox vbox = new VBox();
 		Look_and_feel_manager.set_region_look(vbox,owner,logger);

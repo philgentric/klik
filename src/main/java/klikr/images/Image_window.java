@@ -140,7 +140,7 @@ public class Image_window
     //**********************************************************
     public Image_window(
             Path first_image_path,
-            Window owner, // is null for 'big girl' windows
+            Window owner, // is null for 'stand alone' windows
             double x, double y,
             double w, double h,
             String title_optional_addendum, // this is used to display image similarity
@@ -224,7 +224,7 @@ public class Image_window
                 if (fv_cache == null) {
                     Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(stage,logger);
                     List<Path> paths = path_list_provider.only_image_paths(false,Feature_cache.get(Feature.Show_hidden_files),aborter);
-                    fv_cache = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, stage, x, y, aborter, logger);
+                    fv_cache = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, stage, aborter, logger);
                 }
                 return fv_cache;
             };
@@ -261,7 +261,7 @@ public class Image_window
             {
                 // this is going to take possibly a long time !!!
                 long start = System.currentTimeMillis();
-                local_comp = Sort_files_by.get_image_comparator(new Path_list_provider_for_file_system(first_image_path.getParent(),owner,logger), path_comparator_source, image_properties_cache, stage, x + 100, y + 100, aborter, logger);
+                local_comp = Sort_files_by.get_image_comparator(new Path_list_provider_for_file_system(first_image_path.getParent(),owner,logger), path_comparator_source, image_properties_cache, stage, aborter, logger);
                 long now = System.currentTimeMillis();
                 logger.log("get_image_comparator took " + (now - start) + " ms");
             }
@@ -1052,9 +1052,8 @@ public class Image_window
             oandn.run_after = () -> Jfx_batch_injector.inject(() -> set_stage_title(local_new_image_context),logger);
             l.add(oandn);
 
-            double x = stage.getX()+100;
-            double y = stage.getY()+100;
-            Moving_files.perform_safe_moves_in_a_thread(l, true, x,y,stage,aborter,logger);
+
+            Moving_files.perform_safe_moves_in_a_thread(l, true,stage,aborter,logger);
         }
         return Optional.of(local_new_image_context);
     }

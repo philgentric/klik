@@ -5,6 +5,7 @@
 package klikr.machine_learning.face_recognition;
 
 import javafx.scene.image.Image;
+import javafx.stage.Window;
 import klikr.util.execute.actor.Actor;
 import klikr.util.execute.actor.Message;
 import klikr.machine_learning.feature_vector.Feature_vector;
@@ -44,13 +45,13 @@ public class Prototype_adder_actor implements Actor
     //**********************************************************
     {
         Prototype_adder_message pam = (Prototype_adder_message)m;
-        Face_recognition_in_image_status frs = add_prototype_image_face(pam.label,pam.face,pam.feature_vector);
+        Face_recognition_in_image_status frs = add_prototype_image_face(pam.label,pam.face,pam.feature_vector, pam.owner);
         return frs.name();
     }
 
 
     //**********************************************************
-    public Face_recognition_in_image_status add_prototype_image_face(String label, Image face, Feature_vector fv)
+    public Face_recognition_in_image_status add_prototype_image_face(String label, Image face, Feature_vector fv, Window owner)
     //**********************************************************
     {
         String tag = label+ "_"+ UUID.randomUUID();
@@ -69,7 +70,7 @@ public class Prototype_adder_actor implements Actor
         if ( !service.labels.contains(label)) service.labels.add(label);
         logger.log("added prototype image face with tag ="+tag);
         // for debug
-        Utils.display(300, face,null,null,"debug",label,logger);
+        Utils.display(300, face,null,null,"debug",label,owner, logger);
         return Face_recognition_in_image_status.feature_vector_ready;
     }
 

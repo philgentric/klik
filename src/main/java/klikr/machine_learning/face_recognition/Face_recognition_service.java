@@ -215,7 +215,7 @@ public class Face_recognition_service
                 }
                 logger.log("ADDING "+file.getName()+" as label was NOT correct: "+ face_recognition_results.label());
 
-                add_prototype_to_set(file,label,face_recognition_results,aborter);
+                add_prototype_to_set(file,label,face_recognition_results,owner,aborter);
                 break;
             case no_face_recognized :
                 logger.log("detect_face_and_recognize: NO face_recognized");
@@ -229,7 +229,7 @@ public class Face_recognition_service
                     break;
                 }
                 training_stats.done.incrementAndGet();
-                add_prototype_to_set(file,label,face_recognition_results,aborter);
+                add_prototype_to_set(file,label,face_recognition_results,owner,aborter);
                 break;
 
 
@@ -316,7 +316,7 @@ public class Face_recognition_service
                     break;
                 }
                 logger.log("ADDING "+file.getName()+" as label was NOT correct: "+ Face_recognition_results.label());
-                add_prototype_to_set(file,label,Face_recognition_results,aborter);
+                add_prototype_to_set(file,label,Face_recognition_results,owner,aborter);
                 break;
             case no_face_recognized :
                 logger.log("just_recognize: NO face_recognized");
@@ -331,7 +331,7 @@ public class Face_recognition_service
                 }
                 training_stats.face_wrongly_recognized_recorded.incrementAndGet();
                 training_stats.done.incrementAndGet();
-                add_prototype_to_set(file,label,Face_recognition_results,aborter);
+                add_prototype_to_set(file,label,Face_recognition_results,owner, aborter);
                 break;
             default:
                 logger.log(Stack_trace_getter.get_stack_trace("just_recognize: should not happen"));
@@ -341,7 +341,7 @@ public class Face_recognition_service
         return Face_recognition_results.image_path();
     }
     //**********************************************************
-    private boolean add_prototype_to_set(File f, String label, Face_recognition_results Face_recognition_results, Aborter aborter)
+    private boolean add_prototype_to_set(File f, String label, Face_recognition_results Face_recognition_results, Window owner, Aborter aborter)
     //**********************************************************
     {
         boolean check_this_is_a_face = false;
@@ -378,7 +378,7 @@ public class Face_recognition_service
         training_stats.done.incrementAndGet();
 
         Prototype_adder_actor actor = new Prototype_adder_actor(this,logger);
-        Prototype_adder_message msg = new Prototype_adder_message(label,Face_recognition_results.image(),Face_recognition_results.feature_vector() , aborter);
+        Prototype_adder_message msg = new Prototype_adder_message(label,Face_recognition_results.image(),Face_recognition_results.feature_vector() , aborter, owner);
         Actor_engine.run(actor,msg,null, logger);
         return true;
     }
@@ -448,16 +448,12 @@ public class Face_recognition_service
     {
         logger.log("AUTO STARTED");
         AtomicInteger files_in_flight = new AtomicInteger();
-        double x = owner.getX()+100;
-        double y = owner.getY()+100;
         Aborter aborter = new Aborter("face_recog_auto", logger);
         Optional<Hourglass> hourglass = Progress_window.show_with_in_flight_and_aborter(
                 files_in_flight,
                 aborter,
                 "Wait for auto train to complete",
                 3600*60,
-                x,
-                y,
                 owner,
                 logger);
 
@@ -675,6 +671,10 @@ public class Face_recognition_service
         Stage stage = new Stage();
 
         stage.initOwner(owner);
+
+        stage.setX(owner.getX()+100);
+        stage.setY(owner.getY()+100);
+
         Label status_label = new Label();
         Look_and_feel_manager.set_label_look(status_label,stage,logger);
 
@@ -846,7 +846,7 @@ public class Face_recognition_service
                     }
                     Prototype_adder_actor actor = new Prototype_adder_actor(this,logger);
                     Feature_vector fv = eval_result.feature_vector();
-                    Prototype_adder_message msg = new Prototype_adder_message(image_label.trim(), face_image, fv,new Aborter("bidon", logger));
+                    Prototype_adder_message msg = new Prototype_adder_message(image_label.trim(), face_image, fv,new Aborter("bidon", logger), owner);
                     Job_termination_reporter tr = (message, job) -> {
                         Face_recognition_in_image_status s = Face_recognition_in_image_status.valueOf(message);
                         if (s != Face_recognition_in_image_status.feature_vector_ready) {
@@ -944,16 +944,12 @@ public class Face_recognition_service
     {
         logger.log("load_internal : loading prototypes");
         AtomicInteger in_flight = new AtomicInteger();
-        double x = owner.getX()+100;
-        double y = owner.getY()+100;
         Aborter aborter = new Aborter("face recognition load",logger);
         Optional<Hourglass> hourglass = Progress_window.show_with_in_flight_and_aborter(
                 in_flight,
                 aborter,
                 "Loading face recognition prototypes",
                 3600*60,
-                x,
-                y,
                 owner,
                 logger);
         Load_one_prototype_actor actor = new Load_one_prototype_actor();
@@ -1227,8 +1223,6 @@ public class Face_recognition_service
                 aborter,
                 "Wait for SELF face recognition to complete",
                 3600*60,
-                x,
-                y,
                 owner,
                 logger);
 
@@ -1337,8 +1331,8 @@ public class Face_recognition_service
                 null,
                 null,
                 self_target_tag + " NOT recognized",
-                "recognized as: " + face_recognition_results.label(),
-                logger);
+                "recognized as: " + face_recognition_results.label()
+                , owner, logger);
     }
 
 

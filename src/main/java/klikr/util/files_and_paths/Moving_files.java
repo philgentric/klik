@@ -68,7 +68,7 @@ public class Moving_files
         if (popup) {
             Popups.popup_warning( "❗ Stupid move ignored", "Check the folders in the window title, it seems you are trying to move files from one folder to the SAME folder!?", false, owner,logger);
         }
-        perform_safe_moves_in_a_thread(oan_list,  true, x,y,owner, aborter,logger);
+        perform_safe_moves_in_a_thread(oan_list,  true, owner, aborter,logger);
     }
 
 
@@ -83,7 +83,7 @@ public class Moving_files
 
         List<Old_and_new_Path> oanl = new ArrayList<>();
         oanl.add(oan);
-        actual_safe_moves(oanl, true,x,y,owner, aborter,logger);
+        actual_safe_moves(oanl, true,owner, aborter,logger);
     }
 
 
@@ -92,7 +92,7 @@ public class Moving_files
     public static void perform_safe_moves_in_a_thread(
             List<Old_and_new_Path> the_list,
             boolean and_list_for_undo,
-            double x, double y, Window owner,
+            Window owner,
             Aborter aborter, Logger logger)
     //**********************************************************
     {
@@ -107,7 +107,7 @@ public class Moving_files
 
         }
         if (moving_files_dbg) logger.log("perform_safe_moves_in_a_thread()");
-        Runnable r = () -> actual_safe_moves(the_list, and_list_for_undo, x, y, owner, aborter, logger);
+        Runnable r = () -> actual_safe_moves(the_list, and_list_for_undo, owner, aborter, logger);
         try {
             Actor_engine.execute(r, "Move files", logger);
             if (moving_files_dbg) logger.log("perform_safe_moves_in_a_thread LAUNCHED, thread COUNT=" + Thread.activeCount());
@@ -120,7 +120,7 @@ public class Moving_files
     }
 
     //**********************************************************
-    public static void safe_delete_files(List<Old_and_new_Path> l, double x, double y, Window owner, Aborter aborter, Logger logger)
+    public static void safe_delete_files(List<Old_and_new_Path> l, Window owner, Aborter aborter, Logger logger)
     //**********************************************************
     {
         // WHY create a copy of the list ?
@@ -134,7 +134,7 @@ public class Moving_files
 
         //logger.log("safe_delete_all: perform_safe_moves_in_a_thread");
 
-        Moving_files.perform_safe_moves_in_a_thread(l2,  true,x,y, owner, aborter, logger);
+        Moving_files.perform_safe_moves_in_a_thread(l2,  true, owner, aborter, logger);
 
     }
 
@@ -142,13 +142,12 @@ public class Moving_files
     public static List<Old_and_new_Path> actual_safe_moves(
             List<Old_and_new_Path> the_list,
             boolean and_list_for_undo,
-            double x, double y,
             Window owner,
             Aborter aborter,
             Logger logger)
     //**********************************************************
     {
-        Optional<Hourglass> hourglass = check(aborter,the_list,x, y,  owner, logger);
+        Optional<Hourglass> hourglass = check(aborter,the_list, owner, logger);
         List<Old_and_new_Path> done = new ArrayList<>();
         List<Old_and_new_Path> not_done = new ArrayList<>();
         for (Old_and_new_Path oandn : the_list)
@@ -216,7 +215,6 @@ public class Moving_files
     private static Optional<Hourglass> check(
             Aborter aborter,
             List<Old_and_new_Path> the_list,
-            double x, double y,
             Window owner,
             Logger logger)
     //**********************************************************
@@ -247,8 +245,6 @@ public class Moving_files
                     aborter,
                     "File(s) are being moved",
                     20000,
-                    x,
-                    y,
                     owner,
                     logger);
         }

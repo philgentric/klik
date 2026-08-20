@@ -195,6 +195,8 @@ public class The_audio_player implements Media_callbacks
         this.aborter = new Aborter("audio player",logger);
         this.logger = logger;
         stage = new Stage();
+        stage.setX(owner.getX()+100);
+        stage.setY(owner.getY()+100);
 
         pause_string = My_I18n.get_I18n_string(PAUSE, stage, logger);
         play_string = My_I18n.get_I18n_string(PLAY, stage, logger);
@@ -950,8 +952,6 @@ public class The_audio_player implements Media_callbacks
                                 youtube_abort,
                                 "Importing audio tracks",
                                 30 * 60,
-                                stage.getX() + 100,
-                                stage.getY() + 100,
                                 stage,
                                 logger);
 

@@ -35,13 +35,9 @@ public class Audio_info_frame
     private static void show_(Path path, Window owner, Logger logger)
     //**********************************************************
     {
-        double x = owner.getX()+100;
-        double y = owner.getY()+100;
         Hourglass progress_window = Progress_window.show(
                 "Calling mediainfo",
                 30,
-                x,
-                y,
                 owner,
                 logger).orElse(null);
         List<Line_for_info_stage> l = new ArrayList<>();

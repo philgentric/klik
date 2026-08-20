@@ -85,6 +85,7 @@ public class Monitor
     //**********************************************************
     {
         stage = new Stage();
+
         stage.setTitle("Looking for images in :"+top.toAbsolutePath());
         VBox vbox = new VBox();
 

@@ -53,7 +53,7 @@ public class Item_context
 //**********************************************************
     {
         this.item_path = item_path;
-        logger.log(Stack_trace_getter.get_stack_trace("Item_context constructor, item_path: " + this.item_path));
+        //logger.log(Stack_trace_getter.get_stack_trace("Item_context constructor, item_path: " + this.item_path));
 
         if (item_type != null)
         {
@@ -63,7 +63,7 @@ public class Item_context
         {
             this.item_type = Iconifiable_item_type.determine(item_path,owner,aborter,logger);
         }
-        logger.log("Item_context constructor, item_type: " + this.item_type);
+        //logger.log("Item_context constructor, item_type: " + this.item_type);
         is_trash = isTrash;
         if ( item_path == null) logger.log(Stack_trace_getter.get_stack_trace("WARNING: null item_path" +dump_item_context()));
         shutdown_target = shutdownTarget;

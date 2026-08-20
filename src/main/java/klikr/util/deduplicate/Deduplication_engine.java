@@ -8,7 +8,7 @@
 //SOURCES ./Runnable_for_finding_duplicate_file_pairs.java
 //SOURCES ./Abortable.java
 
-package klikr.experimental.deduplicate;
+package klikr.util.deduplicate;
 
 import javafx.application.Application;
 import javafx.stage.Window;
@@ -21,8 +21,8 @@ import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.files_and_paths.*;
 import klikr.util.ui.Stage_with_2_images;
-import klikr.experimental.deduplicate.console.Deduplication_console_window;
-import klikr.experimental.deduplicate.manual.Againor;
+import klikr.util.deduplicate.console.Deduplication_console_window;
+import klikr.util.deduplicate.manual.Againor;
 import klikr.change.old_and_new.Command;
 import klikr.change.old_and_new.Old_and_new_Path;
 import klikr.change.old_and_new.Status;
@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.LongAdder;
 public class Deduplication_engine implements Againor, Abortable
 //**********************************************************
 {
-
+    private static final boolean dbg = false;
     private final Window owner;
     Logger logger;
     BlockingQueue<File_pair_deduplication> file_pairs_queue = new LinkedBlockingQueue<>();
@@ -55,7 +55,10 @@ public class Deduplication_engine implements Againor, Abortable
     File target_dir;
     Deduplication_console_window console_window;
     boolean end_reported = false;
-    private Aborter private_aborter = new Aborter("Deduplication_engine",logger);
+    // We need a private aborter so that the user can
+    // browse another folder than the visited folder
+    // where deduplication was started
+    private Aborter private_aborter;
     Stage_with_2_images stage_with_2_images;
     Path_list_provider path_list_provider;
     Path_comparator_source path_comparator_source;
@@ -73,6 +76,7 @@ public class Deduplication_engine implements Againor, Abortable
         this.path_comparator_source = path_comparator_source;
         target_dir = target_dir_;
         logger = logger_;
+        private_aborter = new Aborter("Deduplication_engine in "+target_dir,logger);
     }
 
 
@@ -88,18 +92,18 @@ public class Deduplication_engine implements Againor, Abortable
 
         Runnable r = () -> runnable_deduplication(local_engine, auto);
         Actor_engine.execute(r,"Deduplicate",logger);
-        logger.log("Deduplication::look_for_all_files() runnable_deduplication thread launched");
+        if ( dbg) logger.log("Deduplication::look_for_all_files() runnable_deduplication thread launched");
     }
 
 
     //**********************************************************
     @Override // Abortable
-    public void abort()
+    public void abort(String reason)
     //**********************************************************
     {
-        logger.log("Deduplication::abort()");
+        logger.log("Deduplication::abort() Reason : "+reason);
         console_window.set_end_deleted();
-        private_aborter.abort("Deduplication::abort()");
+        private_aborter.abort("Deduplication::abort() + Reason : "+reason);
         if ( stage_with_2_images!=null) stage_with_2_images.close();
     }
 
@@ -239,9 +243,7 @@ public class Deduplication_engine implements Againor, Abortable
             if (erased % 10 == 0) console_window.set_status_text("Erased files =" + erased);
 
         }
-        double x = owner.getX()+100;
-        double y = owner.getY()+100;
-        Moving_files.safe_delete_files(ll, x,y,owner, private_aborter,logger);
+        Moving_files.safe_delete_files(ll, owner, private_aborter,logger);
 
         //Popups.popup_warning("End of automatic de-duplication for :" + target_dir.getAbsolutePath(), erased + " pairs de-duplicated", false, logger);
 
@@ -310,7 +312,7 @@ public class Deduplication_engine implements Againor, Abortable
             {
                 logger.log("wait_for_finder_to_find_something: FINISHED ????? ");
 
-                abort();
+                abort("search ended");
                 return false;
             }
 
