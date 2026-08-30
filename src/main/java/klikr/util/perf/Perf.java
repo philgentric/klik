@@ -70,7 +70,7 @@ public class Perf implements AutoCloseable
             double ave = durations.get(local_tag).doubleValue()/count.get(local_tag).doubleValue();
             double local_max = max.get(local_tag).doubleValue();
             String high_light = "";
-            if ( local_max > 1_000_000_000) high_light = "❗";
+            if ( local_max > 1_000_000_000) high_light = Logger.warning+"";
             logger.log(local_tag+":\n   last= "+format(last.get(local_tag))+"\n   max = "+format(local_max)+high_light+"\n   ave = "+format(ave));
         }
         logger.log("=========================");

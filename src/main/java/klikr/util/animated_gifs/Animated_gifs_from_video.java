@@ -97,7 +97,7 @@ public class Animated_gifs_from_video
         Double duration_in_seconds = Ffmpeg_utils.get_media_duration(video_path,owner, logger);
         if ( duration_in_seconds == null)
         {
-            logger.log("❌ FATAL: ffprobe cannot find duration of "+video_path);
+            logger.log(Logger.error+"FATAL: ffprobe cannot find duration of "+video_path);
             return;
         }
         if ( duration_in_seconds > 3*3600)
@@ -134,7 +134,7 @@ public class Animated_gifs_from_video
         {
            if (local.should_abort())
            {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning("❗ ABORTING MASSIVE GIF GENERATION for " + video_path, "On abort request", true, owner, logger), logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning(Logger.warning+" ABORTING MASSIVE GIF GENERATION for " + video_path, "On abort request", true, owner, logger), logger);
                 return;
            }
            String name = make_file_name(start);
@@ -184,7 +184,7 @@ public class Animated_gifs_from_video
 
             if ( full_clip_duration_in_seconds == null)
             {
-                logger.log("❌ FATAL: ffprobe cannot find duration of "+video_path);
+                logger.log(Logger.error+"FATAL: ffprobe cannot find duration of "+video_path);
                 return;
             }
             make_animated_gif_in_tmp_folder(icon_height[0],fps[0], the_stage);//start_time_seconds,duration_seconds, video_path, logger, icon_cache_dir);
@@ -469,7 +469,7 @@ public class Animated_gifs_from_video
 
         if ( iap == null)
         {
-            logger.log("❌ FATAL: load_icon_from_disk_cache==null");
+            logger.log(Logger.error+"FATAL: load_icon_from_disk_cache==null");
             return null;
         }
         the_imageview.setImage(iap.image());

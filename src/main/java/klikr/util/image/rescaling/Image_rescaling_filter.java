@@ -4,6 +4,7 @@
 package klikr.util.image.rescaling;
 
 import app.photofox.vipsffm.enums.VipsKernel;
+import klikr.util.log.Logger;
 
 public enum Image_rescaling_filter
 {
@@ -103,7 +104,7 @@ public enum Image_rescaling_filter
                 return "Magic Kernel Sharp 2013 rescaler ";
             }
         }
-        return "❌ FATAL ERROR, wrong rescaler code ???";
+        return Logger.error+"FATAL ERROR, wrong rescaler code ???";
     }
 
     public Image_rescaling_filter next()

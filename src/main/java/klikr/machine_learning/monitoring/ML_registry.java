@@ -193,13 +193,13 @@ public class ML_registry
                     if ( !list.contains(ml_server) )
                     {
                         list.add(ml_server);
-                        if (dbg) logger.log("✅ " + target_server_type.name() + " detected a live server at port " + port);
+                        if (dbg) logger.log(Logger.ok+" " + target_server_type.name() + " detected a live server at port " + port);
                     }
                     ML_servers_monitor.refresh_add(ml_server, owner, logger);
                 }
                 else
                 {
-                    logger.log("❌ " + target_server_type.name() + " server at port " + port + " is not responding to health check.");
+                    logger.log(Logger.error+"" + target_server_type.name() + " server at port " + port + " is not responding to health check.");
                     remove(list, f, ml_server,live_dbg,  owner, logger);
                 }
             }
@@ -328,12 +328,12 @@ public class ML_registry
             }
             catch (NumberFormatException e)
             {
-                logger.log("❌ WARNING, checking if servers named like "+server_python_name+" are running => failed, non integer found in pgrep reply:"+p );
+                logger.log(Logger.error+"WARNING, checking if servers named like "+server_python_name+" are running => failed, non integer found in pgrep reply:"+p );
                 limit.release();
                 return 0;
             }
         }
-        logger.log("✅  OK, found "+count+" PIDs for servers named like "+server_python_name);
+        logger.log(Logger.ok+"  OK, found "+count+" PIDs for servers named like "+server_python_name);
         limit.release();
         return count;
     }

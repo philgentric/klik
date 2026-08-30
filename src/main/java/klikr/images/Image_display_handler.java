@@ -281,7 +281,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
                         return;
                     }
                     if (image_context.path == null) {
-                        logger.log(Stack_trace_getter.get_stack_trace("❌ Panic"));
+                        logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"Panic"));
                         image_context = null;
                         return;
                     }
@@ -328,7 +328,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
         {
 
             if (image_indexer == null) {
-                logger.log("❌ image_indexer not available yet ");
+                logger.log(Logger.error+"image_indexer not available yet ");
             } else {
                 /*
                 Index_reporter index_reporter = index -> {

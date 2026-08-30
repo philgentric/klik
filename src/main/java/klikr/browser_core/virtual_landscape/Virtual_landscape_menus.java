@@ -29,7 +29,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Window;
 import klikr.Window_builder;
-import klikr.audio.player.The_audio_player;
+import klikr.experimental.audio.player.The_audio_player;
 import klikr.browser_core.items.Iconifiable_item_type;
 import klikr.browser_core.items.Item_context;
 import klikr.path_lists.Files_and_folders;
@@ -271,10 +271,10 @@ public class Virtual_landscape_menus
     {
         List<Path> files = virtual_landscape.path_list_provider.only_file_paths(true,Feature_cache.get(Feature.Show_hidden_files),virtual_landscape.aborter);
         if (files == null) {
-            logger.log("❌ ERROR: cannot list files in " + virtual_landscape.path_list_provider.get_key());
+            logger.log(Logger.error+"ERROR: cannot list files in " + virtual_landscape.path_list_provider.get_key());
         }
         if (files.size() == 0) {
-            logger.log("✅ no file in " + virtual_landscape.path_list_provider.get_key());
+            logger.log(Logger.ok+" no file in " + virtual_landscape.path_list_provider.get_key());
         }
         Map<String, Path> folders = new HashMap<>();
         List<Old_and_new_Path> moves = new ArrayList<>();
@@ -287,7 +287,7 @@ public class Virtual_landscape_menus
             }
             catch (IOException e)
             {
-                logger.log("❌ BAD " + e);
+                logger.log(Logger.error+"BAD " + e);
                 continue;
             }
 
@@ -311,7 +311,7 @@ public class Virtual_landscape_menus
                     try {
                         Files.createDirectory(folder);
                     } catch (IOException e) {
-                        logger.log("❌ BAD " + e);
+                        logger.log(Logger.error+"BAD " + e);
                         continue;
                     }
                 }
@@ -405,10 +405,10 @@ public class Virtual_landscape_menus
         }
         else
         {
-            if ( dbg) logger.log("✅ contact sheet generated "+ sb);
+            if ( dbg) logger.log(Logger.ok+" contact sheet generated "+ sb);
             else
             {
-                logger.log("✅ contact sheet generated : "+ CONTACT_SHEET_FILE_NAME);
+                logger.log(Logger.ok+" contact sheet generated : "+ CONTACT_SHEET_FILE_NAME);
                 System_open_actor.open_with_system(virtual_landscape.application,Path.of(p.get().toAbsolutePath().toString(), CONTACT_SHEET_FILE_NAME),owner,virtual_landscape.aborter,logger);
 
                 Platform.runLater(() ->virtual_landscape.set_status("Contact sheet generated : "+ CONTACT_SHEET_FILE_NAME));
@@ -451,7 +451,7 @@ public class Virtual_landscape_menus
                 }
                 catch (IOException e)
                 {
-                    logger.log("❗ new directory creation FAILED: " + e);
+                    logger.log(Logger.warning+" new directory creation FAILED: " + e);
                     // n case the issue is the name, we just addd "_" at the end and retry
                     new_name += "_";
                 }
@@ -772,7 +772,7 @@ public class Virtual_landscape_menus
                 event -> {
                     //logger.log("Deduplicate auto");
 
-                    if ( !Popups.popup_ask_for_confirmation( "❗ EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",owner,logger)) return;
+                    if ( !Popups.popup_ask_for_confirmation( Logger.warning+" EXPERIMENTAL! Are you sure?","Automated deduplication will recurse down this folder and delete (for good = not send them in recycle bin) all duplicate files",owner,logger)) return;
 
                     Optional<Path> folder_path = virtual_landscape.path_list_provider.get_folder_path();
                     if(folder_path.isPresent()) {
@@ -852,7 +852,7 @@ public class Virtual_landscape_menus
         MenuItem item = Menu_items.make_menu_item(key,true,null,
         event -> {
             Face_recognition_service i = Face_recognition_service.get_instance(virtual_landscape.application, owner,logger);
-            logger.log("❌ NOT IMPLEMENTED add_all_pictures_to_training_set for "+virtual_landscape.path_list_provider.get_key());
+            logger.log(Logger.error+"NOT IMPLEMENTED add_all_pictures_to_training_set for "+virtual_landscape.path_list_provider.get_key());
 
         },owner,logger);
         Items_with_explanation.add_question_mark_button(key, item, virtual_landscape.owner, logger);
@@ -1437,20 +1437,20 @@ public class Virtual_landscape_menus
             Undo_item item = signature_to_undo_item.get(signature);
             if ( item == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("❌ item == null for signature="+signature));
+                logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"item == null for signature="+signature));
                 return;
             }
             if ( !Undo_for_moves.check_validity(item, owner,logger))
             {
-                Popups.popup_warning("❗ Invalid undo item ignored","The file was probably moved since?",true,owner,logger);
+                Popups.popup_warning(Logger.warning+" Invalid undo item ignored","The file was probably moved since?",true,owner,logger);
                 Undo_for_moves.remove_invalid_undo_item(item, owner,logger);
                 return;
             }
-            logger.log("✅ undo_item="+item.to_string());
+            logger.log(Logger.ok+" undo_item="+item.to_string());
             double x = owner.getX()+100;
             double y = owner.getY()+100;
 
-            boolean ok = Popups.popup_ask_for_confirmation("❗ Please confirm.",
+            boolean ok = Popups.popup_ask_for_confirmation(Logger.warning+" Please confirm.",
                     "Undoing this will move the file(s) back to their original location.\n" +
                             item.to_string()+"\n"+
                             item.to_string(),
@@ -1898,7 +1898,7 @@ public class Virtual_landscape_menus
     void clean_up_names_fx()
     //**********************************************************
     {
-        if ( !Popups.popup_ask_for_confirmation( "❗ EXPERIMENTAL! Are you sure?","Name cleaning will try to change all names in this folder, which may have very nasty consequences in a home or system folder",owner,logger)) return;
+        if ( !Popups.popup_ask_for_confirmation( Logger.warning+" EXPERIMENTAL! Are you sure?","Name cleaning will try to change all names in this folder, which may have very nasty consequences in a home or system folder",owner,logger)) return;
 
         Optional<Path> dir = virtual_landscape.path_list_provider.get_folder_path();
         if ( dir.isEmpty())

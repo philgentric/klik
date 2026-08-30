@@ -49,7 +49,7 @@ public class Or_aborter extends Aborter
         if ( a.should_abort() && b.should_abort() )  return a.reason()+ " or " +b.reason();
         if (a.should_abort()) return a.reason();
         if (b.should_abort()) return b.reason();
-        return "❌ unknown reason";
+        return Logger.error+"unknown reason";
     }
 
 }

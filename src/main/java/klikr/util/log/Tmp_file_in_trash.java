@@ -24,7 +24,7 @@ public class Tmp_file_in_trash
         Path tmp_path = get_path_in_trash(cmd,owner, logger);
         if ( tmp_path == null)
         {
-            logger.log("❌ Fatal, cannot create path in trash: ->"+cmd+"<-");
+            logger.log(Logger.error+"Fatal, cannot create path in trash: ->"+cmd+"<-");
             return null;
         }
         if (Files.exists(tmp_path))
@@ -37,7 +37,7 @@ public class Tmp_file_in_trash
         InputStream input_stream =  Application_jar.get_jar_InputStream_by_name(name);
         if ( input_stream == null)
         {
-            logger.log("❌ Fatal, cannot open jar stream for: ->"+name+"<-");
+            logger.log(Logger.error+"Fatal, cannot open jar stream for: ->"+name+"<-");
             return null;
         }
         logger.log("OK jar stream opened for ->"+cmd+"<-");
@@ -74,7 +74,7 @@ public class Tmp_file_in_trash
         Path klik_trash = Static_files_and_paths_utilities.get_trash_dir_of(Path.of("").toAbsolutePath(),owner,logger);
         if ( klik_trash == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ Fatal "));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"Fatal "));
             return null;
         }
         return klik_trash.resolve(file_name);

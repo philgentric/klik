@@ -17,7 +17,6 @@ import klikr.util.log.Stack_trace_getter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 //**********************************************************
 public class Image_decoding_actor_for_3D_cache implements Actor
@@ -69,12 +68,12 @@ public class Image_decoding_actor_for_3D_cache implements Actor
             if ( (local_image.getWidth() > 1) && (local_image.getHeight() > 1))
             {
                 request.cache.put(request.path, new PhongMaterial(){{setDiffuseMap(local_image);}});
-                if (dbg) logger.log("✅  image decoded ok is now in cache: " + request.path.getFileName() );
+                if (dbg) logger.log(Logger.ok+"  image decoded ok is now in cache: " + request.path.getFileName() );
                 return "OK, image decoded";
             }
         }
-        logger.log( Stack_trace_getter.get_stack_trace("❌ BAD WARNING get_Image_and_index failed"));
-        return "❌  image load failed";
+        logger.log( Stack_trace_getter.get_stack_trace(Logger.error+"BAD WARNING get_Image_and_index failed"));
+        return Logger.error+" image load failed";
     }
 
     //**********************************************************

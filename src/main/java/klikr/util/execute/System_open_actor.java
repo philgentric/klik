@@ -133,15 +133,15 @@ public class System_open_actor implements Actor
         }
         catch (Exception e)
         {
-            som.logger.log(Stack_trace_getter.get_stack_trace("❗ open failed :" + e));
+            som.logger.log(Stack_trace_getter.get_stack_trace(Logger.warning+" open failed :" + e));
 
             if (e.toString().contains("doesn't exist."))
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning( "❗ Failed", "Your OS/GUI could not open this file, the error is:\n" + e,false, som.owner, som.logger), som.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning( Logger.warning+" Failed", "Your OS/GUI could not open this file, the error is:\n" + e,false, som.owner, som.logger), som.logger);
             }
             else
             {
-                Jfx_batch_injector.inject(() -> Popups.popup_warning( "❗ Failed", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?",false, som.owner, som.logger), som.logger);
+                Jfx_batch_injector.inject(() -> Popups.popup_warning( Logger.warning+" Failed", "Your OS/GUI could not open this file, the error is:\n" + e + "\nMaybe it is just not properly configured e.g. most often the file extension has to be registered?",false, som.owner, som.logger), som.logger);
             }
             return "failed";
         }
@@ -158,10 +158,10 @@ public class System_open_actor implements Actor
 
         if ( app == null)
         {
-            som.logger.log("❌ open with_click_registered_application aborted, no registered operation for this extension ");
+            som.logger.log(Logger.error+"open with_click_registered_application aborted, no registered operation for this extension ");
             return "error";
         }
-        som.logger.log("❗ open with click registered application for " + som.path + " with " + app);
+        som.logger.log(Logger.warning+" open with click registered application for " + som.path + " with " + app);
 
         call_os_specific_open(som,app);
 
@@ -192,7 +192,7 @@ public class System_open_actor implements Actor
         }
         Operating_system os = Guess_OS.guess(som.logger);
 
-        Jfx_batch_injector.inject(() -> Popups.popup_warning( "❗ Calling "+os.name()+" to open: "+som.path, "Please wait ",true,som.owner,som.logger), som.logger);
+        Jfx_batch_injector.inject(() -> Popups.popup_warning( Logger.warning+" Calling "+os.name()+" to open: "+som.path, "Please wait ",true,som.owner,som.logger), som.logger);
 
         List<String> list = new ArrayList<>();
         switch ( os)

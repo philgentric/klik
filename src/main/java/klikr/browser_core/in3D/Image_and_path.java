@@ -120,7 +120,7 @@ public class Image_and_path
         try (InputStream is = new FileInputStream(path.toFile())) {
             return new Image(is, icon_size, icon_size, true, true);
         } catch (Exception e) {
-            logger.log("❌ fatal " + e);
+            logger.log(Logger.error+" FATAL " + e);
             return null;
         }
     }

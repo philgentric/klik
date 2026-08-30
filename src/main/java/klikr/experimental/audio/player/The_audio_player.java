@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.audio.player;
+package klikr.experimental.audio.player;
 //SOURCES ./Playlist.java
 
 //SOURCES ./Song.java
@@ -280,7 +280,7 @@ public class The_audio_player implements Media_callbacks
     {
         if ( song == null )
         {
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL: song == null"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+" FATAL: song == null"));
             return;
         }
 
@@ -436,11 +436,11 @@ public class The_audio_player implements Media_callbacks
             Object source = drag_event.getGestureSource();
             if (source == null) {
                 logger.log(
-                        ("❗ WARNING: The_audio_player accept_drag_dropped_as_a_move_in, cannot check for stupid move because the event's source is null: "
+                        (Logger.warning+" WARNING: The_audio_player accept_drag_dropped_as_a_move_in, cannot check for stupid move because the event's source is null: "
                                 + drag_event));
             } else {
                 if (source == landing_zone) {
-                    logger.log("❗ The_audio_player source is excluded: cannot drop onto itself");
+                    logger.log(Logger.warning+" The_audio_player source is excluded: cannot drop onto itself");
                     drag_event.consume();
                     return;
                 }

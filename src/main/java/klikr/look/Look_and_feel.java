@@ -77,13 +77,13 @@ public abstract class Look_and_feel
         URL style_sheet_url = get_CSS_URL(owner);
         if (style_sheet_url == null)
         {
-            logger.log("❌ style:'" + name + "' Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url is null");
+            logger.log(Logger.error+"style:'" + name + "' Look_and_feel: BAD WARNING cannot load style sheet as style_sheet_url is null");
             style_sheet_url_string = null;
         }
         else
         {
             style_sheet_url_string = style_sheet_url.toExternalForm();
-            logger.log("✅ Style:'" + name + "' loaded style sheet=" + style_sheet_url_string);
+            logger.log(Logger.ok+" Style:'" + name + "' loaded style sheet=" + style_sheet_url_string);
         }
 
         Look_and_feel_manager.reset();
@@ -111,11 +111,11 @@ public abstract class Look_and_feel
         try {
             tmp_pane.applyCss();
         } catch (Exception e) {
-            logger.log("❌ BAD WARNING cannot apply CSS style to pane");
+            logger.log(Logger.error+"BAD WARNING cannot apply CSS style to pane");
             return new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY);
         }
         if (tmp_pane.getBackground() == null) {
-            logger.log("❌ BAD WARNING cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :" + laf);
+            logger.log(Logger.error+"BAD WARNING cannot read BACKGROUND color from CSS file, are you sure the syntax is correct? :" + laf);
         }
         background_fill = tmp_pane.getBackground().getFills().get(0);
         return background_fill;
@@ -320,12 +320,12 @@ public abstract class Look_and_feel
         // here, we just load the font in the javafx cache
         if ( font != null)
         {
-            logger.log("✅ load_font: "+file_name+" loaded, resulting font name= "+font.getName()+" resulting font family (THIS IS KEY as it is the registered name)= "+font.getFamily());
+            logger.log(Logger.ok+" load_font: "+file_name+" loaded, resulting font name= "+font.getName()+" resulting font family (THIS IS KEY as it is the registered name)= "+font.getFamily());
             return true;
         }
         else
         {
-            logger.log("❌ ERROR: load_font: "+file_name+" not loaded");
+            logger.log(Logger.error+"ERROR: load_font: "+file_name+" not loaded");
             return false;
         }
     }

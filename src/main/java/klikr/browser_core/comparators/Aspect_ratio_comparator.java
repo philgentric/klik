@@ -11,6 +11,7 @@ import klikr.util.execute.actor.Aborter;
 import java.nio.file.Path;
 import java.util.Comparator;
 
+
 //**********************************************************
 public record Aspect_ratio_comparator(
         Klikr_cache<Path, Image_properties> image_properties_cache,

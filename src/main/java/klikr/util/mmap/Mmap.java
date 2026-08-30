@@ -197,7 +197,7 @@ public class Mmap
         Piece piece = sm.piece();
         if ( piece == null)
         {
-            logger.log("❌ PANIC Mmap read_file failed: no piece for "+tag);
+            logger.log(Logger.error+"PANIC Mmap read_file failed: no piece for "+tag);
             return null;
         }
         if ( stats_dbg)
@@ -271,7 +271,7 @@ public class Mmap
         }
         if (!meta.piece().write_image_as_pixels(meta.offset(),image))
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC in write_image, PixelReader is null for image: " + tag));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"PANIC in write_image, PixelReader is null for image: " + tag));
             return false;
         };
         record_index(tag, meta, meta.piece());
@@ -496,7 +496,7 @@ public class Mmap
         catch (IOException e)
         {
             // if cache is corrupted, clear the index
-            logger.log("❗ WARNING: deleted corrupted index file: ");
+            logger.log(Logger.warning+" WARNING: deleted corrupted index file: ");
             main_index.clear();
             pieces.clear();
             try {
@@ -605,7 +605,7 @@ public class Mmap
         length += 4; // for CRC
         if (length > (long) piece_size_in_megabytes * 1024 * 1024)
         {
-            logger.log("❗WARNING: Item too large for any piece: " + length + " bytes (limit: " + piece_size_in_megabytes + " MB)");
+            logger.log(Logger.warning+"WARNING: Item too large for any piece: " + length + " bytes (limit: " + piece_size_in_megabytes + " MB)");
             return null;
         }
 

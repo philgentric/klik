@@ -89,7 +89,7 @@ public class Backup_console_window
             Look_and_feel_manager.set_region_look(remaining_time,stage,logger);
             //remaining_time.setPrefColumnCount(70);
             //remaining_time.setAlignment(Pos.BASELINE_LEFT);
-            add_one_line(vbox, remaining_time, "Remainin g time:");
+            add_one_line(vbox, remaining_time, "Remaining time:");
         }
         Button cancel = new Button("cancel");
         {

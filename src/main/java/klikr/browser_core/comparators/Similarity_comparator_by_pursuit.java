@@ -7,6 +7,7 @@ package klikr.browser_core.comparators;
 
 import javafx.stage.Window;
 import klikr.browser_core.icons.image_properties_cache.Image_properties;
+import klikr.util.P2S;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.browser_core.virtual_landscape.Path_comparator_source;
@@ -56,7 +57,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
 
         // first we make a map P1->P2
         List<Closest_neighbor> candidates = new ArrayList<>();
-        Map<Path, Closest_neighbor> map = new HashMap<>();
+        Map<String, Closest_neighbor> map_of_closest_neighbors = new HashMap<>();
         for ( Path p1 : images)
         {
             if ( aborter.should_abort()) return;
@@ -72,7 +73,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
                 //logger.log("find_closest_of "+p1+" == "+cn.dist());
             }
             candidates.add(cn);
-            map.put(p1,cn);
+            map_of_closest_neighbors.put(P2S.p2s(p1),cn);
         }
         // we make a second pass to find the "true" pairs
         // of P1->P2 & P2->P1
@@ -84,7 +85,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
             if ( aborter.should_abort()) return;
 
             //cn.closest is the closest of cn.p1
-            Closest_neighbor cn2 = map.get(cn.closest());
+            Closest_neighbor cn2 = map_of_closest_neighbors.get(P2S.p2s(cn.closest()));
             // we have cn2.closest is closest to cn.closest
             if (cn.p1().equals(cn2.closest()))
             {
@@ -112,11 +113,11 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
             if ( aborter.should_abort()) return;
 
             Path p1 = cn.p1();
-            dummy_names.put(p1, i);
+            dummy_names.put(P2S.p2s(p1), i);
             //logger.log(p1+" -> "+i);
             i++;
             Path p2 = cn.closest();
-            dummy_names.put(p2, i);
+            dummy_names.put(P2S.p2s(p2), i);
             //logger.log(p2+" -> "+i);
             i++;
             List<Path> excluded = new ArrayList<>();
@@ -129,9 +130,9 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
         // then we complete the fill 'blindly'
         for ( Path p : images)
         {
-            if ( !dummy_names.containsKey(p))
+            if ( !dummy_names.containsKey(P2S.p2s(p)))
             {
-                dummy_names.put(p, i);
+                dummy_names.put(P2S.p2s(p), i);
                 //logger.log(p+" -> "+i);
                 i++;
             }
@@ -172,7 +173,7 @@ public class Similarity_comparator_by_pursuit extends Similarity_comparator
         {
             Path p3 = m.path();
             if (excluding.contains(p3)) continue;
-            dummy_names.put(p3, i);
+            dummy_names.put(P2S.p2s(p3), i);
             excluding.add(p3);
             //logger.log(p3+" -> "+i);
             i++;

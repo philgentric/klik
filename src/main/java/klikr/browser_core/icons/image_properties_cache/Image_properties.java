@@ -6,6 +6,7 @@ package klikr.browser_core.icons.image_properties_cache;
 
 
 import klikr.util.cache.Size_;
+import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
 //**********************************************************
@@ -51,7 +52,7 @@ public record Image_properties(double w, double h, Rotation rotation, boolean is
     {
         if ( rotation() == null)
         {
-            System.out.println(Stack_trace_getter.get_stack_trace("❌ PANIC: rotation should never be null"));
+            System.out.println(Stack_trace_getter.get_stack_trace(Logger.error+"PANIC: rotation should never be null"));
             return 1.0;
         }
         switch (rotation())

@@ -374,7 +374,7 @@ public class Image_context
         Keyword_extractor ke = new Keyword_extractor(logger, List.of());
         Set<String> keywords_set = ke.extract_keywords_from_file_and_dir_names(path);
         if (keywords_set == null) {
-            logger.log("❌ FATAL null keywords ??? ");
+            logger.log(Logger.error+"FATAL null keywords ??? ");
             return;
         }
         //String extension = Extensions.get_extension(path.getFileName().toString());
@@ -382,7 +382,7 @@ public class Image_context
         {
             // this happens when the image name does not contain text at all
             keywords_set.add(path.getFileName().toString());
-            //logger.log("❌ FATAL no keywords ??? ");
+            //logger.log(Logger.error+"FATAL no keywords ??? ");
             return;
         }
         List<String> keywords = new ArrayList<>();

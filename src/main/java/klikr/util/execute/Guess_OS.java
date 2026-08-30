@@ -1,6 +1,5 @@
 package klikr.util.execute;
 
-import javafx.stage.Window;
 import klikr.util.log.Logger;
 
 //**********************************************************
@@ -18,7 +17,7 @@ public class Guess_OS
         if ( os_name.toLowerCase().contains("windows")) return Operating_system.Windows;
 
 
-        logger.log("❌ PANIC cannot guess Operating System ? from: "+os_name);
+        logger.log(Logger.error+"PANIC cannot guess Operating System ? from: "+os_name);
         return Operating_system.Unknown;
     }
 }

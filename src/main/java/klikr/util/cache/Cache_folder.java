@@ -17,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 // caches that have a disk 'backup'
 // we need to have a static list because when we 'clear all disk caches'
@@ -65,7 +64,7 @@ public enum Cache_folder
         total += Mmap.instance.clear_cache();
 
         String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(total,owner,logger);
-        logger.log("\n\n✅ Total cleared disk bytes: " + size_in_bytes+"\n\n");
+        logger.log("\n\n"+ Logger.ok+" Total cleared disk bytes: " + size_in_bytes+"\n\n");
         return returned;
     }
 

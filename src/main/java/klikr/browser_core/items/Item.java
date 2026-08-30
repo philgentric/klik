@@ -36,8 +36,8 @@ import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job;
-import klikr.audio.Audio_info_frame;
-import klikr.audio.Ffmpeg_metadata_editor;
+import klikr.experimental.audio.Audio_info_frame;
+import klikr.experimental.audio.Ffmpeg_metadata_editor;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.browser_core.icons.Icon_destination;
 import klikr.browser_core.icons.Icon_factory_actor;
@@ -215,7 +215,7 @@ public abstract class Item implements Icon_destination
 
 
         if (icon_fabrication_requested.get()) {
-            item_context.logger.log("❗ Icon_factory_actor aborting-0, skipping icon request, as another one is in flight");
+            item_context.logger.log(Logger.warning+" Icon_factory_actor aborting-0, skipping icon request, as another one is in flight");
             return;
         }
         icon_fabrication_requested.set(true);
@@ -251,11 +251,10 @@ public abstract class Item implements Icon_destination
             item_context.logger.log(Stack_trace_getter.get_stack_trace(""));
             return context_menu;
         }
-        if (Files.isDirectory(item_context.item_path)) {
-            Menu_items.add_menu_item_for_context_menu(
-                    "Get_folder_size", true, null,
-                    event -> Folder_size_stage.get_folder_size(item_context.item_path, item_context.owner, item_context.logger),
-                    context_menu, item_context.owner, item_context.logger);
+        if (Files.isDirectory(item_context.item_path))
+        {
+            create_folder_size_menu_item(context_menu, item_context);
+
 
             if (item_context.is_trash)
             {
@@ -311,14 +310,14 @@ public abstract class Item implements Icon_destination
                             if (dbg) item_context.logger.log("Copying the directory");
                             Path new_path = Static_files_and_paths_utilities.ask_user_for_new_dir_name(item_context.owner, item_context.item_path, item_context.logger);
                             if (new_path == null) {
-                                Popups.popup_warning("❗ copy of dir failed", "names are same ?", false, item_context.owner, item_context.logger);
+                                Popups.popup_warning(Logger.warning+" copy of dir failed", "names are same ?", false, item_context.owner, item_context.logger);
                                 return;
                             }
                             Static_files_and_paths_utilities.copy_dir_in_a_thread(item_context.owner, item_context.item_path, new_path, item_context.aborter, item_context.logger);
                         },
                         context_menu, item_context.owner, item_context.logger);
 
-                create_edit_color_menu_item(local_button, context_menu, item_context);
+                create_edit_color_menu_item(context_menu, item_context);
             }
         } else {
 
@@ -625,7 +624,7 @@ public abstract class Item implements Icon_destination
                             double y = item_context.owner.getY() + 100;
                             Path new_path = Static_files_and_paths_utilities.change_file_name(old, new_item_name, item_context.owner, item_context.aborter, item_context.logger);
                             if (new_path == null) {
-                                item_context.logger.log("❗ rename failed");
+                                item_context.logger.log(Logger.warning+" rename failed");
                                 local_button.setText(original_name);
                                 local_button.setGraphic(restored);
                                 return;
@@ -738,7 +737,17 @@ public abstract class Item implements Icon_destination
 
 
     //**********************************************************
-    public static void create_edit_color_menu_item(Button button, ContextMenu context_menu, Item_context item_context)
+    public static void create_folder_size_menu_item(ContextMenu context_menu, Item_context item_context)
+    //**********************************************************
+    {
+        Menu_items.add_menu_item_for_context_menu(
+                "Folder_size_total", true, null,
+                event -> Folder_size_stage.get_folder_size(item_context.item_path, item_context.owner, item_context.logger),
+                context_menu, item_context.owner, item_context.logger);
+    }
+
+    //**********************************************************
+    public static void create_edit_color_menu_item(ContextMenu context_menu, Item_context item_context)
     //**********************************************************
     {
 
@@ -763,12 +772,12 @@ public abstract class Item implements Icon_destination
             Menu menu, My_color target_color, List<CheckMenuItem> all_check_menu_items, Item_context item_context)
     //**********************************************************
     {
-        if ( target_color.color() == null)
-        {
-            item_context.logger.log("color menu item for: ->NO COLOR<-");
-        }
-        else {
-            item_context.logger.log("color menu item for: ->" + target_color.color().toString() + "<-");
+        if (dbg) {
+            if (target_color.color() == null) {
+                item_context.logger.log("color menu item for: ->NO COLOR<-");
+            } else {
+                item_context.logger.log("color menu item for: ->" + target_color.color().toString() + "<-");
+            }
         }
 
         String txt = target_color.localized_name();

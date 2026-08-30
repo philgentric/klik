@@ -10,6 +10,7 @@ import javafx.scene.text.TextAlignment;
 import klikr.Window_builder;
 import klikr.Window_type;
 import klikr.browser_core.icons.image_properties_cache.Image_properties;
+import klikr.util.P2S;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.cache.RAM_caches;
 import klikr.util.execute.actor.Aborter;
@@ -27,6 +28,7 @@ import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.files_and_paths.Guess_file_type;
 import klikr.util.files_and_paths.Sizes;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
+import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.ui.Jfx_batch_injector;
 import klikr.util.ui.Popups;
@@ -88,7 +90,7 @@ public class Item_folder extends Item implements Icon_destination
             }
             else
             {
-                item_context.logger.log("❗ Warning PATH is null in item folder for ->"+text+"<-");
+                item_context.logger.log(Logger.warning+" Warning PATH is null in item folder for ->"+text+"<-");
             }
             button = null;
             return;
@@ -99,7 +101,7 @@ public class Item_folder extends Item implements Icon_destination
         }
         else
         {
-            item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN Item_folder path is not a directory ->"+item_context.item_path+"<- text: ->"+text+"<-"));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"SHOULD NOT HAPPEN Item_folder path is not a directory ->"+item_context.item_path+"<- text: ->"+text+"<-"));
             button = null;
             return;
         }
@@ -182,7 +184,7 @@ public class Item_folder extends Item implements Icon_destination
     public void receive_icon(Image_and_properties image_and_rotation)
     //**********************************************************
     {
-        item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN"));
+        item_context.logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"SHOULD NOT HAPPEN"));
     }
 
 
@@ -196,7 +198,7 @@ public class Item_folder extends Item implements Icon_destination
     @Override // Icon_destination
     public Path get_path_for_display_icon_destination()
     {
-        item_context.logger.log("✅ Item_button get_path_for_display_icon_destination DEEP !???");
+        item_context.logger.log(Logger.ok+" Item_button get_path_for_display_icon_destination DEEP !???");
         return get_path_for_display(true);
     }
 
@@ -251,12 +253,12 @@ public class Item_folder extends Item implements Icon_destination
         File[] files = dir.listFiles();
         if ( files == null)
         {
-            if ( dbg) item_context.logger.log("❗ WARNING: dir is access denied: "+local_path);
+            if ( dbg) item_context.logger.log(Logger.warning+" WARNING: dir is access denied: "+local_path);
             return null;
         }
         if ( files.length == 0)
         {
-            if ( dbg) item_context.logger.log("✅ dir is empty: "+local_path);
+            if ( dbg) item_context.logger.log(Logger.ok+" dir is empty: "+local_path);
             return null;
         }
         Arrays.sort(files);
@@ -280,7 +282,7 @@ public class Item_folder extends Item implements Icon_destination
         }
         if( make_animated_gif)
         {
-            item_context.logger.log("✅ make_animated_gif");
+            item_context.logger.log(Logger.ok+" make_animated_gif");
 
             if ( Objects.requireNonNull(images_in_folder).isEmpty())
             {
@@ -296,7 +298,7 @@ public class Item_folder extends Item implements Icon_destination
                     item_context.aborter, item_context.logger);
             if ( returned.isEmpty())
             {
-                item_context.logger.log("❌ make_animated_gif_from_all_images_in_folder fails");
+                item_context.logger.log(Logger.error+"make_animated_gif_from_all_images_in_folder fails");
                 if (!images_in_folder.isEmpty())
                 {
                     return images_in_folder.get(0);
@@ -304,7 +306,7 @@ public class Item_folder extends Item implements Icon_destination
             }
             else
             {
-                item_context.logger.log("✅ make_animated_gif_from_all_images_in_folder OK");
+                item_context.logger.log(Logger.ok+" make_animated_gif_from_all_images_in_folder OK");
 
                 return returned.get();
             }
@@ -356,11 +358,11 @@ public class Item_folder extends Item implements Icon_destination
         if (item_context.item_path == null)
         {
             // protect crash when going up: root has no parent
-            if ( !text.isEmpty()) item_context.logger.log("✅ WARNING no action for folder ->"+text+"<-");
+            if ( !text.isEmpty()) item_context.logger.log(Logger.ok+" WARNING no action for folder ->"+text+"<-");
 
             if ( item_context.is_trash) {
                 returned_button.setOnAction(event -> {
-                    Popups.popup_warning("❗ WARNING","NO trash on this media: probably it is read only",true,item_context.owner,item_context.logger);
+                    Popups.popup_warning(Logger.warning+" WARNING","NO trash on this media: probably it is read only",true,item_context.owner,item_context.logger);
                 });
             }
             return returned_button;
@@ -372,7 +374,7 @@ public class Item_folder extends Item implements Icon_destination
             if (item_context.item_path == null)
             {
                 // protect crash when going up: root has no parent
-                item_context.logger.log("❗ WARNING no action for folder:"+text);
+                item_context.logger.log(Logger.warning+" WARNING no action for folder:"+text);
                 return;
             }
 
@@ -423,11 +425,11 @@ public class Item_folder extends Item implements Icon_destination
         count.increment();
 
         Runnable r = () -> {
-            Long how_many_files_deep = RAM_caches.folder_file_count_cache.get(path);
+            Long how_many_files_deep = RAM_caches.folder_file_count_cache.get(P2S.p2s(path));
             if ( how_many_files_deep == null)
             {
                 how_many_files_deep = (Long) Static_files_and_paths_utilities.get_how_many_files_deep(path, aborter, item_context.owner, item_context.logger);
-                RAM_caches.folder_file_count_cache.put(path,how_many_files_deep);
+                RAM_caches.folder_file_count_cache.put(P2S.p2s(path),how_many_files_deep);
             }
             count.decrement();
             String extended_text =  text + " (" + how_many_files_deep + " files)";
@@ -448,19 +450,17 @@ public class Item_folder extends Item implements Icon_destination
     {
         count.increment();
         Runnable r = () -> {
-
-            Long bytes = RAM_caches.folder_total_size_cache.get(path);
+            Long bytes = RAM_caches.folder_total_size_cache.get(P2S.p2s(path));
             if ( bytes == null)
             {
-                //logger.log(path+" length not found in cache");
-                Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, item_context.aborter, item_context.owner, item_context.logger);
+                item_context.logger.log(Logger.info+": folder size not found in cache (2) for " + path);
+                Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep_concurrent(path, item_context.aborter, item_context.owner, item_context.logger);
                 bytes = (Long) sizes.bytes();
-                //logger.log(path+" not found in cache, length is "+bytes+ "bytes");
-                RAM_caches.folder_total_size_cache.put(path,bytes);
+                RAM_caches.folder_total_size_cache.put(P2S.p2s(path),bytes);
             }
             else
             {
-                item_context.logger.log(path+" length found in cache "+bytes);
+                item_context.logger.log(Logger.ok+" OK: folder size found in cache (2) for " + path + " " + bytes);
             }
             count.decrement();
 
@@ -468,11 +468,6 @@ public class Item_folder extends Item implements Icon_destination
             sb.append(text);
             sb.append("       ");
             sb.append(Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes,item_context.owner,item_context.logger));
-
-            //sb.append(", ");
-            //sb.append(sizes.files());
-            //sb.append(" ");
-            //sb.append(My_I18n.get_I18n_string("Files",logger));
             String extended_text = sb.toString();
             Jfx_batch_injector.inject(() -> {
                 button.setText(extended_text);

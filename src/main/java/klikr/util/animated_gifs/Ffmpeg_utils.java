@@ -182,8 +182,8 @@ public class Ffmpeg_utils
             if ( !aborted_reported.get())
             {
                 aborted_reported.set(true);
-                logger.log("❗ video_to_gif abort reported");
-                Jfx_batch_injector.inject(() -> Popups.popup_warning("❗ ABORTING MASSIVE GIF GENERATION for " + video_path, "Did you change dir ?", false,owner, logger), logger);
+                logger.log(Logger.warning+" video_to_gif abort reported");
+                Jfx_batch_injector.inject(() -> Popups.popup_warning(Logger.warning+" ABORTING MASSIVE GIF GENERATION for " + video_path, "Did you change dir ?", false,owner, logger), logger);
             }
             return;
         }

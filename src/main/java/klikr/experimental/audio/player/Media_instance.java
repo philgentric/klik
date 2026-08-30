@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.audio.player;
+package klikr.experimental.audio.player;
 
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -204,7 +204,7 @@ public class Media_instance
         if ( aborter.should_abort())
         {
             dispose_internal();
-            logger.log("❗ player aborted after new MediaPlayer "+ aborter.reason());
+            logger.log(Logger.warning+" player aborted after new MediaPlayer "+ aborter.reason());
             return Song_play_status.aborted;
         }
         the_media_player.setCycleCount(1);
@@ -213,7 +213,7 @@ public class Media_instance
             if ( aborter.should_abort())
             {
                 dispose_internal();
-                logger.log("❗ player aborted in setOnReady "+ aborter.reason());
+                logger.log(Logger.warning+" player aborted in setOnReady "+ aborter.reason());
                 return;
             }
             media_callbacks.on_player_ready();
@@ -223,14 +223,14 @@ public class Media_instance
             if ( aborter.should_abort())
             {
                 dispose_internal();
-                logger.log("❗ player aborted in setOnPlaying "+ aborter.reason());
+                logger.log(Logger.warning+" player aborted in setOnPlaying "+ aborter.reason());
                 return;
             }
 
             {
                 Integer current_time_s = get_current_time(owner);
                 //if ( dbg)
-                logger.log("✅ seeking song to " + current_time_s + " s");
+                logger.log(Logger.ok+" seeking song to " + current_time_s + " s");
                 Duration target = Duration.seconds(current_time_s);
                 the_media_player.seek(target);
             }

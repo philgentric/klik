@@ -347,7 +347,7 @@ public class ML_servers_monitor //implements AutoCloseable
             String port_s = Simple_json_parser.read_key(json,"port",logger);
             if ( port_s == null)
             {
-                logger.log("❌  port == null for server: "+ml_server.to_string());
+                logger.log(Logger.error+" port == null for server: "+ml_server.to_string());
                 return false;
             }
             else
@@ -356,7 +356,7 @@ public class ML_servers_monitor //implements AutoCloseable
                     int port = Integer.parseInt(port_s);
                     if (port != ml_server.port())
                     {
-                        logger.log("❌  ports dont match ?? from /health=" + port + " port=" + ml_server.port());
+                        logger.log(Logger.error+" ports dont match ?? from /health=" + port + " port=" + ml_server.port());
                         return false;
                     }
                 } catch (NumberFormatException e) {
@@ -369,12 +369,12 @@ public class ML_servers_monitor //implements AutoCloseable
 
             if ( uuid == null)
             {
-                logger.log("❌  uuid from /health == null for server: "+ml_server.to_string());
+                logger.log(Logger.error+" uuid from /health == null for server: "+ml_server.to_string());
                 return false;
             }
             if ( !uuid.equals(ml_server.uuid()))
             {
-                logger.log("❌  uuid from /health dont match "+uuid+" for server: "+ml_server.to_string());
+                logger.log(Logger.error+" uuid from /health dont match "+uuid+" for server: "+ml_server.to_string());
                 return false;
             }
         }
@@ -382,12 +382,12 @@ public class ML_servers_monitor //implements AutoCloseable
             String type = Simple_json_parser.read_key(json,"type",logger);
             if( type == null)
             {
-                logger.log("❌  type from /health == null for server: "+ml_server.to_string());
+                logger.log(Logger.error+" type from /health == null for server: "+ml_server.to_string());
                 return false;
             }
             if ( !type.equals(ml_server.type()))
             {
-                logger.log("❌  types from /health dont match "+type+" for server: "+ml_server.to_string());
+                logger.log(Logger.error+" types from /health dont match "+type+" for server: "+ml_server.to_string());
                 return false;
             }
         }
@@ -399,7 +399,7 @@ public class ML_servers_monitor //implements AutoCloseable
         boolean returned = true;
         if ( status == null)
         {
-            logger.log("❌ No status found from in ML server");
+            logger.log(Logger.error+"No status found from in ML server");
             returned = false;
         }
         else
@@ -407,7 +407,7 @@ public class ML_servers_monitor //implements AutoCloseable
             if( dbg) logger.log("Status:"+status);
             if ( status.equals("critical_failure"))
             {
-                logger.log("❌ critical_failure in ML server");
+                logger.log(Logger.error+"critical_failure in ML server");
                 returned = false;
             }
         }

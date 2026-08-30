@@ -4,6 +4,7 @@
 package klikr;
 
 import javafx.application.Application;
+import klikr.util.log.Logger;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -48,7 +49,7 @@ public record Start_context(List<String> args, String bet_full)
             bet_full = s;
             if (s.contains(" "))
             {
-                if (dbg) System.out.println("❗Warning: argument contains spaces ->" + s+"<-");
+                if (dbg) System.out.println(Logger.warning+"Warning: argument contains spaces ->" + s+"<-");
                 String pieces[] = s.split("\\s+");
                 for ( String piece : pieces )
                 {

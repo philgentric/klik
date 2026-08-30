@@ -129,7 +129,7 @@ public class Static_files_and_paths_utilities
         Path trash_dir = get_trash_dir_of(paths.get(0),owner,logger);
         if (paths.get(0).getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString()))
         {
-            Popups.popup_warning("❗" + My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
+            Popups.popup_warning(Logger.warning+"" + My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_Explanation",owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -157,7 +157,7 @@ public class Static_files_and_paths_utilities
     {
         Path trash_dir = get_trash_dir_of(path,owner,logger);
         if (path.getParent().toAbsolutePath().toString().equals(trash_dir.toAbsolutePath().toString())) {
-            Popups.popup_warning("❗ "+ My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_explanation", owner,logger), false, owner,logger);
+            Popups.popup_warning(Logger.warning+" "+ My_I18n.get_I18n_string("Nothing_Done", owner,logger), My_I18n.get_I18n_string("Nothing_Done_explanation", owner,logger), false, owner,logger);
             return;
         }
         List<Old_and_new_Path> l2 = new ArrayList<>();
@@ -292,7 +292,7 @@ public class Static_files_and_paths_utilities
     public static boolean user_cancel(String tag, double size, Window owner, Logger logger)
     //**********************************************************
     {
-        String s1 = "❗ Deleting: "+tag;//My_I18n.get_I18n_string("Warning_deleting_icon", logger);
+        String s1 = Logger.warning+" Deleting: "+tag;//My_I18n.get_I18n_string("Warning_deleting_icon", logger);
         String s2 = size / 1000_000_000.0 + My_I18n.get_I18n_string("GB_deleted", owner,logger);
         if (size < 1_000_000_000) {
             s2 = size / 1000_000.0 + My_I18n.get_I18n_string("MB_deleted", owner,logger);
@@ -326,7 +326,7 @@ public class Static_files_and_paths_utilities
             Runnable r2 = () -> {
                 if ( show_popup)
                 {
-                    if (!Popups.popup_ask_for_confirmation("❗"+s1, finalS, owner,logger)) return;
+                    if (!Popups.popup_ask_for_confirmation(Logger.warning+""+s1, finalS, owner,logger)) return;
                 }
                 for (Path trash : trashes)
                 {
@@ -392,7 +392,7 @@ public class Static_files_and_paths_utilities
     //**********************************************************
     {
         //get_size_on_disk_with_streams(path,logger);
-        // the concurrent version is at least 5 times faster!
+        // the concurrent version is at least 5 times faster than this one
         return get_sizes_on_disk_deep_concurrent(folder_path,aborter,owner, logger);
     }
 
@@ -406,9 +406,12 @@ public class Static_files_and_paths_utilities
             logger.log(Stack_trace_getter.get_stack_trace("Stupid2: not a folder: "+folder_path));
             return null;
         }
+
+
         //long start = System.currentTimeMillis();
         AtomicInteger folders = new AtomicInteger(0);
         AtomicLong bytes = new AtomicLong(0);
+
         AtomicLong files = new AtomicLong(0);
         AtomicLong images = new AtomicLong(0);
 
@@ -430,11 +433,9 @@ public class Static_files_and_paths_utilities
             {
                 sb.append(w).append("\n");
             }
-            logger.log("❗ Disk_scanner.process_folder, warnings:\n"+sb);
+            logger.log(Logger.warning+" Disk_scanner.process_folder, warnings:\n"+sb);
         }
 
-        //long now = System.currentTimeMillis();
-        //logger.log("get_size_on_disk_concurrent: " + (now-start)+" length=" +bytes.get());
         return new Sizes(bytes.get(),folders.get(),files.get(),images.get());
     }
 
@@ -445,7 +446,7 @@ public class Static_files_and_paths_utilities
     {
         if ( !path.toFile().isDirectory())
         {
-            logger.log(("Warning, ignoring, get_size_on_disk_concurrent: not a folder: "+path));
+            if(dbg) logger.log(("skipping get_size_on_disk_concurrent: not a folder: "+path));
             return 0L;
         }
         // this is a blocking call
@@ -593,10 +594,10 @@ public class Static_files_and_paths_utilities
                     public void run() {
                         if ( s.contains("AccessDeniedException") && s.contains(String_constants.TRASH_DIR))
                         {
-                            Popups.popup_warning("❌ There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,owner,logger);
+                            Popups.popup_warning(Logger.error+"There is a permission issue in the TRASH folder, did you move in the trash a folder that you do not own?\nYou will have to fix that manually",s,false,owner,logger);
                         }
                         else {
-                            Popups.popup_warning( "❌ Error", s, false, owner,logger);
+                            Popups.popup_warning( Logger.error+"Error", s, false, owner,logger);
                         }
                     }
                 };
@@ -883,19 +884,19 @@ public class Static_files_and_paths_utilities
 
         if (Extensions.get_extension(new_name).isEmpty()) {
             if (!Extensions.get_extension(old_name).isEmpty()) {
-                logger.log("❗ WARNING, should not remove extension");
+                logger.log(Logger.warning+" WARNING, should not remove extension");
                 if (Guess_file_type.is_this_path_extension_an_image(path,owner,logger) || Guess_file_type.is_this_path_extension_a_video(path,logger)) {
-                    logger.log("❗ WARNING, extension restored");
+                    logger.log(Logger.warning+" WARNING, extension restored");
                     new_name = Extensions.add(new_name ,Extensions.get_extension(old_name));
-                    Popups.popup_warning( "❗ extension restored: ", old_name + "=>" + new_name, true, owner,logger);
+                    Popups.popup_warning( Logger.warning+" extension restored: ", old_name + "=>" + new_name, true, owner,logger);
                 } else {
-                    logger.log("❗ WARNING, should not remove extension");
-                    Popups.popup_warning( "❗ extension lost?", old_name + "had an extension... and you entered a name without extension? :" + new_name, false, owner,logger);
+                    logger.log(Logger.warning+" WARNING, should not remove extension");
+                    Popups.popup_warning( Logger.warning+" extension lost?", old_name + "had an extension... and you entered a name without extension? :" + new_name, false, owner,logger);
                 }
 
             } else {
                 if (!Extensions.get_extension(new_name).equals(Extensions.get_extension(old_name))) {
-                    Popups.popup_warning( "❗ extension check:", "you changed the file name extension", false, owner,logger);
+                    Popups.popup_warning( Logger.warning+" extension check:", "you changed the file name extension", false, owner,logger);
                 }
             }
         }
@@ -972,19 +973,19 @@ public class Static_files_and_paths_utilities
         Runnable r = () -> {
             boolean status = copy_dir(path, new_path, owner, logger);
             if (status) {
-                if (dbg) logger.log("✅ Folder copy done: " + new_path);
+                if (dbg) logger.log(Logger.ok+" Folder copy done: " + new_path);
             }
             else
             {
-                logger.log("❌ Folder copy error!");
-                Jfx_batch_injector.inject(() -> Popups.popup_warning("❌ copy of folder failed", "see the logs", false, owner,logger),logger);
+                logger.log(Logger.error+"Folder copy error!");
+                Jfx_batch_injector.inject(() -> Popups.popup_warning(Logger.error+"copy of folder failed", "see the logs", false, owner,logger),logger);
             }
         };
         try {
             Actor_engine.execute(r,"Copy folder",logger);
-            if ( dbg) logger.log("✅ copy_dir_in_a_thread LAUNCHED");
+            if ( dbg) logger.log(Logger.ok+" copy_dir_in_a_thread LAUNCHED");
         } catch (RejectedExecutionException ree) {
-            logger.log("❌ copy_dir_in_a_thread()" + ree);
+            logger.log(Logger.error+"copy_dir_in_a_thread()" + ree);
         }
 
     }
@@ -1002,8 +1003,8 @@ public class Static_files_and_paths_utilities
         }
         catch (IOException e)
         {
-            logger.log("❌ Folder copy failed "+e);
-            Popups.popup_warning( My_I18n.get_I18n_string("❌ Folder copy failed", owner,logger), "Folder copy failed: "+e, false, owner,logger);
+            logger.log(Logger.error+"Folder copy failed "+e);
+            Popups.popup_warning( My_I18n.get_I18n_string(Logger.error+"Folder copy failed", owner,logger), "Folder copy failed: "+e, false, owner,logger);
         }
 
         return false;
@@ -1044,12 +1045,12 @@ public class Static_files_and_paths_utilities
         }
         catch (AccessDeniedException e2)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ ACCESS DENIED EXCEPTION" + e2));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"ACCESS DENIED EXCEPTION" + e2));
             return Error_type.DENIED;
         }
         catch (NoSuchFileException e2)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ NoSuchFileException" + e2));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"NoSuchFileException" + e2));
             // the DIR is gone !!
             return Error_type.NOT_FOUND;
         }
@@ -1210,7 +1211,7 @@ public class Static_files_and_paths_utilities
             //logger.log("what is trash_dir for :" + for_this.toAbsolutePath());
             Path volume = get_MacOS_volume(for_this, logger);
             if (volume == null) {
-                logger.log("❌ PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");
+                logger.log(Logger.error+"PANIC get_trash_dir " + for_this.toAbsolutePath() + " fails");
             }
             Path candidate =from_top_folder(volume.toString(), String_constants.TRASH_DIR, true, owner, logger);
             if ( candidate != null) return candidate;
@@ -1224,7 +1225,7 @@ public class Static_files_and_paths_utilities
 
         Path trash_dir = get_absolute_hidden_dir_on_user_home(String_constants.TRASH_DIR, false, owner, logger);
         if (trash_dir == null) {
-            logger.log("❌ PANIC: trash dir unknown");
+            logger.log(Logger.error+"PANIC: trash dir unknown");
             return null;
         }
         if (dbg) logger.log("trash_dir file=" + trash_dir.toAbsolutePath());
@@ -1238,7 +1239,8 @@ public class Static_files_and_paths_utilities
         //logger.log("get_MacOS_volume ENTRY = "+for_this);
 
         Path volume = for_this.toAbsolutePath();
-        for (; ; ) {
+        for (;;)
+        {
             Path test = volume.getParent();
             if (test == null) {
                 //logger.log("get_MacOS_volume test == null ");
@@ -1250,7 +1252,7 @@ public class Static_files_and_paths_utilities
             }
             //logger.log("get_MacOS_volume testing "+test);
             if (test.toString().equals("/Volumes")) {
-                logger.log("get_MacOS_volume returning " + volume);
+                //logger.log("get_MacOS_volume returning " + volume);
                 return volume;
             }
             volume = volume.getParent();

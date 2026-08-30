@@ -75,7 +75,8 @@ public class Folder_size_stage
 
 
         Aborter local_aborter = new Aborter("get_folder_size",logger);
-        local_stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+        local_stage.setOnCloseRequest(new EventHandler<WindowEvent>()
+        {
             @Override
             public void handle(WindowEvent windowEvent) {
                 local_aborter.abort("folder length window closing");
@@ -92,7 +93,7 @@ public class Folder_size_stage
                 });
         Runnable r = () -> {
             // this call is blocking until tree has been explored
-            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path,local_aborter, owner, logger);
+            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep_concurrent(path,local_aborter, owner, logger);
 
             Jfx_batch_injector.inject(() -> {
                 String bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(sizes.bytes(),owner,logger);

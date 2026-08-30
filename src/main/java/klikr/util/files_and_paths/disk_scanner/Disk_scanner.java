@@ -47,11 +47,13 @@ public class Disk_scanner implements Runnable
             Logger logger)
     //**********************************************************
     {
+        /*
         if ( !path.toFile().isDirectory())
         {
             logger.log(Stack_trace_getter.get_stack_trace(origin+" stupid: not a folder "+path));
             return;
         }
+        */
         if (Files.isSymbolicLink(path))
         {
             logger.log(origin+" WARNING: Disk_scanner not going down symbolic link for folder: "+path);

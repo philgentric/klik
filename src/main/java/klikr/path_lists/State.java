@@ -4,6 +4,7 @@
 package klikr.path_lists;
 
 import klikr.browser_core.virtual_landscape.Path_comparator_source;
+import klikr.util.P2S;
 import klikr.util.execute.actor.Aborter;
 import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
@@ -19,7 +20,7 @@ import java.util.*;
 class State
 //**********************************************************
 {
-    private volatile Map<Path, Integer> path_to_index;
+    private volatile Map<String, Integer> path_to_index;
     private volatile Map<Integer,Path> index_to_path;
     private final Logger logger;
     private final Path_list_provider path_list_provider;
@@ -100,11 +101,11 @@ class State
                 // the tmp version is not valid until the loop is finished
                 // ... but it is not visible either
                 Map<Integer,Path> tmp_index_to_path = new HashMap<>();
-                Map<Path,Integer> tmp_path_to_index =  new HashMap<>();
+                Map<String,Integer> tmp_path_to_index =  new HashMap<>();
                 int index = 0;
                 for (Path p : path_list) {
                     tmp_index_to_path.put(index, p);
-                    tmp_path_to_index.put(p, index);
+                    tmp_path_to_index.put(P2S.p2s(p), index);
                     index++;
                 }
                 this.index_to_path = tmp_index_to_path;
@@ -115,7 +116,7 @@ class State
 
 
     public Integer index_from_path(Path path) {
-        return path_to_index.get(path);
+        return path_to_index.get(P2S.p2s(path));
     }
 
     public Path path_from_index(int i) {

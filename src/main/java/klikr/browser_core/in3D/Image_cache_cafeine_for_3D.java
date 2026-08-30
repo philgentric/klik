@@ -10,6 +10,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import javafx.scene.paint.PhongMaterial;
 import javafx.stage.Window;
 import klikr.util.Check_remaining_RAM;
+import klikr.util.P2S;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
@@ -24,7 +25,7 @@ public class Image_cache_cafeine_for_3D
     private static final boolean ultra_dbg = false;
     private final Image_decoding_actor_for_3D_cache image_decoding_actor;
     Logger logger;
-    Cache<Path, PhongMaterial> cache;
+    Cache<String, PhongMaterial> cache;
 
     private final int forward_size;
     private final Aborter aborter;
@@ -54,7 +55,7 @@ public class Image_cache_cafeine_for_3D
     public PhongMaterial get(Path path)
     //**********************************************************
     {
-        return cache.getIfPresent(path);
+        return cache.getIfPresent(P2S.p2s(path));
     }
 
     //**********************************************************
@@ -64,7 +65,7 @@ public class Image_cache_cafeine_for_3D
     {
         if (ultra_dbg)
             logger.log("writing in Caffeine:" + path.getFileName());
-        cache.put(path, value);
+        cache.put(P2S.p2s(path), value);
     }
 
 

@@ -4,6 +4,7 @@
 package klikr.browser_core.comparators;
 
 import javafx.stage.Window;
+import klikr.util.P2S;
 import klikr.util.cache.RAM_caches;
 import klikr.util.cache.Size_;
 import klikr.util.execute.actor.Aborter;
@@ -36,7 +37,7 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
     public double clear_RAM()
     //**********************************************************
     {
-        double returned = Size_.of_Map(RAM_caches.folder_total_size_cache,Size_.of_Path_F(),Size_.of_Long_F());
+        double returned = Size_.of_Map(RAM_caches.folder_total_size_cache,Size_.of_String_F(),Size_.of_Long_F());
         RAM_caches.folder_total_size_cache.clear();
         return returned;
     }
@@ -61,14 +62,14 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
     private static long get_disk_footprint_in_bytes(Path p, Aborter local_aborter, Window owner, Logger logger)
     //**********************************************************
     {
-        Long s = RAM_caches.folder_total_size_cache.get(p);
+        Long s = RAM_caches.folder_total_size_cache.get(P2S.p2s(p));
         if ( s != null)
         {
             return s;
         }
         if ( p.toFile().isDirectory())
         {
-            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(p,local_aborter, owner,logger);
+            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep_concurrent(p,local_aborter, owner,logger);
             s = sizes.bytes();
             //logger.log("get_disk_footprint_in_bytes folder = "+p+" "+s);
         }
@@ -77,7 +78,7 @@ public class Decreasing_disk_footprint_comparator implements Comparator<Path>, C
             s = p.toFile().length();
             //logger.log("get_disk_footprint_in_bytes file = "+p+" "+s);
         }
-        RAM_caches.folder_total_size_cache.put(p,s);
+        RAM_caches.folder_total_size_cache.put(P2S.p2s(p),s);
         return s;
     }
 }

@@ -292,16 +292,16 @@ public class Non_booleans_properties
 
         // if we arrive here, the bounds are not valid, so we need to compute the bounds based on the current stage
 
-        System.out.println("❗ WARNING: from file bounds " + target  + " do not fit with any screen, changing the target");
+        System.out.println(Logger.warning+" WARNING: from file bounds " + target  + " do not fit with any screen, changing the target");
 
         // use the first screen available (e.g. the main screen, the laptop screen, etc.)
         for ( Screen s : all_screens)
         {
-            System.out.println("✅ forcing screen bounds to: " + s.getVisualBounds());
+            System.out.println(Logger.ok+" forcing screen bounds to: " + s.getVisualBounds());
             return s.getVisualBounds();
         }
         // normally never happens?
-        System.out.println("❌ SHOULD NOT HAPPEN: no screen found, using default rectangle");
+        System.out.println(Logger.error+"SHOULD NOT HAPPEN: no screen found, using default rectangle");
         return new Rectangle2D(0,0,800,600); // default rectangle
     }
 

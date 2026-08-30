@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.audio.player;
+package klikr.experimental.audio.player;
 
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -9,7 +9,6 @@ import javafx.scene.media.EqualizerBand;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import klikr.change.Change_gang;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Logger;
@@ -43,7 +42,7 @@ public class Media_instance_statics
     {
         if ( new_song == null )
         {
-            logger.log(Stack_trace_getter.get_stack_trace("FATAL: new_song == null"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+" FATAL: new_song == null"));
             return;
         }
         for(;;)

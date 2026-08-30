@@ -273,8 +273,8 @@ public class Installers
         Execute_result res = Execute_command.execute_command_list(cmds, new File("."), 20 * 1000, null, logger);
         if ( !res.status())
         {
-            logger.log("❗Warning cannot get commit count, is git installed ?");
-            return "❗Warning cannot get commit count, is git installed ?";
+            logger.log(Logger.warning+"Warning cannot get commit count, is git installed ?");
+            return Logger.warning+"Warning cannot get commit count, is git installed ?";
         }
         String commit_count = res.output();
         return commit_count;
@@ -293,8 +293,8 @@ public class Installers
         Execute_result res = Execute_command.execute_command_list(cmds, new File("."), 20 * 1000, sb, logger);
         if ( !res.status())
         {
-            logger.log("❗Warning cannot get version from build.gradle");
-            return "❗Warning cannot get version from build.gradle";
+            logger.log(Logger.warning+"Warning cannot get version from build.gradle");
+            return Logger.warning+"Warning cannot get version from build.gradle";
         }
         String version_string = res.output();
         String[] lines = version_string.split("\n");
@@ -329,7 +329,7 @@ public class Installers
                 logger);
 
 
-        if (Popups.popup_ask_for_confirmation("❗ Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best, but of course, things need to be restarted for changes to take effect",owner,logger))
+        if (Popups.popup_ask_for_confirmation(Logger.warning+" Are you sure you want to get the most recent version?","Developers: This will stash changes you made (if you made any changes),\n switch to the master branch (if you are on a different one)\nand get the most recent version from the repository\n\nIf you are not a developer, this is transparent, you just get the last and best, but of course, things need to be restarted for changes to take effect",owner,logger))
         {
             logger.log("version before:"+get_version_string(logger));
             {

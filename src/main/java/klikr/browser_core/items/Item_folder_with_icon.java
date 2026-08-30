@@ -248,7 +248,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
     {
         if ( !try_deep)
         {
-            item_context.logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN"));
+            item_context.logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"SHOULD NOT HAPPEN"));
             return null;
         }
 
@@ -268,7 +268,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
 
         if ( (faf.folders().isEmpty()) &&(faf.files().isEmpty()))
         {
-            if ( dbg) item_context.logger.log("✅ dir is empty: "+get_item_path());
+            if ( dbg) item_context.logger.log(Logger.ok+" dir is empty: "+get_item_path());
             create_label_for_sizes("Empty folder");
             return null;
         }
@@ -319,17 +319,17 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 images_in_folder, image_properties_cache, item_context.aborter,item_context.logger);
         if ( returned.isPresent())
         {
-            if (dbg) item_context.logger.log("✅ animated gif made");
+            if (dbg) item_context.logger.log(Logger.ok+" animated gif made");
             return returned.get();
         }
         if (images_in_folder.isEmpty())
         {
-            if (dbg) item_context.logger.log("✅ no images");
+            if (dbg) item_context.logger.log(Logger.ok+" no images");
             return null;
         }
         else
         {
-            if (dbg) item_context.logger.log("✅ picking first image");
+            if (dbg) item_context.logger.log(Logger.ok+" picking first image");
             return images_in_folder.get(0);
         }
     }
@@ -454,7 +454,7 @@ public class Item_folder_with_icon extends Item_folder implements Icon_destinati
                 logger.log(""+e);
             }
             if ( aborter.should_abort()) return;
-            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep(path, aborter, owner, logger);
+            Sizes sizes = Static_files_and_paths_utilities.get_sizes_on_disk_deep_concurrent(path, aborter, owner, logger);
             Jfx_batch_injector.inject(() -> disk_foot_print_receiver.set_disk_foot_print_text(sizes),logger);
         };
         Actor_engine.execute(r,"Compute length deep",logger);

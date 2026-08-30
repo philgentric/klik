@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.audio;
+package klikr.experimental.audio;
 
 import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
@@ -108,7 +108,7 @@ public class Ffmpeg_metadata_editor
                 }
                 return;
             }
-            logger.log("❌ " + sb);
+            logger.log(Logger.error+"" + sb);
             logger.log("ffmpeg meta data edit:" + res.output());
         };
         Actor_engine.execute(r,"Ffmpeg meta data edit",logger);

@@ -28,7 +28,7 @@ public class Redo_same_move_engine
     {
         if ( last_destination_folder == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC "));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"PANIC "));
             return;
         }
         Path new_path = Path.of(last_destination_folder.toAbsolutePath().toString(), old_path.getFileName().toString());

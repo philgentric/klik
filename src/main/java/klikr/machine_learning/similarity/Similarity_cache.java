@@ -247,7 +247,8 @@ public class Similarity_cache implements Clearable_RAM_cache
                 int i = integer_pair.i();
                 if ( i >= paths.size())
                 {
-                    logger.log("❌ PANIC asking for:"+i+" but path size is "+paths.size());
+
+                    logger.log(Logger.error+"PANIC asking for:"+i+" but path size is "+paths.size());
                     return 0.0;
                 }
                 Path pi = paths.get(i);
@@ -265,7 +266,7 @@ public class Similarity_cache implements Clearable_RAM_cache
                 int j = integer_pair.j();
                 if ( j >= paths.size())
                 {
-                    logger.log("❌ PANIC asking for:"+j+" but path size is "+paths.size());
+                    logger.log(Logger.error+"PANIC asking for:"+j+" but path size is "+paths.size());
                     return 0.0;
                 }
                 Path pj = paths.get(j);
@@ -304,13 +305,13 @@ public class Similarity_cache implements Clearable_RAM_cache
         int i = paths.indexOf(p1);
         if ( i < 0)
         {
-            logger.log("❌ PANIC not in paths!"+p1);
+            logger.log(Logger.error+"PANIC not in paths!"+p1);
             return 0.0;
         }
         int j = paths.indexOf(p2);
         if ( j < 0)
         {
-            logger.log("❌ PANIC not in paths!"+p2);
+            logger.log(Logger.error+"PANIC not in paths!"+p2);
             return 0.0;
         }
         Integer_pair integer_pair = Integer_pair.build(i,j);

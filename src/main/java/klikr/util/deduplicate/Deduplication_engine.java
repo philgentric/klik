@@ -265,7 +265,7 @@ public class Deduplication_engine implements Againor, Abortable
         {
             if ( p.f2.to_be_deleted)
             {
-                logger.log("❌ FATAL: both files in pair should be deleted ?");
+                logger.log(Logger.error+"FATAL: both files in pair should be deleted ?");
                 return null;
             }
             else
@@ -281,7 +281,7 @@ public class Deduplication_engine implements Againor, Abortable
             }
             else
             {
-                logger.log("❌ FATAL: No file in pair should be deleted ?");
+                logger.log(Logger.error+"FATAL: No file in pair should be deleted ?");
                 return null;
             }
         }
@@ -398,7 +398,7 @@ public class Deduplication_engine implements Againor, Abortable
                     logger.log("\nduplicate finder is finished !!");
                     if (!end_reported)
                     {
-                        Popups.popup_warning( "❗ Search for duplicates ENDED", "(no duplicates found)", true, owner,logger);
+                        Popups.popup_warning( Logger.warning+" Search for duplicates ENDED", "(no duplicates found)", true, owner,logger);
                         end_reported = true;
                         return;
                     }

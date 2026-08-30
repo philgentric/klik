@@ -8,6 +8,7 @@ package klikr.machine_learning.similarity;
 import javafx.geometry.Point2D;
 import javafx.stage.Window;
 import klikr.settings.boolean_features.Feature_cache;
+import klikr.util.P2S;
 import klikr.util.cache.Klikr_cache;
 import klikr.util.cache.Size_;
 import klikr.util.execute.actor.Aborter;
@@ -42,7 +43,7 @@ public class Similarity_engine implements Clearable_RAM_cache
     public static final double H = 300;
 
     final List<Path> paths;
-    Map<Path,Map<Path,Double>> similarities = new HashMap<>();
+    Map<String,Map<String,Double>> similarities = new HashMap<>();
     public final Path_list_provider path_list_provider;
     public final Path_comparator_source path_comparator_source;
     public final Logger logger;
@@ -73,8 +74,8 @@ public class Similarity_engine implements Clearable_RAM_cache
     //**********************************************************
     {
         double returned = 0;
-        Function<Map<Path, Double>, Long> size_of_V = map -> Size_.of_Map(map, Size_.of_Path_F(), Size_.of_Double_F());
-        returned = Size_.of_Map(similarities, Size_.of_Path_F(),size_of_V);
+        Function<Map<String, Double>, Long> size_of_V = map -> Size_.of_Map(map, Size_.of_String_F(), Size_.of_Double_F());
+        returned = Size_.of_Map(similarities, Size_.of_String_F(),size_of_V);
         similarities.clear();
         return returned;
     }
@@ -99,7 +100,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         Feature_vector_cache fv_cache = fv_cache_supplier.get();
         if ( fv_cache == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv_cache is null"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"FATAL: fv_cache is null"));
             return new ArrayList<>();
         }
 
@@ -113,7 +114,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         if ( fv0 ==null)
         {
             hourglass.ifPresent(Hourglass::close);
-            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv0 not acquired"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"FATAL: fv0 not acquired"));
             return new ArrayList<>();
         }
 
@@ -172,7 +173,7 @@ public class Similarity_engine implements Clearable_RAM_cache
         Feature_vector_cache fv_cache = fv_cache_supplier.get();
         if ( fv_cache == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv_cache is null"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"FATAL: fv_cache is null"));
             hourglass.ifPresent(Hourglass::close);
             return new ArrayList<>();
         }
@@ -364,7 +365,7 @@ public class Similarity_engine implements Clearable_RAM_cache
             Feature_vector fv1 = fv_cache_supplier.get().get_from_cache_or_make(path1, null,true, owner, browser_aborter);
             if (fv1 == null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL: fv1 not acquired"));
+                logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"FATAL: fv1 not acquired"));
                 continue; // server failure
             }
 
@@ -431,41 +432,40 @@ public class Similarity_engine implements Clearable_RAM_cache
     private void save_similarity_in_cache(Double similarity, Path p1, Path p2)
     //**********************************************************
     {
-        Map<Path, Double> m1 = similarities.get(p1);
+        Map<String, Double> m1 = similarities.get(P2S.p2s(p1));
         if (m1 != null)
         {
-            m1.put(p2,similarity);
+            m1.put(P2S.p2s(p2),similarity);
             return;
         }
-        Map<Path, Double> m2 = similarities.get(p2);
+        Map<String, Double> m2 = similarities.get(P2S.p2s(p2));
         if (m2 != null)
         {
-            m2.put(p1, similarity);
+            m2.put(P2S.p2s(p1), similarity);
             return;
         }
 
         m1 = new HashMap<>();
-        similarities.put(p1,m1);
-        m1.put(p2, similarity);
+        similarities.put(P2S.p2s(p1),m1);
+        m1.put(P2S.p2s(p2), similarity);
     }
 
     //**********************************************************
     private Double read_similarity_from_cache(Path p1, Path p2)
     //**********************************************************
     {
-        Map<Path, Double> m1 = similarities.get(p1);
+        Map<String, Double> m1 = similarities.get(P2S.p2s(p1));
         if (m1 != null)
         {
-            Double similarity = m1.get(p2);
+            Double similarity = m1.get(P2S.p2s(p2));
             if ( similarity != null) return similarity;
         }
-        Map<Path, Double> m2 = similarities.get(p2);
+        Map<String, Double> m2 = similarities.get(P2S.p2s(p2));
         if (m2 != null)
         {
-            Double similarity = m2.get(p1);
+            Double similarity = m2.get(P2S.p2s(p1));
             if ( similarity != null) return similarity;
         }
-
         return null;
     }
 

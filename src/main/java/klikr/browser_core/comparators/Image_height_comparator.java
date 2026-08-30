@@ -33,22 +33,22 @@ public record Image_height_comparator(
 
         Image_properties ip1 = image_properties_cache.get(p1, aborter,null,owner);
         if (ip1 == null) {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC image_property not found"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+" PANIC image_property not found"));
             return 0;
         }
         Double d1 = ip1.get_image_height();
         if (d1 == null) {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC image height not found"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+" PANIC image height not found"));
             return 0;
         }
         Image_properties ip2 = image_properties_cache.get(p2, aborter,null,owner);
         if (ip2 == null) {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC image_property not found"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"PANIC image_property not found"));
             return 0;
         }
         Double d2 = ip2.get_image_height();
         if (d2 == null) {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ PANIC image height not found"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"PANIC image height not found"));
             return 0;
         }
 

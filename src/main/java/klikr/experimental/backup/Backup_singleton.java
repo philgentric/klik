@@ -5,8 +5,6 @@ package klikr.experimental.backup;
 //SOURCES ./Backup_engine.java
 
 import javafx.stage.Window;
-import klikr.change.bookmarks.Bookmarks;
-import klikr.util.Shared_services;
 import klikr.util.log.Logger;
 import klikr.util.ui.Popups;
 
@@ -62,7 +60,7 @@ public class Backup_singleton
                 if (e.source.equals(source))
                 {
                     if (e.destination.equals(destination)) {
-                        Popups.popup_warning("❗ A backup like this is already running", "Sorry: denied",true,owner,logger);
+                        Popups.popup_warning(Logger.warning+" A backup like this is already running", "Sorry: denied",true,owner,logger);
                         return;
                     }
                 }
@@ -71,7 +69,7 @@ public class Backup_singleton
 
         {
 // Get a CONFIRMATION
-            String header = "❗ Copy Confirmation Required";
+            String header = Logger.warning+" Copy Confirmation Required";
             String content = "This will copy all the files down from directory:\n" + source.toAbsolutePath() + "\n"
                     + "Into the directory:\n" + destination.toAbsolutePath() + "\n"
                     + "(this is safe because files with same names, if different, will be renamed)\n"

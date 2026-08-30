@@ -372,7 +372,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
     {
         if (!Guess_file_type.is_this_extension_an_audio(Extensions.get_extension((new File(song)).getName())))
         {
-            if ( dbg) logger.log("❗ Rejected as a possible song due to extension: "+(new File(song)).getName());
+            if ( dbg) logger.log(Logger.warning+" Rejected as a possible song due to extension: "+(new File(song)).getName());
             return;
         }
         String parent = (new File(song)).getParent();
@@ -462,7 +462,7 @@ public class Path_list_provider_for_playlist implements Path_list_provider
         logger.log("Path_list_provider_for_playlist.reload(), reason ="+origin);
         if ( the_playlist_file_path == null)
         {
-            logger.log("❌ FATAL ERROR: the_playlist_file_path is null!");
+            logger.log(Logger.error+"FATAL ERROR: the_playlist_file_path is null!");
             return;
         }
         try {

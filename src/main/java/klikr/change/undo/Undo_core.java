@@ -156,7 +156,7 @@ public class Undo_core implements Datetime_to_signature_source
     //**********************************************************
     {
         String s1 = My_I18n.get_I18n_string("Warning_delete_undo", owner,logger);
-        if (!Popups.popup_ask_for_confirmation("❗"+ s1, "", owner,logger)) return;
+        if (!Popups.popup_ask_for_confirmation(Logger.warning+" "+ s1, "", owner,logger)) return;
 
         List<String> set = properties.get_all_keys();
 

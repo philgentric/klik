@@ -33,7 +33,7 @@ public class File_comparator
     {
         if ( aborter_ == null)
         {
-            logger.log_stack_trace("❌ FATAL aborter must not be null");
+            logger.log_stack_trace(Logger.error+"FATAL aborter must not be null");
         }
         aborter = aborter_;
         logger = logger_;

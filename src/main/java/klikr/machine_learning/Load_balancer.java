@@ -57,10 +57,10 @@ public class Load_balancer
                 logger.log("Servers are starting (no servers are active yet) for: " + server_type.name());
                 return -1;
             }
-            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL for: " + server_type.name()));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"FATAL for: " + server_type.name()));
             return -1;
         }
-        //logger.log("✅ Found "+status.available_ports().length()+" active servers for: " + st.name());
+        //logger.log(Logger.ok+" Found "+status.available_ports().length()+" active servers for: " + st.name());
 
         // Return a random port for load balancing
         return status.available_ports().get(random.nextInt(status.available_ports().size()));
@@ -120,7 +120,7 @@ public class Load_balancer
                     List<ML_server> servers_of_type = ML_registry.get_servers_of_type(server_type, owner, logger);
                     if (servers_of_type.size() >= server_type.quota(owner))
                     {
-                        if ( live_dbg) logger.log("\n\n✅ No need to start servers of type: "+server_type.name()+ " running: "+servers_of_type.size()+ " quota: "+server_type.quota(owner));
+                        if ( live_dbg) logger.log("\n\n"+ Logger.ok+" No need to start servers of type: "+server_type.name()+ " running: "+servers_of_type.size()+ " quota: "+server_type.quota(owner));
                         continue;
                     }
                     // need to launch some servers
@@ -146,13 +146,13 @@ public class Load_balancer
                     if ( more > 0)
                     {
                         how_many_servers_are_requested.put(server_type.name(), requested+more);
-                        if ( live_dbg) logger.log("\n\n✅ Going to spawn " + more + " new servers of type: " + server_type.name());
+                        if ( live_dbg) logger.log("\n\n"+ Logger.ok+" Going to spawn " + more + " new servers of type: " + server_type.name());
                         ML_servers_monitor.make_faster_network_scans();
                         ML_servers_util.start_N_ML_servers(more, server_type, owner, logger);
                     }
                     else
                     {
-                        if ( live_dbg) logger.log("\n\n✅  Not going to spawn new servers of type: " + server_type.name()+ " because: quota=" + full_quota + " running=" + running);
+                        if ( live_dbg) logger.log("\n\n"+ Logger.ok+"  Not going to spawn new servers of type: " + server_type.name()+ " because: quota=" + full_quota + " running=" + running);
                     }
                     if ( running >= full_quota)
                     {

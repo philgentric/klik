@@ -190,14 +190,14 @@ public class Face_detector
     public static void warn_about_face_detector_server(Window owner, Logger logger)
     //**********************************************************
     {
-        Popups.popup_warning("❗ Face detector server not found","Need to start the servers",true,owner,logger);
+        Popups.popup_warning(Logger.warning+" Face detector server not found","Need to start the servers",true,owner,logger);
     }
 
     //**********************************************************
     public static void warn_about_no_face_detected(Window owner,Logger logger)
     //**********************************************************
     {
-        Popups.popup_warning("❗ No face detected","Could not find a face?",true,owner,logger);
+        Popups.popup_warning(Logger.warning+" No face detected","Could not find a face?",true,owner,logger);
     }
 
 

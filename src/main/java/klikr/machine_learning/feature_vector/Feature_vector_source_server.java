@@ -95,7 +95,7 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
             if ( path.toFile().exists())
             {
                 // The server failed to return a vector. the file may be corrupted?
-                logger.log("❗ WARNING: File MAY BE CORRUPTED: "+path);
+                logger.log(Logger.warning+" WARNING: File MAY BE CORRUPTED: "+path);
             }
             else
             {

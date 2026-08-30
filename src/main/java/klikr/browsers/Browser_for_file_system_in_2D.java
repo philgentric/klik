@@ -161,11 +161,11 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
                 filesystem_item_modification_watcher = Filesystem_item_modification_watcher.monitor_folder(op.get(), FOLDER_MONITORING_TIMEOUT_IN_MINUTES, my_Stage.the_Stage, aborter, logger);
                 if (filesystem_item_modification_watcher == null)
                 {
-                    logger.log("❗ WARNING: cannot monitor folder " + op.get());
+                    logger.log(Logger.warning+" WARNING: cannot monitor folder " + op.get());
                 }
                 else
                 {
-                    logger.log("✅ Started monitoring folder " + op.get());
+                    logger.log(Logger.ok+" Started monitoring folder " + op.get());
 
                 }
             };
@@ -175,7 +175,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         {
             if ( filesystem_item_modification_watcher != null)
             {
-                logger.log("✅ Stopped monitoring folder " + op.get());
+                logger.log(Logger.ok+" Stopped monitoring folder " + op.get());
                 filesystem_item_modification_watcher.cancel();
             }
         }
@@ -239,7 +239,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
             }
             else
             {
-                logger.log(Stack_trace_getter.get_stack_trace("weird: virtual_landscape == null"));
+                if (dbg) logger.log(Stack_trace_getter.get_stack_trace("set_status not done as virtual_landscape not ready yet"));
             }
             Jfx_batch_injector.inject(() ->
             {

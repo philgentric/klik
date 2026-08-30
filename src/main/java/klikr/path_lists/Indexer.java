@@ -107,7 +107,7 @@ public class Indexer
             if (target >= state.how_many_images())
             {
                 if (state.how_many_images() == 0) {
-                    logger.log("❌ FATAL: path_list.length()=" + state.how_many_images());
+                    logger.log(Logger.error+"FATAL: path_list.length()=" + state.how_many_images());
                     return null;
                 }
                 target = 0;

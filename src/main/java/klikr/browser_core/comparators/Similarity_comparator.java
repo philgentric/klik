@@ -7,6 +7,7 @@ package klikr.browser_core.comparators;
 //SOURCES ../../image_ml/image_similarity/Path_pair.java;
 
 import klikr.machine_learning.similarity.Integer_pair;
+import klikr.util.P2S;
 import klikr.util.cache.Clearable_RAM_cache;
 import klikr.path_lists.Path_list_provider;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
@@ -28,7 +29,7 @@ import java.util.function.Supplier;
 public abstract class Similarity_comparator implements Comparator<Path>, Clearable_RAM_cache
 //**********************************************************
 {
-    protected final Map<Path, Integer> dummy_names = new HashMap<>();
+    protected final Map<String, Integer> dummy_names = new HashMap<>();
     private final Map<Integer_pair, Integer> distances_cache = new HashMap<>();
     private final List<Path> paths = new ArrayList<>();
 
@@ -67,7 +68,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
         returned += Size_.of_Map(distances_cache,size_of_Integer_pair, Size_.of_Integer_F());
         distances_cache.clear();
 
-        returned += Size_.of_Map(dummy_names,Size_.of_Path_F(), Size_.of_Integer_F());
+        returned += Size_.of_Map(dummy_names,Size_.of_String_F(), Size_.of_Integer_F());
         dummy_names.clear();
 
         if ( similarity_cache != null)
@@ -112,15 +113,15 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
         {
             //logger.log("WTF dummy_name1 == null for "+p1);
             dummy_name1 = 8888888;//p1.getFileName().toString();
-            dummy_names.put(p1,dummy_name1);
+            dummy_names.put(P2S.p2s(p1),dummy_name1);
         }
 
-        Integer dummy_name2 = dummy_names.get(p2);
+        Integer dummy_name2 = dummy_names.get(P2S.p2s(p2));
         if ( dummy_name2 == null)
         {
             logger.log(" dummy_name2 == null for "+p2);
             dummy_name2 = 9999999;//p2.getFileName().toString();
-            dummy_names.put(p2,dummy_name2);
+            dummy_names.put(P2S.p2s(p2),dummy_name2);
         }
 
         d =  dummy_name1.compareTo(dummy_name2);
@@ -138,7 +139,7 @@ public abstract class Similarity_comparator implements Comparator<Path>, Clearab
         for ( Path path : path_list_provider.only_file_paths(false,Feature_cache.get(Feature.Show_hidden_files),aborter))
         {
             if ( images.contains(path)) continue;
-            dummy_names.put(path, i);
+            dummy_names.put(P2S.p2s(path), i);
             //logger.log(path+" -> "+i);
             i++;
         }

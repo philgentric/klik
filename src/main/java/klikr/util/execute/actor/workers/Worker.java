@@ -58,7 +58,7 @@ public class Worker
                     }
                     if (job.actor == null)
                     {
-                        logger.log("❌ BAD BAD null actor in error_message :"+job.to_string());
+                        logger.log(Logger.error+"BAD BAD null actor in error_message :"+job.to_string());
                         continue;
                     }
                     String msg = job.actor.run(job.message);
@@ -117,7 +117,7 @@ public class Worker
     //**********************************************************
     {
         cleanup_aborter.abort("Worker "+name+" shall stop");
-        if ( dbg) logger.log("✅ Worker "+name+" stop requested");
+        if ( dbg) logger.log(Logger.ok+" Worker "+name+" stop requested");
 
     }
 

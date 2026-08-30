@@ -41,7 +41,7 @@ public class Filesystem_item_signature
 
             if ( folder_signature_array ==null)
             {
-                logger.log("❌ FATAL: Filesystem_item_signature scanning failed for "+path);
+                logger.log(Logger.error+"FATAL: Filesystem_item_signature scanning failed for "+path);
                 return File_status.FOLDER_NOT_FOUND;
             }
             // File.list() returns an OS dependent order, which is also user choice dependant
@@ -60,12 +60,12 @@ public class Filesystem_item_signature
             file_signature_array = hash_and_status.hash();
             if ( file_signature_array ==null)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN: Filesystem_item_signature file_signature_array == null for "+path));
+                logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"SHOULD NOT HAPPEN: Filesystem_item_signature file_signature_array == null for "+path));
                 return File_status.EXCEPTION;
             }
             if ( file_signature_array.length == 0)
             {
-                logger.log(Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN: Filesystem_item_signature file_signature_array is empty for "+path));
+                logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"SHOULD NOT HAPPEN: Filesystem_item_signature file_signature_array is empty for "+path));
                 return File_status.EXCEPTION;
             }
         }
@@ -114,7 +114,7 @@ public class Filesystem_item_signature
             // we are comparing folders
             if ( folder_signature_array == null)
             {
-                logger.log("❌ FATAL, Filesystem_item_signature file_signature_array = null ");
+                logger.log(Logger.error+"FATAL, Filesystem_item_signature file_signature_array = null ");
                 return true;
             }
             if ( folder_signature_array.length != other.folder_signature_array.length) return false;

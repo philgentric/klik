@@ -6,7 +6,7 @@ package klikr.browsers;
 import javafx.stage.Window;
 import javafx.scene.paint.Color;
 import klikr.Window_builder;
-import klikr.audio.player.The_audio_player;
+import klikr.experimental.audio.player.The_audio_player;
 import klikr.browser_core.Abstract_browser;
 import klikr.browser_core.Window_manager;
 import klikr.path_lists.Path_list_provider;

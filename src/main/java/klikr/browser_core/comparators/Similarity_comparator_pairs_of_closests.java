@@ -5,6 +5,7 @@ package klikr.browser_core.comparators;
 
 //SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
 
+import klikr.util.P2S;
 import klikr.util.execute.actor.Aborter;
 import klikr.path_lists.Path_list_provider;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
@@ -44,7 +45,7 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
 
         // first we make a map P1->P2
         List<Closest_neighbor> candidates = new ArrayList<>();
-        Map<Path, Closest_neighbor> map = new HashMap<>();
+        Map<String, Closest_neighbor> map = new HashMap<>();
         for ( Path p1 : images)
         {
             Closest_neighbor cn = Closest_neighbor.find_closest_of(p1, images, similarity_cache);
@@ -58,7 +59,7 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
                 //logger.log("find_closest_of "+p1+" == "+cn.dist());
             }
             candidates.add(cn);
-            map.put(p1,cn);
+            map.put(P2S.p2s(p1),cn);
         }
         // we make a second pass to find the "true" pairs
         // of P1->P2 & P2->P1
@@ -81,11 +82,11 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
         for ( Closest_neighbor cn : done)
         {
             Path p1 = cn.p1();
-            dummy_names.put(p1, i);
+            dummy_names.put(P2S.p2s(p1), i);
             //logger.log(p1+" -> "+i);
             i++;
             Path p2 = cn.closest();
-            dummy_names.put(p2, i);
+            dummy_names.put(P2S.p2s(p2), i);
             //logger.log(p2+" -> "+i);
             i++;
         }
@@ -93,9 +94,9 @@ public class Similarity_comparator_pairs_of_closests extends Similarity_comparat
         // then we complete the fill 'blindly'
         for ( Path p : images)
         {
-            if ( !dummy_names.containsKey(p))
+            if ( !dummy_names.containsKey(P2S.p2s(p)))
             {
-                dummy_names.put(p, i);
+                dummy_names.put(P2S.p2s(p), i);
                 //logger.log(p+" -> "+i);
                 i++;
             }

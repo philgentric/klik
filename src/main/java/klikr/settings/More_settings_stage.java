@@ -325,7 +325,7 @@ public class More_settings_stage
                     if ( cmi != local) cmi.setSelected(false);
                 }
                 Non_booleans_properties.set_animated_gif_duration_for_a_video(length,owner);
-                Popups.popup_warning( "❗ Note well:","You have to clear the icon cache to see the effect for already visited folders",false,owner,logger);
+                Popups.popup_warning( Logger.warning+" Note well:","You have to clear the icon cache to see the effect for already visited folders",false,owner,logger);
             }
         });
         menu.getItems().add(item);
@@ -494,7 +494,7 @@ public class More_settings_stage
             }
             catch (NumberFormatException e)
             {
-                Popups.popup_warning("❗ Integer only!","Please retry with an integer value!",false,owner,logger);
+                Popups.popup_warning(Logger.warning+" Integer only!","Please retry with an integer value!",false,owner,logger);
             }
         }
     }
@@ -536,7 +536,7 @@ public class More_settings_stage
             }
             catch (NumberFormatException e)
             {
-                Popups.popup_warning("❗ Integer only!","Please retry with an integer value!",false,owner,logger);
+                Popups.popup_warning(Logger.warning+" Integer only!","Please retry with an integer value!",false,owner,logger);
             }
         }
     }

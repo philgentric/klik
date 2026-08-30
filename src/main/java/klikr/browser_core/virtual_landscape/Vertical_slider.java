@@ -97,7 +97,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
         double fraction = 1;
         if (the_Slider.getMax() == 0)
         {
-            logger.log("❌ PANIC: get_slider_max() == 0");
+            logger.log(Logger.error+"PANIC: get_slider_max() == 0");
         }
         else
         {
@@ -122,7 +122,7 @@ public class Vertical_slider implements Landscape_height_listener, Scroll_to_lis
     {
         if ( pixel_height == 0)
         {
-            logger.log("❌ PANIC pixel_height == 0 max="+the_Slider.getMax()+" min="+the_Slider.getMin());
+            logger.log(Logger.error+"PANIC pixel_height == 0 max="+the_Slider.getMax()+" min="+the_Slider.getMin());
 
             pixel_height = 42;
         }

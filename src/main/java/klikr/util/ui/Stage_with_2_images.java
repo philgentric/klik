@@ -22,7 +22,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import klikr.audio.player.The_audio_player;
+import klikr.experimental.audio.player.The_audio_player;
 import klikr.browser_core.Image_and_properties;
 import klikr.util.deduplicate.manual.Againor;
 import klikr.util.execute.actor.Aborter;

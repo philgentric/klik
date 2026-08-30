@@ -29,9 +29,9 @@ public class RAM_caches
     public static Klikr_cache<Path, Double> duration_cache;
     public static Klikr_cache<Path, Double> bitrate_cache;
 
-    public final static Map<Path, Long> folder_file_count_cache = new HashMap<>();
-    public final static Map<Path,Long> folder_total_size_cache = new HashMap<>();
-    public final static Map<Path,Long> file_size_cache = new HashMap<>();
+    public final static Map<String, Long> folder_file_count_cache = new HashMap<>();
+    public final static Map<String,Long> folder_total_size_cache = new HashMap<>();
+    public final static Map<String,Long> file_size_cache = new HashMap<>();
 
 
     //**********************************************************
@@ -45,7 +45,7 @@ public class RAM_caches
             total += kc.clear_RAM();
         }
         image_properties_cache_of_caches.clear();
-        if ( dbg) logger.log("✅ All image properties RAM caches cleared");
+        if ( dbg) logger.log(Logger.ok+" All image properties RAM caches cleared");
 
 
         for ( Image_cache_interface ici : image_caches.values())
@@ -53,7 +53,7 @@ public class RAM_caches
             total += ici.clear_RAM();
         }
         image_caches.clear();
-        if ( dbg) logger.log("✅ All image RAM caches cleared");
+        if ( dbg) logger.log(Logger.ok+" All image RAM caches cleared");
 
 
         for (Similarity_cache sc : similarity_cache_of_caches.values())
@@ -61,7 +61,7 @@ public class RAM_caches
             total += sc.clear_RAM();
         }
         similarity_cache_of_caches.clear();
-        if ( dbg) logger.log("✅ All similarity RAM caches cleared");
+        if ( dbg) logger.log(Logger.ok+" All similarity RAM caches cleared");
 
 
         for (Similarity_comparator sc : similarity_comparator_cache.values())
@@ -69,7 +69,7 @@ public class RAM_caches
             total += sc.clear_RAM();
         }
         similarity_comparator_cache.clear();
-        if ( dbg) logger.log("✅ All similarity comparator RAM caches cleared");
+        if ( dbg) logger.log(Logger.ok+" All similarity comparator RAM caches cleared");
 
 
 
@@ -81,14 +81,14 @@ public class RAM_caches
             total += fvc.clear_RAM();
         }
         fv_cache_of_caches.clear();
-        if ( dbg) logger.log("✅ All feature vector RAM caches cleared");
+        if ( dbg) logger.log(Logger.ok+" All feature vector RAM caches cleared");
 
 
         if (duration_cache != null) total += duration_cache.clear_RAM();
-        if ( dbg) logger.log("✅ song duration cache cleared");
+        if ( dbg) logger.log(Logger.ok+" song duration cache cleared");
 
         if (bitrate_cache !=null) total += bitrate_cache.clear_RAM();
-        if ( dbg) logger.log("✅ song bitrate cache cleared");
+        if ( dbg) logger.log(Logger.ok+" song bitrate cache cleared");
 
 
         total += folder_file_count_cache.size();
@@ -100,10 +100,10 @@ public class RAM_caches
 
 
         total += Scroll_position_cache.scroll_position_cache_clear();
-        if ( dbg) logger.log("✅ scroll position cache cleared");
+        if ( dbg) logger.log(Logger.ok+" scroll position cache cleared");
 
         String size_in_bytes = Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(total,owner,logger);
-        logger.log("\n\n✅ Total cleared RAM bytes: " + size_in_bytes+"\n\n");
+        logger.log("\n\n"+ Logger.ok+" Total cleared RAM bytes: " + size_in_bytes+"\n\n");
     }
 
 

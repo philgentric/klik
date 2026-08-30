@@ -359,7 +359,7 @@ public class Face_recognition_service
             }
             else
             {
-                logger.log("✅ ADDING prototype as the final face check is OK , status is: "+Face_recognition_results.image_path());
+                logger.log(Logger.ok+" ADDING prototype as the final face check is OK , status is: "+Face_recognition_results.image_path());
             }
         }
 
@@ -371,7 +371,7 @@ public class Face_recognition_service
         }
         else
         {
-            logger.log("✅ STORING face recognition prototype "+f.getAbsolutePath());
+            logger.log(Logger.ok+" STORING face recognition prototype "+f.getAbsolutePath());
         }
 
         training_stats.face_wrongly_recognized_recorded.incrementAndGet();
@@ -468,7 +468,7 @@ public class Face_recognition_service
             Platform.runLater(()->
             {
                 boolean reply = Popups.popup_ask_for_confirmation(
-                        "❗ Folder does not contain a file named '.folder_name_is_recognition_label'",
+                        Logger.warning+" Folder does not contain a file named '.folder_name_is_recognition_label'",
                         "Do you want to create this file?",
                         owner, logger);
                 if (reply) {
@@ -476,7 +476,7 @@ public class Face_recognition_service
                         Files.createDirectories(check.toPath().getParent());
                         Files.createFile(check.toPath());
                     } catch (IOException e) {
-                        logger.log("❌ auto_internal FATAL cannot create file '.folder_name_is_recognition_label' in folder " + target);
+                        logger.log(Logger.error+"auto_internal FATAL cannot create file '.folder_name_is_recognition_label' in folder " + target);
                         return;
                     }
                 }
@@ -1112,7 +1112,7 @@ public class Face_recognition_service
         {
             // TODO: these error messages are not accurate
             if ( display_face_reco_window) Face_detector.warn_about_no_face_detected(owner,logger);
-            else logger.log("❌ fatal : cannot load face image");
+            else logger.log(Logger.error+"fatal : cannot load face image");
             return new Face_recognition_results(null,null, path_of_face,null, Face_recognition_in_image_status.no_face_detected);
         }
 

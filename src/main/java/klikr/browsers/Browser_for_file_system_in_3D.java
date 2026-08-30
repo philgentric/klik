@@ -844,7 +844,7 @@ public class Browser_for_file_system_in_3D implements Owner_provider, Selection_
 
         if (event.getCode() == KeyCode.ESCAPE)
         {
-            logger.log("✅ 3D Window RECEIVED ESCAPE");
+            logger.log(Logger.ok+" 3D Window RECEIVED ESCAPE");
             event.consume();
 
             if (Feature_cache.get(Feature.Use_escape_to_close_windows))
@@ -853,7 +853,7 @@ public class Browser_for_file_system_in_3D implements Owner_provider, Selection_
             }
             else
             {
-                logger.log("✅ ESCAPE ignored by user preference");
+                logger.log(Logger.ok+" ESCAPE ignored by user preference");
             }
             return;
         }

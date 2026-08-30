@@ -1,4 +1,4 @@
-package klikr.audio.player;
+package klikr.experimental.audio.player;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
@@ -243,7 +243,7 @@ public class Song_playlist
     {
         if (!Guess_file_type.is_this_extension_an_audio(Extensions.get_extension((new File(song)).getName())))
         {
-            if ( dbg) logger.log("❗ Rejected as a possible song due to extension: "+(new File(song)).getName());
+            if ( dbg) logger.log(Logger.warning+" Rejected as a possible song due to extension: "+(new File(song)).getName());
             return;
         }
         String parent = (new File(song)).getParent();
@@ -626,7 +626,7 @@ public class Song_playlist
         }
         if (new_song == null)
         {
-            logger.log("❗Warning new_song == null in change_song");
+            logger.log(Logger.warning+"Warning new_song == null in change_song");
             return;
         }
         String finalNew_song = new_song;
@@ -687,7 +687,7 @@ public class Song_playlist
         double bitrate;
         bitrate = bitrate_cache.get(Path.of(new_song),aborter, null,owner);
         if ( dbg) logger.log(  (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
-        //the_music_ui.set_status("✅ Status: OK for:" + (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
+        //the_music_ui.set_status(Logger.ok+" Status: OK for:" + (new File(new_song)).getName() + " (bitrate= " + bitrate + " kb/s)");
         return bitrate;
     }
 

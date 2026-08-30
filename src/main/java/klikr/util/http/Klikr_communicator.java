@@ -104,7 +104,7 @@ public class Klikr_communicator
         REGISTRY_DIR = Static_files_and_paths_utilities.get_absolute_hidden_dir_on_user_home("registry", false,owner, logger);
         if ( REGISTRY_DIR == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ Fatal REGISTRY_DIR == null"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"Fatal REGISTRY_DIR == null"));
         }
     }
 

@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.audio;
+package klikr.experimental.audio;
 
 import javafx.application.Platform;
 import javafx.scene.image.Image;

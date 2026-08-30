@@ -13,6 +13,7 @@ import klikr.browser_core.comparators.Last_access_comparator;
 import klikr.browser_core.virtual_landscape.Scroll_position_cache;
 import klikr.browser_core.virtual_landscape.Shutdown_target;
 import klikr.path_lists.Path_list_provider;
+import klikr.util.P2S;
 import klikr.util.log.Logger;
 
 import java.nio.file.Path;
@@ -145,7 +146,7 @@ public class Window_builder
     {
         if ( top_left != null)
         {
-            Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_key(),top_left.toAbsolutePath().normalize().toString(),"additional same folder ratio",logger);
+            Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_key(), P2S.p2s(top_left),"additional same folder ratio",logger);
         }
 
         ObservableList<Screen> intersecting_screens = Screen.getScreensForRectangle(originator.getX(), originator.getY(), originator.getWidth(), originator.getHeight());
@@ -198,7 +199,7 @@ public class Window_builder
             if (key_for_scroll_position_cache!=null) {
                 Scroll_position_cache.scroll_position_cache_write(
                         key_for_scroll_position_cache,
-                        top_left.toAbsolutePath().normalize().toString(),
+                        P2S.p2s(top_left),
                         "replace same folder", logger);
             }
         };
@@ -232,8 +233,8 @@ public class Window_builder
         {
             if (  key_for_scroll_position_cache != null) {
                 Scroll_position_cache.scroll_position_cache_write(
-                        key_for_scroll_position_cache.toAbsolutePath().normalize().toString(),
-                        top_left.toAbsolutePath().normalize().toString(),
+                        P2S.p2s(key_for_scroll_position_cache),
+                        P2S.p2s(top_left),
                         "replace_different_folder", logger);
             }
         };

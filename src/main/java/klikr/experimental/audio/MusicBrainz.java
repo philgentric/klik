@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.audio;
+package klikr.experimental.audio;
 
 import javafx.scene.image.Image;
 import javafx.stage.Window;
@@ -202,12 +202,12 @@ public class MusicBrainz
             InputStream is = new FileInputStream(icon_file.getAbsolutePath());
             Image returned = new Image(is);
             is.close();
-            logger.log("✅ icon acquired from:"+image_URL+" saved as: "+icon_file.getAbsolutePath());
+            logger.log(Logger.ok+" icon acquired from:"+image_URL+" saved as: "+icon_file.getAbsolutePath());
             return returned;
         }
         catch (IOException e)
         {
-            logger.log("❗Warning icon acquired from:"+image_URL+" NOT saved as: "+icon_file+" "+e);
+            logger.log(Logger.warning+"Warning icon acquired from:"+image_URL+" NOT saved as: "+icon_file+" "+e);
 
         }
         return null;

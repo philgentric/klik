@@ -134,10 +134,10 @@ public class My_colors
             }
             try {
                 Color c = Color.valueOf(lines.get(0));
-                logger.log("✅ OK: color  identified =>"+lines.get(0)+" as" + c.toString()+"<= for path: "+folderPath);
+                logger.log(Logger.ok+" OK: color  identified =>"+lines.get(0)+" as" + c.toString()+"<= for path: "+folderPath);
                 return c;
             } catch ( Exception e) {
-                logger.log("❌ WARNING: color not identified  =>"+lines.get(0)+"<= for path: "+folderPath);
+                logger.log(Logger.error+"WARNING: color not identified  =>"+lines.get(0)+"<= for path: "+folderPath);
                 logger.log(Stack_trace_getter.get_stack_trace(""+e));
                 return null;
             }

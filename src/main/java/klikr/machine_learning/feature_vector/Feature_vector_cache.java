@@ -15,9 +15,7 @@ import klikr.util.cache.*;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
 import klikr.util.execute.actor.Job_termination_reporter;
-import klikr.util.execute.actor.Or_aborter;
 import klikr.path_lists.Path_list_provider;
-import klikr.machine_learning.song_similarity.Feature_vector_for_song;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.mmap.Mmap;
@@ -174,7 +172,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             byte[] the_bytes = Mmap.instance.read_bytes(key_from_path(p));
             if ( the_bytes == null)
             {
-                logger.log("❌ PANIC null Feature_vector in cache after blocking call for "+p);
+                logger.log(Logger.error+"PANIC null Feature_vector in cache after blocking call for "+p);
                 return null;
             }
             Feature_vector x = new Feature_vector_double(bytes_to_doubles(the_bytes),"made");
@@ -206,7 +204,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
         }
         else
         {
-            logger.log("❌ BAD WARNING... cannot cache but Feature_vector_double");
+            logger.log(Logger.error+"BAD WARNING... cannot cache but Feature_vector_double");
         }
     }
 
@@ -273,7 +271,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     {
         try( Perf p = new Perf("preload_all_feature_vector_in_cache"))
         {
-            logger.log("\n\n✅ Going to preload_all_feature_vector_in_cache\n\n");
+            logger.log("\n\n"+ Logger.ok+" Going to preload_all_feature_vector_in_cache\n\n");
             Feature_vector_cache feature_vector_cache = RAM_caches.fv_cache_of_caches.get(path_list_provider.get_key());
             AtomicInteger in_flight = new AtomicInteger(1); // '1' to keep it alive until update settles the final count
 

@@ -7,6 +7,7 @@ import klikr.util.execute.actor.Actor;
 import klikr.util.execute.actor.Message;
 import klikr.change.Change_gang;
 import klikr.path_lists.Indexer;
+import klikr.util.log.Logger;
 import klikr.util.perf.Perf;
 import klikr.util.ui.Jfx_batch_injector;
 
@@ -59,12 +60,12 @@ public class Change_image_actor implements Actor
             if (dbg) change_image_message.logger.log("delta=" + change_image_message.delta);
 
             if (change_image_message.image_window == null) {
-                if (dbg) change_image_message.logger.log("❌ FATAL change_image_message.image_stage == null");
+                if (dbg) change_image_message.logger.log(Logger.error+"FATAL change_image_message.image_stage == null");
                 return "Failed change_image_message.image_stage == null";
             }
             if (change_image_message.image_window.image_display_handler == null) {
                 if (dbg)
-                    change_image_message.logger.log("❌ FATAL change_image_message.image_stage.image_display_handler == null");
+                    change_image_message.logger.log(Logger.error+"FATAL change_image_message.image_stage.image_display_handler == null");
                 return "Failed change_image_message.image_stage.image_display_handler == null";
             }
             if (change_image_message.image_window.image_display_handler.image_indexer == null) {

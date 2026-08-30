@@ -66,7 +66,7 @@ public class Image_decoding_actor_for_cache implements Actor
             if ( (image_context.image.getWidth() > 1) && (image_context.image.getHeight() > 1))
             {
                 request.cache.put(request.make_key(), image_context);
-                if (dbg) logger.log("✅  image decoded ok is now in cache: " + image_context.path.getFileName() );
+                if (dbg) logger.log(Logger.ok+"  image decoded ok is now in cache: " + image_context.path.getFileName() );
             }
             else
             {
@@ -79,7 +79,7 @@ public class Image_decoding_actor_for_cache implements Actor
         }
         else
         {
-            logger.log( Stack_trace_getter.get_stack_trace("❌ BAD WARNING get_Image_and_index failed"));
+            logger.log( Stack_trace_getter.get_stack_trace(Logger.error+"BAD WARNING get_Image_and_index failed"));
         }
         return "OK, image decoded";
     }

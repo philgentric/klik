@@ -126,7 +126,7 @@ public class My_taskbar_icon
     {
         PixelReader pr = img.getPixelReader();
         if (pr == null) {
-            logger.log("❌ fromFXImage FATAL: getPixelReader() failed");
+            logger.log(Logger.error+"fromFXImage FATAL: getPixelReader() failed");
             return Optional.empty();
         }
         int iw = (int) img.getWidth();

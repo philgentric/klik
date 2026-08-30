@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.audio.player;
+package klikr.experimental.audio.player;
 
 public enum Song_play_status
 {

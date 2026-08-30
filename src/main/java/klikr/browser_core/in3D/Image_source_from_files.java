@@ -7,6 +7,7 @@ import javafx.stage.Window;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
+import klikr.util.P2S;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.log.Logger;
 import klikr.util.perf.Perf;
@@ -22,7 +23,7 @@ public class Image_source_from_files implements Image_source
     private final int large_icon_size;
     private int i = 0;
     private final List<Path> paths = new ArrayList<>();
-    private final Map<Path,Image_and_path> cache = new HashMap<>();
+    private final Map<String,Image_and_path> cache = new HashMap<>();
     private final Path_list_provider_for_file_system path_list_provider;
     private final Logger logger;
     private final Window owner;
@@ -58,10 +59,11 @@ public class Image_source_from_files implements Image_source
         if ( i < 0 ) return null;
         if ( i >= paths.size() ) return null;
         Path p = paths.get(i);
-        Image_and_path returned = cache.get(p);
+        String key = P2S.p2s(p);
+        Image_and_path returned = cache.get(key);
         if ( returned != null) return returned;
         returned = new Image_and_path(p,small_icon_size,large_icon_size,owner,logger);
-        cache.put(p,returned);
+        cache.put(key,returned);
         return  returned;
     }
 

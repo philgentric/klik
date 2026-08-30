@@ -10,7 +10,6 @@ import klikr.util.log.Stack_trace_getter;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.UUID;
 
 //**********************************************************
@@ -35,7 +34,7 @@ public class Icon_caching
     {
         if ( original_image_file == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ "));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+""));
             return null;
         }
 

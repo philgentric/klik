@@ -122,12 +122,12 @@ public class Piece
     {
         if ( segment == null)
         {
-            logger.log("❌ FATAL: segment == null");
+            logger.log(Logger.error+"FATAL: segment == null");
             return -1;
         }
 
         if (size > segment.byteSize()) {
-            logger.log("❌ FATAL: Item too huge for cache file");
+            logger.log(Logger.error+"FATAL: Item too huge for cache file");
             return -1;
         }
 
@@ -184,7 +184,7 @@ public class Piece
         }
         catch (IOException e)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌ FATAL write_file_internal Could not write file: " + e));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+"FATAL write_file_internal Could not write file: " + e));
         }
     }
 
@@ -373,7 +373,7 @@ public class Piece
         int checksum_on_disk = this.segment.get(ValueLayout.JAVA_INT.withOrder(ByteOrder.BIG_ENDIAN).withByteAlignment(1), offset + length);
         if ( checksum_on_disk != computed_checksum)
         {
-            logger.log("❌  PANIC in mmap, checksum mismatch");
+            logger.log(Logger.error+" PANIC in mmap, checksum mismatch");
             return null;
         }
         return data;

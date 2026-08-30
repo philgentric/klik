@@ -3,6 +3,7 @@
 
 package klikr.browser_core.comparators;
 
+import klikr.util.P2S;
 import klikr.util.cache.Clearable_RAM_cache;
 import klikr.util.cache.RAM_caches;
 import klikr.util.cache.Size_;
@@ -26,7 +27,7 @@ public class File_size_comparator implements Comparator<Path>, Clearable_RAM_cac
     public double clear_RAM()
     //**********************************************************
     {
-        double returned = Size_.of_Map(RAM_caches.file_size_cache,Size_.of_Path_F(),Size_.of_Long_F());
+        double returned = Size_.of_Map(RAM_caches.file_size_cache,Size_.of_String_F(),Size_.of_Long_F());
         RAM_caches.file_size_cache.clear();
         return returned;
     }
@@ -58,10 +59,10 @@ public class File_size_comparator implements Comparator<Path>, Clearable_RAM_cac
     private long from_cache(Path p)
     //**********************************************************
     {
-        Long r = RAM_caches.file_size_cache.get(p);
+        Long r = RAM_caches.file_size_cache.get(P2S.p2s(p));
         if (r != null) return r;
         r = p.toFile().length();
-        RAM_caches.file_size_cache.put(p,r);
+        RAM_caches.file_size_cache.put(P2S.p2s(p),r);
         return r;
     }
 

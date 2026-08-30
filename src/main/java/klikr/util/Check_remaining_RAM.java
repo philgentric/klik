@@ -35,7 +35,7 @@ public class Check_remaining_RAM
         logger.log(message+" Garbage Collector was called, AVAILABLE: "+before/1000_000L + " => "+after/1000_000L);
         if (after > MIN_REMAINING_FREE_MEMORY_MB) return false;
 
-        logger.log("❌ Your java VM machine is running out of RAM!\n"+message+"\nIncrease max in Preferences?");
+        logger.log(Logger.warning+"Your java VM machine is running out of RAM!\n"+message+"\nIncrease max in Preferences?");
         boolean show_pop_up = false;
         if  (last_time_oom_was_shown == null)
         {

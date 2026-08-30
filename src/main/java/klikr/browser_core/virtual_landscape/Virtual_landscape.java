@@ -43,7 +43,7 @@ import javafx.util.Duration;
 import klikr.Klikr_application;
 import klikr.Window_builder;
 import klikr.Window_type;
-import klikr.audio.player.The_audio_player;
+import klikr.experimental.audio.player.The_audio_player;
 import klikr.browser_core.*;
 import klikr.browser_core.icons.image_properties_cache.Rotation;
 import klikr.change.bookmarks.Bookmarks;
@@ -51,6 +51,7 @@ import klikr.change.history.History_engine;
 import klikr.change.undo.Undo_for_moves;
 import klikr.path_lists.Files_and_folders;
 import klikr.path_lists.Path_list_provider_for_playlist;
+import klikr.util.P2S;
 import klikr.util.cache.*;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Actor_engine;
@@ -104,8 +105,6 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static klikr.browser_core.Abstract_browser.BROWSER_WINDOW;
 
 //**********************************************************
 public class Virtual_landscape
@@ -324,7 +323,7 @@ public class Virtual_landscape
                 if (file_comp_cache.file_sort_by() == sort_file_by)
                 {
                     if (dbg)
-                        logger.log("✅ getting file comparator from cache=" + file_comp_cache);
+                        logger.log(Logger.ok+" getting file comparator from cache=" + file_comp_cache);
                     local_file_comparator = file_comp_cache.comparator();
                 }
             }
@@ -334,7 +333,7 @@ public class Virtual_landscape
         }
         if (local_file_comparator == null)
         {
-            logger.log("❌ FATAL: local_file_comparator is null");
+            logger.log(Logger.error+"FATAL: local_file_comparator is null");
         }
         else
         {
@@ -831,7 +830,7 @@ public class Virtual_landscape
         Path top_left = get_top_left();
         if ( top_left != null)
         {
-            Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_key(), top_left.toAbsolutePath().normalize().toString(),"scroll a bit",logger);
+            Scroll_position_cache.scroll_position_cache_write(path_list_provider.get_key(), P2S.p2s(top_left),"scroll a bit",logger);
         };
         return vertical_slider.request_scroll_relative(dy);
     }
@@ -1087,7 +1086,7 @@ public class Virtual_landscape
                 if (dbg) logger.log("wait terminated " + (System.nanoTime() - start2) + " ns");
             }
             if (dbg)
-                logger.log("✅ getting image properties took " + (System.currentTimeMillis() - start) + " milliseconds");
+                logger.log(Logger.ok+" getting image properties took " + (System.currentTimeMillis() - start) + " milliseconds");
 
             start = System.currentTimeMillis();
             long getting_image_properties_from_cache = 0;
@@ -1099,7 +1098,7 @@ public class Virtual_landscape
                     Image_properties ip = get_image_properties_cache().get(path, aborter, null, owner);
                     if (ip == null) {
                         if (dbg)
-                            logger.log(("✅ Warning: image property cache miss for: " + path));
+                            logger.log((Logger.ok+" Warning: image property cache miss for: " + path));
                     } else {
                         cache_aspect_ratio = ip.get_aspect_ratio();
                     }
@@ -1118,7 +1117,7 @@ public class Virtual_landscape
                 // logger.log("item created: "+path);
             }
             if (dbg) {
-                logger.log("✅ making iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
+                logger.log(Logger.ok+" making iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
                 logger.log("     ,of which getting_image_properties_from_cache= " + getting_image_properties_from_cache
                         + " milliseconds");
             }
@@ -1134,7 +1133,7 @@ public class Virtual_landscape
             // will block until icons are truly sorted
             List<Path> ll = get_iconized_sorted("process_iconified_items");
 
-            if (dbg) logger.log("✅ Virtual_landscape: all image properties acquired, saving cache ");
+            if (dbg) logger.log(Logger.ok+" Virtual_landscape: all image properties acquired, saving cache ");
             Actor_engine.execute(() -> get_image_properties_cache().save_whole_cache_to_disk(),
                     "Save whole image property cache", logger);
 
@@ -1143,11 +1142,11 @@ public class Virtual_landscape
                 Item item = all_items_map.get(path_to_string(path));
                 if (item == null) {
                     logger.log(
-                            ("❌ should not happen: no item in map for: " + path + " map length=" + all_items_map.size()));
+                            (Logger.error+"should not happen: no item in map for: " + path + " map length=" + all_items_map.size()));
                     continue;
                 }
                 if (dbg)
-                    logger.log("✅  Virtual_landscape process_iconified_items " + path + " ar:"
+                    logger.log(Logger.ok+"  Virtual_landscape process_iconified_items " + path + " ar:"
                             + ((Item_file_with_icon) item).aspect_ratio);
 
                 if (show_icons_for_files) {
@@ -1164,7 +1163,7 @@ public class Virtual_landscape
                 }
             }
             if (dbg)
-                logger.log("✅  mapping iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
+                logger.log(Logger.ok+"  mapping iconized items took " + (System.currentTimeMillis() - start) + " milliseconds");
         }
     }
 
@@ -1218,7 +1217,7 @@ public class Virtual_landscape
             @Override
             public boolean test(Path path, DataOutputStream dos)
             {
-                String full_path = path.toAbsolutePath().normalize().toString();
+                String full_path = P2S.p2s(path);
                 try {
                     dos.writeUTF(full_path);
                     return true;
@@ -1331,18 +1330,18 @@ public class Virtual_landscape
         if ( dbg) logger.log("MADE image_properties_cache");
 
         int reloaded = local_cache.reload_cache_from_disk();
-        logger.log("✅ image_properties_cache: "+reloaded+" properties reloaded from file");
+        logger.log(Logger.ok+" image_properties_cache: "+reloaded+" properties reloaded from file");
 
 
         String cache_tag = "default_cache_tag";
         if (folder_path.isPresent())
         {
-            cache_tag = folder_path.get().toAbsolutePath().normalize().toString();
+            cache_tag = P2S.p2s(folder_path.get());
         }
         else
         {
             if ( path_list_provider instanceof Path_list_provider_for_playlist x) {
-                cache_tag = x.the_playlist_file_path.toAbsolutePath().normalize().toString();
+                cache_tag = P2S.p2s(x.the_playlist_file_path);
             }
         }
         RAM_caches.image_properties_cache_of_caches.put(cache_tag,local_cache);
@@ -1365,7 +1364,7 @@ public class Virtual_landscape
                     logger.log(Stack_trace_getter.get_stack_trace("non_iconized item_path_ null "));
                     continue;
                 }
-                if (ultra_dbg) logger.log("✅ Virtual_landscape process_non_iconized_files item_path_: " + item_path_.toAbsolutePath());
+                if (ultra_dbg) logger.log(Logger.ok+" Virtual_landscape process_non_iconized_files item_path_: " + item_path_.toAbsolutePath());
                 String text = item_path_.getFileName().toString();
                 long size = item_path_.toFile().length() / 1000_000L;
                 if (Guess_file_type.is_this_path_extension_a_video(item_path_, logger))
@@ -1452,7 +1451,7 @@ public class Virtual_landscape
     //**********************************************************
     {
         if (dbg)
-            logger.log("✅ Virtual_landscape process_folders (0) ");
+            logger.log(Logger.ok+" Virtual_landscape process_folders (0) ");
         try (Perf perf = new Perf("process_folders")) {
 
             double actual_row_increment;
@@ -1462,7 +1461,7 @@ public class Virtual_landscape
 
                 for (Path folder_path : paths_holder.folders) {
                     if (dbg)
-                        logger.log("✅ Virtual_landscape process_folders (1) " + folder_path);
+                        logger.log(Logger.ok+" Virtual_landscape process_folders (1) " + folder_path);
                     p = process_one_folder_with_picture(single_column, column_increment, actual_row_increment,
                             scene_width, p, folder_path, Color.BEIGE);
                 }
@@ -1474,14 +1473,18 @@ public class Virtual_landscape
                 if (show_total_size_deep_in_each_folder_done)
                 {
                     Comparator<Path> comp = (p1, p2) -> {
-                        Long l1 = RAM_caches.folder_total_size_cache.get(p1);
-                        Long l2 = RAM_caches.folder_total_size_cache.get(p2);
+                        Long l1 = RAM_caches.folder_total_size_cache.get(P2S.p2s(p1));
+                        Long l2 = RAM_caches.folder_total_size_cache.get(P2S.p2s(p2));
                         if (l1 == null && l2 == null)
+                        {
                             return 0;
-                        if (l1 == null)
+                        }
+                        if (l1 == null) {
                             return 1;
-                        if (l2 == null)
+                        }
+                        if (l2 == null) {
                             return -1;
+                        }
                         return l2.compareTo(l1);
                     };
                     Collections.sort(paths, comp);
@@ -1489,8 +1492,8 @@ public class Virtual_landscape
                 else if (show_how_many_files_deep_in_each_folder_done)
                 {
                     Comparator<Path> comp = (p1, p2) -> {
-                        Long l1 = RAM_caches.folder_file_count_cache.get(p1);
-                        Long l2 = RAM_caches.folder_file_count_cache.get(p2);
+                        Long l1 = RAM_caches.folder_file_count_cache.get(P2S.p2s(p1));
+                        Long l2 = RAM_caches.folder_file_count_cache.get(P2S.p2s(p2));
                         if (l1 == null && l2 == null)
                             return 0;
                         if (l1 == null)
@@ -1506,10 +1509,10 @@ public class Virtual_landscape
                     paths.sort(other_file_comparator);
                 }
                 if (dbg)
-                    logger.log("✅ Virtual_landscape folder_path length " + paths.size());
+                    logger.log(Logger.ok+" Virtual_landscape folder_path length " + paths.size());
                 for (Path folder_path : paths) {
                     if (dbg)
-                        logger.log("✅ Virtual_landscape process_folders (3) " + folder_path);
+                        logger.log(Logger.ok+" Virtual_landscape process_folders (3) " + folder_path);
                     p = process_one_folder_plain(single_column, column_increment, actual_row_increment, scene_width, p,
                             folder_path);
                 }
@@ -1538,7 +1541,7 @@ public class Virtual_landscape
             Item folder_item = all_items_map.get(path_to_string(folder_path));
             if (folder_item == null) {
                 if (dbg)
-                    logger.log("✅ WARNING:Item_folder_with_icon NO path for" + folder_path);
+                    logger.log(Logger.ok+" WARNING:Item_folder_with_icon NO path for" + folder_path);
 
 
                 Item_context item_context = new Item_context(folder_path,new Path_list_provider_for_file_system(folder_path, owner, logger),null,false,shutdown_target,
@@ -1586,19 +1589,19 @@ public class Virtual_landscape
                 if (show_how_many_files_deep_in_each_folder_done) {
                     Long how_many_files_deep = RAM_caches.folder_file_count_cache.get(folder_path);
                     if (how_many_files_deep == null) {
-                        logger.log("❌ FATAL: folder_file_count_cache not found in cache for " + folder_path);
+                        logger.log(Logger.error+"FATAL: folder_file_count_cache not found in cache for " + folder_path);
                     } else {
-                        logger.log("✅ OK: folder_file_count_cache found in cache for " + folder_path + " "
+                        logger.log(Logger.ok+" OK: folder_file_count_cache found in cache for " + folder_path + " "
                                 + how_many_files_deep);
                         tmp += " (" + how_many_files_deep + " files)";
                     }
                 } else if (show_total_size_deep_in_each_folder_done) {
 
-                    Long bytes = RAM_caches.folder_total_size_cache.get(folder_path);
+                    Long bytes = RAM_caches.folder_total_size_cache.get(P2S.p2s(folder_path));
                     if (bytes == null) {
-                        logger.log("❌ FATAL: folder_total_sizes_cache not found in cache for " + folder_path);
+                        logger.log(Logger.error+" BAD: folder size not found in cache (1) for " + folder_path);
                     } else {
-                        logger.log("✅ OK: folder_total_sizes_cache found in cache for " + folder_path + " " + bytes);
+                        logger.log(Logger.ok+" OK: folder size found in cache (1) for " + folder_path + " " + bytes);
 
                         tmp += "       ";
                         tmp += Static_files_and_paths_utilities.get_1_line_string_for_byte_data_size(bytes, owner,
@@ -1651,7 +1654,7 @@ public class Virtual_landscape
     {
         if (scroll_dbg)
         {
-            logger.log("✅ move_absolute reason= " + reason + " new_vertical_offset=" + new_vertical_offset);
+            logger.log(Logger.ok+" move_absolute reason= " + reason + " new_vertical_offset=" + new_vertical_offset);
         }
         current_vertical_offset = new_vertical_offset;
         on_scroll("move_absolute");
@@ -1664,7 +1667,7 @@ public class Virtual_landscape
     //**********************************************************
     {
         if (!items_are_ready.get()) {
-            logger.log("✅ check_visibility: items are not ready yet ! " + reason);
+            logger.log(Logger.ok+" check_visibility: items are not ready yet ! " + reason);
             return;
         }
         // logger.log("check_visibility: "+ all_items_map.values().length()+" items are
@@ -1680,7 +1683,7 @@ public class Virtual_landscape
             if (item.get_javafx_y() + item.get_Height() < current_vertical_offset)
             {
                 if (invisible_dbg)
-                    logger.log("✅ " + item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y()
+                    logger.log(Logger.ok+" " + item.get_item_path() + " invisible (too far up) y=" + item.get_javafx_y()
                             + " item height=" + item.get_Height());
                 item.process_is_invisible(current_vertical_offset);
                 Node node = item.get_Node();
@@ -1689,14 +1692,14 @@ public class Virtual_landscape
             }
             if (item.get_javafx_y() > pane_height + current_vertical_offset + icon_size) {
                 if (invisible_dbg)
-                    logger.log("✅ " + item.get_item_path() + " invisible (too far down)");
+                    logger.log(Logger.ok+" " + item.get_item_path() + " invisible (too far down)");
                 item.process_is_invisible(current_vertical_offset);
                 Node node = item.get_Node();
                 if ( node != null) the_Pane.getChildren().remove(node);
                 continue;
             }
             if (visible_dbg)
-                logger.log("✅ " + item.get_item_path() + " Item is visible at y=" + item.get_javafx_y()
+                logger.log(Logger.ok+" " + item.get_item_path() + " Item is visible at y=" + item.get_javafx_y()
                         + " item height=" + item.get_Height());
             item.process_is_visible(current_vertical_offset);
             if( item.get_Node() != null) {
@@ -1828,7 +1831,7 @@ public class Virtual_landscape
             Sort_files_by.set_sort_files_by(path_list_provider.get_key(), Sort_files_by.FILE_NAME, owner, logger);
         }*/
         show_how_many_files_deep_in_each_folder_done = false;
-        logger.log("✅ Virtual_landscape: show_total_size_deep_in_each_folder");
+        logger.log(Logger.ok+" Virtual_landscape: show_total_size_deep_in_each_folder");
         LongAdder count = new LongAdder();
         double x = owner.getX() + 100;
         double y = owner.getY() + 100;
@@ -1936,7 +1939,7 @@ public class Virtual_landscape
 
         if (((Item_file_with_icon) item).aspect_ratio < 1.0) {
             if (dbg)
-                logger.log("✅ item is portrait aspect ratio: " + item.get_item_path());
+                logger.log(Logger.ok+" item is portrait aspect ratio: " + item.get_item_path());
 
             // portrait image
             width_of_this = column_increment * ((Item_file_with_icon) item).aspect_ratio;
@@ -1946,7 +1949,7 @@ public class Virtual_landscape
             item.set_javafx_y(current_screen_y);
         } else {
             if (dbg)
-                logger.log("✅ item is landscape aspect ratio: " + item.get_item_path());
+                logger.log(Logger.ok+" item is landscape aspect ratio: " + item.get_item_path());
             item.set_javafx_x(current_screen_x);
             height_of_this = row_increment / ((Item_file_with_icon) item).aspect_ratio;
             double neg_y = (height_of_this - row_increment) / 2.0;
@@ -1978,7 +1981,7 @@ public class Virtual_landscape
             logger.log("width_of_this=" + width_of_this + " => future_x: " + future_x);
         if (future_x + column_increment > scene_width) {
             if (Item.layout_dbg)
-                logger.log("✅ NEW ROW, max_screen_y_in_row=" + max_screen_y_in_row[0]);
+                logger.log(Logger.ok+" NEW ROW, max_screen_y_in_row=" + max_screen_y_in_row[0]);
 
             // adapt the vertical shift up (neg_y)
             // e.g. when the row also contains portraits
@@ -2047,7 +2050,7 @@ public class Virtual_landscape
             double new_x = 0;
             double new_y = old_y + delta_h;
             if (dbg)
-                logger.log("✅ single_column new row " + delta_h);
+                logger.log(Logger.ok+" single_column new row " + delta_h);
             return new Point2D(new_x, new_y);
         }
         double future_x = old_x + column_increment;
@@ -2071,7 +2074,7 @@ public class Virtual_landscape
     //**********************************************************
     {
         if (scroll_dbg)
-            logger.log("✅ compute_bounding_rectangle() " + reason);
+            logger.log(Logger.ok+" compute_bounding_rectangle() " + reason);
         // compute bounding rectangle
 
         double x_min = Double.MAX_VALUE;
@@ -2090,7 +2093,7 @@ public class Virtual_landscape
             }
             double h = item.get_Height();
             if (scroll_dbg)
-                logger.log("✅ compute_bounding_rectangle, h=" + h + " for " + item.get_string());
+                logger.log(Logger.ok+" compute_bounding_rectangle, h=" + h + " for " + item.get_string());
 
             if (item.get_javafx_y() + h > virtual_landscape_height)
                 virtual_landscape_height = item.get_javafx_y() + h;
@@ -2103,7 +2106,7 @@ public class Virtual_landscape
             virtual_landscape_height += 100;
         }
         if (scroll_dbg)
-            logger.log("✅ landscape_height=" + virtual_landscape_height);
+            logger.log(Logger.ok+" landscape_height=" + virtual_landscape_height);
         if (landscape_height_listener != null)
         {
             landscape_height_listener.browsed_landscape_height_has_changed(virtual_landscape_height,
@@ -2161,7 +2164,7 @@ public class Virtual_landscape
 
                     Image icon = Look_and_feel_manager.get_up_icon(height, owner, logger);
                     if (icon == null) {
-                        logger.log("❌ BAD: could not load "
+                        logger.log(Logger.error+"BAD: could not load "
                                 + Look_and_feel_manager.get_instance(owner, logger).get_up_icon_path());
                     } else {
                         Look_and_feel_manager.set_button_and_image_look(up_button, icon, height, null, true, owner, logger);
@@ -2198,7 +2201,7 @@ public class Virtual_landscape
             {
                 Image icon = Look_and_feel_manager.get_trash_icon(height, owner, logger);
                 if (icon == null) {
-                    logger.log("❌ BAD: could not load "
+                    logger.log(Logger.error+"BAD: could not load "
                             + Look_and_feel_manager.get_instance(owner, logger).get_bookmarks_icon_path());
                 }
                 else
@@ -2226,7 +2229,7 @@ public class Virtual_landscape
     //**********************************************************
     {
         if (dbg)
-            logger.log("✅ applying font length " + Non_booleans_properties.get_font_size(owner, logger));
+            logger.log(Logger.ok+" applying font length " + Non_booleans_properties.get_font_size(owner, logger));
         for (Region x : top_buttons)
         {
             if ( x == null )
@@ -2813,7 +2816,7 @@ BOOKMARK
     public void import_apple_Photos()
     //**********************************************************
     {
-        if (!Popups.popup_ask_for_confirmation("❗ Importing photos will create COPIES",
+        if (!Popups.popup_ask_for_confirmation(Logger.warning+" Importing photos will create COPIES",
                 "Please select a destination drive with enough space", owner, logger))
             return;
 
@@ -2938,7 +2941,7 @@ BOOKMARK
     public void abort_backup()
     //**********************************************************
     {
-        logger.log("✅ aborting backup");
+        logger.log(Logger.ok+" aborting backup");
         Backup_singleton.abort();
     }
 
@@ -2946,17 +2949,17 @@ BOOKMARK
     public void start_backup()
     //**********************************************************
     {
-        logger.log("✅ starting backup");
+        logger.log(Logger.ok+" starting backup");
         Path backup_source = Static_backup_paths.get_backup_source();
         if (backup_source == null) {
-            logger.log("❗ no backup_source");
-            Popups.popup_warning("❗ Cannot backup!", "Reason: no backup ORIGIN", false, owner, logger);
+            logger.log(Logger.warning+" no backup_source");
+            Popups.popup_warning(Logger.warning+" Cannot backup!", "Reason: no backup ORIGIN", false, owner, logger);
             return;
         }
         Path backup_destination = Static_backup_paths.get_backup_destination();
         if (backup_destination == null) {
-            logger.log("❗ no backup destination");
-            Popups.popup_warning("❗ Cannot backup!", "Reason: no backup DESTINATION", false, owner, logger);
+            logger.log(Logger.warning+" no backup destination");
+            Popups.popup_warning(Logger.warning+" Cannot backup!", "Reason: no backup DESTINATION", false, owner, logger);
 
             return;
         }
@@ -2970,7 +2973,7 @@ BOOKMARK
     public void abort_fusk()
     //**********************************************************
     {
-        logger.log("✅ aborting fusk");
+        logger.log(Logger.ok+" aborting fusk");
         Fusk_singleton.abort();
     }
 
@@ -2978,17 +2981,17 @@ BOOKMARK
     public void start_fusk()
     //**********************************************************
     {
-        logger.log("✅ starting fusk");
+        logger.log(Logger.ok+" starting fusk");
         Path fusk_source = Static_fusk_paths.get_fusk_source();
         if (fusk_source == null) {
-            logger.log("❗ no fusk_source");
-            Popups.popup_warning("❗ Cannot fusk!", "Reason: no fusk ORIGIN", false, owner, logger);
+            logger.log(Logger.warning+" no fusk_source");
+            Popups.popup_warning(Logger.warning+" Cannot fusk!", "Reason: no fusk ORIGIN", false, owner, logger);
             return;
         }
         Path fusk_destination = Static_fusk_paths.get_fusk_destination();
         if (fusk_destination == null) {
-            logger.log("❗ no fusk destination");
-            Popups.popup_warning("❗ Cannot fusk!", "Reason: no fusk DESTINATION", false, owner, logger);
+            logger.log(Logger.warning+" no fusk destination");
+            Popups.popup_warning(Logger.warning+" Cannot fusk!", "Reason: no fusk DESTINATION", false, owner, logger);
 
             return;
         }
@@ -3002,17 +3005,17 @@ BOOKMARK
     public void start_defusk()
     //**********************************************************
     {
-        logger.log("✅ starting defusk");
+        logger.log(Logger.ok+" starting defusk");
         Path defusk_source = Static_fusk_paths.get_fusk_source();
         if (defusk_source == null) {
-            logger.log("❗ no defusk source");
-            Popups.popup_warning("❗ Cannot defusk!", "Reason: no defusk SOURCE", false, owner, logger);
+            logger.log(Logger.warning+" no defusk source");
+            Popups.popup_warning(Logger.warning+" Cannot defusk!", "Reason: no defusk SOURCE", false, owner, logger);
             return;
         }
         Path defusk_destination = Static_fusk_paths.get_fusk_destination();
         if (defusk_destination == null) {
-            logger.log("❗ no defusk destination");
-            Popups.popup_warning("❗ Cannot defusk!", "Reason: no defusk DESTINATION", false, owner, logger);
+            logger.log(Logger.warning+" no defusk destination");
+            Popups.popup_warning(Logger.warning+" Cannot defusk!", "Reason: no defusk DESTINATION", false, owner, logger);
 
             return;
         }
@@ -3033,7 +3036,7 @@ BOOKMARK
             return;
         }
         Static_backup_paths.set_backup_destination(folder_path.get());
-        logger.log("✅ backup destination = " + path_list_provider.get_key());
+        logger.log(Logger.ok+" backup destination = " + path_list_provider.get_key());
 
         set_text_background("BACKUP\nDESTINATION");
 
@@ -3050,7 +3053,7 @@ BOOKMARK
             return;
         }
         Static_backup_paths.set_backup_source(folder_path.get());
-        logger.log("✅ backup source = " + path_list_provider.get_key());
+        logger.log(Logger.ok+" backup source = " + path_list_provider.get_key());
 
         set_text_background("BACKUP\nSOURCE");
 
@@ -3067,7 +3070,7 @@ BOOKMARK
             return;
         }
         Static_fusk_paths.set_fusk_destination(folder_path.get());
-        logger.log("✅ fusk destination = " + path_list_provider.get_key());
+        logger.log(Logger.ok+" fusk destination = " + path_list_provider.get_key());
 
         set_text_background("FUSK\nDESTINATION");
 
@@ -3084,7 +3087,7 @@ BOOKMARK
             return;
         }
         Static_fusk_paths.set_fusk_source(folder_path.get());
-        logger.log("✅ fusk source = " + path_list_provider.get_key());
+        logger.log(Logger.ok+" fusk source = " + path_list_provider.get_key());
 
         set_text_background("FUSK\nSOURCE");
 
@@ -3109,7 +3112,7 @@ BOOKMARK
     //**********************************************************
     {
         if (dbg)
-            logger.log("✅ Virtual_landscape redraw reason:" + reason);
+            logger.log(Logger.ok+" Virtual_landscape redraw reason:" + reason);
         redraw_request_queue.offer(new Redraw_command(force_rescan, reason,show_hourglass));
     }
 
@@ -3189,7 +3192,7 @@ BOOKMARK
         refresh_UI(rc.force_rescan, rc.reason(), hourglass,is_redrawing);
 
         if (dbg)
-            logger.log("✅ Virtual_landscape::refresh_UI done");
+            logger.log(Logger.ok+" Virtual_landscape::refresh_UI done");
 
     }
 
@@ -3242,10 +3245,10 @@ BOOKMARK
             if (Feature_cache.get(Feature.Show_single_column_with_details)) show_icons = false;
 
             if (dbg) {
-                logger.log("✅ Virtual_landscape: scan_list");
+                logger.log(Logger.ok+" Virtual_landscape: scan_list");
                 if (Platform.isFxApplicationThread())
                     logger.log(
-                            Stack_trace_getter.get_stack_trace("❌ SHOULD NOT HAPPEN: scanning disk on javafx thread"));
+                            Stack_trace_getter.get_stack_trace(Logger.error+"SHOULD NOT HAPPEN: scanning disk on javafx thread"));
             }
 
             try {
@@ -3283,15 +3286,15 @@ BOOKMARK
                         Feature_cache.get(Feature.Show_hidden_files), Feature_cache.get(Feature.Show_hidden_folders),
                         aborter);
 
-                logger.log("✅ Virtual_landscape: faf " + faf.files().size() + " files, folders: "+faf.folders().size());
+                logger.log(Logger.ok+" Virtual_landscape: faf " + faf.files().size() + " files, folders: "+faf.folders().size());
 
                 for (Path path : faf.folders())
                 {
                     if (dbg)
-                        logger.log("✅ Virtual_landscape: looking at path " + path.toAbsolutePath());
+                        logger.log(Logger.ok+" Virtual_landscape: looking at path " + path.toAbsolutePath());
 
                     if (aborter.should_abort()) {
-                        logger.log("❗ path manager aborting (1) scan_list ");
+                        logger.log(Logger.warning+" path manager aborting (1) scan_list ");
                         aborter.on_abort();
                         return;
                     }
@@ -3300,10 +3303,10 @@ BOOKMARK
                 }
                 for (Path path : faf.files()) {
                     if (dbg)
-                        logger.log("✅ Virtual_landscape: looking at path " + path.toAbsolutePath());
+                        logger.log(Logger.ok+" Virtual_landscape: looking at path " + path.toAbsolutePath());
 
                     if (aborter.should_abort()) {
-                        logger.log("❗ path manager aborting (2) scan_list ");
+                        logger.log(Logger.warning+" path manager aborting (2) scan_list ");
                         aborter.on_abort();
                         return;
                     }
@@ -3312,18 +3315,18 @@ BOOKMARK
                     // to prefill the image property cache
                 }
             } catch (InvalidPathException e) {
-                logger.log("❗ Browsing error: " + e);
+                logger.log(Logger.warning+" Browsing error: " + e);
                 receive_error(Error_type.NOT_FOUND);
             } catch (SecurityException e) {
-                logger.log("❗ Browsing error: " + e);
+                logger.log(Logger.warning+" Browsing error: " + e);
                 receive_error(Error_type.DENIED);
             } catch (Exception e) {
-                logger.log("❗ Browsing error: " + e);
+                logger.log(Logger.warning+" Browsing error: " + e);
                 receive_error(Error_type.ERROR);
             }
 
             if (dbg)
-                logger.log("✅ Virtual_landscape: looking at path Virtual_landscape: scan_list ends");
+                logger.log(Logger.ok+" Virtual_landscape: looking at path Virtual_landscape: scan_list ends");
         }
     }
 
@@ -3356,12 +3359,12 @@ BOOKMARK
             }
             if (selected_item != null) selected_item.set_selected(true);
             if (dbg)
-                logger.log("✅ refresh_UI_on_fx_thread reason: " + reason);
+                logger.log(Logger.ok+" refresh_UI_on_fx_thread reason: " + reason);
 
             on_geometry_changed(force_rescan,"scene_geometry_changed reason: " + reason, progress_window,is_redrawing);
 
             if (dbg)
-                logger.log("✅ adapt_slider_to_scene");
+                logger.log(Logger.ok+" adapt_slider_to_scene");
 
             {
                 vertical_slider.adapt_slider_to_scene(owner);
@@ -3372,7 +3375,7 @@ BOOKMARK
             {
                 double title_height = owner.getHeight() - the_Scene.getHeight();
                 if (title_height > 60) {
-                    logger.log("❗ WARNING: " +
+                    logger.log(Logger.warning+" WARNING: " +
                             "title_height>60 \nowner.getHeight()=" +
                             owner.getHeight() + "\nthe_Scene.getHeight()=" + the_Scene.getHeight());
                 } else {
@@ -3383,7 +3386,7 @@ BOOKMARK
                 }
             }
         }
-        logger.log("✅ Klik start time = " + (System.currentTimeMillis() - Klikr_application.start_time) + " ms");
+        logger.log(Logger.ok+" Klik start time = " + (System.currentTimeMillis() - Klikr_application.start_time) + " ms");
     }
 
     //**********************************************************
@@ -3392,7 +3395,7 @@ BOOKMARK
     {
         try (Perf p1 = new Perf("compute_geometry")) {
             //if (dbg)
-                logger.log("\n✅ compute_geometry reason=" + reason + " current_vertical_offset="
+                logger.log("\n"+ Logger.ok+" compute_geometry reason=" + reason + " current_vertical_offset="
                         + current_vertical_offset);
 
             double magic = 2.0;
@@ -3451,7 +3454,7 @@ BOOKMARK
                     how_many_rows = 0;
 
                     if (dbg)
-                        logger.log("✅ on javafx thread?  " + Platform.isFxApplicationThread());
+                        logger.log(Logger.ok+" on javafx thread?  " + Platform.isFxApplicationThread());
 
                     Point2D p = new Point2D(0, 0);
 
@@ -3459,7 +3462,7 @@ BOOKMARK
                     p = process_folders(Feature_cache.get(Feature.Show_single_column_with_details), row_increment_for_dirs,
                             final_column_increment_for_folders, row_increment_for_dirs_with_picture, scene_width, p);
                     if (dbg)
-                        logger.log("✅ process_folders took " + (System.currentTimeMillis() - start) + " ms");
+                        logger.log(Logger.ok+" process_folders took " + (System.currentTimeMillis() - start) + " ms");
                     p = new Point2D(p.getX(), p.getY() + MARGIN_Y);
                     p = process_non_iconized_items(Feature_cache.get(Feature.Show_single_column_with_details),
                             final_column_increment_for_folders, scene_width, p);
@@ -3468,15 +3471,15 @@ BOOKMARK
                     process_iconized_items(force_rescan, Feature_cache.get(Feature.Show_single_column_with_details), icon_size,
                             final_column_increment_for_icons, scene_width, p);
                     if (dbg)
-                        logger.log("✅ process_iconized_items took " + (System.currentTimeMillis() - start) + " ms");
+                        logger.log(Logger.ok+" process_iconized_items took " + (System.currentTimeMillis() - start) + " ms");
 
                     start = System.currentTimeMillis();
                     compute_bounding_rectangle("map_buttons_and_icons() OK " + p.getX() + " " + p.getY());
                     if (dbg)
-                        logger.log("✅ compute_bounding_rectangle took " + (System.currentTimeMillis() - start) + " ms");
+                        logger.log(Logger.ok+" compute_bounding_rectangle took " + (System.currentTimeMillis() - start) + " ms");
 
                     if (dbg)
-                        logger.log("✅ Going to remap all items");
+                        logger.log(Logger.ok+" Going to remap all items");
                     future_pane_content.addAll(all_items_map.values());
 
                     items_are_ready.set(true);
