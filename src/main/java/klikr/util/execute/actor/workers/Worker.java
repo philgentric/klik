@@ -70,7 +70,7 @@ public class Worker
             }
 
         };
-        Executor.execute(r,logger);
+        Executor.execute(r, name, logger);
         // accounting for the worker thread:
         Actor_engine.threads_in_flight.incrementAndGet();
         worker_job = new Job(get_dummy_actor(name), get_dummy_message(),null,logger);
@@ -84,7 +84,7 @@ public class Worker
     {
         return new Message() {
             @Override
-            public String to_string() {
+            public String thread_name() {
                 return "worker thread for "+name;
             }
 

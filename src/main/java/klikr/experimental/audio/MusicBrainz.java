@@ -14,9 +14,7 @@ import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -90,7 +88,7 @@ public class MusicBrainz
         StringBuilder response = new StringBuilder();
         URL url = null;
         try {
-            url = new URL(urlStr);
+            url = new URI(urlStr).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", user_agent);
             connection.setInstanceFollowRedirects(true);
@@ -110,7 +108,7 @@ public class MusicBrainz
             in.close();
 
         }
-        catch (IOException e)
+        catch (IOException | URISyntaxException e)
         {
             logger.log("get_cover_art_URL failed, "+e+"\nurl="+url);
             return null;

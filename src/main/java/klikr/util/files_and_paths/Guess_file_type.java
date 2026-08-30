@@ -252,7 +252,8 @@ public class Guess_file_type
         List<String> list = get_ffprobe_cmd(path, owner, logger);
         StringBuilder sb = new StringBuilder();
         File wd = path.getParent().toFile();
-        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null) {
+        if (Execute_command.execute_command_list(list, wd, 2000, sb, logger) == null)
+        {
             Booleans.manage_show_ffmpeg_install_warning(owner, logger);
         }
         logger.log("ffprobe result:->" + sb + "<-");

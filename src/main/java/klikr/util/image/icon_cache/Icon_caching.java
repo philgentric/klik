@@ -80,14 +80,12 @@ public class Icon_caching
     //**********************************************************
     {
         if ( tag == null) return null;
-        StringBuilder sb = new StringBuilder();
-        sb.append(make_cache_name_raw(tag));
-        sb.append("_");
-        sb.append(icon_size_tag);
-        sb.append(".");
-        sb.append(extension);
-        return sb.toString();
-//		return clean_name(full_name) + "_"+tag + "."+extension;
+        return make_cache_name_raw(tag) +
+                "_" +
+                icon_size_tag +
+                "." +
+                extension;
+    //	return clean_name(full_name) + "_"+tag + "."+extension;
     }
     //**********************************************************
     public static String make_cache_name_raw(String tag)

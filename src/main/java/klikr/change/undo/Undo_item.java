@@ -51,7 +51,7 @@ public class Undo_item
         for ( Old_and_new_Path oan : oans)
         {
             returned.append(" ").append(oan.old_Path.toAbsolutePath());
-            if ( oan.new_Path != null) returned.append("\n=>\n").append(oan.new_Path.toAbsolutePath());
+            returned.append("\n=>\n").append(oan.new_Path.toAbsolutePath());
         }
         return returned.toString();
     }
@@ -71,16 +71,8 @@ public class Undo_item
         for ( Old_and_new_Path oan : oans)
         {
             sb.append("\n").append(oan.old_Path.toAbsolutePath());
-            if ( oan.new_Path != null)
-            {
-                at_least_one_can_be_undone = true;
-                sb.append("\n=>\n").append(oan.new_Path.toAbsolutePath());
-            }
-            else
-            {
-                sb.append(THIS_ITEM_CANNOT_BE_UNDONE_THE_FILE_HAS_BEEN_DELETED_FOREVER);
-                count++;
-            }
+            at_least_one_can_be_undone = true;
+            sb.append("\n=>\n").append(oan.new_Path.toAbsolutePath());
         }
         if ( at_least_one_can_be_undone) return sb.toString();
         else return THIS_ITEM_CANNOT_BE_UNDONE+count+FILES_HAVE_BEEN_DELETED_FOREVER;

@@ -49,7 +49,7 @@ public class Path_list_provider_for_file_system implements Path_list_provider
         this.folder_path = folder_path;
         if( folder_path == null)
         {
-            logger.log(Stack_trace_getter.get_stack_trace("❌❌❌ Panic : null folder_path"));
+            logger.log(Stack_trace_getter.get_stack_trace(Logger.error+" Panic : null folder_path"));
             this.key = null;
             return;
         }

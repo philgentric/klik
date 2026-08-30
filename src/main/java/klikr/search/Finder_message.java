@@ -45,10 +45,10 @@ public class Finder_message implements Message
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        return "Finder : "+search_config.path_list_provider().get_key();
+        return "Finder for: "+search_config.path_list_provider().get_key();
     }
 
     //**********************************************************

@@ -45,12 +45,9 @@ public class Change_image_message implements Message
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(" Change_image_message: ");
-        sb.append(" path: ").append(input_image_context.path);
-        return sb.toString();
+        return " Changing image to: " + input_image_context.path;
     }
 }

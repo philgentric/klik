@@ -29,7 +29,7 @@ public class Icon_factory_request implements Message
     }
 
     @Override
-    public String to_string() {
+    public String thread_name() {
         return "Icon_factory_request for: "+destination.get_string();
     }
 

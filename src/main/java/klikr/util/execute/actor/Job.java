@@ -27,15 +27,15 @@ public class Job
         this.logger = logger;
         if ( actor==null)
         {
-            logger.log_stack_trace("❌❌❌ FATAL actor cannot be null");
+            logger.log_stack_trace(Logger.error+" FATAL actor cannot be null");
         }
         if ( message==null)
         {
-            logger.log_stack_trace("❌❌❌ FATAL message cannot be null");
+            logger.log_stack_trace(Logger.error+" FATAL message cannot be null");
         }
         if ( message.get_aborter()==null)
         {
-            logger.log_stack_trace("❌❌❌ FATAL Aborter cannot be null");
+            logger.log_stack_trace(Logger.error+" FATAL Aborter cannot be null");
             System.exit(-1);
         }
         this.actor = actor;
@@ -48,7 +48,7 @@ public class Job
     public String to_string()
     //**********************************************************
     {
-        return actor.name()+"-"+message.to_string();
+        return actor.name()+"-"+message.thread_name();
     }
 
     //**********************************************************
@@ -67,7 +67,7 @@ public class Job
         // constructor MUST NOT be null: we need it
         // to implement cancellation
         message.get_aborter().abort("Job cancelled, Actor: "+actor.name());
-        has_ended(message.to_string()+" cancelled");
+        has_ended(message.thread_name()+" cancelled");
     }
 
 }

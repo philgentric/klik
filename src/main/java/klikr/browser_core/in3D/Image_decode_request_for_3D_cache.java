@@ -52,10 +52,10 @@ public class Image_decode_request_for_3D_cache implements Message
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        return "image decoding request for: "+path;
+        return "image decoding for: "+path;
     }
 
     @Override

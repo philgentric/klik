@@ -53,8 +53,11 @@ public interface Actor_engine_interface
 
         };
         Message message = new Message() {
+
             @Override
-            public String to_string() {return "";}
+            public String thread_name() {
+                return job_description;
+            }
 
             @Override
             public Aborter get_aborter() {

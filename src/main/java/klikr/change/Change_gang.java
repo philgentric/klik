@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-//SOURCES ./House_keeping_actor.java
+//SOURCES ./Change_tracking_actor.java
 //SOURCES ./House_keeping_message.java
 package klikr.change;
 
@@ -33,7 +33,7 @@ public class Change_gang
 {
     public static final boolean dbg = false;
     public Logger dedicated_logger;
-    House_keeping_actor house_keeping_actor;
+    Change_tracking_actor change_tracking_actor;
     private final ConcurrentLinkedQueue<Change_receiver> change_gang_receivers;
     public static volatile Change_gang instance = null; // the first guy registering will cause the instance to be created
     //**********************************************************
@@ -49,7 +49,7 @@ public class Change_gang
     {
         dedicated_logger = Shared_services.get_logger("change gang");
         change_gang_receivers = new ConcurrentLinkedQueue<>();
-        house_keeping_actor = new House_keeping_actor(change_gang_receivers);
+        change_tracking_actor = new Change_tracking_actor(change_gang_receivers);
     }
 
     // utility for a registered party to figure out if the changes in the call
@@ -203,7 +203,7 @@ public class Change_gang
     //**********************************************************
     {
         House_keeping_message dr = new House_keeping_message(change_receiver, House_keeping_message_type.register, aborter);
-        Actor_engine.run(house_keeping_actor,dr,null, dedicated_logger);
+        Actor_engine.run(change_tracking_actor,dr,null, dedicated_logger);
         if ( dbg) dedicated_logger.log("Change_gang: Register_internal " + change_receiver.get_Change_receiver_string());
     }
 
@@ -220,7 +220,7 @@ public class Change_gang
     //**********************************************************
     {
         House_keeping_message dr = new House_keeping_message(change_receiver, House_keeping_message_type.deregister, aborter);
-        Actor_engine.run(house_keeping_actor,dr,null, dedicated_logger);
+        Actor_engine.run(change_tracking_actor,dr,null, dedicated_logger);
 
         if ( dbg) dedicated_logger.log("Change_gang: De-register_internal " + change_receiver.get_Change_receiver_string());
     }

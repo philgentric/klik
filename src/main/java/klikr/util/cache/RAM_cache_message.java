@@ -26,13 +26,10 @@ public class RAM_cache_message<K,V> implements Message
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(" RAM_cache_message: ");
-        sb.append(" key: ").append(key);
-        return sb.toString();
+        return "Caching to RAM for key: " + key;
     }
 
     //**********************************************************

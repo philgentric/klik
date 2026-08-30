@@ -16,11 +16,9 @@ public record Face_recognition_results(String label, Image image,
 {
     public String to_string()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("label : ");
-        sb.append(label);
-        sb.append(" Face_recognition_in_image_status: ");
-        sb.append(face_recognition_in_image_status);
-        return sb.toString();
+        return "label : " +
+                label +
+                " Face_recognition_in_image_status: " +
+                face_recognition_in_image_status;
     }
 }

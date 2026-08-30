@@ -17,7 +17,7 @@ public class Exceptions_in_threads_catcher
 		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> {
 
             String trace = Stack_trace_getter.get_stack_trace_for_throwable(e);
-            logger.log("❌❌❌ THREAD PANIC:"+trace);
+            logger.log(Logger.error+Logger.error+Logger.error+" THREAD PANIC:"+trace);
 			if ( thread == null)
 			{
 				logger.log(" thread == null, Should not happen");

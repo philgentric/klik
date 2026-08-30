@@ -45,14 +45,12 @@ public class File_backup_job_request implements Message
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(" File_backup_job_request: ");
-        sb.append(" destination_dir: ").append(destination_dir);
-        sb.append(" file_to_be_copied: ").append(file_to_be_copied);
-        return sb.toString();
+        return " File backup for: " +
+                " destination_dir: " + destination_dir +
+                " file_to_be_copied: " + file_to_be_copied;
     }
 
     @Override

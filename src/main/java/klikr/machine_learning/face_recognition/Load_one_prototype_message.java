@@ -21,8 +21,8 @@ public class Load_one_prototype_message implements Message {
     }
 
     @Override
-    public String to_string() {
-        return "Load_one_prototype_message";
+    public String thread_name() {
+        return "Loading one prototype";
     }
 
     @Override

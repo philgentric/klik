@@ -27,10 +27,10 @@ public class House_keeping_message implements Message
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        return "House_keeping_message "+originator.get_Change_receiver_string();
+        return "House_keeping for: "+originator.get_Change_receiver_string();
     }
 
     @Override

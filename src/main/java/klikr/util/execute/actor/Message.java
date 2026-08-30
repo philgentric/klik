@@ -4,11 +4,11 @@
 package klikr.util.execute.actor;
 
 // abstraction for passing parameters to an Actor
-// 1 Message implies 1 Job
+// 1 Message implies 1 Job, and when using virtual threads, a thread name
 //**********************************************************
 public interface Message
 //**********************************************************
 {
-    String to_string();
+    String thread_name();
     Aborter get_aborter(); // MUST NOT be null as it is needed to cancel the job
 }

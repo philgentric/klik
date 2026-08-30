@@ -34,10 +34,10 @@ public class Directory_backup_job_request implements Message
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        return "Directory_backup_job_request "+source_dir+" => "+destination_dir;
+        return "Directory backup for: "+source_dir+" => "+destination_dir;
     }
 
     @Override

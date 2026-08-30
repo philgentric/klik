@@ -1016,7 +1016,7 @@ public class Static_files_and_paths_utilities
     {
 
         if (origin.toAbsolutePath().toString().equals(new_path.toAbsolutePath().toString())) {
-            logger.log("❌cannot copy: names are same !");
+            logger.log(Logger.error+"cannot copy: names are same !");
             return false;
         }
         if ( !copy_directory(origin, new_path,logger))
@@ -1066,9 +1066,7 @@ public class Static_files_and_paths_utilities
     private static String BasicFileAttributes_to_string(BasicFileAttributes x)
     //**********************************************************
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("isDirectory: ").append(x.isDirectory()).append(" isSymbolicLink: ").append(x.isSymbolicLink());
-        return sb.toString();
+        return "isDirectory: " + x.isDirectory() + " isSymbolicLink: " + x.isSymbolicLink();
     }
 
     //**********************************************************

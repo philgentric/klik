@@ -15,7 +15,6 @@ import java.nio.file.Path;
 public class System_open_message implements Message
 //**********************************************************
 {
-
     public final Application application;
     public final Window owner;
     public final Path path;
@@ -42,7 +41,7 @@ public class System_open_message implements Message
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
         return "System.open for " + path;

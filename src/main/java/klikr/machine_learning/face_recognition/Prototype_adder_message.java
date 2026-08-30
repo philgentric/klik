@@ -25,8 +25,9 @@ public class Prototype_adder_message implements Message {
     }
 
     @Override
-    public String to_string() {
-        return "Prototype_adder_message";
+
+    public String thread_name() {
+        return "Adding a prototype";
     }
 
     @Override

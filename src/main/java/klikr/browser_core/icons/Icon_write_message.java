@@ -21,10 +21,10 @@ public record Icon_write_message(
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        return "Icon_write_message for: " + absolute_path;
+        return "Writing icon to disk cache for: " + absolute_path;
     }
 
     @Override

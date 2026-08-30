@@ -27,7 +27,7 @@ public class Test
             }
 
             @Override
-            public String to_string() {
+            public String thread_name() {
                 return s;
             }
 

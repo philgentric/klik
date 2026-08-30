@@ -40,13 +40,10 @@ public class Feature_vector_build_message implements Message
 
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(" Feature_vector_build_message: ");
-        sb.append(" path: ").append(path);
-        return sb.toString();
+        return "Building Feature vector for: " + path;
     }
 
 }

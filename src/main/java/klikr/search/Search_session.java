@@ -148,11 +148,9 @@ public class Search_session implements Callback_for_file_found_publish
 		for ( String s : keywords)
 		{
 			sb.append(s);
-			sb.append(" ");// for human readibility
+			sb.append(" ");// for human readability
 		}
-		String key = sb.toString();
-		//key_to_keywords.put(key,keywords);
-		return key;
+		return sb.toString();
 	}
 /*
 	//**********************************************************

@@ -29,8 +29,8 @@ public class Similarity_cache_warmer_message implements Message
         this.index_of_p1 = index;
     }
     @Override
-    public String to_string() {
-        return "Similarity_cache_warmer_message "+p1;
+    public String thread_name() {
+        return "Similarity cache warmer for: "+p1;
     }
 
     @Override

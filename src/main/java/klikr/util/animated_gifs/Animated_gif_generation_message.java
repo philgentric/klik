@@ -45,8 +45,8 @@ public class Animated_gif_generation_message implements Message
     }
 
     @Override
-    public String to_string() {
-        return "Animated_gif_generation_message for "+video_path;
+    public String thread_name() {
+        return "Animated gif generation for: "+video_path;
     }
 
     @Override

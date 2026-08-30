@@ -42,7 +42,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
             Actor_engine.jobs_in_flight.remove(job);
         };
 
-        Executor.execute(r,logger);
+        Executor.execute(r,message.thread_name(),logger);
         return job;
     }
 

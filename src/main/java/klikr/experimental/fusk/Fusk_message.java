@@ -25,10 +25,10 @@ public class Fusk_message implements Message
     }
     //**********************************************************
     @Override
-    public String to_string()
+    public String thread_name()
     //**********************************************************
     {
-        return "Fusk_message: "+target_dir;
+        return "Fusking folder: "+target_dir;
     }
 
     @Override

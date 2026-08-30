@@ -9,13 +9,13 @@ import klikr.util.execute.actor.Message;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 //**********************************************************
-public class House_keeping_actor implements Actor
+public class Change_tracking_actor implements Actor
 //**********************************************************
 {
     ConcurrentLinkedQueue<Change_receiver> change_gang_receivers;
 
     //**********************************************************
-    public House_keeping_actor(ConcurrentLinkedQueue<Change_receiver> change_gang_receivers)
+    public Change_tracking_actor(ConcurrentLinkedQueue<Change_receiver> change_gang_receivers)
     //**********************************************************
     {
         this.change_gang_receivers = change_gang_receivers;
@@ -27,7 +27,7 @@ public class House_keeping_actor implements Actor
     public String name()
     //**********************************************************
     {
-        return "House_keeping_actor";
+        return "Change_tracking_actor";
     }
     //**********************************************************
     @Override

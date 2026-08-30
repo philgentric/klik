@@ -39,8 +39,8 @@ public class Face_recognition_message implements Message
     }
 
     @Override
-    public String to_string() {
-        return "Face_recognition_message";
+    public String thread_name() {
+        return "Face_recognition";
     }
 
     @Override

@@ -26,10 +26,18 @@ public class Executor
     // with the nice side effect of accountability i.e. can count threads
     // and list jobs "with names"
     //**********************************************************
-    public static void execute(Runnable r, Logger logger)
+    public static void execute(Runnable r, String thread_name, Logger logger)
     //**********************************************************
     {
-        if (executor == null) init(logger);
+        if (use_virtual_threads)
+        {
+            //init(logger);
+            // means virtual threads
+            Thread t = Thread.ofVirtual().name(thread_name).start(r);
+            return;
+        }
+
+        // good old worker thread pool
         try
         {
             executor.execute(r);
@@ -48,7 +56,10 @@ public class Executor
         if (use_virtual_threads)
         {
             logger.log("Using virtual threads");
-            executor = Executors.newVirtualThreadPerTaskExecutor();
+            executor = null;
+            // not using
+            // executor = Executors.newVirtualThreadPerTaskExecutor();
+            // as it allows to give a name to each thread
         }
         else
         {
