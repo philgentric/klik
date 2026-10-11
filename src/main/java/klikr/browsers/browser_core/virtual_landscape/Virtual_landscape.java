@@ -464,75 +464,10 @@ public class Virtual_landscape
         }
 
 
-        {
-            // zoom +,  CTRL + +, meta + + (only macOS)
-            KeyCombination kc = new KeyCodeCombination(KeyCode.ADD, KeyCombination.SHORTCUT_DOWN);
-            scene.getAccelerators().put(kc, () -> {
-                if (Virtual_landscape.kbd_dbg)
-                    context.log("character is ctrl + +  = increase_icon_size");
-                increase_icon_size();
-            });
-        }
-        {
-            // zoom +,  CTRL + +, meta + + (only macOS)
-            KeyCombination kc = new KeyCodeCombination(KeyCode.PLUS, KeyCombination.SHORTCUT_DOWN);
-            scene.getAccelerators().put(kc, () -> {
-                if (Virtual_landscape.kbd_dbg)
-                    context.log("character is ctrl + +  = increase_icon_size");
-                increase_icon_size();
-            });
-        }
-        {
-            // zoom +,  CTRL + =, meta + = (only macOS)
-            // reason is for AZERTY, the '+' requires a shift on an '='
-            KeyCombination kc = new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN);
-            scene.getAccelerators().put(kc, () -> {
-                if (Virtual_landscape.kbd_dbg)
-                    context.log("character is ctrl + +  = increase_icon_size");
-                increase_icon_size();
-            });
-        }
+        Shortcuts.larger(scene,this::increase_icon_size,context);
+        Shortcuts.smaller(scene,this::decrease_icon_size,context);
 
-
-
-        {
-            // zoom -,  CTRL + -, meta + - (only macOS)
-            KeyCombination kc = new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN);
-            scene.getAccelerators().put(kc, () -> {
-                if (Virtual_landscape.kbd_dbg)
-                    context.log("character is ctrl + +  = increase_icon_size");
-                decrease_icon_size();
-            });
-        }
-        {
-            // zoom -,  CTRL + -
-            KeyCombination kc = new KeyCodeCombination(KeyCode.MINUS, KeyCombination.CONTROL_DOWN);
-            scene.getAccelerators().put(kc, () -> {
-                if (Virtual_landscape.kbd_dbg)
-                    context.log("character is ctrl + +  = decrease_icon_size");
-                decrease_icon_size();
-            });
-        }
-        {
-            // zoom -,  meta + -(only macOS)
-            KeyCombination kc = new KeyCodeCombination(KeyCode.MINUS, KeyCombination.META_DOWN);
-            scene.getAccelerators().put(kc, () -> {
-                if (Virtual_landscape.kbd_dbg)
-                    context.log("character is meta + +  = decrease_icon_size");
-                decrease_icon_size();
-            });
-        }
-        {
-            // zoom -,  meta + -(only macOS)
-            KeyCombination kc = new KeyCodeCombination(KeyCode.SUBTRACT, KeyCombination.META_DOWN);
-            scene.getAccelerators().put(kc, () -> {
-                if (Virtual_landscape.kbd_dbg)
-                    context.log("character is meta + +  = decrease_icon_size");
-                decrease_icon_size();
-            });
-        }
-
-        Shortcuts.debug(scene,context);
+        if ( dbg) Shortcuts.debug(scene,context);
 
         {
             // select all files,  CTRL+a and pomme-A
