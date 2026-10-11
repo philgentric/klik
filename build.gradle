@@ -1,7 +1,7 @@
 /*
  JVM "classic" build for klik
 
-0. cp build.gradle.jvm build.gradle
+0. cp build.gradle.broken.jvm build.gradle.broken
 
 1. make sure you have a JDK with javafx bundled:
 
@@ -47,6 +47,35 @@ java {
 
 version = '1.0' // application_version
 group = 'klikr'
+
+// ---------------------------------------------------------------
+// Build-time code version: commit count + short hash, written to
+// build/generated/version/version.properties and packaged into the
+// jar as /klikr/version.properties, so installed apps (jpackage)
+// can show it without git.
+// ---------------------------------------------------------------
+def gitCommitCount = providers.exec {
+    commandLine 'git', 'rev-list', '--count', 'HEAD'
+    ignoreExitValue = true // e.g. building from a source zip without .git
+}.standardOutput.asText.map { it.trim() ?: 'unknown' }
+
+def gitShortHash = providers.exec {
+    commandLine 'git', 'rev-parse', '--short', 'HEAD'
+    ignoreExitValue = true
+}.standardOutput.asText.map { it.trim() ?: 'unknown' }
+
+def generateVersionProps = tasks.register('generateVersionProps', WriteProperties) {
+    destinationFile = layout.buildDirectory.file('generated/version/version.properties')
+    property 'version', project.version.toString()
+    property 'commit_count', gitCommitCount
+    property 'commit_hash', gitShortHash
+}
+
+tasks.named('processResources') {
+    from(generateVersionProps) {
+        into 'klikr'
+    }
+}
 
 
 javafx {

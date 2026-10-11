@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 import klikr.look.Jar_utils;
 import klikr.look.Look_and_feel_manager;
 import klikr.settings.String_constants;
+import klikr.util.Installers;
 import klikr.util.Kontext;
 import klikr.util.info_stage.Info_stage;
 import klikr.util.info_stage.Line_for_info_stage;
@@ -27,9 +28,16 @@ public class About_klikr_stage
         List<Line_for_info_stage> l = new ArrayList<>();
 
         l.add(new Line_for_info_stage(true,"Klikr"));
+
+         String version = Installers.get_version_from_build_properties(context);
+
+        l.add(new Line_for_info_stage(false,"    Version: "+version));
+
         l.add(new Line_for_info_stage(false,"    Klikr is a file system explorer with a strong focus on images."));
         l.add(new Line_for_info_stage(false,"    The original purpose of Klikr was to enable to sort pictures into folders,"));
         l.add(new Line_for_info_stage(false,"    but it is a pretty good File Manager "));
+        l.add(new Line_for_info_stage(true,"Low vision friendly"));
+        l.add(new Line_for_info_stage(false,"    In Klikr, everything can be made larger (fonts,icons, etc) "));
         l.add(new Line_for_info_stage(true,"Intuitive"));
         l.add(new Line_for_info_stage(false,"    Klikr has been designed to be very intuitive"));
         l.add(new Line_for_info_stage(false,"    Play with Drag & Drop, you will see!"));
@@ -48,9 +56,9 @@ public class About_klikr_stage
         l.add(new Line_for_info_stage(false,"    Only clearing the \"klik_trash\" folder is final, and you will be asked for confirmation"));
  //       l.add(new Line_for_info_stage(false,"    If you are really sure you want to delete something forever, fast, the short cut \"SHIFT D\" will do that."));
         l.add(new Line_for_info_stage(true,"Windows"));
-        l.add(new Line_for_info_stage(false,"     Klikr has 2 types of windows: \"Browser_for_file_system_in_2D\" and \"Image\" "));
+        l.add(new Line_for_info_stage(false,"     Klikr has 2 basic types of windows: \"Browser_for_file_system_in_2D\" and \"Image\" "));
         l.add(new Line_for_info_stage(false,"     You can open has many windows as you want, the limit is your machine's RAM"));
-        l.add(new Line_for_info_stage(true,"Browser_for_file_system_in_2D Windows"));
+        l.add(new Line_for_info_stage(true,"Browser Windows"));
         l.add(new Line_for_info_stage(false,"    = displays the content of a folder"));
         l.add(new Line_for_info_stage(false,"    Uses icons for images and movies, and buttons for everything else"));
         l.add(new Line_for_info_stage(false,"    Clicking on an icon will popup a new \"Image\" window displaying that image "));
@@ -116,7 +124,7 @@ public class About_klikr_stage
 
         String icon_path = Look_and_feel_manager.get_main_window_icon_path(Look_and_feel_manager.get_instance(context.logger()), Look_and_feel_manager.Icon_type.KLIK);
         Image icon = Jar_utils.load_jfx_image_from_jar(icon_path, 128, context.logger());
-        Info_stage.show_info_stage("About Klikr",l, icon, null);
+        Info_stage.show_info_stage("About Klikr",l, icon,context);
 
     }
 

@@ -70,6 +70,10 @@ public class Execute_command
         }
 
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        if ( debug_string_builder != null)
+        {
+            debug_string_builder.append("START command debug").append("\n");
+        }
         String message;
         try
         {
@@ -93,7 +97,11 @@ public class Execute_command
             {
                 context.log_stack_trace(e.toString());
             }
-            return new Execute_result(false,"process output stream filaed: "+ e);
+            if ( debug_string_builder != null)
+            {
+                debug_string_builder.append("END command debug : status = failed").append("\n");
+            }
+            return new Execute_result(false,"process output stream failed: "+ e);
         }
         //System.out.println("going to wait");
         try
@@ -111,12 +119,18 @@ public class Execute_command
             {
                 context.log_stack_trace(e.toString());
             }
+            if ( debug_string_builder != null)
+            {
+                debug_string_builder.append("END command debug : status = interrupted").append("\n");
+            }
             return new Execute_result(false,"process interrupted: "+ e);
         }
         if ( debug_string_builder != null)
         {
             debug_string_builder.append(EXECUTE_COMMAND_END_OF_WAIT_OK);
+            debug_string_builder.append("END command debug : status = OK").append("\n");
         }
+
 
         return new Execute_result(true,output.toString());
     }

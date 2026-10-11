@@ -3,7 +3,6 @@
 
 package klikr.machine_learning;
 
-import javafx.stage.Window;
 import klikr.machine_learning.monitoring.ML_registry;
 import klikr.machine_learning.monitoring.UDP_traffic_monitor;
 import klikr.settings.String_constants;
@@ -12,8 +11,6 @@ import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.Kontext;
 import klikr.util.execute.*;
 import klikr.util.execute.actor.Actor_engine;
-import klikr.util.files_and_paths.Static_files_and_paths_utilities;
-import klikr.util.log.Logger;
 import klikr.util.log.Tmp_file_in_trash;
 
 import java.nio.file.Path;
@@ -26,16 +23,17 @@ import java.util.List;
 public class ML_servers_util
 //**********************************************************
 {
-    private static final String MACOS_PYTHON = "/opt/homebrew/bin/python3.10";
-    private static final String LINUX_PYTHON = "/usr/bin/python3";
-    private static final String WINDOWS_PYTHON = "python.exe";
+    //private static final String MACOS_PYTHON = "/opt/homebrew/bin/python3.10";
+    //private static final String LINUX_PYTHON = "/usr/bin/python3";
+    //private static final String WINDOWS_PYTHON = "python.exe";
 
     static final String macOS_commands_to_install_python = "brew install python@3.10";
     // uv venv is faster than python -m venv; optional: create once outside klikr process
     static final String macOS_commands_to_create_venv = "uv venv ~/.klikr/klikr_venv";
     static final String macOS_commands_to_activate_venv = "source ~/.klikr/klikr_venv/bin/activate";
     static final String macOS_commands_to_pip = "uv pip install --upgrade pip";
-    static final String macOS_commands_to_install_tensorflow = "uv pip install tensorflow-macos tensorflow-metal";
+    //static final String macOS_commands_to_install_tensorflow = "uv pip install tensorflow-macos tensorflow-metal";
+    static final String macOS_commands_to_install_tensorflow = "uv pip install tensorflow";
     static final String macOS_commands_to_install_requirements = "uv pip install -r requirements.txt";
 
     //**********************************************************

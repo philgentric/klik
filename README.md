@@ -1,10 +1,10 @@
 
 # Klikr: a file system explorer/manager with a strong focus on readability
 
-Klikr has been designed for people who, while not 'visually impaired', do not have 10/10 on both eyes.
+Klikr has been designed for 'low vision' people i.e. who do not have 10/10 on both eyes.
 
 [En Français](LISEZ_MOI.md)
-(Klikr is available in Breton, Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Spanish)
+(Klikr is available in many languages, Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Spanish)
 
 ![Alt text](klikr.png?raw=true "Klikr screen shot")
 

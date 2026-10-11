@@ -64,7 +64,7 @@ public class Audio_info_frame
             l.add(new Line_for_info_stage(false,"No icon found @ MusicBrainz"));
         }
 
-        Runnable r = () -> Info_stage.show_info_stage("INFO:",l,icon, null);
+        Runnable r = () -> Info_stage.show_info_stage("INFO:",l,icon,context);
         Platform.runLater(r);
         if ( progress_window != null) progress_window.close();
 

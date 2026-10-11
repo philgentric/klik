@@ -184,7 +184,7 @@ public class Image_context
     {
         if ( rotation != null) return rotation;
         rotation = Fast_rotation_from_exif_metadata_extractor.get_rotation(path, true, context);
-        context.log("ROTATION "+rotation);
+        if (dbg) context.log("get_rotation, ROTATION = "+rotation);
         return rotation;
     }
 

@@ -83,6 +83,7 @@ import klikr.settings.boolean_features.*;
 import klikr.util.files_and_paths.*;
 import klikr.util.image.Full_image_from_disk;
 import klikr.util.image.decoding.Fast_image_property_from_exif_metadata_extractor;
+import klikr.util.info_stage.Shortcuts;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 import klikr.util.perf.Perf;
@@ -465,6 +466,15 @@ public class Virtual_landscape
 
         {
             // zoom +,  CTRL + +, meta + + (only macOS)
+            KeyCombination kc = new KeyCodeCombination(KeyCode.ADD, KeyCombination.SHORTCUT_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Virtual_landscape.kbd_dbg)
+                    context.log("character is ctrl + +  = increase_icon_size");
+                increase_icon_size();
+            });
+        }
+        {
+            // zoom +,  CTRL + +, meta + + (only macOS)
             KeyCombination kc = new KeyCodeCombination(KeyCode.PLUS, KeyCombination.SHORTCUT_DOWN);
             scene.getAccelerators().put(kc, () -> {
                 if (Virtual_landscape.kbd_dbg)
@@ -482,6 +492,9 @@ public class Virtual_landscape
                 increase_icon_size();
             });
         }
+
+
+
         {
             // zoom -,  CTRL + -, meta + - (only macOS)
             KeyCombination kc = new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN);
@@ -491,10 +504,6 @@ public class Virtual_landscape
                 decrease_icon_size();
             });
         }
-
-
-
-
         {
             // zoom -,  CTRL + -
             KeyCombination kc = new KeyCodeCombination(KeyCode.MINUS, KeyCombination.CONTROL_DOWN);
@@ -513,7 +522,17 @@ public class Virtual_landscape
                 decrease_icon_size();
             });
         }
+        {
+            // zoom -,  meta + -(only macOS)
+            KeyCombination kc = new KeyCodeCombination(KeyCode.SUBTRACT, KeyCombination.META_DOWN);
+            scene.getAccelerators().put(kc, () -> {
+                if (Virtual_landscape.kbd_dbg)
+                    context.log("character is meta + +  = decrease_icon_size");
+                decrease_icon_size();
+            });
+        }
 
+        Shortcuts.debug(scene,context);
 
         {
             // select all files,  CTRL+a and pomme-A

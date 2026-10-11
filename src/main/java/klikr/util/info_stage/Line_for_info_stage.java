@@ -3,7 +3,10 @@
 
 package klikr.util.info_stage;
 
-public class Line_for_info_stage {
+//**********************************************************
+public class Line_for_info_stage
+//**********************************************************
+{
     final boolean is_bold;
     final String text;
 

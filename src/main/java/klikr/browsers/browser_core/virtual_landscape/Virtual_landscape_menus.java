@@ -2007,7 +2007,7 @@ public class Virtual_landscape_menus
         l.add(new Line_for_info_stage(false,"If names and content are the same, the file is not copied (it is not a brute force copy)"));
         l.add(new Line_for_info_stage(false,"If names are matching but content is different, the source file is copied"));
         l.add(new Line_for_info_stage(false,"and the previous file in the destination is renamed"));
-        Info_stage.show_info_stage("Help on backup",l, null, null);
+        Info_stage.show_info_stage("Help on backup",l, null,context);
     }
     //**********************************************************
     private void show_fusk_help()
@@ -2023,7 +2023,7 @@ public class Virtual_landscape_menus
         l.add(new Line_for_info_stage(false,"If the pin code is not the good one the images are not displayed"));
         l.add(new Line_for_info_stage(false,"WARNING: this is encryption, if you forget your pin code, recovering your files will be painful"));
         l.add(new Line_for_info_stage(false,"(recovery: someone will have to make a brute force attack code i.e. try all possible pin codes!)"));
-        Info_stage.show_info_stage("Help on fusk",l, null, null);
+        Info_stage.show_info_stage("Help on fusk",l, null,context);
     }
 
 
