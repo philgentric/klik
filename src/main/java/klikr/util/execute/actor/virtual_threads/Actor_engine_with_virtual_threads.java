@@ -17,7 +17,7 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     (so we can have as many actors that sleep as you want, we never risk deadlock!)
      */
     private final Logger logger;
-
+    private final static boolean fullstack_dbg = true;
     //**********************************************************
     public Actor_engine_with_virtual_threads(Logger logger_)
     //**********************************************************
@@ -33,7 +33,9 @@ public class Actor_engine_with_virtual_threads implements Actor_engine_interface
     {
         Job job = new Job(actor,message,tr,logger);
         Actor_engine.jobs_in_flight.add(job);
-        Runnable r = () -> {
+
+
+        My_Runnable r = () -> {
             Actor_engine.threads_in_flight.incrementAndGet();
             //if ( now > Actor_engine.recent_max_threads) Actor_engine.recent_max_threads = now;
             String msg = job.actor.run(job.message);

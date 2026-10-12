@@ -8,6 +8,7 @@ import klikr.util.execute.actor.Actor_engine;
 import klikr.util.log.Stack_trace_getter;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributeView;
@@ -65,7 +66,8 @@ public record Last_access_comparator(Kontext context) implements Comparator<Path
         try {
             bfav.setTimes(null, ft, null);
         } catch (IOException e) {
-            context.log_with_stack_trace_from_throwable("",e);
+            //context.log_with_stack_trace_from_throwable("",e);
+            throw  new UncheckedIOException(e);
         }
 
     }

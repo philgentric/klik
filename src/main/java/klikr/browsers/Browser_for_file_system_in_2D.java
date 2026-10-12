@@ -139,7 +139,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
     }
 
     //**********************************************************
-    private class Volume
+    private static class Volume
     //**********************************************************
     {
         public String id;
@@ -248,7 +248,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         boolean monitor_this_folder = false;
         boolean is_volumes = Filesystem_item_modification_watcher.is_this_folder_showing_external_drives(op.get(), context.logger());
         if ( is_volumes) {
-            context.log("is volumes");
+            context.log("folder contains volumes");
             monitor_this_folder = true;
             Iterable<FileStore> stores = FileSystems.getDefault().getFileStores();
             for (FileStore d : stores) {
@@ -268,6 +268,7 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
                     }
                     case MacOS -> {
                         context.log("MacOS");
+                        call_disk_util();
                     }
                     case Windows -> {
                         context.log("Windows");

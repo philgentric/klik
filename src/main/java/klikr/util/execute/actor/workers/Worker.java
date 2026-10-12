@@ -6,7 +6,6 @@ package klikr.util.execute.actor.workers;
 import klikr.util.Kontext;
 import klikr.util.execute.actor.*;
 import klikr.util.log.Logger;
-import klikr.util.log.Stack_trace_getter;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +35,7 @@ public class Worker
     public void start()
     //**********************************************************
     {
-        Runnable r = () -> {
+        My_Runnable r = () -> {
             for(;;)
             {
                 try
