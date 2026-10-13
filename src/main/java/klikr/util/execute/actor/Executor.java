@@ -21,6 +21,8 @@ public class Executor
     // in a thread, because there is a compute-expensive operation involved
     // see below
     public static final boolean full_thread_stack_dbg = true;
+    private static boolean warning_issued  = false;
+
 
 
 
@@ -49,9 +51,15 @@ public class Executor
             Throwable where_the_thread_was_started_from;
             if ( full_thread_stack_dbg)
             {
+                if ( !warning_issued)
+                {
+                    warning_issued = true;
+                    logger.log(Logger.warning+" full_thread_stack_dbg is enabled");
+                }
                 // this is the expensive operation up to 10 microseconds
                 // not much... but in some use cases Klikr starts thousands
                 // of virtual threads ...
+                // creating a Throwable records the call stack BEFORE launching the thread
                 where_the_thread_was_started_from = new Throwable("started from here");
             }
             else
@@ -59,6 +67,7 @@ public class Executor
                 where_the_thread_was_started_from = null;
             }
 
+            // create the thread but don't start it yet
             Thread t = Thread.ofVirtual().name(thread_name).unstarted(
                     ()->{
                         try
@@ -72,15 +81,19 @@ public class Executor
                                 logger.log_with_stack_trace_from_throwable("", throwable);
                             }
                             else {
-
+                                // if available add the full stack trace
+                                // that was recorded BEFORE the thread was started
                                 throwable.addSuppressed(where_the_thread_was_started_from);
                                 throw My_Throw(throwable);
                             }
                         }
                     });
-            t.setUncaughtExceptionHandler((thread, e) ->{
-                logger.log_with_stack_trace_from_throwable("re-thrown exception caught :",e);
-            });
+            // because we need to add the UncaughtExceptionHandler
+            t.setUncaughtExceptionHandler((thread, e) ->
+                {
+                logger.log_with_stack_trace_from_throwable(Logger.error + "full stack trace of exception:\n",e);
+                }
+            );
             t.start();
 
             return;

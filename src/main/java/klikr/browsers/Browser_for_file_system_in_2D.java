@@ -67,6 +67,8 @@ import klikr.settings.boolean_features.Feature_cache;
 import klikr.settings.boolean_features.Feature_change_target;
 import klikr.change.file_system_monitoring.Filesystem_item_modification_watcher;
 import klikr.change.old_and_new.Old_and_new_Path;
+import klikr.util.execute.actor.Executor;
+import klikr.util.execute.actor.My_Runnable;
 import klikr.util.files_and_paths.Static_files_and_paths_utilities;
 import klikr.util.log.Logger;
 import klikr.util.ui.Jfx_batch_injector;
@@ -154,7 +156,13 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
         }
 
         public String to_string() {
-            return path+" "+ node +" "+name +" "+total+" "+free;
+            return "\n*************************" +
+                    "\n   path:"+path+
+                    "\n   id:"+ id +
+                    "\n   node:"+ node +
+                    "\n   name:"+name +
+                    "\n   total:"+total+
+                    "\n   free:"+free;
         }
     }
 
@@ -182,32 +190,32 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
             while ((line = reader.readLine()) != null) {
                 if (line.contains(DEVICE_IDENTIFIER)) {
                     String local = line.substring(line.indexOf(DEVICE_IDENTIFIER) + DEVICE_IDENTIFIER.length());
-                    vol = new Volume(local);
+                    vol = new Volume(local.strip());
                 }
                 if (line.contains(OS_ONLY)) {
                     vol = null;
                 }
                 if (vol == null) continue;
                 if (line.contains(DEVICE_NODE)) {
-                    vol.node = line.substring(line.indexOf(DEVICE_NODE) + DEVICE_NODE.length());
+                    vol.node = line.substring(line.indexOf(DEVICE_NODE) + DEVICE_NODE.length()).strip();
                 }
 
                 if (line.contains(FREE_SPACE)) {
-                    vol.free = line.substring(line.indexOf(FREE_SPACE) + FREE_SPACE.length());
+                    vol.free = line.substring(line.indexOf(FREE_SPACE) + FREE_SPACE.length()).strip();
                 }
 
                 if (line.contains(TOTAL_SPACE)) {
-                    vol.total = line.substring(line.indexOf(TOTAL_SPACE) + TOTAL_SPACE.length());
+                    vol.total = line.substring(line.indexOf(TOTAL_SPACE) + TOTAL_SPACE.length()).strip();
                 }
 
                 if (line.contains(PATH)) {
-                    String local = line.substring(line.indexOf(PATH) + PATH.length());
+                    String local = line.substring(line.indexOf(PATH) + PATH.length()).strip();
                     vol.path = Path.of(local);
                 }
 
 
                 if (line.contains(VOLUME_NAME)) {
-                    String local = line.substring(line.indexOf(VOLUME_NAME) + VOLUME_NAME.length());
+                    String local = line.substring(line.indexOf(VOLUME_NAME) + VOLUME_NAME.length()).strip();
                     if (!local.contains("Not applicable (no file system)")) {
                         //output.append(local).append("\n");
                         vol.name = local;
@@ -260,22 +268,30 @@ public class Browser_for_file_system_in_2D extends Abstract_browser implements F
                 } catch (IOException e) {
                     context.log_with_stack_trace_from_throwable(Logger.error, e);
                 }
-
-                Operating_system os = Guess_OS.guess(context.logger());
-                switch (os) {
-                    case Linux -> {
-                        context.log("Linux");
-                    }
-                    case MacOS -> {
-                        context.log("MacOS");
-                        call_disk_util();
-                    }
-                    case Windows -> {
-                        context.log("Windows");
-                    }
-                }
             }
         }
+
+
+        Operating_system os = Guess_OS.guess(context.logger());
+        switch (os) {
+            case Linux -> {
+                context.log("Linux");
+            }
+            case MacOS -> {
+                context.log("MacOS");
+                My_Runnable r = new My_Runnable() {
+                    @Override
+                    public void run() throws Exception {
+                        call_disk_util();
+                    }
+                };
+                Executor.execute(r,"disk util", context.logger());
+            }
+            case Windows -> {
+                context.log("Windows");
+            }
+        }
+
 
         if (!monitor_this_folder)
         {
