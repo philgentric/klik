@@ -65,8 +65,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
             return Optional.empty();
         }
 
-        Optional<Image_display_handler> returned = Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), image_window, path_comparator_source));
-        return returned;
+        return Optional.of(new Image_display_handler(path_list_provider, image_context_.get(), image_window, path_comparator_source));
     }
 
 
@@ -301,7 +300,7 @@ public class Image_display_handler implements Change_receiver, Slide_show_slave
     {
         try( Perf perf3 = new Perf("C. set_context_menu"))
         {
-            image_context.the_image_view.setOnContextMenuRequested(event ->
+            image_window.the_image_view.setOnContextMenuRequested(event ->
                     {
                         //logger.log("context menu for image");
                         ContextMenu contextMenu = Menus_for_image_window.make_context_menu(

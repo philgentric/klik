@@ -6,6 +6,7 @@ package klikr.images;
 
 import javafx.print.PrinterJob;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
 import klikr.Klikr_application;
 import klikr.Window_type;
@@ -210,7 +211,9 @@ public class Menus_for_image_window
             boolean success = job.showPrintDialog(image_window.stage);
             if (success) {
                 System.out.println(job.jobStatusProperty().asString());
-                boolean printed = job.printPage(image_window.image_display_handler.get_image_context().get().the_image_view);
+                Image_context local = image_window.image_display_handler.get_image_context().get();
+                ImageView iv = new ImageView(local.image);
+                boolean printed = job.printPage(iv);
                 if (printed) {
                     job.endJob();
                     image_window.context.log("Printing done");

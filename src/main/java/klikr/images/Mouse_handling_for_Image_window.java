@@ -98,29 +98,14 @@ public class Mouse_handling_for_Image_window
             double dy = in_parent.getY() - previous_mouse_y;
             //logger.log("mouse_dragged_pix_for_pix: dx,dy=" + dx + "," + dy);
 
-            move_image_internal(dx, dy);
+            image_window.move_viewport(dx,dy);
+
         }
         previous_mouse_valid = true;
         previous_mouse_x = in_parent.getX();
         previous_mouse_y = in_parent.getY();
     }
 
-    //**********************************************************
-    private void move_image_internal(double dx, double dy)
-    //**********************************************************
-    {
-        Optional<Image_context> local = image_window.image_display_handler.get_image_context();
-        if (local.isEmpty()) return;
-        //if (local.the_image_view == null) return;
-        /*
-        this is for moving the imageview in the scene
-        local.imageView.setTranslateX(local.imageView.getTranslateX()+dx);
-        local.imageView.setTranslateY(local.imageView.getTranslateY()+dy);
-         what we want is to move the image INSIDE the viewport
-         */
-        local.get().move_viewport(dx,dy);
-
-    }
 
     //**********************************************************
     private static Point2D translate_mouse_event_to_in_pane(MouseEvent mouse_event, Pane pane)
@@ -167,10 +152,10 @@ public class Mouse_handling_for_Image_window
         if (user_defined_zoom_area.getWidth() < 5) return;
         if (user_defined_zoom_area.getHeight() < 5) return;
 
-        if (local.the_image_view.getViewport() != null)
+        if (image_window.the_image_view.getViewport() != null)
         {
             logger.log("sorry, only one zoom supported at this time");
-            local.the_image_view.setViewport(null);
+            image_window.the_image_view.setViewport(null);
             return;
         }
 
@@ -178,25 +163,25 @@ public class Mouse_handling_for_Image_window
 
         logger.log("image :" + local.image.getWidth() + "x" + local.image.getHeight());
 
-        Bounds bounds = local.the_image_view.getLayoutBounds();
+        Bounds bounds = image_window.the_image_view.getLayoutBounds();
         logger.log("image View bounds x/y:" + bounds.getMinX() + "/" + bounds.getMinY() + "w/h :" + bounds.getWidth() + "x" + bounds.getHeight());
         logger.log("rectangle1 :" + user_defined_zoom_area.getX() + "/" + user_defined_zoom_area.getY() + " " + user_defined_zoom_area.getWidth() + "x" + user_defined_zoom_area.getHeight());
 
         double scale = local.image.getWidth() / bounds.getWidth();
 
         Rectangle2D view_port = new Rectangle2D(
-                (user_defined_zoom_area.getX() - local.the_image_view.getLayoutX()) * scale,
-                (user_defined_zoom_area.getY() - local.the_image_view.getLayoutY()) * scale,
+                (user_defined_zoom_area.getX() - image_window.the_image_view.getLayoutX()) * scale,
+                (user_defined_zoom_area.getY() - image_window.the_image_view.getLayoutY()) * scale,
                 user_defined_zoom_area.getWidth() * scale,
                 user_defined_zoom_area.getHeight() * scale
         );
         logger.log("rectangle2 :" + view_port.getMinX() + "/" + view_port.getMinY() + " " + view_port.getWidth() + "x" + view_port.getHeight());
 
-        local.the_image_view.setViewport(view_port);
+        image_window.the_image_view.setViewport(view_port);
 
         Image cropped_image = new
                 WritableImage(
-                local.the_image_view.getImage().getPixelReader(),
+                image_window.the_image_view.getImage().getPixelReader(),
                 (int)view_port.getMinX(),
                 (int)view_port.getMinY(),
                 (int)view_port.getWidth(),
@@ -329,10 +314,10 @@ public class Mouse_handling_for_Image_window
         }
         if ( tmp.get_image_context().isEmpty()) return;
         Image_context local_image_context = tmp.get_image_context().get();
-        local_image_context.the_image_view.fitWidthProperty().unbind();
-        local_image_context.the_image_view.fitHeightProperty().unbind();
-        local_image_context.the_image_view.setFitWidth(local_image_context.image.getWidth());
-        local_image_context.the_image_view.setFitHeight(local_image_context.image.getHeight());
+        image_window.the_image_view.fitWidthProperty().unbind();
+        image_window.the_image_view.fitHeightProperty().unbind();
+        image_window.the_image_view.setFitWidth(local_image_context.image.getWidth());
+        image_window.the_image_view.setFitHeight(local_image_context.image.getHeight());
     }
 
 
@@ -417,7 +402,7 @@ public class Mouse_handling_for_Image_window
                 logger.log("bad image length");
             }
             logger.log("setting image view as broken icon");
-            local.the_image_view.setImage(Jar_utils.get_broken_icon(300, image_window.context.logger()));
+            image_window.the_image_view.setImage(Jar_utils.get_broken_icon(300, image_window.context.logger()));
             return true;
         }
         return false;
@@ -445,7 +430,10 @@ public class Mouse_handling_for_Image_window
         }
         {
             Image_context ic = image_window.image_display_handler.get_image_context().get();
-            if ( ic != null) ic.the_image_view.setViewport(null);
+            if ( ic != null)
+            {
+                if (image_window.the_image_view !=null)  image_window.the_image_view.setViewport(null);
+            }
         }
         image_window.the_image_Pane.setOnDragDetected(event -> {
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage: onDragDetected");
@@ -527,7 +515,7 @@ public class Mouse_handling_for_Image_window
             if (Drag_and_drop.drag_and_drop_dbg) logger.log("Image_stage/ic.imageView drag_and_drop DragExited");
             if (image_window.image_display_handler.get_image_context().isPresent())
             {
-                image_window.set_background(image_window.the_image_Pane,image_window.image_display_handler.get_image_context().get().path.getFileName().toString(), image_window.stage);
+                image_window.set_background(image_window.the_image_Pane,image_window.image_display_handler.get_image_context().get().path.getFileName().toString());
             }
             drag_event.consume();
         });

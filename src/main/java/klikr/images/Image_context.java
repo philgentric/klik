@@ -57,14 +57,13 @@ import java.util.function.Function;
 public class Image_context
 //**********************************************************
 {
-    public static final boolean dbg = false;
+    public static final boolean dbg = true;
     public static final String DELAY = "Delay: ";
 
     public final Kontext context;
     public final Path previous_path;
     public final Path path;
     public final Image image;
-    public final ImageView the_image_view;
     private Rotation rotation = null;
     double zoom_factor = 1.0;
     public boolean image_is_damaged;
@@ -105,7 +104,10 @@ public class Image_context
     public static Optional<Image_context> get_Image_context(Path path, Kontext context)
     //**********************************************************
     {
-        if ( !Files.exists(path)) return Optional.empty();
+        if ( !Files.exists(path))
+        {
+            return Optional.empty();
+        }
         Image_and_properties iap = Full_image_from_disk.load_native_resolution_image_from_disk(path, true, context);
         if (iap == null) return Optional.empty();
         Image local_image = iap.image();
@@ -116,8 +118,7 @@ public class Image_context
             return Optional.of(new Image_context(path,path,broken,context));
         }
 
-        Optional<Image_context> returned = Optional.of(new Image_context(path, path, local_image,context));
-        return returned;
+        return Optional.of(new Image_context(path, path, local_image,context));
     }
 
 
@@ -129,18 +130,14 @@ public class Image_context
         path = current_path;
         previous_path = previous_path_;
         image = image_;
-        the_image_view = new ImageView(image);
-        the_image_view.setPickOnBounds(true); // allow click on transparent areas
-        the_image_view.setCacheHint(CacheHint.QUALITY);
 
 
         creation_time = Fast_date_from_filesystem.get_date(current_path,context);
-        //if ( get_rotation) get_rotation();
         if ( dbg)
         {
             if ( path ==null)
             {
-                context.log("NULL file, image loaded:"+image.getWidth()+"x"+image.getHeight());
+                context.log("null path, image loaded:"+image.getWidth()+"x"+image.getHeight());
             }
             else
             {
@@ -158,9 +155,6 @@ public class Image_context
         path = null;
         previous_path = null;
         creation_time = null;
-        the_image_view = new ImageView(image);
-        the_image_view.setPickOnBounds(true); // allow click on transparent areas
-        the_image_view.setCacheHint(CacheHint.QUALITY);
     }
 
     //**********************************************************
@@ -290,7 +284,7 @@ public class Image_context
 
 
 
-
+/*
     //**********************************************************
     void change_zoom_factor(Image_window image_window, double mul)
     //**********************************************************
@@ -337,32 +331,8 @@ public class Image_context
         Rectangle2D r = new Rectangle2D(min_x, min_y,image_width2 , image_height2);
         the_image_view.setViewport(r);
     }
+*/
 
-
-    //**********************************************************
-    public void move_viewport(double dx, double dy)
-    //**********************************************************
-    {
-        Rectangle2D r0 = the_image_view.getViewport();
-        if ( r0 == null)
-        {
-            //entire image is displayed
-            Rectangle2D r = new Rectangle2D(
-
-                    -dx,
-                    -dy,
-                    the_image_view.getImage().getWidth(),
-                    the_image_view.getImage().getHeight());
-            the_image_view.setViewport(r);
-            return;
-        }
-        Rectangle2D r = new Rectangle2D(
-                r0.getMinX()-dx,
-                r0.getMinY()-dy,
-                r0.getWidth(),
-                r0.getHeight());
-        the_image_view.setViewport(r);
-    }
 
     //**********************************************************
     void search_using_keywords_from_the_name(Path_list_provider path_list_provider, Path_comparator_source path_comparator_source)
@@ -582,6 +552,5 @@ public class Image_context
         Path new_path = Moving_files.generate_new_candidate_name(path,"", String_constants.ULTIM, context.logger());
         return image_stage.change_name_of_file(new_path);
     }
-
 
 }

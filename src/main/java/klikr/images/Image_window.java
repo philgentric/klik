@@ -7,6 +7,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -73,13 +74,15 @@ import java.util.function.Supplier;
 public class Image_window
 //**********************************************************
 {
+    // cafeine is the alternative to linkedhqshmap
     private static final boolean use_linkedhashmap_for_cache = false;
     public static final String IMAGE_WINDOW = "IMAGE_WINDOW";
     double progress;
-    static final boolean dbg = false;
+    static final boolean dbg = true;
     public final Scene the_Scene;
     public final Stage stage;
     public final Pane the_image_Pane;
+    ImageView the_image_view;
     public Label the_info_label; // maybe null
     public final Kontext context;
     public final Image_display_handler image_display_handler;
@@ -107,19 +110,19 @@ public class Image_window
     public final int ID;
 
     //**********************************************************
-    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,Kontext context)
+    public static Image_window get_Image_window(Path path, Path_list_provider path_list_provider, Path_comparator_source path_comparator_source,Kontext browser_context)
     //**********************************************************
     {
         try ( Perf p = new Perf("get_Image_window")) {
-            Last_access_comparator.set_last_access(path,context);
-            Image_window returned = on_same_screen(path, path_list_provider, path_comparator_source, context);
+            Last_access_comparator.set_last_access(path,browser_context);
+            Image_window returned = on_same_screen(path, path_list_provider, path_comparator_source, browser_context);
 
             return returned;
         }
     }
 
     //**********************************************************
-    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Path_comparator_source path_comparator_source, Kontext context)
+    private static Image_window on_same_screen(Path path, Path_list_provider path_list_provider,Path_comparator_source path_comparator_source, Kontext browser_context)
     //**********************************************************
     {
 
@@ -129,8 +132,8 @@ public class Image_window
         double w = bounds.getWidth();
         double h = bounds.getHeight();
 
-        Kontext k = new Kontext(null/*to prevent modality*/,context.aborter(), context.logger());
-        Image_window returned = new Image_window(path, x, y,w, h, null, true,path_list_provider,path_comparator_source,k);
+        Kontext k2 = new Kontext(null/*to prevent modality*/,browser_context.aborter(), browser_context.logger());
+        Image_window returned = new Image_window(path, x, y,w, h, null, true,path_list_provider,path_comparator_source,k2);
         returned.stage.setX(x);
         returned.stage.setY(y);
         return returned;
@@ -146,7 +149,7 @@ public class Image_window
             boolean save_window_bounds,
             Path_list_provider path_list_provider,
             Path_comparator_source path_comparator_source,
-            Kontext context) // owner is null for 'stand alone' windows
+            Kontext tmp_context) // owner is null for 'stand alone' windows
     //**********************************************************
     {
         try (Perf p = new Perf("Image_window creation"))
@@ -156,11 +159,18 @@ public class Image_window
             this.title_optional_addendum = title_optional_addendum;
             dir = first_image_path.getParent();
             stage = new Stage();
-            Aborter private_aborter = new Aborter("image_window_for:"+image_cache, context.logger());
-            this.context = new Kontext(stage,private_aborter,context.logger());
-            if (context.owner() != null) {
-                stage.initOwner(context.owner());
+            if (tmp_context.owner() == null)
+            {
+                tmp_context.log("Non-owned Image_window");
             }
+            else
+            {
+                stage.initOwner(tmp_context.owner());
+            }
+
+            Aborter private_aborter = new Aborter("image_window_for:"+image_cache, tmp_context.logger());
+            this.context = new Kontext(stage,private_aborter,tmp_context.logger());
+
             the_image_Pane = new StackPane();
             Look_and_feel_manager.set_region_look(the_image_Pane, context.logger());
 
@@ -196,7 +206,8 @@ public class Image_window
             }
 
 
-            if (context.owner() == null) {
+            if (tmp_context.owner() == null)
+            {
                 if (!Feature_cache.get(Feature.Hide_beginners_text_on_images)) {
                     String text = My_I18n.get_I18n_string("Image_window_info", context);
                     text = text.replace(",", "\n");
@@ -227,7 +238,7 @@ public class Image_window
             };
 
             String extension = Extensions.get_extension(first_image_path.getFileName().toString());
-            set_background(the_image_Pane, extension, context.owner());
+            set_background(the_image_Pane, extension);
             the_Scene = new Scene(the_image_Pane);
             //Look_and_feel_manager.set_scene_look(the_Scene,owner,logger);
             Color background = Look_and_feel_manager.get_instance(context.logger()).get_background_color();
@@ -325,14 +336,16 @@ public class Image_window
                 Optional<Image_context> op = image_display_handler.get_image_context();
                 if ( op.isPresent() ) {
                     Image_context image_context = op.get();
-                    ImageView iv = image_context.the_image_view;
-                    double currentWidth = iv.getFitWidth();
-                    double currentHeight = iv.getFitHeight();
+                    the_image_view = new ImageView(image_context.image);
+                    the_image_view.setPickOnBounds(true); // allow click on transparent areas
+                    the_image_view.setCacheHint(CacheHint.QUALITY);
+                    double currentWidth = the_image_view.getFitWidth();
+                    double currentHeight = the_image_view.getFitHeight();
 
                     mouse_handling_for_image_window.set_mouse_mode(this, Mouse_mode.pix_for_pix);
 
-                    iv.setFitWidth(currentWidth * zoom);
-                    iv.setFitHeight(currentHeight * zoom);
+                    the_image_view.setFitWidth(currentWidth * zoom);
+                    the_image_view.setFitHeight(currentHeight * zoom);
 
                 }
                 event.consume();
@@ -343,12 +356,6 @@ public class Image_window
         }
     }
 
-    private static double calculate_distance(TouchPoint tp1, TouchPoint tp2)
-    {
-        double dx = tp1.getX() - tp2.getX();
-        double dy = tp1.getY() - tp2.getY();
-        return Math.sqrt(dx * dx + dy * dy);
-    }
 
     KeyCombination undo;
     KeyCombination slideshow_start_stop;
@@ -450,7 +457,7 @@ public class Image_window
             // slide show start/stop
             slideshow_start_stop = new KeyCodeCombination(KeyCode.S);
             scene.getAccelerators().put(slideshow_start_stop, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is SPACE = start/stop scan");
+                if (dbg) context.log("character is SPACE = start/stop scan");
                 toggle_slideshow();
             });
         }
@@ -458,7 +465,7 @@ public class Image_window
             // slide show slow down
             KeyCombination kc = new KeyCodeCombination(KeyCode.LEFT,KeyCombination.CONTROL_DOWN);
             scene.getAccelerators().put(kc, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is ctrl + <- = slowdown scan");
+                if (dbg) context.log("character is ctrl + <- = slowdown scan");
                 if (is_slide_show_running()) slow_down();
             });
         }
@@ -466,7 +473,7 @@ public class Image_window
             // slide show speed up
             speed_up_scan = new KeyCodeCombination(KeyCode.RIGHT,KeyCombination.CONTROL_DOWN);
             scene.getAccelerators().put(speed_up_scan, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is ctrl + -> = speed up scan");
+                if (dbg) context.log("character is ctrl + -> = speed up scan");
                 if (is_slide_show_running()) slow_down();
             });
         }
@@ -474,7 +481,7 @@ public class Image_window
             // slide show slow down
             slow_down_scan = new KeyCodeCombination(KeyCode.LEFT,KeyCombination.META_DOWN);
             scene.getAccelerators().put(slow_down_scan, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is meta + <- = slowdown scan");
+                if (dbg) context.log("character is meta + <- = slowdown scan");
                 if (is_slide_show_running()) slow_down();
             });
         }
@@ -482,7 +489,7 @@ public class Image_window
             // slide show speed up
             KeyCombination kc = new KeyCodeCombination(KeyCode.RIGHT,KeyCombination.META_DOWN);
             scene.getAccelerators().put(kc, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is meta + -> = speed up scan");
+                if (dbg) context.log("character is meta + -> = speed up scan");
                 if (is_slide_show_running()) speed_up();
             });
         }
@@ -492,7 +499,7 @@ public class Image_window
             // undo
             undo = new KeyCodeCombination(KeyCode.Z,KeyCombination.CONTROL_DOWN);
             scene.getAccelerators().put(undo, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is y > = redo same move");
+                if (dbg) context.log("character is y > = redo same move");
                 Menus_for_image_window.do_same_move(this);
             });
         }
@@ -500,7 +507,7 @@ public class Image_window
             // redo same MOVE
             KeyCombination kc = new KeyCodeCombination(KeyCode.Y);
             scene.getAccelerators().put(kc, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is y > = redo same move");
+                if (dbg) context.log("character is y > = redo same move");
                 Menus_for_image_window.do_same_move(this);
             });
         }
@@ -508,7 +515,7 @@ public class Image_window
             // redo same MOVE
             KeyCombination kc = new KeyCodeCombination(KeyCode.Y,KeyCombination.SHORTCUT_DOWN);
             scene.getAccelerators().put(kc, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is y > = redo same move");
+                if (dbg) context.log("character is y > = redo same move");
                 Menus_for_image_window.do_same_move(this);
             });
         }
@@ -517,7 +524,7 @@ public class Image_window
             // rename
             rename = new KeyCodeCombination(KeyCode.R);
             scene.getAccelerators().put(rename, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is r, rename");
+                if (dbg) context.log("character is r, rename");
                 if ( image_display_handler.get_image_context().isEmpty()) return;
                 image_display_handler.get_image_context().get().rename_file_for_an_image_window(this);
             });
@@ -526,7 +533,7 @@ public class Image_window
             // rename
             KeyCombination kc = new KeyCodeCombination(KeyCode.R,KeyCombination.SHORTCUT_DOWN);
             scene.getAccelerators().put(kc, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is r, rename");
+                if (dbg) context.log("character is r, rename");
                 if ( image_display_handler.get_image_context().isEmpty()) return;
                 image_display_handler.get_image_context().get().rename_file_for_an_image_window(this);
             });
@@ -536,7 +543,7 @@ public class Image_window
             // OPEN
             open = new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN);
             scene.getAccelerators().put(open, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is ctrl or meta O = open");
+                if (dbg) context.log("character is ctrl or meta O = open");
                 if ( image_display_handler.get_image_context().isEmpty()) return;
                 image_display_handler.get_image_context().get().open();
             });
@@ -546,7 +553,7 @@ public class Image_window
             // Browse
             browse = new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN);
             scene.getAccelerators().put(browse, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is ctrl or meta B = browse");
+                if (dbg) context.log("character is ctrl or meta B = browse");
                 if ( image_display_handler.get_image_context().isEmpty()) return;
                 Window_builder.additional_no_past(
                         Klikr_application.application,
@@ -560,7 +567,7 @@ public class Image_window
             // FULLSCREEN
             KeyCombination kc = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.ALT_DOWN);
             scene.getAccelerators().put(kc, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is alt+enter = fullscreen");
+                if (dbg) context.log("character is alt+enter = fullscreen");
                 if ( image_display_handler.get_image_context().isEmpty()) return;
                 Menus_for_image_window.toggle_fullscreen(this);
 
@@ -572,7 +579,7 @@ public class Image_window
             // FIND
             find = new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN);
             scene.getAccelerators().put(find, () -> {
-                if (Browser_for_file_system_in_2D.kbd_dbg) context.log("character is ctrl or meta f = keyword search");
+                if (dbg) context.log("character is ctrl or meta f = keyword search");
                 if ( image_display_handler.get_image_context().isEmpty()) return;
                 image_display_handler.get_image_context().get().search_using_keywords_from_the_name(
                         path_list_provider,
@@ -727,15 +734,15 @@ public class Image_window
 
 
     //**********************************************************
-    void set_background(Region target, String extension,Window owner)
+    void set_background(Region target, String extension)
     //**********************************************************
     {
-        BackgroundFill background_fill = get_Background_fill(extension,owner);
+        BackgroundFill background_fill = get_Background_fill(extension);
         target.setBackground(new Background(background_fill));
     }
 
     //**********************************************************
-    BackgroundFill get_Background_fill(String extension,Window owner)
+    BackgroundFill get_Background_fill(String extension)
     //**********************************************************
     {
         BackgroundFill background_fill = null;
@@ -952,7 +959,7 @@ public class Image_window
     {
         try(Perf p = new Perf("set_image_internal"))
         {
-            //context.log(Stack_trace_getter.get_stack_trace("set_image: "+local_image_context.path));
+            if ( dbg) context.log(Stack_trace_getter.get_stack_trace("set_image: "+local_image_context.path));
 
             if (local_image_context == null) {
                 context.log_stack_trace(Logger.error+"FATAL: Image_context is null, should not happen");
@@ -962,12 +969,13 @@ public class Image_window
                 context.log_stack_trace(Logger.error+"FATAL: Image_context.Image is null, should not happen");
                 return;
             }
+            the_image_view = new ImageView(local_image_context.image);
+            
             // if pix-for-pix was used on a very large image, the window length is very large too..
             // let us check and correct that
             Jfx_batch_injector.inject(() -> {
 
-                local_image_context.the_image_view.setPreserveRatio(true);
-                //local_image_context.the_image_view.setSmooth(true);
+                the_image_view.setPreserveRatio(true);
                 Rotation rotation = local_image_context.get_rotation();
                 double rot = 0.0;
                 if   (rotation != null) rot = rotation.as_double();
@@ -987,10 +995,10 @@ public class Image_window
                         if (dbg)
                             context.log("preventing resize since " + image.getHeight() + " < " + pane_height + " and " + image.getWidth() + " < " + pane_width);
 
-                        local_image_context.the_image_view.fitWidthProperty().unbind();
-                        local_image_context.the_image_view.fitHeightProperty().unbind();
-                        local_image_context.the_image_view.setFitWidth(local_image_context.image.getWidth());
-                        local_image_context.the_image_view.setFitHeight(local_image_context.image.getHeight());
+                        the_image_view.fitWidthProperty().unbind();
+                        the_image_view.fitHeightProperty().unbind();
+                        the_image_view.setFitWidth(local_image_context.image.getWidth());
+                        the_image_view.setFitHeight(local_image_context.image.getHeight());
                         normal = false;
                     } else {
                         if (dbg) context.log("NOT preventing resize");
@@ -999,17 +1007,19 @@ public class Image_window
                 if (normal) {
 
                     if ((rot == 90) || (rot == 270)) {
-                        local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.heightProperty());
-                        local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.widthProperty());
+                        the_image_view.fitWidthProperty().bind(the_image_Pane.heightProperty());
+                        the_image_view.fitHeightProperty().bind(the_image_Pane.widthProperty());
                     } else {
-                        local_image_context.the_image_view.fitWidthProperty().bind(the_image_Pane.widthProperty());
-                        local_image_context.the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
+                        the_image_view.fitWidthProperty().bind(the_image_Pane.widthProperty());
+                        the_image_view.fitHeightProperty().bind(the_image_Pane.heightProperty());
                     }
                 }
-                set_background(the_image_Pane, Extensions.get_extension(local_image_context.get_image_name()), stage);
+                set_background(the_image_Pane, Extensions.get_extension(local_image_context.get_image_name()));
 
                 the_image_Pane.getChildren().clear();
-                the_image_Pane.getChildren().add(local_image_context.the_image_view); // <<<< this is what causes the image to be displayed
+                if ( dbg) context.log("pane cleared");
+                the_image_Pane.getChildren().add(the_image_view); // <<<< this is what causes the image to be displayed
+                if ( dbg) context.log("pane filled");
                 if (the_info_label != null) the_image_Pane.getChildren().add(the_info_label);
                 set_stage_title(local_image_context);
             }, context);
@@ -1082,7 +1092,7 @@ public class Image_window
         }
         else
         {
-            context.log("WARNING: image has NOT been re-displayed???");
+            context.log(Logger.warning+" image has NOT been re-displayed???");
         }
     }
 
@@ -1109,4 +1119,30 @@ public class Image_window
     {
         image_cache.evict(path);
     }
+
+    //**********************************************************
+    public void move_viewport(double dx, double dy)
+    //**********************************************************
+    {
+        Rectangle2D r0 = the_image_view.getViewport();
+        if ( r0 == null)
+        {
+            //entire image is displayed
+            Rectangle2D r = new Rectangle2D(
+
+                    -dx,
+                    -dy,
+                    the_image_view.getImage().getWidth(),
+                    the_image_view.getImage().getHeight());
+            the_image_view.setViewport(r);
+            return;
+        }
+        Rectangle2D r = new Rectangle2D(
+                r0.getMinX()-dx,
+                r0.getMinY()-dy,
+                r0.getWidth(),
+                r0.getHeight());
+        the_image_view.setViewport(r);
+    }
+
 }

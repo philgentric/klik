@@ -243,7 +243,8 @@ public class Multiple_image_window
     private void method_1()
     //**********************************************************
     {
-        add(ic.the_image_view,"javafx");
+        ImageView iv = new ImageView(ic.image);
+        add(iv,"javafx");
         logger.log("javafx rescaled used for:" + ic.path.getFileName());
     }
 
@@ -254,7 +255,7 @@ public class Multiple_image_window
     {
         Optional<Image_context> option = get_Image_context_with_alternate_rescaler((int) w, (int) h);
         if (option.isEmpty()) return;
-        ImageView local = option.get().the_image_view;
+        ImageView local = new ImageView(option.get().image);
         add(local,"Magic kernel sharp");
         logger.log("bicubic rescaled used for:" + option.get().path.getFileName());
     }
@@ -265,7 +266,7 @@ public class Multiple_image_window
     {
         Optional<Image_context> option = get_Image_context_with_alternate_rescaler((int) w, (int) h);
         if (option.isEmpty()) return;
-        ImageView local = option.get().the_image_view;
+        ImageView local = new ImageView(option.get().image);
         add(local,"Lanczos");
         logger.log("Lanczos rescaled used for:" + option.get().path.getFileName());
     }
