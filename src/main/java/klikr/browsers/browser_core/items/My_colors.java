@@ -8,6 +8,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import klikr.look.my_i18n.My_I18n;
 import klikr.util.Kontext;
+import klikr.util.execute.actor.Executor;
+import klikr.util.execute.actor.My_Runnable;
 import klikr.util.log.Logger;
 
 import java.io.FileWriter;
@@ -25,7 +27,7 @@ public class My_colors
 
     public static final String NO_COLOR = "NO_COLOR";
 
-    public static Map<String,My_color> all_colors = new HashMap();
+    public static Map<String,My_color> all_colors = new HashMap<>();
 
     //**********************************************************
     public static void init_My_colors(CountDownLatch latch, Kontext context)
@@ -74,6 +76,7 @@ public class My_colors
             localized_name = "Noir";
             all_colors.put(localized_name,new My_color(Color.BLACK, localized_name));
         }
+
         latch.countDown();
     }
 
@@ -91,15 +94,19 @@ public class My_colors
     public static Collection<My_color> get_all_colors(Kontext context)
     //**********************************************************
     {
-        if ( all_colors.isEmpty())
-        {
-            CountDownLatch latch = new CountDownLatch(1);
-           Platform.runLater( ()->init_My_colors(latch, context) );
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                context.log_with_stack_trace_from_throwable("",e);
+        if ( !all_colors.isEmpty()) return all_colors.values();
+        CountDownLatch latch = new CountDownLatch(1);
+        My_Runnable r = new My_Runnable() {
+            @Override
+            public void run() throws Exception {
+                init_My_colors(latch, context);
             }
+        };
+        Executor.execute(r,"loading colors", context.logger());
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            context.log_with_stack_trace_from_throwable("",e);
         }
         return all_colors.values();
     }

@@ -81,7 +81,7 @@ public abstract class Item implements Icon_destination
     public AtomicBoolean visible_in_scene = new AtomicBoolean(false);
 
     // javafx_x and javafx_y are going to be used in Translate_X (resp. Y)
-    // vertical scroll is managed by substracting the y_offset
+    // vertical scroll is managed by subtracting the y_offset
     private double javafx_x;
     private double javafx_y;
     // this is the (top-left) position of the image
@@ -248,14 +248,18 @@ public abstract class Item implements Icon_destination
     public static ContextMenu make_context_menu(Item_context item_context, Button local_button, Label local_label)
     //**********************************************************
     {
+
         ContextMenu context_menu = new ContextMenu();
         Look_and_feel_manager.set_context_menu_look(context_menu, item_context.context.logger());
         if (item_context.item_path == null) {
             item_context.context.log_with_stack_trace((""));
             return context_menu;
         }
+
+
         if (Files.isDirectory(item_context.item_path))
         {
+
             create_folder_size_menu_item(context_menu, item_context);
 
 
@@ -269,10 +273,9 @@ public abstract class Item implements Icon_destination
                         },
                         context_menu, item_context.context);
             }
+            else
+            {
 
-
-            if (!item_context.is_trash)
-                {
                 {
                     Path folder_path = item_context.item_path.getParent();
 
@@ -302,6 +305,9 @@ public abstract class Item implements Icon_destination
                                 Window_builder.additional_no_past(item_context.application, Window_type.File_system_diskview, new Path_list_provider_for_file_system(folder_path, item_context.context), item_context.context);
                             }, context_menu, item_context.context);
                 }
+
+
+
                 create_open_with_system_menu_item(context_menu, item_context);
                 create_open_with_web_browser_menu_item(context_menu, item_context);
                 create_rename_menu_item(item_context, local_button, local_label, context_menu);
@@ -322,7 +328,9 @@ public abstract class Item implements Icon_destination
 
                 create_edit_color_menu_item(context_menu, item_context);
             }
-        } else {
+        }
+        else
+        {
 
             // this is for a FILE
             if (Guess_file_type.is_this_path_extension_an_image(item_context.item_path, item_context.context)) {
@@ -506,6 +514,8 @@ public abstract class Item implements Icon_destination
     {
         //logger.log(Stack_trace_getter.get_stack_trace("give_a_menu_to_the_button "));
         local_button.setOnContextMenuRequested((ContextMenuEvent event) -> {
+
+
             if (dbg) {
                 if (item_context.item_path == null) {
                     item_context.context.log_with_stack_trace((""));

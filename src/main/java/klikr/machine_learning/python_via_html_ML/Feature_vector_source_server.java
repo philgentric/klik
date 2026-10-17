@@ -1,8 +1,10 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.machine_learning.feature_vector;
+package klikr.machine_learning.python_via_html_ML;
 
+import klikr.machine_learning.feature_vector.Feature_vector_double;
+import klikr.machine_learning.feature_vector.Feature_vector_source;
 import klikr.util.Kontext;
 import klikr.util.Shared_services;
 import klikr.util.execute.actor.Actor_engine;

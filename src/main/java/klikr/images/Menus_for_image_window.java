@@ -11,7 +11,7 @@ import javafx.scene.input.KeyCombination;
 import klikr.Klikr_application;
 import klikr.Window_type;
 import klikr.Window_builder;
-import klikr.machine_learning.ML_server_type;
+import klikr.machine_learning.python_via_html_ML.ML_server_type;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.Check_remaining_RAM;

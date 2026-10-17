@@ -102,6 +102,16 @@ dependencies {
     implementation("app.photofox.vips-ffm:vips-ffm-core:1.9.1")
     // for monaco web browser editor
     implementation("io.javalin:javalin:6.4.0")
+
+    // ---- full_java_ML: in-process ML replacing the Python HTTP servers ----
+    // ONNX Runtime (JVM) for MobileNetV3 + FaceNet embeddings.
+    // Single artifact bundles native libs for Win/Linux/macOS (x64 + arm64).
+    implementation 'com.microsoft.onnxruntime:onnxruntime:1.20.0'
+    // OpenCV via JavaCV/JavaCPP for Haar + YuNet face detection and image I/O.
+    // 'opencv-platform' bundles natives for all OSes (compiles everywhere out of
+    // the box). To shrink installers, replace with a per-OS classifier build,
+    // e.g. 'org.bytedeco:opencv:4.10.0-1.5.11:macosx-arm64' + matching javacpp.
+    implementation 'org.bytedeco:opencv-platform:4.10.0-1.5.11'
 }
 
 tasks.register('klikr', JavaExec) {

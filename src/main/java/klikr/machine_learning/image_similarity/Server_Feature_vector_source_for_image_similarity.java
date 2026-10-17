@@ -3,29 +3,25 @@
 
 package klikr.machine_learning.image_similarity;
 
-import javafx.stage.Window;
-import klikr.machine_learning.Load_balancer;
+import klikr.machine_learning.python_via_html_ML.Load_balancer;
 import klikr.machine_learning.feature_vector.Feature_vector_double;
-import klikr.machine_learning.monitoring.UDP_traffic_monitor;
-import klikr.machine_learning.ML_server_type;
+import klikr.machine_learning.python_via_html_ML.monitoring.UDP_traffic_monitor;
+import klikr.machine_learning.python_via_html_ML.ML_server_type;
 import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.Kontext;
-import klikr.util.execute.actor.Aborter;
-import klikr.machine_learning.feature_vector.Feature_vector;
-import klikr.machine_learning.feature_vector.Feature_vector_source_server;
-import klikr.util.log.Logger;
+import klikr.machine_learning.python_via_html_ML.Feature_vector_source_server;
 
 import java.nio.file.Path;
 import java.util.Optional;
 
 //**********************************************************
-public class Feature_vector_source_for_image_similarity extends Feature_vector_source_server
+public class Server_Feature_vector_source_for_image_similarity extends Feature_vector_source_server
 //**********************************************************
 {
 
     //**********************************************************
-    public Feature_vector_source_for_image_similarity(Kontext context)
+    public Server_Feature_vector_source_for_image_similarity(Kontext context)
     //**********************************************************
     {
         super(context);
@@ -33,7 +29,7 @@ public class Feature_vector_source_for_image_similarity extends Feature_vector_s
         {
             UDP_traffic_monitor.start_servers_monitoring(context);
         }
-        //logger.log(Stack_trace_getter.get_stack_trace("Feature_vector_source_for_image_similarity"));
+        //logger.log(Stack_trace_getter.get_stack_trace("Server_Feature_vector_source_for_image_similarity"));
     }
 
     //**********************************************************

@@ -46,7 +46,6 @@ public class Item_folder extends Item implements Icon_destination
 {
     public static final boolean dbg = false;
     public final Button button;
-    //public Label label;
     public String text;
     private static final DateTimeFormatter date_time_formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 

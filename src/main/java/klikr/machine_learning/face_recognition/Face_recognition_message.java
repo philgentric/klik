@@ -3,7 +3,7 @@
 
 package klikr.machine_learning.face_recognition;
 
-import klikr.machine_learning.ML_server_type;
+import klikr.machine_learning.python_via_html_ML.ML_server_type;
 import klikr.util.execute.actor.Aborter;
 import klikr.util.execute.actor.Message;
 

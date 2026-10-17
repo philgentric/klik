@@ -1,4 +1,4 @@
-package klikr.machine_learning;
+package klikr.machine_learning.python_via_html_ML;
 
 //**********************************************************
 public record ML_server(int port, String uuid, String type)

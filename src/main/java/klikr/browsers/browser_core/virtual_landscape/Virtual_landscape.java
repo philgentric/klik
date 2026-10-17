@@ -50,6 +50,8 @@ import klikr.browsers.browser_core.icons.image_properties_cache.Rotation;
 import klikr.change.bookmarks.Bookmarks;
 import klikr.change.history.History_engine;
 import klikr.change.undo.Undo_for_moves;
+import klikr.machine_learning.image_similarity.Onnx_Feature_vector_source_for_image_similarity;
+import klikr.machine_learning.image_similarity.Server_Feature_vector_source_for_image_similarity;
 import klikr.path_lists.Files_and_folders;
 import klikr.path_lists.Path_list_provider_for_playlist;
 import klikr.util.Kontext;
@@ -76,7 +78,6 @@ import klikr.look.Look_and_feel;
 import klikr.look.Look_and_feel_manager;
 import klikr.look.my_i18n.My_I18n;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
-import klikr.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
 import klikr.path_lists.Path_list_provider;
 import klikr.settings.*;
 import klikr.settings.boolean_features.*;
@@ -968,7 +969,8 @@ public class Virtual_landscape
                 if (fv_cache != null)
                     return fv_cache;
 
-                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(context);
+                //Feature_vector_source fvs = new Server_Feature_vector_source_for_image_similarity(context);
+                Feature_vector_source fvs = new Onnx_Feature_vector_source_for_image_similarity(context);
                 List<Path> paths = path_list_provider.only_image_paths(force_rescan, Feature_cache.get(Feature.Show_hidden_files),context.aborter());
                 fv_cache = Feature_vector_cache
                         .preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, context);

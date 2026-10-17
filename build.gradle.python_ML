@@ -1,0 +1,291 @@
+/*
+ JVM "classic" build for klik
+
+0. cp build.gradle.broken.jvm build.gradle.broken
+
+1. make sure you have a JDK with javafx bundled:
+
+sdk install java 25.fx-zulu
+
+2. Enjoy!
+
+start klik 'standalone' with:
+
+gradle klik
+
+start audio_player 'standalone' with:
+
+gradle audio_player
+
+start the launcher with:
+
+gradle run
+
+COSMETIC: to get 'live' transmission
+of UI properties (style, font, etc) to work,
+you need to start the launcher first as it acts
+as a dispatcher for these properties.
+
+
+*/
+
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.gradleup.shadow' version '9.0.1'
+    //id 'org.beryx.jlink' version '2.24.0'       // Beryx jlink plugin
+}
+
+java {
+    sourceCompatibility = '26'
+    targetCompatibility = '26'
+}
+
+
+
+version = '1.0' // application_version
+group = 'klikr'
+
+// ---------------------------------------------------------------
+// Build-time code version: commit count + short hash, written to
+// build/generated/version/version.properties and packaged into the
+// jar as /klikr/version.properties, so installed apps (jpackage)
+// can show it without git.
+// ---------------------------------------------------------------
+def gitCommitCount = providers.exec {
+    commandLine 'git', 'rev-list', '--count', 'HEAD'
+    ignoreExitValue = true // e.g. building from a source zip without .git
+}.standardOutput.asText.map { it.trim() ?: 'unknown' }
+
+def gitShortHash = providers.exec {
+    commandLine 'git', 'rev-parse', '--short', 'HEAD'
+    ignoreExitValue = true
+}.standardOutput.asText.map { it.trim() ?: 'unknown' }
+
+def generateVersionProps = tasks.register('generateVersionProps', WriteProperties) {
+    destinationFile = layout.buildDirectory.file('generated/version/version.properties')
+    property 'version', project.version.toString()
+    property 'commit_count', gitCommitCount
+    property 'commit_hash', gitShortHash
+}
+
+tasks.named('processResources') {
+    from(generateVersionProps) {
+        into 'klikr'
+    }
+}
+
+
+javafx {
+    version = "26"
+    modules = [ 'javafx.base', 'javafx.graphics', 'javafx.controls', 'javafx.fxml','javafx.media','javafx.web' ]
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // MessagePack
+    implementation 'org.msgpack:msgpack-core:0.9.8'
+    // EXIF reader
+    implementation 'com.drewnoakes:metadata-extractor:2.20.0'
+    // Cache
+    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.2'
+    // moving folders across different drives
+    implementation group: 'commons-io', name: 'commons-io', version: '2.19.0'
+    // for writing png files without AWT
+    implementation 'ar.com.hjg:pngj:2.1.0'
+    // for VIPS image rescaling
+    implementation("app.photofox.vips-ffm:vips-ffm-core:1.9.1")
+    // for monaco web browser editor
+    implementation("io.javalin:javalin:6.4.0")
+}
+
+tasks.register('klikr', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.Klikr_application'
+    classpath(sourceSets.main.runtimeClasspath)
+    group = 'applications'
+    //jvmArgs = ['--enable-native-access=ALL-UNNAMED', '-Djava.library.path=/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib']
+
+    doFirst {
+        println 'doFirst start'
+
+        def props   = new Properties()
+        def dir     = new File(System.getProperty('user.home'), '.klikr')
+        def file    = new File(dir, 'ram.properties')
+
+        // 1️⃣ Make sure the file exists
+        if (!file.exists())
+        {
+            println "${file} not found – using default JVM arguments."
+            return;
+        }
+
+        // Load it safely
+        try {
+            file.withInputStream { stream -> props.load(stream) }
+            println "doFirst props loaded: ${props}"
+        } catch (Exception e) {
+            println "Failed to load ${file}: ${e.message}"
+            // Optional: decide whether to abort or continue
+        }
+        // Pull the property, validate it, and set the flag
+        final int DEFAULT_RAM_GB = 2
+
+        def raw = props.getProperty('max_RAM_in_GBytes')
+        if (!raw) {
+            println "Property 'max_RAM_in_GBytes' missing – using default (${DEFAULT_RAM_GB}G)."
+            return
+        }
+
+        // try to parse the value
+        Integer ramInGb
+        try {
+            ramInGb = raw.toInteger()
+        } catch (NumberFormatException nfe) {
+            println "'max_RAM_in_GBytes' is not an integer: '${raw}'. Ignoring."
+            return
+        }
+
+        // validate the range
+        if (ramInGb <= 0) {
+            println "'max_RAM_in_GBytes' must be > 0 – got ${ramInGb}. Ignoring."
+            return
+        }
+
+        // All good – set the flag
+        println "doFirst found max_RAM_in_GBytes: ${ramInGb}G"
+        jvmArgs "-Xmx${ramInGb}G"
+
+        // If you need to return something from doFirst, put it here.
+        return
+    }
+}
+
+
+tasks.register('old_audio_player', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.audio.old_player.Audio_player_application'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+tasks.register('song_playlist_application', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.audio.Song_playlist_application'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
+tasks.register('Test_boolean_preferences', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.javalin.boolean_preferences.Test_boolean_preferences'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
+
+
+
+tasks.register('simple_audio', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.audio.simple_player.Simple_audio_player_application'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+tasks.register('image_playlist_app', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.images.Image_playlist_app'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+tasks.register('in3D', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.in3D.The_main_circular_3'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
+tasks.register('mmap', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.util.mmap.Mmap_test'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
+tasks.register('monaco', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.javalin.monaco.Javalin_monaco_app'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+tasks.register('undos', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.javalin.undos.Javalin_undos_app'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+tasks.register('history', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'klikr.javalin.history.Javalin_history_app'
+    classpath = sourceSets.main.runtimeClasspath
+    group = 'applications'
+    return
+}
+
+
+
+application {
+    mainClass = "klikr.Klikr_application"
+}
+
+run{
+    standardInput = System.in
+    classpath = sourceSets.main.runtimeClasspath
+    //systemProperty 'java.library.path' , '/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib'
+    //jvmArgs = ['--enable-native-access=ALL-UNNAMED','-Djava.library.path=/usr/local/lib:/opt/homebrew/Cellar/vips/8.17.2/lib']
+}
+
+tasks.register('javalin_history_test', JavaExec) {
+    mainClass = 'klikr.javalin.active_list.Javalin_history_and_undo_app'
+    classpath(sourceSets.main.runtimeClasspath)
+    group = 'test-applications'
+}
+
+shadowJar {
+    archiveFileName.set("klikr.jar")
+    manifest {
+        attributes(
+                'Main-Class': 'klikr.Klikr_application',
+                'Implementation-Version' : project.version,
+                'JavaFX-Modules': ['javafx.base','javafx.graphics','javafx.controls','javafx.fxml', 'javafx.media', 'javafx.web']
+        )
+    }
+    mergeServiceFiles()
+    //dependencies {
+    //    include(dependency('ar.com.hjg:pngj:2.1.0'))
+    //}
+    //relocate 'ar.com.hjg.pngj', 'klik.ar.com.hjg.pngj'
+}
+

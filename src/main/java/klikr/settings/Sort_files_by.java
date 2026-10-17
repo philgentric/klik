@@ -82,11 +82,11 @@ public enum Sort_files_by {
         {
             /*
             case SIMILARITY_BY_PURSUIT: {
-                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner, loger);
+                Feature_vector_source fvs = new Server_Feature_vector_source_for_image_similarity(owner, loger);
                 return get_similarity_comparator_by_pursuit(fvs, path_list_provider, path_comparator_source, image_properties_cache, owner, x, y, aborter, loger);
             }
             case SIMILARITY_BY_PAIRS: {
-                Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(owner, loger);
+                Feature_vector_source fvs = new Server_Feature_vector_source_for_image_similarity(owner, loger);
                 return get_similarity_comparator_pairs_of_closests(fvs, path_list_provider, owner, x, y, aborter, loger);
             }*/
             case FILE_NAME:

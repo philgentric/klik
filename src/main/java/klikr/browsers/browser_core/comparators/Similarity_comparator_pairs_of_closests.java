@@ -3,7 +3,7 @@
 
 package klikr.browsers.browser_core.comparators;
 
-//SOURCES ../../image_ml/image_similarity/Feature_vector_source_for_image_similarity.java;
+//SOURCES ../../image_ml/image_similarity/Server_Feature_vector_source_for_image_similarity.java;
 
 import klikr.util.Kontext;
 import klikr.util.P2S;

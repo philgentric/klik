@@ -1,12 +1,11 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.machine_learning.face_recognition;
+package klikr.machine_learning.python_via_html_ML;
 
 import javafx.scene.image.Image;
-import klikr.machine_learning.Load_balancer;
-import klikr.machine_learning.ML_server_type;
-import klikr.machine_learning.monitoring.UDP_traffic_monitor;
+import klikr.machine_learning.face_recognition.Face_recognition_in_image_status;
+import klikr.machine_learning.python_via_html_ML.monitoring.UDP_traffic_monitor;
 import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.Kontext;
@@ -35,7 +34,7 @@ public class Face_detector
     private static final boolean ultra_dbg = false;
     static final int MINIMUM_ACCEPTABLE_FACE_SIZE = 200;
 
-    record Face_detection_result(Image image, Face_recognition_in_image_status status){}
+    public record Face_detection_result(Image image, Face_recognition_in_image_status status){}
 
     static long start;
     static long total_server_ns = 0;

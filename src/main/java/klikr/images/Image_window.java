@@ -17,15 +17,15 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import klikr.Klikr_application;
 import klikr.Window_builder;
 import klikr.Window_type;
 import klikr.browsers.browser_core.Window_manager;
 import klikr.browsers.browser_core.icons.image_properties_cache.Rotation;
-import klikr.browsers.Browser_for_file_system_in_2D;
 import klikr.browsers.browser_core.comparators.Last_access_comparator;
 import klikr.browsers.browser_core.icons.image_properties_cache.Image_properties;
+import klikr.machine_learning.image_similarity.Onnx_Feature_vector_source_for_image_similarity;
+import klikr.machine_learning.image_similarity.Server_Feature_vector_source_for_image_similarity;
 import klikr.settings.Sort_files_by;
 import klikr.util.Kontext;
 import klikr.util.cache.RAM_caches;
@@ -42,7 +42,6 @@ import klikr.change.Change_gang;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.look.my_i18n.My_I18n;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
-import klikr.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
 import klikr.settings.Non_booleans_properties;
 import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
@@ -230,7 +229,8 @@ public class Image_window
             fv_cache_supplier = () ->
             {
                 if (fv_cache == null) {
-                    Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(context);
+                    //Feature_vector_source fvs = new Server_Feature_vector_source_for_image_similarity(context);
+                    Feature_vector_source fvs = new Onnx_Feature_vector_source_for_image_similarity(context);
                     List<Path> paths = path_list_provider.only_image_paths(false,Feature_cache.get(Feature.Show_hidden_files),context.aborter());
                     fv_cache = Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, path_list_provider, context);
                 }
@@ -970,7 +970,7 @@ public class Image_window
                 return;
             }
             the_image_view = new ImageView(local_image_context.image);
-            
+
             // if pix-for-pix was used on a very large image, the window length is very large too..
             // let us check and correct that
             Jfx_batch_injector.inject(() -> {

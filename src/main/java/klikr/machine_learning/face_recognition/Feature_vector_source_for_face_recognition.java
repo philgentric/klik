@@ -3,15 +3,11 @@
 
 package klikr.machine_learning.face_recognition;
 
-import javafx.stage.Window;
-import klikr.machine_learning.Load_balancer;
-import klikr.machine_learning.ML_server_type;
+import klikr.machine_learning.python_via_html_ML.Load_balancer;
+import klikr.machine_learning.python_via_html_ML.ML_server_type;
 import klikr.machine_learning.feature_vector.Feature_vector_double;
 import klikr.util.Kontext;
-import klikr.util.execute.actor.Aborter;
-import klikr.machine_learning.feature_vector.Feature_vector;
-import klikr.machine_learning.feature_vector.Feature_vector_source_server;
-import klikr.util.log.Logger;
+import klikr.machine_learning.python_via_html_ML.Feature_vector_source_server;
 
 import java.nio.file.Path;
 import java.util.Optional;

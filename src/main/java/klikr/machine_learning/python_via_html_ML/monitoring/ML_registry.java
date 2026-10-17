@@ -1,10 +1,10 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.machine_learning.monitoring;
+package klikr.machine_learning.python_via_html_ML.monitoring;
 
-import javafx.stage.Window;
-import klikr.machine_learning.*;
+import klikr.machine_learning.python_via_html_ML.ML_server;
+import klikr.machine_learning.python_via_html_ML.ML_server_type;
 import klikr.settings.boolean_features.Feature;
 import klikr.settings.boolean_features.Feature_cache;
 import klikr.util.Kontext;
@@ -14,7 +14,6 @@ import klikr.util.execute.Execute_result;
 import klikr.util.execute.Guess_OS;
 import klikr.util.execute.Operating_system;
 import klikr.util.log.Logger;
-import klikr.util.log.Stack_trace_getter;
 
 import java.io.*;
 import java.net.HttpURLConnection;

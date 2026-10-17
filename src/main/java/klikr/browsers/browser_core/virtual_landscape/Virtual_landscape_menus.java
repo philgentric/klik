@@ -31,6 +31,8 @@ import klikr.Window_builder;
 import klikr.audio.player.The_audio_player;
 import klikr.browsers.browser_core.items.Iconifiable_item_type;
 import klikr.browsers.browser_core.items.Item_context;
+import klikr.machine_learning.image_similarity.Onnx_Feature_vector_source_for_image_similarity;
+import klikr.machine_learning.image_similarity.Server_Feature_vector_source_for_image_similarity;
 import klikr.path_lists.Files_and_folders;
 import klikr.path_lists.Path_list_provider_for_playlist;
 import klikr.util.External_application;
@@ -66,7 +68,6 @@ import klikr.look.Look_and_feel_style;
 import klikr.look.my_i18n.My_I18n;
 import klikr.look.my_i18n.Language;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
-import klikr.machine_learning.image_similarity.Feature_vector_source_for_image_similarity;
 import klikr.machine_learning.song_similarity.Feature_vector_source_for_song_similarity;
 import klikr.settings.*;
 import klikr.settings.boolean_features.Booleans;
@@ -694,7 +695,8 @@ public class Virtual_landscape_menus
     {
         public Feature_vector_cache get() {
 
-            Feature_vector_source fvs = new Feature_vector_source_for_image_similarity(context);
+            //Feature_vector_source fvs = new Server_Feature_vector_source_for_image_similarity(context);
+            Feature_vector_source fvs = new Onnx_Feature_vector_source_for_image_similarity(context);
 
             List<Path> paths = virtual_landscape.path_list_provider.only_image_paths(false, Feature_cache.get(Feature.Show_hidden_files),context.aborter());
             return Feature_vector_cache.preload_all_feature_vector_in_cache(fvs, paths, virtual_landscape.path_list_provider, context);
