@@ -3,7 +3,7 @@
 
 //SOURCES ../About_klik_stage.java
 //SOURCES ../Icon_size.java
-//SOURCES ../../image_ml/face_recognition/Face_recognition_service.java
+//SOURCES ../../image_ml/face_recognition/Python_HTML_Face_recognition_service.java
 //SOURCES ../../image_ml/ML_servers_util.java
 //SOURCES ../../image_ml/image_similarity/Similarity_cache.java
 //SOURCES ../../image_ml/image_similarity/Feature_vector_cache.java
@@ -31,8 +31,9 @@ import klikr.Window_builder;
 import klikr.audio.player.The_audio_player;
 import klikr.browsers.browser_core.items.Iconifiable_item_type;
 import klikr.browsers.browser_core.items.Item_context;
+import klikr.machine_learning.ONNX_java_ML.Onnx_face_recognition_service;
+import klikr.machine_learning.face_recognition.Face_recognition_service;
 import klikr.machine_learning.image_similarity.Onnx_Feature_vector_source_for_image_similarity;
-import klikr.machine_learning.image_similarity.Server_Feature_vector_source_for_image_similarity;
 import klikr.path_lists.Files_and_folders;
 import klikr.path_lists.Path_list_provider_for_playlist;
 import klikr.util.External_application;
@@ -58,7 +59,6 @@ import klikr.change.history.History_item;
 import klikr.change.undo.Undo_for_moves;
 import klikr.change.undo.Undo_item;
 import klikr.util.deduplicate.Deduplication_engine;
-import klikr.machine_learning.face_recognition.Face_recognition_service;
 import klikr.machine_learning.deduplication.Deduplication_by_similarity_engine;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.images.Image_context;
@@ -841,7 +841,7 @@ public class Virtual_landscape_menus
         String key = "Add_all_images_to_face_recognition_training_set";
         MenuItem item = Menu_items.make_menu_item(key,true,null,
         event -> {
-            Face_recognition_service i = Face_recognition_service.get_instance(virtual_landscape.application, context);
+            Face_recognition_service i = Onnx_face_recognition_service.get_instance(virtual_landscape.application, context);
             context.log(Logger.error+"NOT IMPLEMENTED add_all_pictures_to_training_set for "+virtual_landscape.path_list_provider.get_key());
 
         },context);
@@ -855,7 +855,7 @@ public class Virtual_landscape_menus
     {
         return Menu_items.make_menu_item(
                 "Save_Face_Recognition",true,null,
-                event -> Face_recognition_service.save(),
+                event -> Onnx_face_recognition_service.save(),
                 context);
     }
 
@@ -865,7 +865,7 @@ public class Virtual_landscape_menus
     {
         return Menu_items.make_menu_item(
                 "Load_Face_Recognition",true,null,
-                event -> Face_recognition_service.load(virtual_landscape.application, context),
+                event -> Onnx_face_recognition_service.load(virtual_landscape.application, context),
                 context);
 
     }
@@ -877,7 +877,7 @@ public class Virtual_landscape_menus
     {
         return Menu_items.make_menu_item(
                 "Start_New_Face_Recognition",true,null,
-                event -> Face_recognition_service.start_new(virtual_landscape.application, context),
+                event -> Onnx_face_recognition_service.start_new(virtual_landscape.application, context),
                 context);
     }
 
@@ -888,7 +888,7 @@ public class Virtual_landscape_menus
     {
         return Menu_items.make_menu_item(
                 "Auto_Face_Recognition",true,null,
-                event -> Face_recognition_service.auto(virtual_landscape.application, Path.of(virtual_landscape.path_list_provider.get_key()),context),context);
+                event -> Onnx_face_recognition_service.auto(virtual_landscape.application, Path.of(virtual_landscape.path_list_provider.get_key()),context),context);
 
     }
 
@@ -901,7 +901,7 @@ public class Virtual_landscape_menus
 
         return Optional.of(Menu_items.make_menu_item(
                 "Do_Face_Recognition_On_Whole_Folder",true,null,
-                event -> Face_recognition_service.do_folder(virtual_landscape.application, p.get(),context),
+                event -> Onnx_face_recognition_service.do_folder(virtual_landscape.application, p.get(),context),
                 context));
 
     }

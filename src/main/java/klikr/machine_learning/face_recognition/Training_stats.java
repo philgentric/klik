@@ -10,14 +10,14 @@ public class Training_stats
 //**********************************************************
 {
 
-    AtomicInteger skipped = new AtomicInteger(0);
-    AtomicInteger error = new AtomicInteger(0);
-    AtomicInteger no_face_detected = new AtomicInteger(0);
-    AtomicInteger face_wrongly_recognized_recorded = new AtomicInteger(0);
-    AtomicInteger face_correctly_recognized_not_recorded = new AtomicInteger(0);
+    public AtomicInteger skipped = new AtomicInteger(0);
+    public AtomicInteger error = new AtomicInteger(0);
+    public AtomicInteger no_face_detected = new AtomicInteger(0);
+    public AtomicInteger face_wrongly_recognized_recorded = new AtomicInteger(0);
+    public AtomicInteger face_correctly_recognized_not_recorded = new AtomicInteger(0);
 
     // to check the total:
-    AtomicInteger done = new AtomicInteger(0);
+    public AtomicInteger done = new AtomicInteger(0);
 
     //**********************************************************
     public String to_string()

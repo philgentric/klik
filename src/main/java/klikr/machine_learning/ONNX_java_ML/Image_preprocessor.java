@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.machine_learning.full_java_ML;
+package klikr.machine_learning.ONNX_java_ML;
 
 import klikr.util.Kontext;
 import org.bytedeco.opencv.global.opencv_imgcodecs;

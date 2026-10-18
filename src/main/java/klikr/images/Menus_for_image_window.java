@@ -11,6 +11,8 @@ import javafx.scene.input.KeyCombination;
 import klikr.Klikr_application;
 import klikr.Window_type;
 import klikr.Window_builder;
+import klikr.machine_learning.ONNX_java_ML.Onnx_face_recognition_service;
+import klikr.machine_learning.face_recognition.Face_recognition_service;
 import klikr.machine_learning.python_via_html_ML.ML_server_type;
 import klikr.path_lists.Path_list_provider_for_file_system;
 import klikr.settings.boolean_features.Feature_cache;
@@ -22,7 +24,6 @@ import klikr.browsers.browser_core.items.Item_file_with_icon;
 import klikr.change.Redo_same_move_engine;
 import klikr.change.undo.Undo_for_moves;
 import klikr.machine_learning.face_recognition.Face_recognition_message;
-import klikr.machine_learning.face_recognition.Face_recognition_service;
 import klikr.machine_learning.feature_vector.Feature_vector_cache;
 import klikr.look.my_i18n.My_I18n;
 import klikr.settings.boolean_features.Feature;
@@ -348,7 +349,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-        Face_recognition_service recognition_services = Face_recognition_service.get_instance(Klikr_application.application,image_window.context);
+        Face_recognition_service recognition_services = Onnx_face_recognition_service.get_instance(Klikr_application.application,image_window.context);
         if ( recognition_services == null) return;
 
         //AtomicInteger count_for_label = new AtomicInteger(0);// not used
@@ -365,7 +366,7 @@ public class Menus_for_image_window
                     true,
                     image_window.context.aborter(), null);
 
-            Face_recognition_service.recognize(msg);
+            Onnx_face_recognition_service.recognize(msg);
         }
     }
     //**********************************************************
@@ -373,7 +374,7 @@ public class Menus_for_image_window
     //**********************************************************
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-        Face_recognition_service recognition_services = Face_recognition_service.get_instance(Klikr_application.application,image_window.context);
+        Face_recognition_service recognition_services = Onnx_face_recognition_service.get_instance(Klikr_application.application,image_window.context);
         if ( recognition_services == null) return;
 
         //AtomicInteger count_for_label = new AtomicInteger(0);// not used
@@ -387,7 +388,7 @@ public class Menus_for_image_window
                 true,
                 image_window.context.aborter(), null);
 
-        Face_recognition_service.recognize(msg);
+        Onnx_face_recognition_service.recognize(msg);
     }
 
     //**********************************************************
@@ -395,8 +396,8 @@ public class Menus_for_image_window
     //**********************************************************
     {
         if ( image_window.image_display_handler.get_image_context().isEmpty()) return;
-        Face_recognition_service recognition_services = Face_recognition_service.get_instance(Klikr_application.application,image_window.context);
-        if (recognition_services == null) return;
+        Onnx_face_recognition_service recognition_service = Onnx_face_recognition_service.get_instance(Klikr_application.application,image_window.context);
+        if (recognition_service == null) return;
 
         Face_recognition_message msg = new Face_recognition_message(
                 image_window.image_display_handler.get_image_context().get().path.toFile(),
@@ -404,7 +405,7 @@ public class Menus_for_image_window
                 null,
                 true,
                 image_window.context.aborter(), null);
-        recognition_services.run_face_recognition_actor(msg);
+        recognition_service.run_face_recognition_actor(msg);
     }
 
 

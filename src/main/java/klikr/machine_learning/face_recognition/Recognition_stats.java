@@ -10,12 +10,12 @@ public class Recognition_stats
 //**********************************************************
 {
     long start = System.currentTimeMillis();
-    AtomicInteger no_face_detected = new AtomicInteger(0);
-    AtomicInteger face_not_recognized = new AtomicInteger(0);
-    AtomicInteger face_recognized = new AtomicInteger(0);
-    AtomicInteger error = new AtomicInteger(0);
-    AtomicInteger skipped = new AtomicInteger(0);
-    AtomicInteger done = new AtomicInteger(0);
+    public AtomicInteger no_face_detected = new AtomicInteger(0);
+    public AtomicInteger face_not_recognized = new AtomicInteger(0);
+    public AtomicInteger face_recognized = new AtomicInteger(0);
+    public AtomicInteger error = new AtomicInteger(0);
+    public AtomicInteger skipped = new AtomicInteger(0);
+    public AtomicInteger done = new AtomicInteger(0);
 
     //**********************************************************
     public String to_string()

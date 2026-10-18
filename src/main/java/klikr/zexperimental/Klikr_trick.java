@@ -95,7 +95,7 @@
 //SOURCES change/history/History_item.java
 //SOURCES change/undo/Undo_for_moves.java
 //SOURCES change/undo/Undo_item.java
-//SOURCES image_ml/face_recognition/Face_recognition_service.java
+//SOURCES image_ml/face_recognition/Python_HTML_Face_recognition_service.java
 //SOURCES images/*.java
 //SOURCES images/decoding/Exif_metadata_extractor.java
 //SOURCES change/bookmarks/Bookmarks.java

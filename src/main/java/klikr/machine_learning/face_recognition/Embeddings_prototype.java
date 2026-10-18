@@ -5,6 +5,7 @@ package klikr.machine_learning.face_recognition;
 
 import javafx.scene.image.Image;
 import klikr.machine_learning.feature_vector.Feature_vector;
+import klikr.machine_learning.python_via_html_ML.Python_HTML_Face_recognition_service;
 import klikr.util.files_and_paths.Extensions;
 import klikr.util.log.Logger;
 
@@ -26,7 +27,7 @@ public interface Embeddings_prototype
     static Path make_prototype_path(Path face_recognizer_path, String name)
     //**********************************************************
     {
-        return Path.of(face_recognizer_path.toAbsolutePath().toString() , Extensions.add(name,Face_recognition_service.EXTENSION_FOR_EP));
+        return Path.of(face_recognizer_path.toAbsolutePath().toString() , Extensions.add(name, Python_HTML_Face_recognition_service.EXTENSION_FOR_EP));
     }
 
     //**********************************************************

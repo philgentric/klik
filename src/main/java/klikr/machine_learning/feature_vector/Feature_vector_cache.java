@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 //**********************************************************
 public class Feature_vector_cache implements Clearable_RAM_cache
@@ -47,6 +48,9 @@ public class Feature_vector_cache implements Clearable_RAM_cache
 
     private final int instance_number;
     private static AtomicInteger instance_number_generator = new AtomicInteger(0);
+    public static long start = System.nanoTime();
+    static LongAdder tx_count = new LongAdder();
+    static LongAdder SUM_dur_us = new LongAdder(); // microseconds
 
 
     //**********************************************************
@@ -164,6 +168,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
         Feature_vector_build_message imp = new Feature_vector_build_message(p,this,context);
         if ( wait_if_needed)
         {
+            long local_start = System.nanoTime();
             //logger.log("blocking FV creation call for "+p);
             feature_vector_creation_actor.run(imp); // blocking call
             if (tr != null) tr.has_ended("done after blocking", null);
@@ -174,8 +179,11 @@ public class Feature_vector_cache implements Clearable_RAM_cache
                 logger.log(Logger.error+"PANIC null Feature_vector in cache after blocking call for "+p);
                 return null;
             }
-            Feature_vector x = new Feature_vector_double(bytes_to_doubles(the_bytes),"made");
-            return x;
+            long local_end = System.nanoTime();
+            long local_dur_us = (local_end - local_start)/1000;
+            SUM_dur_us.add(local_dur_us);
+            tx_count.add(1);
+            return new Feature_vector_double(bytes_to_doubles(the_bytes),"made");
         }
         Actor_engine.run(feature_vector_creation_actor,imp,tr,logger);
         return null;
@@ -208,13 +216,12 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     }
 
     //**********************************************************
-    public List<Path> reload_cache_from_disk(List<Path> paths, AtomicInteger in_flight, Aborter browser_aborter)
+    public List<Path> get_missing_files_not_in_mmap(List<Path> paths, AtomicInteger in_flight)
     //**********************************************************
     {
         List<Path> missing = new ArrayList<>();
-        logger.log((tag +" reload_cache_from_disk"));
+        //logger.log((tag +" reload_cache_from_disk"));
 
-        int reloaded = 0;
         in_flight.set(paths.size());
 
         for ( Path p : paths)
@@ -223,38 +230,9 @@ public class Feature_vector_cache implements Clearable_RAM_cache
             byte[] bytes= Mmap.instance.read_bytes(key);
             if ( bytes == null)
             {
-                logger.log("no feature vector in mmap for "+key);
                 missing.add(p);
-                continue;
             }
-            /*
-            double[] vector = bytes_to_doubles(bytes);
-            Feature_vector_double fv = new Feature_vector_double(vector);
-
-            the_cache.put(key, fv);
-            in_flight.decrementAndGet();
-            reloaded++;
-            if ( reloaded%1000==0)
-                logger.log(reloaded+" feature vectors loaded from disk");
-            */
         }
-
-/*
-        //if (dbg)
-            logger.log((tag +": "+reloaded+" feature vectors reloaded from file"));
-
-        if ( dbg)
-        {
-            logger.log("\n\n\n********************* "+ tag + " CACHE************************");
-            for (String s  : the_cache.keySet())
-            {
-                logger.log(s+" => "+ the_cache.get(s));
-                logger.log(s+" => "+ new Feature_vector_double(bytes_to_doubles(Mmap.instance.read_bytes(s))));
-            }
-            logger.log("****************************************************************\n\n\n");
-        }
-
- */
         return missing;
     }
 
@@ -296,8 +274,7 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     private void read_from_disk_and_update(List<Path>paths , AtomicInteger in_flight, Kontext context)
     //**********************************************************
     {
-        List<Path> missing = reload_cache_from_disk(paths, in_flight,context.aborter());
-        //logger.log("read_from_disk "+ the_cache.size()+" fv reloaded from disk");
+        List<Path> missing = get_missing_files_not_in_mmap(paths, in_flight);
         update( missing, in_flight, context);
     }
 
@@ -308,18 +285,8 @@ public class Feature_vector_cache implements Clearable_RAM_cache
     {
         if ( ultra_dbg) logger.log("update: "+missing_paths.size()+" missing fv to be rebuild");
 
-        Feature_vector_source_server.start  = System.nanoTime();
-        /*List<Path> missing_paths = new ArrayList<>();
-        for (Path p : missing)
-        {
-            //if ( !Guess_file_type.is_file_an_image(p.toFile())) continue;
-            if ( !the_cache.containsKey(p.getFileName().toString()))
-            {
-                if ( ultra_dbg) logger.log("missing FV for :"+p);
-                missing_paths.add(p);
-            }
-        }
-        */
+        start  = System.nanoTime();
+
 
         in_flight.addAndGet(missing_paths.size()-1); //-1 to compensate the +1 "keep alive" in preload_all_feature_vector_in_cache
         CountDownLatch cdl = new CountDownLatch(missing_paths.size());
@@ -343,9 +310,18 @@ public class Feature_vector_cache implements Clearable_RAM_cache
         }
 
         Mmap.instance.save_index();
-        Feature_vector_source_server.print_embeddings_stats(logger);
+        print_embeddings_stats(logger);
 
     }
 
+    //**********************************************************
+    public static void print_embeddings_stats(Logger logger)
+    //**********************************************************
+    {
+        long end = System.nanoTime();
+        double dur_us = (double)(end - start)/1_000.0;
+        logger.log("feature vector TX_rate="+1_000_000*tx_count.doubleValue()/(double)dur_us+" tx/s (tx_count="+tx_count+" for: "+dur_us/1_000_000+" seconds)");
+        logger.log("total server call time="+ SUM_dur_us.doubleValue()/1_000_000 +"s, average concurrency="+SUM_dur_us.doubleValue() /dur_us);
+    }
 
 }

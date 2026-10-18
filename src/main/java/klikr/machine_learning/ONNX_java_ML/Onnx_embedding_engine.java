@@ -1,17 +1,19 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.machine_learning.full_java_ML;
+package klikr.machine_learning.ONNX_java_ML;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
+import ai.onnxruntime.providers.CoreMLFlags;
 import klikr.util.Kontext;
 
 import java.nio.FloatBuffer;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
 
 //**********************************************************
@@ -86,10 +88,16 @@ public final class Onnx_embedding_engine
         try
         {
             OrtEnvironment env = OrtEnvironment.getEnvironment();
-            OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
-            opts.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
+            OrtSession.SessionOptions options = new OrtSession.SessionOptions();
+            options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
+            options.addCoreML(EnumSet.of(CoreMLFlags.CREATE_MLPROGRAM, CoreMLFlags.ENABLE_ON_SUBGRAPH));
+            options.setInterOpNumThreads(1);
+            options.setIntraOpNumThreads(10);
+            options.setMemoryPatternOptimization(true);
+
+
             // CoreML / CUDA execution providers could be added here per-OS.
-            OrtSession session = env.createSession(model.toString(), opts);
+            OrtSession session = env.createSession(model.toString(), options);
             String input_name = session.getInputNames().iterator().next();
             context.log("Onnx_embedding_engine: " + kind + " session ready (input='" + input_name + "')");
             return new Onnx_embedding_engine(kind, env, session, input_name);

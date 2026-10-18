@@ -28,9 +28,6 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
     // get_random_port is actually going to start servers, when needed
     protected abstract int get_random_port(Kontext context);
 
-    public static long start = System.nanoTime();
-    static LongAdder tx_count = new LongAdder();
-    static LongAdder SUM_dur_us = new LongAdder(); // microseconds
 
     static final boolean monitoring_on = false;
 
@@ -58,7 +55,6 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                print_embeddings_stats(l);
             }
         };
         Actor_engine.execute(r, "Monitor embeddings stats",l);
@@ -75,7 +71,6 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
             }
         }
 
-        long local_start = System.nanoTime();
         if ( path == null)
         {
             context.log_with_stack_trace("BAD!");
@@ -103,22 +98,11 @@ public abstract class Feature_vector_source_server implements Feature_vector_sou
                 context.log("get_feature_vector_from_server_generic: FAILED because file does not exist: "+path);
             }
         }
-        long local_end = System.nanoTime();
-        long local_dur_us = (local_end - local_start)/1000;
-        SUM_dur_us.add(local_dur_us);
-        tx_count.add(1);
+
         return op;
     }
 
-    //**********************************************************
-    public static void print_embeddings_stats(Logger logger)
-    //**********************************************************
-    {
-        long end = System.nanoTime();
-        double dur_us = (double)(end - start)/1_000.0;
-        logger.log("feature vector TX_rate="+1_000_000*tx_count.doubleValue()/(double)dur_us+" tx/s (tx_count="+tx_count+" for: "+dur_us/1_000_000+" seconds)");
-        logger.log("total server call time="+ SUM_dur_us.doubleValue()/1_000_000 +"s, average concurrency="+SUM_dur_us.doubleValue() /dur_us);
-    }
+
 
     //**********************************************************
     static Feature_vector_double parse_json(String response, Kontext context)

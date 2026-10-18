@@ -7,20 +7,18 @@
 //SOURCES ./Feature_vector_source_for_Face_recognition.java
 //SOURCES ./Face_detection_type.java
 //SOURCES ./Face_recognition_in_image_status.java
-//SOURCES ./Face_detector.java
+//SOURCES ./Python_HTML_Face_detector.java
 
 package klikr.machine_learning.face_recognition;
 
-import javafx.scene.image.Image;
+import klikr.machine_learning.python_via_html_ML.Python_HTML_Face_recognition_service;
 import klikr.util.execute.actor.*;
-import klikr.machine_learning.feature_vector.Feature_vector_source;
 import klikr.util.log.Logger;
 import klikr.util.log.Stack_trace_getter;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
 
 //**********************************************************
 public class Face_recognition_actor implements Actor
@@ -58,10 +56,10 @@ public class Face_recognition_actor implements Actor
 
         if ( frm.label != null)
         {
-            if ( service.label_to_prototype_count.get(frm.label) > Face_recognition_service.LIMIT_PER_LABEL)
+            if ( service.label_to_prototype_count_get(frm.label) > Python_HTML_Face_recognition_service.LIMIT_PER_LABEL)
             {
                 service.skipped();
-                logger.log("Face_recognition_actor, NOT performing recognition "+frm.file.getName()+" with label: "+frm.label+ " as there are too many prototypes already "+service.label_to_prototype_count.get(frm.label));
+                logger.log("Face_recognition_actor, NOT performing recognition "+frm.file.getName()+" with label: "+frm.label+ " as there are too many prototypes already "+service.label_to_prototype_count_get(frm.label));
                 return null;
             }
         }
@@ -76,6 +74,7 @@ public class Face_recognition_actor implements Actor
             tmp_image_to_be_deleted = service.just_recognize(frm.file,frm.label, frm.display_face_reco_window, frm.get_aborter());
         }
         /*
+        no clean up ...
         if ( tmp_image_to_be_deleted != null)
         {
             try {

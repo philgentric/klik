@@ -6,8 +6,8 @@ Replaces the four Python HTTP/ML servers with in-process JVM inference:
 |---|---|
 | `MobileNet_embeddings_server.py` | `Onnx_feature_vector_source` (MOBILENET) via ONNX Runtime |
 | `FaceNet_embeddings_server.py` | `Onnx_feature_vector_source` (FACENET) via ONNX Runtime |
-| `Haar_face_detection_server.py` (4 variants) | `Opencv_face_detector` (YuNet) |
-| `MTCNN_face_detection_server.py` | `Opencv_face_detector` (YuNet) |
+| `Haar_face_detection_server.py` (4 variants) | `Onnx_face_detector` (YuNet) |
+| `MTCNN_face_detection_server.py` | `Onnx_face_detector` (YuNet) |
 
 Face detection is now a **single** path: OpenCV's **YuNet** NN detector. It
 outperforms both the Haar cascades and MTCNN, so the Haar XMLs and MTCNN are no
@@ -24,7 +24,7 @@ the registry files, the UDP monitor, and the venv/pip install flow.
   (MobileNet) or NCHW (FaceNet) float tensor with the right normalization.
 - `Onnx_feature_vector_source` — implements the existing
   `Feature_vector_source` interface. Drop-in for `Feature_vector_source_server`.
-- `Opencv_face_detector` — YuNet detection, returns a cropped JavaFX `Image`
+- `Onnx_face_detector` — YuNet detection, returns a cropped JavaFX `Image`
   plus a `Face_recognition_in_image_status`, mirroring the existing
   `Face_detector.Face_detection_result` contract.
 

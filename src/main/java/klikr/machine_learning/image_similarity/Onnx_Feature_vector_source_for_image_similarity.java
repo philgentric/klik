@@ -5,14 +5,8 @@ package klikr.machine_learning.image_similarity;
 
 import klikr.machine_learning.feature_vector.Feature_vector_double;
 import klikr.machine_learning.feature_vector.Feature_vector_source;
-import klikr.machine_learning.full_java_ML.Onnx_embedding_engine;
-import klikr.machine_learning.full_java_ML.Onnx_feature_vector_source;
-import klikr.machine_learning.python_via_html_ML.Feature_vector_source_server;
-import klikr.machine_learning.python_via_html_ML.Load_balancer;
-import klikr.machine_learning.python_via_html_ML.ML_server_type;
-import klikr.machine_learning.python_via_html_ML.monitoring.UDP_traffic_monitor;
-import klikr.settings.boolean_features.Feature;
-import klikr.settings.boolean_features.Feature_cache;
+import klikr.machine_learning.ONNX_java_ML.Onnx_embedding_engine;
+import klikr.machine_learning.ONNX_java_ML.Onnx_feature_vector_source;
 import klikr.util.Kontext;
 import klikr.util.log.Logger;
 

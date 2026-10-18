@@ -4,6 +4,7 @@
 package klikr.machine_learning.python_via_html_ML;
 
 import javafx.scene.image.Image;
+import klikr.machine_learning.face_recognition.Face_detection_result;
 import klikr.machine_learning.face_recognition.Face_recognition_in_image_status;
 import klikr.machine_learning.python_via_html_ML.monitoring.UDP_traffic_monitor;
 import klikr.settings.boolean_features.Feature;
@@ -27,14 +28,13 @@ there are several possible configurations each is running on different servers,
 the selector is the port number see below
  */
 //**********************************************************
-public class Face_detector
+public class Python_HTML_Face_detector
 //**********************************************************
 {
     private static final boolean dbg = false;
     private static final boolean ultra_dbg = false;
     static final int MINIMUM_ACCEPTABLE_FACE_SIZE = 200;
 
-    public record Face_detection_result(Image image, Face_recognition_in_image_status status){}
 
     static long start;
     static long total_server_ns = 0;

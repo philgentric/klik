@@ -1,8 +1,9 @@
 // Copyright (c) 2025 Philippe Gentric
 // SPDX-License-Identifier: MIT
 
-package klikr.machine_learning.full_java_ML;
+package klikr.machine_learning.ONNX_java_ML;
 
+import klikr.machine_learning.face_recognition.Face_detection_result;
 import klikr.machine_learning.feature_vector.Feature_vector_double;
 import klikr.util.Kontext;
 import klikr.util.log.Simple_logger;
@@ -64,8 +65,8 @@ public final class Smoke_test
                 : "FAIL: MobileNet produced no vector");
 
         // 2b. face detection (YuNet) -> crop
-        Opencv_face_detector.Face_detection_result det =
-                Opencv_face_detector.detect_face(image, context);
+        Face_detection_result det =
+                Onnx_face_detector.detect_face(image, context);
         context.log("Face detection status: " + det.status());
 
         // 2c. face embedding (FaceNet) on the whole image (direct mode)

@@ -5,7 +5,7 @@
 package klikr.machine_learning.face_recognition;
 
 import javafx.scene.image.Image;
-import javafx.stage.Window;
+import klikr.machine_learning.python_via_html_ML.Python_HTML_Face_recognition_service;
 import klikr.util.Kontext;
 import klikr.util.execute.actor.Actor;
 import klikr.util.execute.actor.Message;
@@ -23,7 +23,7 @@ public class Prototype_adder_actor implements Actor
     private final Logger logger;
 
     //**********************************************************
-    Prototype_adder_actor(Face_recognition_service service, Logger logger)
+    public Prototype_adder_actor(Face_recognition_service service, Logger logger)
     //**********************************************************
     {
         this.service = service;
@@ -58,17 +58,17 @@ public class Prototype_adder_actor implements Actor
         String tag = label+ "_"+ UUID.randomUUID();
 
         Embeddings_prototype heavy_ep = new Heavy_embeddings_prototype(face, fv, label, tag);
-        heavy_ep.save(service.face_recognizer_path, logger);
+        heavy_ep.save(service.get_face_recognizer_path(), logger);
 
         // what we store is the version WITHOUT the image, to save RAM
         Embeddings_prototype ep = new Light_embeddings_prototype(fv, label, tag);
-        service.tag_to_prototype.put(tag,ep);
-        Integer x = service.label_to_prototype_count.get(label);
+        service.tag_to_prototype_put(tag,ep);
+        Integer x = service.label_to_prototype_count_get(label);
         if ( x == null) x = Integer.valueOf(0);
         x++;
-        service.label_to_prototype_count.put(label,x);
-        service.embeddings_prototypes.add(ep);
-        if ( !service.labels.contains(label)) service.labels.add(label);
+        service.label_to_prototype_count_put(label,x);
+        service.embeddings_prototypes_add(ep);
+        if ( !service.labels_contains(label)) service.labels_add(label);
         logger.log("added prototype image face with tag ="+tag);
         // for debug
         Utils.display(300, face,null,null,"debug",label,context);

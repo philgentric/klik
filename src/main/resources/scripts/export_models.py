@@ -2,7 +2,7 @@
 # Copyright (c) 2025 Philippe Gentric
 # SPDX-License-Identifier: MIT
 #
-# ONE-TIME model export for the pure-JVM ML (klikr.machine_learning.full_java_ML).
+# ONE-TIME model export for the pure-JVM ML (klikr.machine_learning.ONNX_java_ML).
 #
 # Produces the three .onnx files the Java code loads, into:
 #     src/main/resources/ml_models/
